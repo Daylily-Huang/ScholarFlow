@@ -4,12 +4,14 @@
   "description": "JSON Schema for literature-evidence-extraction Skill extracted facts and evidence ledger.",
   "type": "object",
   "required": [
+    "schema_version",
     "paper_metadata",
     "extraction_metadata",
     "evidence_records",
     "auditor_verdict"
   ],
   "properties": {
+    "schema_version": { "type": "string", "default": "1.0" },
     "paper_metadata": {
       "type": "object",
       "required": ["title", "authors", "year"],
@@ -70,7 +72,7 @@
           "field_id",
           "field_name",
           "extracted_value",
-          "evidence_level",
+          "support_type",
           "verbatim_quote",
           "status"
         ],
@@ -83,9 +85,20 @@
           },
           "assay_id": { "type": ["string", "null"] },
           "extracted_value": { "type": ["string", "number", "null"] },
+          "support_type": {
+            "type": "string",
+            "enum": ["EXPLICIT", "DERIVED", "REFERENCED", "NOT_REPORTED"],
+            "description": "How the field value is anchored in this paper text."
+          },
+          "evidence_strength": {
+            "type": ["string", "null"],
+            "enum": ["DIRECT_EMPIRICAL", "MODELED_EMPIRICAL", "AUTHOR_INTERPRETATION", "SECONDARY_EVIDENCE", "EXPERT_OPINION", "UNKNOWN", null],
+            "description": "Scientific strength of the claim itself in broader synthesis."
+          },
           "evidence_level": {
             "type": "string",
-            "enum": ["E1_EXPLICIT", "E2_DERIVED", "E3_REFERENCED", "E4_NR"]
+            "enum": ["E1_EXPLICIT", "E2_DERIVED", "E3_REFERENCED", "E4_NR"],
+            "description": "Backward-compatible alias for support_type."
           },
           "verbatim_quote": { "type": "string" },
           "source_type": {

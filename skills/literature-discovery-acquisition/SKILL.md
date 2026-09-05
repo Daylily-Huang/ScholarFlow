@@ -262,7 +262,7 @@ flowchart TD
 - [ ] 6. **数据源披露透明度**：诚实标明实际检索与受限商业库，提供人工补检式；
 - [ ] 7. **开源下载真实性**：若执行 Stage 8，本地 PDF 均通过 `%PDF-` 魔数与文件体量校验，无 HTML 伪装损坏文件；
 - [ ] 8. **硕博士学位论文履约核验**：严格按照 Grill-Me 确认的学位论文需求，落实专属检索式生成、高校知识库直链探测与台账标识；
-- [ ] 9. **PRISMA-S 16 项系统评价扩展标准机审**：严格对照 [prisma_s_checklist.md](references/prisma_s_checklist.md) 校验，在最终决议中输出 PRISMA-S 16 项合规评分卡（如 `16/16 FULLY COMPLIANT`）。
+- [ ] 9. **PRISMA-S 系统评价扩展标准机审**：对照 [prisma_s_checklist.md](references/prisma_s_checklist.md) 校验适用条目，在最终决议中输出 PRISMA-S 评分卡（按实际工作流标明适用项与合规等级，严禁未核验写死 16/16）；
 - [ ] 10. **浏览器兜底下载安全与凭据审计**（若执行 Stage 8B）：确认凭据未泄露、`.env` 在 `.gitignore` 中、下载文件通过校验、未下错文献、请求频率合规。
 
 审查员必须在报告末尾签署形式化核验决议（PASS 放行 / REJECT 驳回重修）。

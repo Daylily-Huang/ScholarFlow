@@ -70,6 +70,8 @@ def parse_openalex_item(item, snowball_role=None, seed_id=None):
     oa_status = item.get("open_access", {}).get("oa_status", "closed")
     
     rec = {
+        "schema_version": "1.0",
+        "record_id": "",
         "title": item.get("display_name") or item.get("title") or "Untitled",
         "authors": authors,
         "year": item.get("publication_year"),
@@ -82,6 +84,8 @@ def parse_openalex_item(item, snowball_role=None, seed_id=None):
         "abstract": abstract[:500] + "..." if len(abstract) > 500 else abstract,
         "citation_count": item.get("cited_by_count", 0),
         "source_databases": ["OpenAlex"],
+        "ingestion_method": "Snowballing" if snowball_role else "API_Automated",
+        "screening_status": "Uncertain",
         "evidence_level": "VERIFIED"
     }
     if snowball_role:
@@ -104,6 +108,7 @@ def query_openalex_headless(query_str, limit=25):
                 for idx, item in enumerate(data.get("results", [])):
                     rec = parse_openalex_item(item)
                     rec["id"] = f"REC{idx+1:03d}"
+                    rec["record_id"] = rec["id"]
                     records.append(rec)
     except Exception as e:
         sys.stderr.write(f"[-] OpenAlex headless query failed: {str(e)}\n")
@@ -152,6 +157,7 @@ def run_snowball_search(seed_identifier, limit=15):
 
     seed_rec = parse_openalex_item(seed_item, snowball_role="SEED_PAPER")
     seed_rec["id"] = "REC001"
+    seed_rec["record_id"] = "REC001"
     records.append(seed_rec)
     seed_openalex_id = seed_item.get("id")
 
@@ -169,6 +175,7 @@ def run_snowball_search(seed_identifier, limit=15):
                 for r_item in ref_data.get("results", []):
                     rec = parse_openalex_item(r_item, snowball_role="BACKWARD_REFERENCE", seed_id=seed_rec["doi"])
                     rec["id"] = f"REC{len(records)+1:03d}"
+                    rec["record_id"] = rec["id"]
                     records.append(rec)
         except Exception as e:
             sys.stderr.write(f"[-] Backward snowballing query failed: {str(e)}\n")
@@ -185,6 +192,7 @@ def run_snowball_search(seed_identifier, limit=15):
                 for f_item in f_data.get("results", []):
                     rec = parse_openalex_item(f_item, snowball_role="FORWARD_CITATION", seed_id=seed_rec["doi"])
                     rec["id"] = f"REC{len(records)+1:03d}"
+                    rec["record_id"] = rec["id"]
                     records.append(rec)
         except Exception as e:
             sys.stderr.write(f"[-] Forward snowballing query failed: {str(e)}\n")
@@ -210,14 +218,33 @@ def run_headless_search(query=None, snowball_seed=None, mode="deep", include_the
         "mode": mode,
         "theses_included": include_theses,
         "retrieved_count": len(candidates),
-        "prisma_s_compliant": True,
+        "prisma_s_audit": {
+            "checklist_version": "PRISMA-S-2021",
+            "applicable_items": 16,
+            "reported_items": [
+                "Item 1: Database name (OpenAlex)",
+                "Item 4: Search dates documented",
+                "Item 5: Full search query recorded",
+                "Item 10: Citation searching (backward/forward snowballing)",
+                "Item 12: Deduplication procedure defined"
+            ],
+            "unreported_items": [
+                "Item 2: Multi-database boolean string translation (requires user-assisted subscription search)",
+                "Item 9: PRESS peer review of search strategy"
+            ],
+            "compliance_level": "PARTIAL_AUTOMATED"
+        },
+        "grounding_controls": {
+            "audit_method": "API response structured anchoring",
+            "source_provenance": "OpenAlex Works API",
+            "hallucination_mitigation": "Direct JSON parsing without generative interpolation"
+        },
         "candidates": candidates,
         "metadata": {
             "agent_pipeline": "literature-discovery-acquisition",
             "version": "2.1.0",
-            "features": ["OpenAlex Headless", "Dual-Direction Snowballing", "PRISMA-S Compliant"],
-            "evidence_standards": "VERIFIED / INFERRED / UNVERIFIED",
-            "zero_hallucination_guarantee": True
+            "features": ["OpenAlex Headless", "Dual-Direction Snowballing", "PRISMA-S Informed Workflow"],
+            "evidence_standards": "VERIFIED / INFERRED / UNVERIFIED"
         }
     }
     

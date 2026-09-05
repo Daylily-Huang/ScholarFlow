@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ScholarFlowEvidenceRecord",
+  "description": "Standard schema for extracted evidence items with decoupled support type and evidence strength.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "evidence_id",
+    "record_id",
+    "field",
+    "extracted_value",
+    "support_type",
+    "claim_status"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "evidence_id": { "type": "string" },
+    "record_id": { "type": "string" },
+    "assay_id": { "type": ["string", "null"] },
+    "field": { "type": "string" },
+    "extracted_value": { "type": ["string", "number", "null"] },
+    "support_type": {
+      "type": "string",
+      "enum": ["EXPLICIT", "DERIVED", "REFERENCED", "NOT_REPORTED"],
+      "description": "How the field value is anchored in this paper text."
+    },
+    "evidence_strength": {
+      "type": ["string", "null"],
+      "enum": [
+        "DIRECT_EMPIRICAL",
+        "MODELED_EMPIRICAL",
+        "AUTHOR_INTERPRETATION",
+        "SECONDARY_EVIDENCE",
+        "EXPERT_OPINION",
+        "UNKNOWN",
+        null
+      ],
+      "description": "Scientific strength of the claim itself in broader synthesis."
+    },
+    "claim_status": {
+      "type": "string",
+      "enum": [
+        "SUPPORTED",
+        "PARTIALLY_SUPPORTED",
+        "UNSUPPORTED",
+        "CONTRADICTORY",
+        "AMBIGUOUS",
+        "OCR_UNCERTAIN"
+      ]
+    },
+    "verbatim_quote": { "type": "string" },
+    "source_type": {
+      "type": "string",
+      "enum": ["Text", "Table", "Figure", "Supplement", "NR"]
+    },
+    "location": {
+      "type": "object",
+      "properties": {
+        "page": { "type": ["integer", "null"] },
+        "section": { "type": ["string", "null"] },
+        "table_or_figure_id": { "type": ["string", "null"] }
+      }
+    },
+    "notes": { "type": ["string", "null"] }
+  }
+}

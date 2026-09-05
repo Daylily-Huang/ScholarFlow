@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-School & Paradigm Clustering Analyzer (school_clustering.py)
------------------------------------------------------------
+Methodological & Paradigm Landscape Summary (school_clustering.py)
+-----------------------------------------------------------------
 Part of the `literature-synthesis` skill.
 
-Analyzes collections of studies to:
-1. Cluster papers by methodological paradigm and theoretical schools.
-2. Formally distinguish between genuine "ESTABLISHED SCHOOL" and methodological "ANALYTICAL GROUPING".
-3. Map chronological paradigm shifts and methodological evolution over time.
-4. Highlight paradigm fault lines and core assumptions.
+Deterministic aggregation and timeline mapping utility that:
+1. Groups studies by methodological paradigm and theoretical schools based on
+   structured extraction fields (`paradigm`, `method`, `school_label`, `core_assumption`).
+2. Distinguishes between validated "ESTABLISHED SCHOOL" and analytical "METHODOLOGICAL GROUPING".
+3. Chronologically maps paradigm evolution and methodological transitions across years.
+4. Generates a structured Markdown / JSON landscape summary.
+
+NOTE: This script performs deterministic bucket aggregation and timeline progression
+from pre-extracted metadata fields; it is NOT an unsupervised network graph clustering
+(e.g., Louvain co-citation clustering) algorithm.
 
 Usage:
     python school_clustering.py --input studies.json --format markdown
@@ -36,9 +41,11 @@ if sys.platform == "win32":
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Scholarly Paradigm & School Clustering Analyzer",
+        description="Methodological & Paradigm Landscape Summary (Deterministic School Aggregator)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
+Note: Requires pre-extracted paradigm/method fields (produced during extraction or synthesis prep).
+The script deterministically groups studies, calculates temporal spans, and summarizes paradigm shifts.
 Example JSON input structure:
 [
   {
@@ -166,9 +173,10 @@ def detect_paradigm_shifts(clustered: Dict[str, Any]) -> List[Dict[str, Any]]:
 
 def format_markdown_report(clustered: Dict[str, Any], shifts: List[Dict[str, Any]]) -> str:
     lines = []
-    lines.append("# 学派谱系与研究范式演进分析报告 (School & Paradigm Landscape Report)")
+    lines.append("# 方法学范式与学派演进总览报告 (Methodological & Paradigm Landscape Summary)")
     lines.append("")
-    lines.append(f"> **生成模块**：`school_clustering.py` | **识别范式数**：{len(clustered)}")
+    lines.append(f"> **工具定位**：确定性结构化归纳汇总 (Deterministic Paradigm Aggregator) | **识别范式数**：{len(clustered)}")
+    lines.append("> **数据说明**：基于结构化抽取输入中的 `paradigm`、`method` 及 `core_assumption` 字段进行确定性统计，非无监督网络聚类。")
     lines.append("")
     lines.append("## 1. 范式与学派特征总览")
     lines.append("")

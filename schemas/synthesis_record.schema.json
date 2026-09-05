@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ScholarFlowSynthesisRecord",
+  "description": "Standard schema for synthesis results, consensus levels, and upstream feedback loops.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "topic",
+    "consensus_classification",
+    "controversy_diagnosis"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "topic": { "type": "string" },
+    "total_claims": { "type": "integer" },
+    "consensus_classification": {
+      "type": "string",
+      "enum": [
+        "STRONG_CONSENSUS",
+        "MODERATE_CONSENSUS",
+        "CONDITIONAL_CONSENSUS",
+        "ACTIVE_CONTROVERSY",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    "heuristic_balance_score": {
+      "type": "object",
+      "properties": {
+        "support_pct": { "type": "number" },
+        "refute_pct": { "type": "number" },
+        "conditional_pct": { "type": "number" },
+        "neutral_pct": { "type": "number" }
+      }
+    },
+    "controversy_diagnosis": {
+      "type": "object",
+      "required": ["type", "confidence", "reason"],
+      "properties": {
+        "type": { "type": "string" },
+        "confidence": { "type": "string" },
+        "reason": { "type": "string" }
+      }
+    },
+    "upstream_gaps": {
+      "type": "object",
+      "properties": {
+        "search_gaps": { "type": "array", "items": { "type": "object" } },
+        "extraction_gaps": { "type": "array", "items": { "type": "object" } }
+      }
+    }
+  }
+}

@@ -25,7 +25,7 @@ class TestParseCnkiRefworks(unittest.TestCase):
             self.assertEqual(r["screening_status"], "Uncertain")
 
         journal = next(r for r in recs if r["document_type"] == "Journal Article")
-        self.assertIn("黑麂", journal["title"])
+        self.assertIn("马鹿", journal["title"])
         self.assertEqual(journal["year"], 2021)
         self.assertEqual(len(journal["authors"]), 2)
 
@@ -69,7 +69,7 @@ class TestParseCsvTsv(unittest.TestCase):
         recs = ing.parse_csv_tsv(FIXTURES / "sample_records.csv")
         self.assertEqual(len(recs), 2)
         first = recs[0]
-        self.assertIn("黑麂", first["title"])
+        self.assertIn("马鹿", first["title"])
         self.assertEqual(first["year"], 2021)
         self.assertEqual(first["doi"], "10.1234/abc.2021.001")
         self.assertEqual(first["authors"], ["王明", "李华"])

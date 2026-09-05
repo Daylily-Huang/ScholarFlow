@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ScholarFlowLiteratureRecord",
+  "description": "Standard schema for literature discovery and candidate records.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "record_id",
+    "title",
+    "authors",
+    "year",
+    "source_databases"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "record_id": { "type": "string" },
+    "title": { "type": "string" },
+    "authors": { "type": "array", "items": { "type": "string" } },
+    "year": { "type": ["integer", "string"] },
+    "journal": { "type": ["string", "null"] },
+    "doi": { "type": ["string", "null"] },
+    "pmid": { "type": ["string", "null"] },
+    "abstract": { "type": ["string", "null"] },
+    "document_type": { "type": ["string", "null"] },
+    "source_databases": { "type": "array", "items": { "type": "string" } },
+    "ingestion_method": {
+      "type": "string",
+      "enum": ["API_Automated", "Snowballing", "Refworks_Import", "RIS_Import", "EndNote_Import", "Table_Import", "Web_Search"]
+    },
+    "screening_status": {
+      "type": "string",
+      "enum": ["Include", "Exclude", "Uncertain"]
+    },
+    "screening_reason": { "type": ["string", "null"] },
+    "thesis_metadata": {
+      "type": ["object", "null"],
+      "properties": {
+        "degree": { "type": "string" },
+        "institution": { "type": "string" },
+        "advisor": { "type": ["array", "string"] }
+      }
+    }
+  }
+}

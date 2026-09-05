@@ -25,7 +25,7 @@ import io
 import re
 from pathlib import Path
 from collections import defaultdict
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 
 # Ensure UTF-8 output on Windows consoles
 if sys.platform == "win32":
@@ -35,16 +35,45 @@ if sys.platform == "win32":
     except Exception:
         pass
 
-# Evidence tier weight matrix (E1=Direct Raw Data -> E4=Expert Opinion)
+# Decoupled evidence strength weights (Synthesis Dimension)
+EVIDENCE_STRENGTH_WEIGHTS = {
+    "DIRECT_EMPIRICAL": 1.0,      # Direct experiment / raw sequencing / first-hand measurement
+    "MODELED_EMPIRICAL": 0.8,     # Statistically modeled / peer-reviewed estimation
+    "AUTHOR_INTERPRETATION": 0.4, # Discussion hypothesis / qualitative induction
+    "SECONDARY_EVIDENCE": 0.2,    # Secondary review citations
+    "EXPERT_OPINION": 0.1,        # Expert opinion / unsupported narrative
+    "NOT_REPORTED": 0.0,          # Not reported in paper (strictly zero weight)
+    "UNKNOWN": 0.3
+}
+
+# Backward-compatibility alias map for legacy E1-E4 and extraction support_types
+LEGACY_TIER_MAP = {
+    "E1": "DIRECT_EMPIRICAL",
+    "E1_EXPLICIT": "DIRECT_EMPIRICAL",
+    "E2": "MODELED_EMPIRICAL",
+    "E2_DERIVED": "MODELED_EMPIRICAL",
+    "E3": "AUTHOR_INTERPRETATION",
+    "E3_REFERENCED": "SECONDARY_EVIDENCE",
+    "E4": "EXPERT_OPINION",
+    "E4_NR": "NOT_REPORTED",
+    "EXPLICIT": "DIRECT_EMPIRICAL",
+    "DERIVED": "MODELED_EMPIRICAL",
+    "REFERENCED": "SECONDARY_EVIDENCE",
+    "NOT_REPORTED": "NOT_REPORTED",
+    "NR": "NOT_REPORTED"
+}
+
+# Legacy alias for backward compatibility
 EVIDENCE_WEIGHTS = {
-    "E1": 1.0,  # Direct experiment / raw data / primary sequencing
-    "E2": 0.8,  # Statistically modeled / empirical metric / peer-reviewed calculation
-    "E3": 0.4,  # Discussion hypothesis / qualitative induction / unverified claim
-    "E4": 0.1,  # Expert opinion / secondary citation / unsupported narrative
+    "E1": 1.0,
+    "E2": 0.8,
+    "E3": 0.4,
+    "E4": 0.1,
     "UNKNOWN": 0.3
 }
 
 VALID_STANCES = {"SUPPORT", "REFUTE", "CONDITIONAL", "NEUTRAL"}
+
 
 
 def parse_args():
@@ -121,30 +150,97 @@ def load_input_data(filepath: str) -> List[Dict[str, Any]]:
     return data
 
 
+def resolve_evidence_weight(raw: Dict[str, Any]) -> Tuple[float, str, List[str]]:
+    """
+    Resolve base weight, resolved strength tier, and appraisal adjustment factors.
+    Returns: (final_weight, resolved_strength, adjustment_factors)
+    """
+    support_type = str(raw.get("support_type", "")).upper().strip()
+    extracted_val = str(raw.get("extracted_value", "")).upper().strip()
+    factors = []
+
+    # Strict isolation: NOT_REPORTED always yields 0.0 weight
+    if support_type in ["NOT_REPORTED", "NR"] or extracted_val in ["NR", "NOT REPORTED"]:
+        return 0.0, "NOT_REPORTED", ["not_reported(0.0)"]
+
+    # Determine evidence strength: priority to evidence_strength, fallback to legacy evidence_tier / evidence_level
+    raw_strength = raw.get("evidence_strength") or raw.get("evidence_tier") or raw.get("evidence_level") or "MODELED_EMPIRICAL"
+    raw_str = str(raw_strength).upper().strip()
+    if raw_str in EVIDENCE_STRENGTH_WEIGHTS:
+        strength = raw_str
+    elif raw_str in LEGACY_TIER_MAP:
+        strength = LEGACY_TIER_MAP[raw_str]
+    else:
+        strength = "UNKNOWN"
+    base_weight = EVIDENCE_STRENGTH_WEIGHTS.get(strength, 0.3)
+
+    # Multi-dimensional Evidence Appraisal modifier
+    appraisal = raw.get("appraisal", {})
+    mult = 1.0
+    if isinstance(appraisal, dict) and appraisal:
+        dir_val = str(appraisal.get("directness", "HIGH")).upper()
+        if dir_val == "LOW":
+            mult *= 0.6
+            factors.append("indirect(-0.2)")
+        elif dir_val == "MEDIUM":
+            mult *= 0.85
+            factors.append("indirect_medium(-0.1)")
+
+        ind_val = str(appraisal.get("independence", "HIGH")).upper()
+        if ind_val == "LOW":
+            mult *= 0.6
+            factors.append("dependent(-0.2)")
+        elif ind_val == "MEDIUM":
+            mult *= 0.85
+
+        rob_val = str(appraisal.get("risk_of_bias", "LOW")).upper()
+        if rob_val == "HIGH":
+            mult *= 0.6
+            factors.append("bias_high(-0.3)")
+        elif rob_val == "MEDIUM":
+            mult *= 0.85
+            factors.append("bias_medium(-0.1)")
+
+        rep_val = str(appraisal.get("replication", "MEDIUM")).upper()
+        if rep_val == "HIGH":
+            mult *= 1.1
+            factors.append("replicated(+0.1)")
+        elif rep_val == "LOW":
+            mult *= 0.9
+            factors.append("unreplicated(-0.1)")
+
+    final_weight = round(base_weight * mult, 3)
+    return final_weight, strength, factors
+
+
 def normalize_claim(raw: Dict[str, Any]) -> Dict[str, Any]:
-    """Ensure standard fields and sensible defaults."""
+    """Ensure standard fields and sensible defaults with support_type / evidence_strength decoupling."""
     topic = raw.get("topic") or raw.get("target_question") or "General Research Theme"
     stance = str(raw.get("stance", "NEUTRAL")).upper().strip()
     if stance not in VALID_STANCES:
         stance = "NEUTRAL"
     
-    tier = str(raw.get("evidence_tier", "E2")).upper().strip()
-    if tier not in EVIDENCE_WEIGHTS:
-        tier = "UNKNOWN"
+    support_type = str(raw.get("support_type", "")).upper().strip()
+    appraisal = raw.get("appraisal", {})
+    final_weight, strength, _ = resolve_evidence_weight(raw)
         
     return {
         "topic": topic.strip(),
         "paper_id": raw.get("paper_id") or raw.get("source_citation") or "Unknown",
         "year": raw.get("year"),
-        "claim": raw.get("claim") or raw.get("statement") or "",
+        "claim": raw.get("claim") or raw.get("statement") or raw.get("claim_text") or "",
         "stance": stance,
         "method": raw.get("method") or "Unspecified Method",
         "metric_value": raw.get("metric_value"),
         "confidence_interval": raw.get("confidence_interval"),
-        "evidence_tier": tier,
-        "weight": EVIDENCE_WEIGHTS.get(tier, 0.3),
+        "evidence_strength": strength,
+        "evidence_tier": strength,  # Backward compatibility
+        "support_type": support_type if support_type else None,
+        "appraisal": appraisal if isinstance(appraisal, dict) and appraisal else None,
+        "weight": final_weight,
         "boundary": raw.get("boundary") or "Unspecified Boundary"
     }
+
 
 
 def diagnose_controversy_type(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -231,36 +327,48 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
     refute_ratio = weights_by_stance["REFUTE"] / total_weight
     cond_ratio = weights_by_stance["CONDITIONAL"] / total_weight
     
-    # Consensus Level Classification (Level 1 to 6)
-    if support_ratio >= 0.85 and len(papers_by_stance["SUPPORT"]) >= 3:
-        consensus_level = "Level 1 (Robust Universal Consensus)"
-    elif support_ratio >= 0.70:
-        consensus_level = "Level 2 (Strong Prevailing Consensus with Minor Dissent)"
-    elif (support_ratio >= 0.40 and refute_ratio >= 0.40) or (0.30 <= support_ratio <= 0.70 and 0.30 <= refute_ratio <= 0.70):
-        consensus_level = "Level 5 (Explicit Paradigm / Scholarly Controversy)"
-    elif cond_ratio >= 0.50:
-        consensus_level = "Level 3 (Context-Bounded Consensus / Conditional Agreement)"
-    elif total_papers <= 2 and total_weight < 1.5:
+    # Qualitative Consensus Classification (replacing mechanical majority voting)
+    # Never claim "Universal Consensus"
+    if total_weight < 1.0 or total_papers < 2:
+        consensus_classification = "INSUFFICIENT_EVIDENCE"
         consensus_level = "Level 6 (Nascent / Insufficient Evidence Frontier)"
+    elif (support_ratio >= 0.40 and refute_ratio >= 0.40) or (0.30 <= support_ratio <= 0.70 and 0.30 <= refute_ratio <= 0.70):
+        consensus_classification = "ACTIVE_CONTROVERSY"
+        consensus_level = "Level 5 (Explicit Paradigm / Scholarly Controversy)"
+    elif cond_ratio >= 0.45:
+        consensus_classification = "CONDITIONAL_CONSENSUS"
+        consensus_level = "Level 3 (Context-Bounded Consensus / Conditional Agreement)"
+    elif support_ratio >= 0.80 and len(papers_by_stance["SUPPORT"]) >= 2:
+        consensus_classification = "STRONG_CONSENSUS"
+        consensus_level = "Level 1 (Strong Prevailing Consensus - Replicated Evidence)"
+    elif support_ratio >= 0.65:
+        consensus_classification = "MODERATE_CONSENSUS"
+        consensus_level = "Level 2 (Moderate Consensus with Minor Dissent)"
     else:
+        consensus_classification = "CONDITIONAL_CONSENSUS"
         consensus_level = "Level 4 (Method-Dependent Convergence)"
         
     diagnosis = diagnose_controversy_type(claims)
     
+    heuristic_balance = {
+        "SUPPORT": round(support_ratio * 100, 1),
+        "REFUTE": round(refute_ratio * 100, 1),
+        "CONDITIONAL": round(cond_ratio * 100, 1),
+        "NEUTRAL": round(weights_by_stance["NEUTRAL"] / total_weight * 100, 1)
+    }
+
     return {
         "total_claims": total_papers,
         "total_evidence_weight": round(total_weight, 2),
         "stance_weights": {k: round(v, 2) for k, v in weights_by_stance.items()},
-        "stance_percentages": {
-            "SUPPORT": round(support_ratio * 100, 1),
-            "REFUTE": round(refute_ratio * 100, 1),
-            "CONDITIONAL": round(cond_ratio * 100, 1),
-            "NEUTRAL": round(weights_by_stance["NEUTRAL"] / total_weight * 100, 1)
-        },
-        "papers_by_stance": dict(papers_by_stance),
+        "heuristic_balance_score": heuristic_balance,
+        "stance_percentages": heuristic_balance,  # Backward compatibility
+        "consensus_classification": consensus_classification,
         "consensus_level": consensus_level,
+        "papers_by_stance": dict(papers_by_stance),
         "controversy_diagnosis": diagnosis
     }
+
 
 
 def analyze(claims: List[Dict[str, Any]], topic_filter: Optional[str] = None) -> Dict[str, Any]:
@@ -281,6 +389,10 @@ def analyze(claims: List[Dict[str, Any]], topic_filter: Optional[str] = None) ->
         results[t] = analysis
         
     return results
+
+
+# Alias for backward/contract compatibility
+analyze_controversy = analyze
 
 
 def generate_mermaid_argument_graph(topic: str, claims: List[Dict[str, Any]]) -> str:

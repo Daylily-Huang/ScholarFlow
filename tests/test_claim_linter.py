@@ -10,7 +10,7 @@ import claim_linter as cl  # type: ignore
 def _matrix():
     return {
         "matrix_id": "M1",
-        "topic": "black muntjac diet",
+        "topic": "red deer diet",
         "generated_at": "2026-09-06T00:00:00Z",
         "claims": [
             {"claim_id": "CLM-001", "paper_id": "Wang2021", "stance": "SUPPORT",
@@ -25,17 +25,18 @@ def _matrix():
 
 GOOD_NARRATIVE = (
     "# 综述\n\n"
-    "黑麂食性研究以粪便显微组织学为主。研究表明，粪便 DNA 宏条形码可鉴定 32 个植物类群 "
+    "马鹿食性研究以粪便显微组织学为主。研究表明，粪便 DNA 宏条形码可鉴定 32 个植物类群 "
     "[CLM-001]，但密度估计对调查强度敏感 [CLM-002]。\n\n"
     "## 讨论框架\n\n"
     "| 主题 | 方法 |\n|---|---|\n| 食性 | 宏条形码 |\n"
 )
 
 ORPHAN_NARRATIVE = (
-    "黑麂食性研究进展综述。\n\n"
-    "有研究报道黑麂食性季节变化显著，冬季木质化程度上升 35%。\n\n"
+    "马鹿食性研究进展综述。\n\n"
+    "有研究报道马鹿食性季节变化显著，冬季木质化程度上升 35%。\n\n"
     "前人指出 [CLM-999] 密度被高估。\n"
 )
+
 
 UNCITED_NARRATIVE = (
     "综述正文。\n\n"

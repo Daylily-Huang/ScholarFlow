@@ -9,7 +9,7 @@
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
   <img src="https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg" alt="Python Version">
   <img src="https://img.shields.io/badge/Dependencies-Zero%20External%20Pip-orange.svg" alt="Zero Dependencies">
-  <img src="https://img.shields.io/badge/Compliant-PRISMA--S%20%7C%20PaperQA2%20Rigor-purple.svg" alt="Academic Standards">
+  <img src="https://img.shields.io/badge/Workflow-PRISMA--S%20Informed-purple.svg" alt="PRISMA-S Informed">
   <img src="https://img.shields.io/badge/Supported%20Agents-Claude%20Code%20%7C%20Antigravity%20%7C%20Codex-blueviolet.svg" alt="Agent Support">
 </p>
 
@@ -19,13 +19,13 @@
 
 **ScholarFlow** 是为 AI 编程助手与自主智能体（Claude Code、Google Antigravity、Codex、Cursor 等）量身定制的**全生命周期科研文献调研智能体技能套件（Agent Skills Suite）**。
 
-与常见的“喂一篇 PDF 做泛读总结”的浅层工具不同，ScholarFlow 深度吸收了 **FutureHouse `PaperQA2`**、**Stanford `STORM` / `Co-STORM`**、**`GPT-Researcher`** 以及 **`ChatPaper`** 的顶级前沿设计理念，严格恪守高水平科研出版与学位论文的严谨性标准：
+与常见的“喂一篇 PDF 做泛读总结”的浅层工具不同，ScholarFlow 吸收了 **FutureHouse `PaperQA2`**、**Stanford `STORM`**、**`GPT-Researcher`** 等前沿理念，严格恪守高水平科研出版与学位论文的严谨性标准：
 
-1. **零幻觉保证（Quote-First Principle）**：核心数据必须锚定带页码的原文逐字引用。
+1. **防幻觉设计（Grounding-by-Design）**：核心数据必须锚定带页码的原文逐字引用与上下文协同校验。
 2. **拒绝流水账（Controversy-Driven）**：综述绝非“张三做了 A、李四做了 B”，而是以科学冲突、方法论根因与适用边界为主线。
 3. **拒绝文献民主投票（Weighted Evidence）**：严禁简单比拼文献篇数多数决，单篇高精度独立复现研究可一票降权粗放旧成果。
 4. **全生命周期闭环（Upstream Gap Loop）**：综合分析发现文献断裂或数据模糊时，自动生成结构化任务载荷驱动上游补充检索与精准核验。
-5. **轻量与零依赖（Zero Pip Dependencies）**：所有配套自动化脚本均基于 Python 3 标准库构建，跨平台零配置、毫秒级响应。
+5. **轻量与零外部依赖（Zero External Pip Dependencies）**：所有配套自动化脚本均基于 Python 3 标准库构建，跨平台零配置、毫秒级响应。
 
 ---
 
@@ -37,7 +37,7 @@ ScholarFlow 由三个高度模块化、既可独立运行又可无缝协同的 A
 graph TD
     User([科研学者 / 课题组 / 论文作者]) -->|输入科学问题或种子DOI| Skill1["<b>1. literature-discovery-acquisition</b><br/>文献系统发现、初筛与全文获取"]
     
-    Skill1 -->|OpenAlex 跨库检索<br/>双向引用滚雪球 Snowballing<br/>PRISMA-S 16项合规 / OA PDF 获取| Skill2["<b>2. literature-evidence-extraction</b><br/>证据可信抽取、事实核验与声明审计"]
+    Skill1 -->|OpenAlex 跨库检索<br/>双向引用滚雪球 Snowballing<br/>PRISMA-S 流程审计 / OA PDF 获取| Skill2["<b>2. literature-evidence-extraction</b><br/>证据可信抽取、事实核验与声明审计"]
     
     Skill2 -->|Quote-First 铁律<br/>0-10相关性前置剪枝<br/>E1-E4 证据分层 / 审稿人四象限| Skill3["<b>3. literature-synthesis</b><br/>学术争议发掘、学派谱系与边界共识"]
     
@@ -59,16 +59,17 @@ graph TD
 ## 🧩 三大核心技能详解 (Skills Breakdown)
 
 ### 1. `literature-discovery-acquisition` (文献系统发现与全文获取)
-> **定位**：高召回、可审计的文献检索、商业库免爬虫摄取、PRISMA 双盲初筛与开源全文下载管道。
+> **定位**：高召回、可审计的文献检索、商业库人机协同摄取、PRISMA 双盲初筛与开源全文获取管道。
 
-- **Stage 0 Grill-Me 问询门禁**：在发起检索前，先与用户厘清研究核心实体、目标时间窗口、排他条件与学位论文需求。
-- **商业受限库极速摄取 (External Ingestion Pipeline)**：
-  - 针对知网 (CNKI)、万方、Web of Science、Scopus 等反爬严格的商业库，提供布尔检索式生成 + 30 秒导出题录文件（Refworks/RIS/EndNote）一键自动化解析入库，免受验证码封禁之扰。
-- **PRISMA 2020 Item 8 双盲独立初筛 (Dual-Reviewer Blind Protocol)**：
-  - 派发双评阅人独立盲审，基于内置工具自动计算 **Cohen's Kappa ($\kappa$)** 与一致率，生成符合发表级 Meta 分析规范的 `screening_dual_audit.csv` 与分歧待仲裁队列。
-- **双向引用滚雪球 (Dual-Direction Snowballing)**：
-  - 支持传入种子文献 DOI，利用 OpenAlex API 自动追溯参考文献（`Backward Snowballing`）并追踪最新施引文献（`Forward Snowballing`），自动补全学派谱系。
-- **PRISMA-S 16 项系统评价审计清单**：全流程记录概念矩阵（Concept Matrix）、检出饱和度日志（Search Saturation）与去重决策表。
+- **Stage 0 Grill-Me 问询门禁 `[PROTOCOL]`**：在发起检索前，先与用户厘清研究核心实体、目标时间窗口、排他条件与学位论文需求。
+- **双层数据源架构 (Data Source Architecture)**：
+  - 🌐 **全自动检索层 (AUTOMATED Tier)**：集成 OpenAlex API、Crossref 与 PubMed，支持程序化关键词检索与双向引文滚雪球（Snowballing）；
+  - 🔐 **人机协同商业库摄取层 (USER_ASSISTED Tier)**：知网 (CNKI)、万方、Web of Science、Scopus 受校园网 IP 准入与反爬机制保护，ScholarFlow 严格遵守学术安全规范，不采用逆向爬虫；系统自动生成目标库的标准高级布尔检索式（Boolean Syntax），由学者在机构网络下一键导出标准题录（Refworks / RIS / EndNote / CSV），随后由 `ingest_external_records.py` 执行本地批量硬解析与四级去重入库。
+- **PRISMA 2020 Item 8 双盲独立初筛 `[PROTOCOL + DETERMINISTIC]`**：
+  - 派发双评阅人独立盲审，基于内置工具自动计算 **Cohen's Kappa ($\kappa$)** 与一致率，生成符合发表级规范的 `screening_dual_audit.csv` 与分歧待仲裁队列。
+- **双向引用滚雪球 `[DETERMINISTIC]`**：
+  - 传入种子文献 DOI，利用 OpenAlex API 自动追溯参考文献（`Backward Snowballing`）并追踪施引文献（`Forward Snowballing`），自动补全学派谱系。
+- **PRISMA-S 检索过程可审计清单 `[PROTOCOL]`**：全流程记录概念矩阵（Concept Matrix）、检索饱和度日志（Search Saturation）与去重决策表。
 - **双轨运行模式**：
   - **交互工作流**：适合人类学者把关指导；
   - **Headless CLI 模式**：通过 `python scripts/agent_search.py -q "..."` 直接输出契约化 JSON 流。
@@ -76,36 +77,38 @@ graph TD
 ---
 
 ### 2. `literature-evidence-extraction` (证据可信抽取与声明审计)
-> **定位**：严格恪守 `Quote → Extract → Verify → Interpret` 铁律的结构化抽取与事实核验引擎。
+> **定位**：严格恪守 `Quote → Extract → Verify → Interpret` 铁律的结构化抽取与候选证据定位引擎。
 
-- **0-10 分相关性前置快速剪枝 (Relevance Gatekeeper)**：
+- **0-10 分相关性前置快速剪枝 (Relevance Gatekeeper) `[HEURISTIC]`**：
   - 启发自 `PaperQA2` 评测基准。在进入全篇精读前，自动评估论文与课题契合度（0-10 分）。低于 6 分直接判定为 `PRUNE` 建议跳过，防止上下文污染与算力浪费。
-- **顶刊审稿人四象限审计 (Reviewer 4-Quadrant Rubric)**：
+- **顶刊审稿人四象限审计 (Reviewer 4-Quadrant Rubric) `[PROTOCOL]`**：
   - 自动提炼四大必答项：`Q1 科学动机`、`Q2 前人局限`、`Q3 方法创新`、`Q4 实验严谨性与混杂变量`。
-- **E1–E4 四级证据金字塔**：
-  - **E1**：原始实验数据与测序读数；**E2**：经同行评议的模型统计值；**E3**：讨论推测；**E4**：专家观点或二级转引。
-- **多实验体系隔离 (Assay Isolation)**：
+- **抽取与综合严格解耦（Support Type vs Evidence Strength） `[DETERMINISTIC]`**：
+  - **抽取溯源 (`support_type`)**：`EXPLICIT` (原文原句)、`DERIVED` (公式推导)、`REFERENCED` (前人转引)、`NOT_REPORTED` (全文未提及，入库权重恒为 0.0)；
+  - **证据论证强度 (`evidence_strength`)**：`DIRECT_EMPIRICAL` (1.0)、`MODELED_EMPIRICAL` (0.8)、`AUTHOR_INTERPRETATION` (0.4)、`SECONDARY_EVIDENCE` (0.2)、`EXPERT_OPINION` (0.1)。
+- **多实验体系隔离 (Assay Isolation) `[PROTOCOL]`**：
   - 自动隔离同篇文献中的不同实验（如：不同退火温度、不同引物组、不同位点），杜绝跨实验混淆。
-- **声明事实核验 CLI**：
-  - `python scripts/audit_claims.py -i paper.pdf -c claims.json` 自动扫描原文并出具核验证据表。
+- **候选证据定位与上下文协同检查 CLI `[DETERMINISTIC + HEURISTIC]`**：
+  - `python scripts/audit_claims.py -i paper.pdf -c claims.json` 自动扫描原文，审计 PDF 解析质量，并在局部文本窗口内校验关键词与数值协同共现（Co-location）。
 
 ---
 
 ### 3. `literature-synthesis` (综合分析、学术争议发掘与学派图谱)
 > **定位**：对标 PaperQA2 思路，推行 `Claims-first, narrative-later` 的学术争议诊断与跨篇证据综合专家。
 
-- **9 大学术争议分类学体系 (Type A ~ Type I)**：
+- **9 大学术争议分类学体系 (Type A ~ Type I) `[HEURISTIC]`**：
   - 深入实验设计、采样偏差、探测率假定、等位基因脱落（ADO）、空间自相关与尺度依赖等底层技术根因。
-- **加权证据共识模型（严禁篇数多数决）**：
-  - 按照 E1-E4 权重核算共识得分（$CS \in [0, 1]$），划分为 6 级共识梯队，并强制声明**空间、时间、方法与生物学四维硬性适用边界**。
-- **红队反方质询（Devil's Advocate）**：
-  - 专设红队审议角色，强行挖掘反对文献、离群数据与替代性假设，杜绝大模型的确认偏误与一团和气。
-- **学派与分析性分组判定**：
-  - 严格区分真实理论谱系（`ESTABLISHED SCHOOL`）与仅使用同类工具的聚类（`ANALYTICAL GROUPING`）。
-- **Mermaid 论证拓扑图自动可视化 (Argument Graph)**：
-  - CLI `controversy_analyzer.py` 自动绘制带色彩阵营（支持/反对/调和边界）的论证网络图。
-- **争议驱动型综述撰写规范**：
-  - 彻底取缔流水账罗列，推行“核心分歧 → 冲突溯源 → 证据对决 → 边界共识 → 破局机遇”五步法。
+- **多维证据评价与定性共识模型 `[DETERMINISTIC]`**：
+  - 综合 `directness`、`independence`、`risk_of_bias` 和 `replication` 四维调整因子计算加权得分；
+  - 严禁篇数多数决，将共识划分为 `STRONG_CONSENSUS`、`MODERATE_CONSENSUS`、`CONDITIONAL_CONSENSUS`、`ACTIVE_CONTROVERSY` 和 `INSUFFICIENT_EVIDENCE` 5 级定性梯队，并强制声明**空间、时间、方法与生物学四维硬性适用边界**。
+- **红队反方质询（Devil's Advocate） `[LLM-ASSISTED]`**：
+  - 专设红队审议角色，挖掘反对文献、离群数据与替代性假设，降低大模型的确认偏误。
+- **方法学与范式演进总览 (`school_clustering.py`) `[DETERMINISTIC]`**：
+  - 基于上游抽取字段（`paradigm`、`method`、`core_assumption`）执行确定性分桶汇总与年代更迭分析，区分 `ESTABLISHED SCHOOL` 与 `ANALYTICAL GROUPING`。
+- **Mermaid 论证拓扑图自动可视化 (Argument Graph) `[DETERMINISTIC]`**：
+  - CLI `controversy_analyzer.py` 自动绘制带色彩阵营（支持/反驳/调和边界）的论证网络拓扑图。
+- **争议驱动型综述撰写规范 `[PROTOCOL + LLM-ASSISTED]`**：
+  - 取缔流水账罗列，推行“核心分歧 → 冲突溯源 → 证据对决 → 边界共识 → 破局机遇”五步法。
 
 ---
 
@@ -113,13 +116,14 @@ graph TD
 
 | 特性维度 | 传统 Agent / 通用 Prompt | GPT-Researcher | ChatPaper | Stanford STORM | **ScholarFlow (本项目)** |
 |:---|:---:|:---:|:---:|:---:|:---:|
+| **核心定位** | 泛化问答 / 代码辅写 | 互联网自动化研报生成 | 单篇 PDF 快速泛读总结 | 维基百科式长文条目编纂 | **全生命周期可审计科研调研、争议对决与可溯源综述** |
 | **启动交互** | 盲目启动，易发散 | 单一搜索框 | 上传 PDF 直接读 | 多专家虚拟对话 | **Stage 0 Grill-Me 四级交互门禁** |
+| **数据源支持** | 依赖通用搜索引擎 | 互联网搜索 API | 仅单篇本地 PDF | 维基式多轮检索 | **自动化开放库 (OpenAlex/PubMed) + 商业库无缝摄取 (CNKI/WoS)** |
 | **引文扩展** | 仅依赖关键词搜索 | 搜索引擎扩展 | 无 | 维基式多轮检索 | **双向引用滚雪球 (OpenAlex Snowballing)** |
 | **相关度剪枝** | 无剪枝，全量读 | 启发式过滤 | 无 | 大纲树剪枝 | **0–10 分 Relevance Gatekeeper (<6分剪枝)** |
-| **抽取铁律** | 易产生浮动幻觉 | 总结文本片段 | 结构化问答 | 文本汇总 | **严格 Quote-First + 页码逐字绑定** |
-| **审稿人视角** | 无 | 无 | 审稿人评分表 | 无 | **顶刊审稿人四象限审计 (Q1-Q4)** |
+| **抽取铁律** | 易产生浮动幻觉 | 总结文本片段 | 结构化问答 | 文本汇总 | **严格 Quote-First + 页码逐字绑定 + 上下文协同核验** |
 | **争议分析** | 简单并列两派 | 文字综合报告 | 篇单维度 | 维基条目式汇总 | **9 类学术争议分类学 + 方法论根因溯源** |
-| **共识算法** | 篇数多数决投票 | 频率多数决 | 无 | 综合叙述 | **加权证据分层 (E1-E4) + 四维边界标定** |
+| **共识算法** | 篇数多数决投票 | 频率多数决 | 无 | 综合叙述 | **多维证据评价 (Appraisal) + 定性共识梯队 + 硬性边界** |
 | **防确认偏误** | 倾向于顺从与讨好 | 无独立对抗 | 无 | 多视角专家 | **专设 Devil's Advocate (红队反方质询)** |
 | **可视化呈现** | 纯文本 | Markdown 表格 | 脑图/思维导图 | 目录大纲树 | **自动化 Mermaid 论证拓扑图 (Argument Graph)** |
 | **外部依赖** | 复杂环境配置 | 庞大 Python 库 | 复杂依赖 | 较多依赖 | **纯 Python 3 标准库，零外部 Pip 依赖** |
@@ -172,8 +176,8 @@ ScholarFlow 严格拒绝“同一个大模型换角色念台词的伪独立审�
   - `download_oa_papers.py`：PDF 二进制 `%PDF-` 魔数核验，拦截 403 伪装 HTML；
   - `ingest_external_records.py`：知网/万方/WoS 外部导出题录 Schema 硬解析与四级去重；
   - `calculate_screening_agreement.py`：双评阅人 Cohen's $\kappa$ 数学统计检验与分歧自动剥离；
-  - `audit_claims.py`：正文原句字符级精准对齐校验，零容忍 OCR 篡改与常识臆造；
-  - `controversy_analyzer.py`：共识度加权数学严密验算与同源数据伪重复消除；
+  - `audit_claims.py`：正文局部上下文协同共现校验与 PDF 文本解析质量审计，辅助定位候选证据并拦截伪匹配；
+  - `controversy_analyzer.py`：多维评价因子加权数学验算、定性共识梯队划分与 `NOT_REPORTED` 绝对零权重隔离；
 - **Level-3 物理隔离子智能体审计 (Isolated SubAgent Execution)**：在支持多智能体并发调度的平台中，Gatekeeper 与 Screening Reviewers 均通过无共享上下文的独立 SubAgent 会话执行，实现真正的背对背双盲审议。
 
 ---
@@ -245,7 +249,27 @@ ScholarFlow/
 python -m unittest discover -s tests -v
 ```
 
-覆盖范围：双评阅人一致性计算（κ 闭式值验证）、四种外部题录格式解析（CNKI Refworks / RIS / EndNote / CSV）、引句回查机械校验门（`quote_audit.py`）与综述 Claim ID 可溯源门禁（`claim_linter.py`）。push 与 PR 由 GitHub Actions（`.github/workflows/ci.yml`）自动在 Python 3.9 / 3.11 / 3.13 上运行。
+覆盖范围：双评阅人一致性计算（κ 闭式值验证）、四种外部题录格式解析（CNKI Refworks / RIS / EndNote / CSV）、引句回查机械校验门（`quote_audit.py`）、综述 Claim ID 可溯源门禁（`claim_linter.py`）、跨技能数据契约（`schemas/` 校验）、`support_type` 与 `evidence_strength` 绝对解耦验证，以及局部上下文协同共现与范式分桶测试。push 与 PR 由 GitHub Actions（`.github/workflows/ci.yml`）自动在 Python 3.9 / 3.11 / 3.13 上运行。
+
+---
+
+## ✅ 验证状态 (Validation Status)
+
+ScholarFlow 的核心算法与机械门禁具备完善的测试覆盖：
+- **单元与契约测试**：52 个单元与集成测试全量通过（`52/52 passed`）；
+- **数学统计验证**：Cohen's $\kappa$ 在完全一致（1.0）、随机对齐（0.0）及特定混淆矩阵下均通过闭式解断言；
+- **真实题录解析**：CNKI Refworks（含 `AD` 机构与导师提取）、RIS、EndNote `.enw` 及 CSV 均通过真实解析断言；
+- **数据契约防错**：通过 `tests/test_cross_skill_contract.py` 验证 `support_type: NOT_REPORTED` 绝对赋予 0.0 权重，避免无效信息污染下游综述。
+
+---
+
+## ⚠️ 局限性与已知边界 (Known Limitations)
+
+为确保严谨科研，使用者应当知晓本工具套件的设计边界：
+1. **依赖上游 PDF 解析质量**：`audit_claims.py` 基于提取文本进行协同匹配。若文献为老旧扫描版、低分辨率图像或无 OCR 文本层，定位置信度会显著下降（脚本将显式打出 `[WARN] LOW_OCR_SUSPECT` 警告）。
+2. **商业数据库访问边界**：知网、万方、Web of Science 等商业数据库受版权保护与反爬限制，ScholarFlow 不提供越权逆向抓取功能，采用“标准布尔表达式生成 + 机构网络导出题录 + 本地批量清洗”的合规人机协同范式。
+3. **启发式工具的非因果性**：`controversy_analyzer.py` 的争议分类与 `school_clustering.py` 的范式分桶基于确定性加权与元数据统计，并非无监督网络社区发现（如 Louvain 图聚类）或因果图推断，结果需结合专业领域知识研读。
+4. **单模型自检非真正双盲**：在单会话内通过提示词扮演的 Gatekeeper 或 Devil's Advocate 属于模型自我反省机制（Self-Consistency），在统计学上不具备真正多专家双盲审议的独立性。建议重要结论采用 Level-3 物理隔离子智能体调度或人工最终复核。
 
 ---
 
