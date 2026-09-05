@@ -18,8 +18,8 @@
 papers/downloads/
 ├── 2024_Wang_Targeting_KRAS_G12D.pdf          # 经 %PDF- 魔数校验的合法全文
 ├── 2024_Wang_Targeting_KRAS_G12D.csl.json     # [单篇配对] 该文献独立的 CSL-JSON
-├── 2012_Zheng_Estimation_black_muntjac.pdf    # 另一篇已下载全文
-├── 2012_Zheng_Estimation_black_muntjac.csl.json# [单篇配对] 独立 CSL-JSON
+├── 2021_Chen_Estimation_wildlife_genetics.pdf  # 另一篇已下载全文
+├── 2021_Chen_Estimation_wildlife_genetics.csl.json# [单篇配对] 独立 CSL-JSON
 ├── zotero_import.csl.json                     # [总汇文件] 包含全部文献对象的全局 CSL-JSON
 └── literature_pool.bib                        # [通用备选] 标准 BibTeX 格式
 ```

@@ -55,22 +55,22 @@ def parse_args():
 Example JSON input structure:
 [
   {
-    "topic": "Black muntjac density in Gutianshan",
+    "topic": "Snow leopard density in Sanjiangyuan",
     "paper_id": "Zhang2015",
     "year": 2015,
-    "claim": "Gutianshan density is very high (~4.2 ind/km2)",
+    "claim": "Sanjiangyuan density is high (~3.2 ind/100km2)",
     "stance": "SUPPORT",
-    "method": "Transect line pellet count",
-    "metric_value": 4.2,
-    "confidence_interval": [3.1, 5.3],
+    "method": "Transect line scrape count",
+    "metric_value": 3.2,
+    "confidence_interval": [2.3, 4.1],
     "evidence_tier": "E2",
     "boundary": "Winter snow season only"
   },
   {
-    "topic": "Black muntjac density in Gutianshan",
+    "topic": "Snow leopard density in Sanjiangyuan",
     "paper_id": "Li2021",
     "year": 2021,
-    "claim": "Gutianshan density is moderate (~1.1 ind/km2)",
+    "claim": "Sanjiangyuan density is moderate (~1.1 ind/100km2)",
     "stance": "REFUTE",
     "method": "SECR camera trap grid",
     "metric_value": 1.1,

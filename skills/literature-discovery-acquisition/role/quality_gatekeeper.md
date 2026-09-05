@@ -85,7 +85,7 @@ flowchart TD
 ---
 
 ### 维度 8：PRISMA-S 16 项系统评价扩展标准机审 (PRISMA-S Compliance Audit)
-- **审查重点**（依据 [references/prisma_s_checklist.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/prisma_s_checklist.md)）：
+- **审查重点**（依据 [references/prisma_s_checklist.md](../references/prisma_s_checklist.md)）：
   - 机器化逐项校验 PRISMA-S 16 项要素（信息源、检索时间、过滤条件理由、完整布尔检索式全文、引文追踪、四级去重、分库命中数、初筛标准及 PRISMA 四阶段流转数据）；
   - 评估是否满足国际顶级 SCI 期刊与硕博毕业论文“材料与方法”附录的免审发表级标准。
 

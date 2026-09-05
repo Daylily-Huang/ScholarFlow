@@ -28,7 +28,7 @@
 ---
 
 ### 反模式 4：把讨论推测当成实证结论 (Discussion Speculation as Result)
-- ❌ **违规表现**：Discussion 中作者写 `“The low polymorphism at Mcr-08 might be caused by a historical population bottleneck.”`，模型在结果栏直接填入 `“该种群经历过历史瓶颈”`。
+- ❌ **违规表现**：Discussion 中作者写 `“The low polymorphism at Locus-08 might be caused by a historical population bottleneck.”`，模型在结果栏直接填入 `“该种群经历过历史瓶颈”`。
 - ⚠️ **学术危害**：混淆了“作者主观假说”与“经统计检验直接证实的事实”。
 - ✅ **正确做法**：将该项归类为 `Author interpretation in Discussion`，绝不混入 Results 核心事实矩阵。
 

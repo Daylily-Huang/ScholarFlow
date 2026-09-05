@@ -13,7 +13,7 @@ Headless / Agent 模式专用纯数据检索与输出管道。
    同时向后追溯经典参考文献 (Backward Snowballing) 与向前检索施引文献 (Forward Snowballing)。
 
 用法:
-    python agent_search.py -q "fecal DNA microsatellite black muntjac" --mode deep --output result.json
+    python agent_search.py -q "fecal DNA microsatellite snow leopard" --mode deep --output result.json
     python agent_search.py --snowball "10.1016/j.biocon.2020.108581" --limit 20 --output snowball_result.json
 """
 

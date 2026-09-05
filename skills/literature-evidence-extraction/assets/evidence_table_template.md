@@ -30,7 +30,7 @@
 
 | Field ID | Parameter Field | Assay ID | Extracted Value | Evidence Level | Verbatim Original Quote | Source Type | Location | Evidence Status | Notes / Derivation Formula |
 |:---:|---|:---:|---|:---:|---|:---:|---|:---:|---|
-| **M01** | Target Species | — | *Muntiacus crinifrons* | E1 | “...fecal samples from black muntjac (*Muntiacus crinifrons*)...” | Text | Page 2, Intro | SUPPORTED | 中国特有鹿科动物 |
+| **M01** | Target Species | — | *Panthera uncia* | E1 | “...fecal samples from snow leopard (*Panthera uncia*)...” | Text | Page 2, Intro | SUPPORTED | 高原旗舰物种 |
 | **M02** | Sample Size (N) | — | 108 | E1 | “A total of 108 noninvasive fecal samples were collected...” | Text | Page 3, Section 2.1 | SUPPORTED | 野外采集粪便样 |
 | **P01** | Total PCR Volume | Assay-01 | 20 μL | E1 | “PCR amplifications were performed in a 20 μL reaction volume...” | Text | Page 4, Section 2.3 | SUPPORTED | 微卫星多重体系 |
 | **P02** | Template DNA Volume | Assay-01 | 2.0 μL | E1 | “...containing 2.0 μL of fecal DNA template...” | Text | Page 4, Section 2.3 | SUPPORTED | — |

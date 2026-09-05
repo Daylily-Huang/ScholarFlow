@@ -48,7 +48,7 @@
 ```markdown
 | Field | Extracted Value | Evidence Quote | Notes |
 |---|---|---|---|
-| Mcr-04 Allele Range | 225–241 bp (作者分型可能有偏小趋势) | “Locus Mcr-04 ranged from 225 to 241 bp.” | 该位点在黑麂中通常在 230 bp 以上，作者可能没有校准好分型标准，建议重跑。 |
+| Marker-04 Allele Range | 225–241 bp (作者分型可能有偏小趋势) | “Locus Marker-04 ranged from 225 to 241 bp.” | 该位点在目标物种中通常在 230 bp 以上，作者可能没有校准好分型标准，建议重跑。 |
 ```
 *审查员裁决：**REJECT**。在事实 Value 与 Notes 栏掺入主观推断。*
 
@@ -60,7 +60,7 @@
 
 | Field | Extracted Value | Evidence Level | Verbatim Quote | Source Location | Status | Notes |
 |---|---|---|---|---|---|---|
-| Mcr-04 Allele Range | 225–241 bp | E1 (EXPLICIT) | “Locus Mcr-04 ranged from 225 to 241 bp across 45 individuals.” | Page 5, Table 2 | SUPPORTED | 样本量 N=45 |
+| Marker-04 Allele Range | 225–241 bp | E1 (EXPLICIT) | “Locus Marker-04 ranged from 225 to 241 bp across 45 individuals.” | Page 5, Table 2 | SUPPORTED | 样本量 N=45 |
 
 ---
 
@@ -69,6 +69,6 @@
 
 1. **等位基因跨度评估**：
    - 原文报道的 225–241 bp 跨度为 16 bp，符合二核苷酸重复微卫星位点的理论步长（8 个等位基因梯度）；
-2. **对黑麂本课题的借鉴建议**：
-   - 若我们实验室在类似毛细管电泳平台（ABI 3730xl）上检测该位点，需注意不同内标（如 LIZ500 vs ROX500）可能带来 1–2 bp 的迁移率偏差，建议引入 1–2 份已知基因型的标准参考样品进行校准，切勿仅凭该文献数值硬切。
+2. **对后续实验的借鉴建议**：
+   - 若在类似毛细管电泳平台（ABI 3730xl）上检测该位点，需注意不同内标（如 LIZ500 vs ROX500）可能带来 1–2 bp 的迁移率偏差，建议引入 1–2 份已知基因型的标准参考样品进行校准，切勿仅凭该文献数值硬切。
 ```

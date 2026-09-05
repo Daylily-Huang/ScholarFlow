@@ -39,8 +39,8 @@
   - 引用前人文献的背景介绍 (Cited Previous Work)
 
 ### 铁律 6：作者推测严禁记为实验证实结论 (Discussion Interpretation ≠ Result)
-- **典型场景**：Discussion 中作者写道：`“The lower amplification rate of Mcr-05 may be attributed to primer-template mismatch or DNA degradation.”`
-- **红线**：不能输出：`“Mcr-05 amplification failed due to primer mismatch.”`
+- **典型场景**：Discussion 中作者写道：`“The lower amplification rate of STR-05 may be attributed to primer-template mismatch or DNA degradation.”`
+- **红线**：不能输出：`“STR-05 amplification failed due to primer mismatch.”`
 - 必须明确标记为：`Author interpretation in Discussion`，并在 Evidence Level 或 Notes 中清晰注明该项为推测，未在 Results 中经实验直接证实。
 
 ### 铁律 7：复杂多实验体系参数严禁串染 (Assay Context Isolation)

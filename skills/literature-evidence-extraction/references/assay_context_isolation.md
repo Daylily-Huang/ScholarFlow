@@ -37,7 +37,7 @@ flowchart TD
   - 引物：L14724 / H15149
   - 章节：Methods 2.2
 - **[Assay-B: Microsatellite Typing]**
-  - 目标：15 个 STR 微卫星位点 (Mcr-01 ~ Mcr-15)
+  - 目标：15 个 STR 微卫星位点 (STR-01 ~ STR-15)
   - 章节：Methods 2.4 & Table 1
 - **[Assay-C: Sex Identification]**
   - 目标：SRY / ZFX 扩增

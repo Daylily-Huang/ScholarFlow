@@ -24,7 +24,7 @@ description: 通用学科科研文献证据可信抽取与事实核验专业技�
 > **严禁全量一次性预加载**：本 Skill 包含 20 个模块文件。在触发激活时，**绝对禁止**一次性通读 `references/`、`role/`、`examples/` 或 `assets/` 中的所有文件。Agent 必须严格遵守以下阶段化按需读取策略，严守上下文预算！
 
 ### 阶段 1：启动与前置交互门禁（仅允许加载 1 个文件，~5 KB）
-- **唯一必须读取**：[references/stage0_grill_me.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/references/stage0_grill_me.md)
+- **唯一必须读取**：[references/stage0_grill_me.md](./references/stage0_grill_me.md)
 - **核心动作**：确认文献全文输入、运行模式（Extract vs Audit）以及目标提取字段列表（用户指定或动态建议 Schema）。
 - **禁止提前读取**：任何其他规程、角色文件、模板或案例。
 
@@ -34,14 +34,14 @@ description: 通用学科科研文献证据可信抽取与事实核验专业技�
 
 #### 📋 分支 A：常规字段抽取模式 (Extract Mode)
 - **执行流转**：
-  1. 仅按需加载 [references/evidence_levels_and_status.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/references/evidence_levels_and_status.md)（掌握 E1-E4 评级与状态标签）；
-  2. 若抽取关键实验参数（引物、温度、浓度、样品量），按需加载 [references/table_and_supplement_priority.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/references/table_and_supplement_priority.md)；
-  3. **仅当论文包含多个并行实验体系时**（如同时包含物种鉴定 16S PCR、微卫星分型 PCR、性别鉴定 PCR），才加载 [references/assay_context_isolation.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/references/assay_context_isolation.md) 进行上下文隔离；
-  4. 抽取完成进入质检前，由审查员加载 [role/evidence_auditor.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/role/evidence_auditor.md) 进行独立红蓝核对。
+  1. 仅按需加载 [references/evidence_levels_and_status.md](./references/evidence_levels_and_status.md)（掌握 E1-E4 评级与状态标签）；
+  2. 若抽取关键实验参数（引物、温度、浓度、样品量），按需加载 [references/table_and_supplement_priority.md](./references/table_and_supplement_priority.md)；
+  3. **仅当论文包含多个并行实验体系时**（如同时包含物种鉴定 16S PCR、微卫星分型 PCR、性别鉴定 PCR），才加载 [references/assay_context_isolation.md](./references/assay_context_isolation.md) 进行上下文隔离；
+  4. 抽取完成进入质检前，由审查员加载 [role/evidence_auditor.md](./role/evidence_auditor.md) 进行独立红蓝核对。
 
 #### 🔍 分支 B：既有结论事实审计模式 (Audit Mode)
 - **执行流转**：
-  1. 专门加载 [references/audit_mode_protocol.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/references/audit_mode_protocol.md)；
+  1. 专门加载 [references/audit_mode_protocol.md](./references/audit_mode_protocol.md)；
   2. 针对用户提交的既有 Claim 列表，调用 `scripts/audit_claims.py` 或结合全文执行逐条反查；
   3. 仅输出三种核验裁决（SUPPORTED / UNSUPPORTED / CONTRADICTORY）。
 
@@ -55,15 +55,15 @@ description: 通用学科科研文献证据可信抽取与事实核验专业技�
 
 技能执行中由三个专门角色协同运作（详见 `role/` 目录）：
 
-1. **主导抽取专员 ([specialist_role.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/role/specialist_role.md))**：
+1. **主导抽取专员 ([specialist_role.md](./role/specialist_role.md))**：
    - 统筹执行全流程抽取，严格遵循 8 大铁律；
    - 负责正文/表格/附录拆解、截取最小充分原文引句并提取候选值；
    - 严禁凭空脑补、严禁把引用别人研究当成本文结果、严禁将 Discussion 推测记为结论。
-2. **实验上下文与动态 Schema 建模助手 ([context_modeler.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/role/context_modeler.md))**：
+2. **实验上下文与动态 Schema 建模助手 ([context_modeler.md](./role/context_modeler.md))**：
    - 动态解析目标论文结构并构建针对性抽取 Schema；
    - 负责复杂实验体系（Assay Context）严格隔离，防止不同实验参数交叉污染；
    - 建立正文、主表与补充材料的数据映射层级。
-3. **证据链独立核验审查员 ([evidence_auditor.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/role/evidence_auditor.md))**：
+3. **证据链独立核验审查员 ([evidence_auditor.md](./role/evidence_auditor.md))**：
    - **独立一票降级与否决权**：在交付最终报告前对每个字段进行反向对账核验；
    - 审查候选值是否能由引文直接推导；对无法证实者一律强制降级为 `DERIVED`、`REFERENCED` 或 `NR`；
    - 检查 OCR 风险标记，签署核验通告令。
@@ -130,36 +130,35 @@ flowchart TD
 
 ---
 
-## 五、下游技能交接契约 (Handoff & Skill Boundaries)
+## 五、技能协同与交接契约 (Workflow Handoff)
 
-- **上游承接**：接收 [`literature-discovery-acquisition`](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/SKILL.md) 检索下载的合法 OA PDF 或机构仓储全文；
-- **单篇精读制作卡片**：将核验后的证据矩阵交接给 [`black-muntjac-literature-card`](file:///d:/black-muntjac-project/.agents/skills/black-muntjac-literature-card/SKILL.md) 凝练出标准化文献卡片；
-- **多篇横向对比**：将跨论文提取的同字段结构化数据交接给 [`black-muntjac-paper-compare`](file:///d:/black-muntjac-project/.agents/skills/black-muntjac-paper-compare/SKILL.md) 自动构建学术对比大表。
+- **上游承接**：接收 [`literature-discovery-acquisition`](../literature-discovery-acquisition/SKILL.md) 检索下载的合法 OA PDF 或机构仓储全文；
+- **下游交付**：将核验后的结构化事实矩阵与参数表直接交接给 [`literature-synthesis`](../literature-synthesis/SKILL.md)，作为学术争议诊断与跨篇证据对决的基础数据源。
 
 ---
 
 ## 六、支撑资源与文档目录
 
 - **角色规范 (`role/`)**：
-  - [specialist_role.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/role/specialist_role.md)：主导抽取专员契约与 8 大硬铁律
-  - [context_modeler.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/role/context_modeler.md)：上下文隔离与动态 Schema 建模助手
-  - [evidence_auditor.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/role/evidence_auditor.md)：独立证据链核验员与一票否决审计
+  - [specialist_role.md](./role/specialist_role.md)：主导抽取专员契约与 8 大硬铁律
+  - [context_modeler.md](./role/context_modeler.md)：上下文隔离与动态 Schema 建模助手
+  - [evidence_auditor.md](./role/evidence_auditor.md)：独立证据链核验员与一票否决审计
 - **核心规程 (`references/`)**：
-  - [stage0_grill_me.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/references/stage0_grill_me.md)：Stage 0 模式选择与动态 Schema 交互规程
-  - [evidence_levels_and_status.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/references/evidence_levels_and_status.md)：E1-E4 四级证据与状态标签定义
-  - [assay_context_isolation.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/references/assay_context_isolation.md)：复杂多实验体系参数隔离指南
-  - [table_and_supplement_priority.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/references/table_and_supplement_priority.md)：表格优先与 OCR 噪声防护指南
-  - [audit_mode_protocol.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/references/audit_mode_protocol.md)：既有科研结论反查审计规程
-  - [interpretation_boundary.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/references/interpretation_boundary.md)：事实抽取与科学解释边界隔离指南
+  - [stage0_grill_me.md](./references/stage0_grill_me.md)：Stage 0 模式选择与动态 Schema 交互规程
+  - [evidence_levels_and_status.md](./references/evidence_levels_and_status.md)：E1-E4 四级证据与状态标签定义
+  - [assay_context_isolation.md](./references/assay_context_isolation.md)：复杂多实验体系参数隔离指南
+  - [table_and_supplement_priority.md](./references/table_and_supplement_priority.md)：表格优先与 OCR 噪声防护指南
+  - [audit_mode_protocol.md](./references/audit_mode_protocol.md)：既有科研结论反查审计规程
+  - [interpretation_boundary.md](./references/interpretation_boundary.md)：事实抽取与科学解释边界隔离指南
 - **辅助工具 (`scripts/`)**：
   - `scripts/pdf_evidence_locator.py`：PDF 页面与精准原句定位器（含特殊符号与 OCR 噪声检测）
   - `scripts/audit_claims.py`：既有 Claim 事实核查反查比对工具
 - **资产与模板 (`assets/`)**：
-  - [evidence_extraction_schema.json](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/assets/evidence_extraction_schema.json)：结构化证据标准 JSON Schema
-  - [evidence_table_template.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/assets/evidence_table_template.md)：标准 Markdown 证据矩阵模板
-  - [audit_report_template.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/assets/audit_report_template.md)：审计模式反查报告模板
-  - [extraction_audit_log_template.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/assets/extraction_audit_log_template.md)：抽取审计轨迹日志模板
+  - [evidence_extraction_schema.json](./assets/evidence_extraction_schema.json)：结构化证据标准 JSON Schema
+  - [evidence_table_template.md](./assets/evidence_table_template.md)：标准 Markdown 证据矩阵模板
+  - [audit_report_template.md](./assets/audit_report_template.md)：审计模式反查报告模板
+  - [extraction_audit_log_template.md](./assets/extraction_audit_log_template.md)：抽取审计轨迹日志模板
 - **案例与反模式 (`examples/`)**：
-  - [molecular_ecology_extraction_case.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/examples/molecular_ecology_extraction_case.md)：分子生态与 PCR 全流程实操案例
-  - [audit_mode_verification_case.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/examples/audit_mode_verification_case.md)：既有文献结论争议审查与纠错案例
-  - [anti_patterns.md](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/examples/anti_patterns.md)：14 大学术抽取反模式与负向对照清单
+  - [molecular_ecology_extraction_case.md](./examples/molecular_ecology_extraction_case.md)：分子生态与 PCR 全流程实操案例
+  - [audit_mode_verification_case.md](./examples/audit_mode_verification_case.md)：既有文献结论争议审查与纠错案例
+  - [anti_patterns.md](./examples/anti_patterns.md)：14 大学术抽取反模式与负向对照清单

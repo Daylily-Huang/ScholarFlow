@@ -169,7 +169,7 @@ ScholarFlow 配套的 Python 脚本均为纯标准库实现，支持独立作为
 python skills/literature-discovery-acquisition/scripts/agent_search.py --snowball "10.1016/j.biocon.2020.108581" --limit 20 -o snowball.json
 
 # 2. 对论文执行 0-10 分前置相关性剪枝评估与声明核验
-python skills/literature-evidence-extraction/scripts/audit_claims.py -i paper.pdf -r "fecal DNA microsatellite black muntjac" --claim "PID-sibs was 0.0004"
+python skills/literature-evidence-extraction/scripts/audit_claims.py -i paper.pdf -r "fecal DNA microsatellite snow leopard" --claim "PID-sibs was 0.0004"
 
 # 3. 运行争议诊断分析并生成 Mermaid 论证拓扑图
 python skills/literature-synthesis/scripts/controversy_analyzer.py -i claims.json -f markdown -o controversy_report.md

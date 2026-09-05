@@ -22,7 +22,7 @@ description: 通用学科科研文献跨篇证据综合分析、学术争议发�
 > **严禁全量一次性预加载**：本 Skill 包含 23 个系统模块。在触发激活时，**绝对禁止**一次性通读 `references/`、`role/`、`examples/` 或 `assets/` 中的所有文件。Agent 必须严格遵守以下阶段化按需读取策略，严守上下文预算！
 
 ### 阶段 1：启动与前置交互门禁（仅允许加载 1 个文件，~5 KB）
-- **唯一必须读取**：[references/stage0_grill_me.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/references/stage0_grill_me.md)
+- **唯一必须读取**：[references/stage0_grill_me.md](./references/stage0_grill_me.md)
 - **核心动作**：解析用户提供的多篇文献输入、确认四种运行模式之一、锁定核心科学命题、确认是否生成最终叙述性综述。
 - **禁止提前读取**：任何其他规程、角色契约、模板或长案例。
 
@@ -59,16 +59,16 @@ description: 通用学科科研文献跨篇证据综合分析、学术争议发�
 
 技能内部将 10 大职能高度凝聚为 4 个紧凑的角色契约（详见 `role/` 目录）：
 
-1. **统筹协调组 ([synthesis_coordinator.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/role/synthesis_coordinator.md))**：
+1. **统筹协调组 ([synthesis_coordinator.md](./role/synthesis_coordinator.md))**：
    - 整合 `Role 0 Coordinator`、`Role 1 Claim Mapper` 与 `Role 2 Evidence Binder`；
    - 负责解析科学问题、将多文献证据原子化为可比主张（Normalized Claims）、建立 Claim–Evidence Matrix、识别 Search Gap 与 Extraction Gap 并向协调上游流水线派发任务。
-2. **争议与方法学诊断组 ([controversy_analyst.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/role/controversy_analyst.md))**：
+2. **争议与方法学诊断组 ([controversy_analyst.md](./role/controversy_analyst.md))**：
    - 整合 `Role 3 Controversy Detector` 与 `Role 4 Methodology Critic`；
    - 负责运用 9 大争议分类器对表面矛盾进行病理学诊断，深入抽检抽样设计、时空尺度、检测概率、指标差异与统计模型假设，拒绝武断认定。
-3. **学派演化与共识组 ([school_consensus_specialist.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/role/school_consensus_specialist.md))**：
+3. **学派演化与共识组 ([school_consensus_specialist.md](./role/school_consensus_specialist.md))**：
    - 整合 `Role 5 Paradigm Analyst`、`Role 6 Temporal Trend Analyst` 与 `Role 7 Consensus Assessor`；
    - 负责识别真实学术流派（严格区分公认学派与分析性聚类）、绘制技术与观点代际演化路线图、执行 6 级共识度评级并强制绑定适用边界。
-4. **红队辩驳与终审组 ([devils_advocate_gatekeeper.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/role/devils_advocate_gatekeeper.md))**：
+4. **红队辩驳与终审组 ([devils_advocate_gatekeeper.md](./role/devils_advocate_gatekeeper.md))**：
    - 整合 `Role 8 Devil's Advocate (反方挑刺专员)` 与 `Role 9 Quality Gatekeeper (终审审查员)`；
    - 专门负责攻击当前主流综合结论：寻找被忽视的反例、排查同一数据集重复发表、检验伪因果与过度外推，并依据 10 项质量门禁执行一票否决。
 
@@ -120,43 +120,41 @@ flowchart TD
 ## 五、下游技能交接与闭环联动 (Handoff & Closed-Loop)
 
 - **接收上游**：
-  - 无缝消费 [`literature-evidence-extraction`](file:///d:/black-muntjac-project/.agents/skills/literature-evidence-extraction/SKILL.md) 产出的结构化 JSON 与证据表；
-  - 接收 [`literature-discovery-acquisition`](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/SKILL.md) 检索下载的文献集合。
+  - 无缝消费 [`literature-evidence-extraction`](../literature-evidence-extraction/SKILL.md) 产出的结构化 JSON 与证据表；
+  - 接收 [`literature-discovery-acquisition`](../literature-discovery-acquisition/SKILL.md) 检索下载的文献集合。
 - **反向闭环派发**：
   - 当发现文献断层时，自动生成 `SEARCH GAP` 任务包回传给 `literature-discovery-acquisition`；
   - 当发现关键参数未抽取时，自动生成 `EXTRACTION GAP` 任务包回传给 `literature-evidence-extraction`。
-- **专项分析承接**：
-  - 针对黑麂本项目的专题对比分析，交接给 [`black-muntjac-paper-compare`](file:///d:/black-muntjac-project/.agents/skills/black-muntjac-paper-compare/SKILL.md) 与 [`black-muntjac-thesis-polish`](file:///d:/black-muntjac-project/.agents/skills/black-muntjac-thesis-polish/SKILL.md)。
 
 ---
 
 ## 六、支撑资源与文档目录
 
 - **角色规范 (`role/`)**：
-  - [synthesis_coordinator.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/role/synthesis_coordinator.md)：统筹协调组契约 (Coordinator + Claim Mapper + Evidence Binder)
-  - [controversy_analyst.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/role/controversy_analyst.md)：争议发掘与方法学诊断组契约 (Controversy Detector + Method Critic)
-  - [school_consensus_specialist.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/role/school_consensus_specialist.md)：学派演化与共识组契约 (Paradigm + Trend + Consensus)
-  - [devils_advocate_gatekeeper.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/role/devils_advocate_gatekeeper.md)：红队辩驳与终审把关组契约 (Devil's Advocate + Gatekeeper)
+  - [synthesis_coordinator.md](./role/synthesis_coordinator.md)：统筹协调组契约 (Coordinator + Claim Mapper + Evidence Binder)
+  - [controversy_analyst.md](./role/controversy_analyst.md)：争议发掘与方法学诊断组契约 (Controversy Detector + Method Critic)
+  - [school_consensus_specialist.md](./role/school_consensus_specialist.md)：学派演化与共识组契约 (Paradigm + Trend + Consensus)
+  - [devils_advocate_gatekeeper.md](./role/devils_advocate_gatekeeper.md)：红队辩驳与终审把关组契约 (Devil's Advocate + Gatekeeper)
 - **核心操作规程 (`references/`)**：
-  - [stage0_grill_me.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/references/stage0_grill_me.md)：Stage 0 模式选择与科学命题锁定 Grill-Me 规程
-  - [controversy_taxonomy_9types.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/references/controversy_taxonomy_9types.md)：9 大学术争议类型分类判定标准 (Type A~I)
-  - [consensus_levels_and_boundaries.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/references/consensus_levels_and_boundaries.md)：6 级共识度评级体系与边界标定规程
-  - [school_and_paradigm_mapping.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/references/school_and_paradigm_mapping.md)：学派与理论框架严谨识别指南
-  - [knowledge_gaps_and_upstream_loop.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/references/knowledge_gaps_and_upstream_loop.md)：10 类研究空白识别与上游闭环反馈规程
-  - [narrative_review_guidelines.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/references/narrative_review_guidelines.md)：争议驱动型综述正文撰写指南
+  - [stage0_grill_me.md](./references/stage0_grill_me.md)：Stage 0 模式选择与科学命题锁定 Grill-Me 规程
+  - [controversy_taxonomy_9types.md](./references/controversy_taxonomy_9types.md)：9 大学术争议类型分类判定标准 (Type A~I)
+  - [consensus_levels_and_boundaries.md](./references/consensus_levels_and_boundaries.md)：6 级共识度评级体系与边界标定规程
+  - [school_and_paradigm_mapping.md](./references/school_and_paradigm_mapping.md)：学派与理论框架严谨识别指南
+  - [knowledge_gaps_and_upstream_loop.md](./references/knowledge_gaps_and_upstream_loop.md)：10 类研究空白识别与上游闭环反馈规程
+  - [narrative_review_guidelines.md](./references/narrative_review_guidelines.md)：争议驱动型综述正文撰写指南
   - `domain_profiles/ecology_profile.md`：生态学黄金偏倚与理论框架 Profile
   - `domain_profiles/molecular_ecology_profile.md`：分子生态与保护遗传学黄金 Profile
 - **辅助分析脚本 (`scripts/`)**：
   - `scripts/controversy_analyzer.py`：跨文献 Claim 对撞、冲突矩阵生成与共识评分脚本
   - `scripts/school_clustering.py`：学派与方法学路线聚类辅助脚本
 - **资产与模板 (`assets/`)**：
-  - [claim_evidence_matrix_schema.json](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/assets/claim_evidence_matrix_schema.json)：Claim–Evidence Matrix JSON Schema
-  - [controversy_map_template.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/assets/controversy_map_template.md)：争议地图模板
-  - [consensus_map_template.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/assets/consensus_map_template.md)：共识地图模板
-  - [school_landscape_template.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/assets/school_landscape_template.md)：学派与方法学图谱模板
-  - [upstream_gap_request_template.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/assets/upstream_gap_request_template.md)：上游闭环任务包模板
-  - [narrative_synthesis_template.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/assets/narrative_synthesis_template.md)：综述正文模板
+  - [claim_evidence_matrix_schema.json](./assets/claim_evidence_matrix_schema.json)：Claim–Evidence Matrix JSON Schema
+  - [controversy_map_template.md](./assets/controversy_map_template.md)：争议地图模板
+  - [consensus_map_template.md](./assets/consensus_map_template.md)：共识地图模板
+  - [school_landscape_template.md](./assets/school_landscape_template.md)：学派与方法学图谱模板
+  - [upstream_gap_request_template.md](./assets/upstream_gap_request_template.md)：上游闭环任务包模板
+  - [narrative_synthesis_template.md](./assets/narrative_synthesis_template.md)：综述正文模板
 - **案例与反模式 (`examples/`)**：
-  - [population_density_controversy_case.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/examples/population_density_controversy_case.md)：黑麂种群密度估算争议全景综合实战
-  - [road_genetic_connectivity_case.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/examples/road_genetic_connectivity_case.md)：道路基因流阻隔争议案例
-  - [anti_patterns.md](file:///d:/black-muntjac-project/.agents/skills/literature-synthesis/examples/anti_patterns.md)：13 大文献综合反模式与负向对照清单
+  - [population_density_controversy_case.md](./examples/population_density_controversy_case.md)：种群密度估算争议综合实战案例
+  - [road_genetic_connectivity_case.md](./examples/road_genetic_connectivity_case.md)：道路基因流阻隔争议案例
+  - [anti_patterns.md](./examples/anti_patterns.md)：13 大文献综合反模式与负向对照清单

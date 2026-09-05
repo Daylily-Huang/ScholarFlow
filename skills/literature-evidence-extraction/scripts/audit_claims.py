@@ -11,7 +11,7 @@ A command-line utility to:
 
 Usage:
     python audit_claims.py -i <paper.pdf> -c <claims.json>
-    python audit_claims.py -i <paper.pdf> --relevance-topic "fecal DNA microsatellite black muntjac"
+    python audit_claims.py -i <paper.pdf> --relevance-topic "fecal DNA microsatellite snow leopard"
     python audit_claims.py -i <paper.txt> --claim "PCR volume was 20 uL"
 """
 

@@ -1,4 +1,4 @@
-﻿# 深度检索全流程案例：鹿科动物粪便 DNA 微卫星个体识别 (Deep Search Ecology Case)
+# 深度检索全流程案例：鹿科动物粪便 DNA 微卫星个体识别 (Deep Search Ecology Case)
 
 本案例完整演示 `literature-discovery-acquisition` Skill 在生态学与保护遗传学复杂课题下的端到端执行全过程。
 
@@ -7,13 +7,13 @@
 ## Stage 0: 问题拆解与前置 Grill-Me 交互
 
 ### 1. 用户初始输入
-> “我想搜一下国内外利用粪便 DNA 微卫星技术进行黑麂或鹿科动物个体识别和种群数量估算的相关研究论文。”
+> “我想搜一下国内外利用粪便 DNA 微卫星技术进行鹿科动物或濒危有蹄类个体识别和种群数量估算的相关研究论文。”
 
 ### 2. Agent 自动初稿推荐呈现
 Agent 快速完成语义解构，在对话中主动呈现初稿：
 - **研究范围初稿**：
   - 核心问题：非损伤性遗传取样（粪便）+ 微卫星（STR/SSR）进行鹿科个体识别与种群评估；
-  - 核心对象：黑麂 (*Muntiacus crinifrons*) 及扩展鹿科物种 (*Cervidae*)；
+  - 核心对象：马鹿 (*Cervus elaphus*) 及扩展鹿科物种 (*Cervidae*)；
 - **概念矩阵初稿**：拆解为 4 个概念桶（C1 样本类型、C2 分子标记、C3 科学目标、C4 鹿科分类群）；
 - **推荐重点期刊初稿**：
   - Tier 1: *Molecular Ecology*, *Conservation Biology*, *Ecology*
@@ -41,7 +41,7 @@ Agent 快速完成语义解构，在对话中主动呈现初稿：
 ### 5. 锁定检索协议快照
 ```markdown
 > **已锁定检索协议快照**：
-> - 课题：利用粪便 DNA 微卫星进行黑麂/鹿科个体识别与种群估算
+> - 课题：利用粪便 DNA 微卫星进行鹿科/有蹄类个体识别与种群估算
 > - 模式：Deep Search
 > - 范围：中英双语 / 期刊论文 + 综述 + 学位论文 / 全时段（包含奠基性工作）
 > - 数据源调度：OpenAlex + PubMed + Europe PMC + Web 广域搜索 + CNKI/WoS 人工补检式生成
@@ -56,7 +56,7 @@ Agent 快速完成语义解构，在对话中主动呈现初稿：
 | **C1** | 样本类型 | fecal DNA | scat, pellet, dung | faecal DNA, noninvasive, non-invasive | excrement, environmental DNA | MeSH: Feces | 粪便DNA, 粪便样品, 非损伤性取样 |
 | **C2** | 分子标记 | microsatellite | STR, SSR | short tandem repeat | simple sequence repeat, VNTR | MeSH: Microsatellite Repeats | 微卫星, 简单重复序列, 短串联重复 |
 | **C3** | 科学目标 | individual identification | genetic tagging, fingerprinting | individual recognition | population estimation, capture-recapture, Capwire | MeSH: DNA Fingerprinting | 个体识别, 遗传标记, 种群数量估算 |
-| **C4** | 研究对象 | Muntiacus crinifrons | black muntjac | Muntiacus | Cervidae, deer, cervid, ungulate | NCBI: Muntiacus crinifrons | 黑麂, 麂属, 鹿科, 鹿类, 有蹄类 |
+| **C4** | 研究对象 | Cervus elaphus | red deer | Cervus | Cervidae, deer, cervid, ungulate | NCBI: Cervus elaphus | 马鹿, 鹿属, 鹿科, 鹿类, 有蹄类 |
 
 ---
 
@@ -73,15 +73,15 @@ Agent 快速完成语义解构，在对话中主动呈现初稿：
 SO=("Molecular Ecology" OR "Conservation Biology" OR "Biological Conservation" OR "Journal of Applied Ecology" OR "Heredity" OR "Mammal Research" OR "Trends in Ecology & Evolution")
 ```
 
-### 3. 多组针对性检索式派生
+#### 3. 多组针对性检索式派生
 - **Q01 (高精核心式)**：
-  `("fecal DNA" OR "faecal DNA" OR "noninvasive genetic") AND ("microsatellite*" OR "STR") AND ("individual identification" OR "genetic tagging") AND ("Muntiacus crinifrons" OR "black muntjac")`
+  `("fecal DNA" OR "faecal DNA" OR "noninvasive genetic") AND ("microsatellite*" OR "STR") AND ("individual identification" OR "genetic tagging") AND ("Cervus elaphus" OR "red deer")`
 - **Q02 (高召回鹿科扩展式)**：
-  `("fecal" OR "faecal" OR "scat" OR "pellet") AND ("DNA") AND ("microsatellite*" OR "SSR" OR "STR") AND ("individual identification" OR "population estimation") AND ("Cervidae" OR "deer" OR "cervid" OR "muntjac")`
+  `("fecal" OR "faecal" OR "scat" OR "pellet") AND ("DNA") AND ("microsatellite*" OR "SSR" OR "STR") AND ("individual identification" OR "population estimation") AND ("Cervidae" OR "deer" OR "cervid" OR "red deer")`
 - **Q03 (方法学质控式)**：
   `("fecal DNA" OR "faecal DNA") AND ("microsatellite") AND ("allelic dropout" OR "false allele" OR "multi-tube" OR "genotyping error")`
 - **Q04 (中文核心专业检索式)**：
-  `(主题 = '粪便DNA' + '非损伤') AND (主题 = '微卫星' + 'STR') AND (主题 = '黑麂' + '麂' + '鹿科')`
+  `(主题 = '粪便DNA' + '非损伤') AND (主题 = '微卫星' + 'STR') AND (主题 = '马鹿' + '鹿属' + '鹿科')`
 
 ---
 
@@ -109,7 +109,7 @@ Agent 调用 API 与学术搜索工具并行执行：
 ## Stage 5: 题录与摘要结构化初筛
 
 对 156 篇文献依据预设标准进行判定：
-- **Include (纳入)**：**52 篇**（直接涉及鹿科/黑麂粪便 DNA 微卫星个体识别或种群估算）；
+- **Include (纳入)**：**52 篇**（直接涉及鹿科/有蹄类粪便 DNA 微卫星个体识别或种群估算）；
 - **Uncertain (待定)**：**14 篇**（如：摘要仅提及“有蹄类非损伤遗传调查”，未明确列举物种；或涉及非微卫星 SNP 方法，但包含种群标记对比，予以保留至全文阶段）；
 - **Exclude (排除)**：**90 篇**（主要触发原因：`EXC_TAXON` 非鹿科食肉动物粪便研究、`EXC_METHOD` 纯胃内容物食性分析无遗传标记、`EXC_TOPIC` 纯微卫星位点引物开发无个体识别实证）。
 
@@ -120,11 +120,11 @@ Agent 调用 API 与学术搜索工具并行执行：
 挑选 3 篇里程碑式种子文献 (Seed Papers)：
 1. **Seed 1 (国际经典方法)**：*Kohn & Wayne (1997)* Facts from feces revisited. *Trends Ecol Evol*. (奠基性综述)
 2. **Seed 2 (质控规范)**：*Taberlet et al. (1996)* Reliable genotyping of samples with very low DNA quantities using PCR. *Nucleic Acids Res*. (多管 PCR 质控开创者)
-3. **Seed 3 (黑麂本地实证)**：*Zheng et al. (2012)* Noninvasive genetic estimation of black muntjac population size. *Conservation Genetics*. (本地实证突破)
+3. **Seed 3 (有蹄类实证)**：*Zheng et al. (2012)* Noninvasive genetic estimation of ungulate population size. *Conservation Genetics*. (本地实证突破)
 
 **追踪结果**：
 - **Backward Chasing (反向追溯参考文献)**：捕获 38 篇文献，去重后新增有效纳入 6 篇（大多为早期鹿科微卫星引物跨物种通用性经典论文）；
-- **Forward Chasing (正向追踪施引文献)**：捕获引用 Zheng et al. 的后续施引文献 29 篇，经初筛纳入 4 篇（均为近 5 年中国森林有蹄类非损伤微卫星新研究）；
+- **Forward Chasing (正向追踪施引文献)**：捕获引用 Zheng et al. 的后续施引文献 29 篇，经初筛纳入 4 篇（均为近 5 年森林有蹄类非损伤微卫星新研究）；
 - **重筛入库**：共计 10 篇通过初筛进入有效文献库。
 
 ---
@@ -134,7 +134,7 @@ Agent 调用 API 与学术搜索工具并行执行：
 ### 1. 轮次边际贡献表
 
 | 轮次 | 阶段操作与来源 | 检出数 | 去重后新增 | 初筛有效数 (Include+Uncertain) | 边际收益率 | 累计有效文献 |
-|:---:|---|:---:|:---:|:---:|:---:|:---:|
+|:---:|---|:---:|---|:---:|---|:---:|
 | **Round 1** | Q01-Q02 核心词矩阵 API 检索 | 276 | 125 | 45 | 100% (基线) | 45 |
 | **Round 2** | Q03-Q04 方法与分类群扩展检索 | 80 | 31 | 21 | 46.7% | 66 |
 | **Round 3** | Seed 1-3 参考文献反向追溯 (Backward) | 38 | 12 | 6 | 13.3% | 72 |
@@ -153,11 +153,11 @@ Agent 调用 API 与学术搜索工具并行执行：
 3. **商业数据库人工补检代码块**：
    - **中国知网 (CNKI)**：
      ```text
-     (主题='粪便DNA' OR 主题='非损伤取样') AND (主题='微卫星' OR 主题='STR') AND (主题='黑麂' OR 主题='麂属' OR 主题='鹿科')
+     (主题='粪便DNA' OR 主题='非损伤取样') AND (主题='微卫星' OR 主题='STR') AND (主题='马鹿' OR 主题='鹿属' OR 主题='鹿科')
      ```
    - **Web of Science 核心合集**：
      ```text
-     TS=(("fecal DNA" OR "faecal DNA" OR "noninvasive") AND ("microsatellite*" OR "STR") AND ("individual identification" OR "genetic tagging") AND ("Muntiacus" OR "Cervidae" OR "deer"))
+     TS=(("fecal DNA" OR "faecal DNA" OR "noninvasive") AND ("microsatellite*" OR "STR") AND ("individual identification" OR "genetic tagging") AND ("Cervus" OR "Cervidae" OR "deer"))
      ```
 4. **下一步推荐**：
-   > “检索阶段已高质量完成。若需获取具体的多管 PCR 反应参数、退火温度、等位基因丢失率（ADO）及引物扩增片段范围，请将下载的全文文献提交给 **literature-extraction** 专用处理模块，禁止在本阶段根据摘要推断实验数值。”
+   > “检索阶段已高质量完成。若需获取具体的多管 PCR 反应参数、退火温度、等位基因丢失率（ADO）及引物扩增片段范围，请将下载的全文文献提交给 **literature-evidence-extraction** 专用处理模块，禁止在本阶段根据摘要推断实验数值。”

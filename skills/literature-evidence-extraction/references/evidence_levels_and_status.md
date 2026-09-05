@@ -90,7 +90,7 @@ flowchart TD
 ```markdown
 | Field | Extracted Value | Evidence Level | Verbatim Quote | Source Type | Location | Status | Notes |
 |---|---|---|---|---|---|---|---|
-| Annealing Temp | 55°C (正文) / 53°C (表1) | E1 (EXPLICIT) | 正文：“annealed at 55°C for 30 s”; 表1：“Locus Mcr-01 Ta = 53°C” | Text & Table | Page 4 & Table 1 | CONTRADICTORY | 正文与表格存在 2°C 温度分歧，未说明原因，需人工复核 |
+| Annealing Temp | 55°C (正文) / 53°C (表1) | E1 (EXPLICIT) | 正文：“annealed at 55°C for 30 s”; 表1：“Locus STR-01 Ta = 53°C” | Text & Table | Page 4 & Table 1 | CONTRADICTORY | 正文与表格存在 2°C 温度分歧，未说明原因，需人工复核 |
 ```
 
 **铁律**：Agent 绝不可自行拍脑袋推断“哪个是对的”，必须将冲突原样呈现给科研人员。

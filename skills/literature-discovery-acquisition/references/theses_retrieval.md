@@ -1,4 +1,4 @@
-﻿# 中英文硕博士学位论文专项检索与下载规程 (Theses & Dissertations Retrieval Protocol)
+# 中英文硕博士学位论文专项检索与下载规程 (Theses & Dissertations Retrieval Protocol)
 
 ## 一、为什么学位论文在严谨科研中具有不可替代性？
 
@@ -65,15 +65,15 @@ flowchart TD
 
 ## 四、主流学位数据库专业检索语法生成标准
 
-通用词矩阵助手 ([domain_advisor.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/role/domain_advisor.md)) 在用户确认需要学位论文后，自动编译输出以下标准代码块：
+通用词矩阵助手 ([domain_advisor.md](../role/domain_advisor.md)) 在用户确认需要学位论文后，自动编译输出以下标准代码块：
 
 ### 1. 中国知网 CNKI 博硕士数据库 (CDMD) 专业检索语法
 ```text
-(主题 = '粪便DNA' + '非损伤取样') AND (主题 = '微卫星' + 'STR') AND (主题 = '黑麂' + '鹿科') AND (学位级别 = '博士' + '硕士')
+(主题 = '粪便DNA' + '非损伤取样') AND (主题 = '微卫星' + 'STR') AND (主题 = '野生动物' + '濒危兽类') AND (学位级别 = '博士' + '硕士')
 ```
 *若需要限定核心院校与导师*：
 ```text
-((主题 = '微卫星') AND (学位级别 = '博士' + '硕士')) AND (学位授予单位 = '中国科学院' + '华东师范大学' + '浙江师范大学')
+((主题 = '微卫星') AND (学位级别 = '博士' + '硕士')) AND (学位授予单位 = '中国科学院' + '北京林业大学' + '东北林业大学')
 ```
 
 ### 2. 万方数据学位论文高级检索式
@@ -109,8 +109,8 @@ ti("fecal DNA" OR "noninvasive genetic") AND schl("University of California" OR 
 <年份>_<学位级别(PhD/Master)>_<作者姓氏>_<学校缩写>_<标题英文短串>.pdf
 ```
 *示例*：
-- `2018_PhD_Zhang_ECNU_Noninvasive_genetics_Muntiacus.pdf`
-- `2021_Master_Li_ZJNU_Fecal_DNA_individual_identification.pdf`
+- `2018_PhD_Zhang_PKU_Noninvasive_genetics_wildlife.pdf`
+- `2021_Master_Li_CAS_Fecal_DNA_individual_identification.pdf`
 
 ### 3. 商业付费库（CNKI/万方/PQDT）人工补检指引
 由于知网优秀博硕士库和 ProQuest PQDT 属于高价值商业付费数据库，无法直接通过外网无鉴权下载。系统将在《全文获取台账》中将此类文献明确标注为 🔒 **PAYWALLED**，并输出：

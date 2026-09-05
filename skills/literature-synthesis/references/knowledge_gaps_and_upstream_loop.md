@@ -9,7 +9,7 @@
 |---|---|---|---|
 | **`GAP-01`** | **Evidence Gap (数据空白)** | 该科学假设在当前目标区域或物种中**完全没有任何实测数据** | 开展奠基性填补实验 |
 | **`GAP-02`** | **Taxon / Cohort Gap (群体空白)** | 仅有成年个体或某一性别的研究，缺乏幼体或雌性群体的专用数据 | 针对特定亚群定向取样 |
-| **`GAP-03`** | **Geographic Gap (地理空白)** | 现有研究 90% 集中于皖南与古田山，浙东天目山等孤立分布区数据缺失 | 拓宽地理取样范围 |
+| **`GAP-03`** | **Geographic Gap (地理空白)** | 现有研究 90% 集中于核心保护区，周边次生林或外围孤立分布区数据缺失 | 拓宽地理取样范围 |
 | **`GAP-04`** | **Temporal Gap (时间空白)** | 缺乏跨年份长期监测数据，无法评估气候波动与极端天气的滞后影响 | 建立固定长期样线监测 |
 | **`GAP-05`** | **Methodological Gap (方法空白)** | 仍在使用早期的传统样线或非空间模型，尚未应用先进的空间显式 SECR 模型 | 升级方法学技术路线 |
 | **`GAP-06`** | **Mechanistic Gap (机制空白)** | 观测到了种群分化现象，但背后的行为隔离或生理驱动机制完全未知 | 引入生理/功能生态实验 |
@@ -27,7 +27,7 @@
 $$\text{Research Question} = \text{Unresolved Controversy} + \text{Uncontrolled Variable} + \text{Methodological Advancement}$$
 
 - **示例**：
-  > “现有研究关于道路对黑麂基因流的影响存在显著争议（Type B/C：早期微卫星未见阻隔 vs 景观模型推测阻隔）。
+  > “现有研究关于道路对特定小型鹿类基因流的影响存在显著争议（Type B/C：早期微卫星未见阻隔 vs 景观模型推测阻隔）。
   > 鉴于以往研究未严格控制道路通车年限（Uncontrolled Variable）且缺乏高分辨率基因组标记（Methodological Limitation），
   > **建议开展的前沿课题为**：基于大样本 RAD-seq 高密 SNP 标记，结合道路通车年代梯度的微景观阻力面建模，精确测定阻隔效应出现的时间滞后阈值。”
 
@@ -43,8 +43,8 @@ $$\text{Research Question} = \text{Unresolved Controversy} + \text{Uncontrolled 
 {
   "gap_type": "SEARCH_GAP",
   "target_skill": "literature-discovery-acquisition",
-  "reason": "缺乏 2020 年后采用 SECR 空间模型评估鹿科密度的现代实证研究",
-  "suggested_query": "(\"Muntiacus\" OR \"Cervidae\") AND (\"spatially explicit capture-recapture\" OR \"SECR\") AND (\"density\" OR \"abundance\")",
+  "reason": "缺乏 2020 年后采用 SECR 空间模型评估该物种密度的现代实证研究",
+  "suggested_query": "(\"Panthera uncia\" OR \"Felidae\") AND (\"spatially explicit capture-recapture\" OR \"SECR\") AND (\"density\" OR \"abundance\")",
   "date_range": "2020-2026",
   "mode": "deep"
 }
@@ -57,7 +57,7 @@ $$\text{Research Question} = \text{Unresolved Controversy} + \text{Uncontrolled 
 {
   "gap_type": "EXTRACTION_GAP",
   "target_skill": "literature-evidence-extraction",
-  "target_paper": "2018_Bao_Muntjac_Conservation.pdf",
+  "target_paper": "2018_Author_Wildlife_Conservation.pdf",
   "reason": "当前证据表缺少该文献的 PCR 多重复孔数与等位基因脱落率控制参数，导致方法学归因受阻",
   "required_fields": [
     "PCR replicate strategy",

@@ -35,7 +35,7 @@
 | **C1** | 样本类型 | fecal DNA | scat, pellet, dung | faecal DNA, non-invasive, noninvasive | excrement, environmental DNA | MeSH: Feces |
 | **C2** | 分子标记 | microsatellite | STR, SSR | short tandem repeat | simple sequence repeat, VNTR | MeSH: Microsatellite Repeats |
 | **C3** | 科学目标 | individual identification | genetic tagging, fingerprinting | individual recognition | population estimation, capture-recapture | MeSH: DNA Fingerprinting |
-| **C4** | 研究对象 | Muntiacus crinifrons | black muntjac | Muntiacus | Cervidae, deer, cervid, ungulate | NCBI: Muntiacus crinifrons |
+| **C4** | 研究对象 | Panthera uncia | snow leopard | Panthera | Felidae, carnivore, big cat | NCBI: Panthera uncia |
 
 ---
 

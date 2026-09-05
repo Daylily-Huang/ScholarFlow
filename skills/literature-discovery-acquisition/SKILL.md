@@ -21,7 +21,7 @@ description: >-
 > **严禁全量一次性预加载**：本 Skill 完整知识库（28 个文件）总文本量约 158 KB。在初次触发激活时，**绝对禁止**一次性读取 `references/`、`role/`、`examples/` 或 `assets/` 中的所有文件。Agent 必须严格遵守以下阶段化与模式分支的渐进式按需读取策略，严守上下文预算！
 
 ### 阶段 1：启动与前置交互门禁（仅允许加载 1 个文件，~5 KB）
-- **唯一必须读取**：[references/stage0_grill_me.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/stage0_grill_me.md)
+- **唯一必须读取**：[references/stage0_grill_me.md](references/stage0_grill_me.md)
 - **禁止提前读取**：任何其他 references、role 文件、案例或资产模板。
 - **核心动作**：解析用户输入，在对话中输出初步范围/概念词/推荐期刊草案，并**必须向用户发起核心第 1 题（Q1 检索模式选择：Deep Search vs Quick Search）与第 2 题（Q2 硕博学位论文需求）的 Grill-Me 决策询问**。
 
@@ -62,13 +62,13 @@ description: >-
 
 技能执行过程中由以下三个专门角色协同运作（详见 `role/` 目录）：
 
-1. **系统化检索主导专家 ([specialist_role.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/role/specialist_role.md))**：
+1. **系统化检索主导专家 ([specialist_role.md](role/specialist_role.md))**：
    - 负责整体工作流统筹调度、Stage 0 前置 Grill-Me 交互门禁、数据源并发检索与双轨产物输出。
    - 严格恪守 6 大铁律（绝不全知宣称、DOI 零伪造、无全文不推断实验参数、三级证据分级）。
-2. **通用词矩阵与重点期刊助手 ([domain_advisor.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/role/domain_advisor.md))**：
+2. **通用词矩阵与重点期刊助手 ([domain_advisor.md](role/domain_advisor.md))**：
    - **动态实时探索**：不设僵化死板的学科分身，在明确用户课题后，**通过实时检索网络（Search Web）、学术知识库与受控词表（MeSH/NCBI/ACM等）**，动态提炼 2–4 个正交概念桶与 7 维术语拓展；
    - 实时生成四层级重点期刊列表及适配各大数据库（WoS/PubMed/Scopus/CNKI）的来源过滤检索代码。
-3. **最终质量审查员 ([quality_gatekeeper.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/role/quality_gatekeeper.md))**：
+3. **最终质量审查员 ([quality_gatekeeper.md](role/quality_gatekeeper.md))**：
    - **独立审计红蓝把关**：在结果交付与报告生成前执行严苛独立核验，签署 `PASS` 或 `REJECT` 放行决议。
    - 审查布尔语法正确性、漏词与查全风险、初筛决策与 Uncertain 保留、无脑补实验细节、全文下载文件魔数真实性。
 
@@ -107,7 +107,7 @@ flowchart TD
 
 ### Stage 0：研究问题解析与前置 Grill-Me 交互门禁
 
-在执行任何实际搜索调用前，必须执行以下步骤（详见 [stage0_grill_me.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/stage0_grill_me.md)）：
+在执行任何实际搜索调用前，必须执行以下步骤（详见 [stage0_grill_me.md](references/stage0_grill_me.md)）：
 
 1. **自动生成初稿推荐**：
    - 提取核心科学问题、对象/分类群、技术方法与预期变量；
@@ -126,7 +126,7 @@ flowchart TD
 
 ### Stage 1：正交概念矩阵实时探索 (Concept Matrix)
 
-由通用词矩阵助手 ([domain_advisor.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/role/domain_advisor.md)) 实时解构为 2–4 个正交概念桶，并跨网络与学术知识库拓展 7 维同义词汇（详见 [concept_matrix.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/concept_matrix.md)）：
+由通用词矩阵助手 ([domain_advisor.md](role/domain_advisor.md)) 实时解构为 2–4 个正交概念桶，并跨网络与学术知识库拓展 7 维同义词汇（详见 [concept_matrix.md](references/concept_matrix.md)）：
 - **Concept A**：研究对象 / 目标分类群 / 疾病
 - **Concept B**：核心方法 / 技术标记 / 干预措施
 - **Concept C**：样本类型 / 介质 / 试验环境
@@ -137,7 +137,7 @@ flowchart TD
 
 ### Stage 2：四层级重点期刊推荐与多组检索式派生
 
-1. **四层级重点期刊推荐**（详见 [journal_mapping.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/journal_mapping.md)）：
+1. **四层级重点期刊推荐**（详见 [journal_mapping.md](references/journal_mapping.md)）：
    - **Tier 1（综合顶级与旗舰）**：*Nature*, *Science*, *PNAS*, *TPAMI*, *NEJM* 等；
    - **Tier 2（专业顶刊与主题核心）**：JCR Q1、中科院 1 区专业顶刊；
    - **Tier 3（权威综述期刊）**：*Trends in...*, *Annual Reviews*, *Biological Reviews*（**引文追踪最佳种子池**）；
@@ -153,7 +153,7 @@ flowchart TD
 
 ### Stage 3：多数据源分层协同检索 (Multi-Source Retrieval)
 
-调用环境中可用的学术工具与数据源，严格执行分层调度（详见 [databases_and_tools.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/databases_and_tools.md)）：
+调用环境中可用的学术工具与数据源，严格执行分层调度（详见 [databases_and_tools.md](references/databases_and_tools.md)）：
 1. **第一层：开放学术 API**（OpenAlex 全学科、PubMed/Europe PMC 生命科学与医学、arXiv/bioRxiv 预印本）；
 2. **第二层：Web 学术探测**（Google Scholar 关键文献补漏、出版商落地页解析、DOI 解析校验）；
 3. **第三层：受限商业数据库声明与人工补检式生成**（中国知网 CNKI、Web of Science、Scopus、万方数据）；
@@ -163,7 +163,7 @@ flowchart TD
 
 ### Stage 4：四级渐进式去重流水线 (Deduplication)
 
-跨库原始文献统一进入级联去重流水线（详见 [screening_and_chasing.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/screening_and_chasing.md)）：
+跨库原始文献统一进入级联去重流水线（详见 [screening_and_chasing.md](references/screening_and_chasing.md)）：
 1. **Level 1**：标准化 DOI 精确匹配；
 2. **Level 2**：PMID / arXiv ID 匹配；
 3. **Level 3**：文本归一化标题（去除标点、转小写、压空格）精确匹配；
@@ -178,7 +178,7 @@ flowchart TD
 - **纳入 (`Include`)**：完全符合研究对象与方法；
 - **排除 (`Exclude`)**：必须附带结构化排除原因代码（如 `EXC_TAXON` 对象错误、`EXC_METHOD` 非目标方法等）；
 - **待定 (`Uncertain`)**：**绝不允许武断剔除**，凡标题摘要无法完全确证者一律保留至全文阶段；
-- **海量初筛并发调度 (Map-Reduce)**（详见 [subagent_screening.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/subagent_screening.md)）：
+- **海量初筛并发调度 (Map-Reduce)**（详见 [subagent_screening.md](references/subagent_screening.md)）：
   当独立候选文献量 $N \ge 30$ 篇时，自动触发动态批处理，按每批 15~25 篇切片并行分发轻量 `screening_subagent` 并发打分，最后由主专家聚合，彻底防止长文本注意力漂移。
 
 ---
@@ -195,7 +195,7 @@ flowchart TD
 
 ### Stage 7：检索饱和度量化评估与审计报告 (Saturation Assessment)
 
-1. **检索饱和度量化评估**（详见 [saturation_and_qc.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/saturation_and_qc.md)）：
+1. **检索饱和度量化评估**（详见 [saturation_and_qc.md](references/saturation_and_qc.md)）：
    - 记录每轮检索的新增有效文献数与边际贡献率（Marginal Yield %）；
    - 当边际贡献率 $< 5\%$ 或连续追踪新增 $\le 2$ 篇时，判定达到边际收敛；
    - 严禁声称“找全了所有文献”，只能表述为“在当前策略与数据源下接近边际饱和”；
@@ -206,7 +206,7 @@ flowchart TD
 
 ### Stage 8：开源文献全文自动下载与 Zotero 生态沉淀 (Open-Access & Zotero CSL-JSON)
 
-对初筛为 `Include`（及可选 `Uncertain`）的文献，自动执行全文下载与入库闭环（详见 [stage8_oa_download.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/stage8_oa_download.md)、[zotero_watch_folder.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/zotero_watch_folder.md) 与执行脚本 `scripts/download_oa_papers.py`）：
+对初筛为 `Include`（及可选 `Uncertain`）的文献，自动执行全文下载与入库闭环（详见 [stage8_oa_download.md](references/stage8_oa_download.md)、[zotero_watch_folder.md](references/zotero_watch_folder.md) 与执行脚本 `scripts/download_oa_papers.py`）：
 
 1. **多源合法 OA 解析**：
    - 自动提取 OpenAlex `best_oa_location.pdf_url`、Europe PMC 官方全文直链、bioRxiv/arXiv 预印本 PDF 与高校机构知识库直链；
@@ -225,7 +225,7 @@ flowchart TD
 
 ### Stage 8B：浏览器辅助兜底下载 (Browser-Assisted Fallback — 可选)
 
-当 Stage 8 台账中仍存在 `PAYWALLED` 文献，且用户已配置启用站点适配器（`site_registry.json`）时，自动进入本阶段（详见 [stage8b_browser_fallback.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/stage8b_browser_fallback.md)）：
+当 Stage 8 台账中仍存在 `PAYWALLED` 文献，且用户已配置启用站点适配器（`site_registry.json`）时，自动进入本阶段（详见 [stage8b_browser_fallback.md](references/stage8b_browser_fallback.md)）：
 
 1. **站点匹配**：根据文献语言与类型匹配最高优先级的已启用适配器（CNKI/万方/学校代理等）；
 2. **凭据加载**：从 `.env` 文件读取凭据（**绝不存储、回显或写入任何输出**）；
@@ -247,7 +247,7 @@ flowchart TD
 
 ## 四、最终质量审查员独立门禁 (Gatekeeper Checkpoints)
 
-在生成最终交付物前，最终质量审查员 ([quality_gatekeeper.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/role/quality_gatekeeper.md)) 必须执行独立核验并签署审查决议：
+在生成最终交付物前，最终质量审查员 ([quality_gatekeeper.md](role/quality_gatekeeper.md)) 必须执行独立核验并签署审查决议：
 
 - [ ] 1. **检索式布尔语法**：括号严格匹配，无逻辑符号颠倒；
 - [ ] 2. **概念矩阵查全度**：已发掘 7 维变体与拉丁学名，无单一检索式偷懒；
@@ -257,7 +257,7 @@ flowchart TD
 - [ ] 6. **数据源披露透明度**：诚实标明实际检索与受限商业库，提供人工补检式；
 - [ ] 7. **开源下载真实性**：若执行 Stage 8，本地 PDF 均通过 `%PDF-` 魔数与文件体量校验，无 HTML 伪装损坏文件；
 - [ ] 8. **硕博士学位论文履约核验**：严格按照 Grill-Me 确认的学位论文需求，落实专属检索式生成、高校知识库直链探测与台账标识；
-- [ ] 9. **PRISMA-S 16 项系统评价扩展标准机审**：严格对照 [prisma_s_checklist.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/prisma_s_checklist.md) 校验，在最终决议中输出 PRISMA-S 16 项合规评分卡（如 `16/16 FULLY COMPLIANT`）。
+- [ ] 9. **PRISMA-S 16 项系统评价扩展标准机审**：严格对照 [prisma_s_checklist.md](references/prisma_s_checklist.md) 校验，在最终决议中输出 PRISMA-S 16 项合规评分卡（如 `16/16 FULLY COMPLIANT`）。
 - [ ] 10. **浏览器兜底下载安全与凭据审计**（若执行 Stage 8B）：确认凭据未泄露、`.env` 在 `.gitignore` 中、下载文件通过校验、未下错文献、请求频率合规。
 
 审查员必须在报告末尾签署形式化核验决议（PASS 放行 / REJECT 驳回重修）。
@@ -267,53 +267,50 @@ flowchart TD
 ## 五、支撑文档与参考资源目录
 
 - **角色与审查模块 (`role/`)**：
-  - [specialist_role.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/role/specialist_role.md)：系统化检索主导专家契约与 6 大铁律 (含 Headless 与并发初筛协议)
-  - [domain_advisor.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/role/domain_advisor.md)：通用词矩阵与重点期刊助手（动态探索机制与学位论文策略）
-  - [quality_gatekeeper.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/role/quality_gatekeeper.md)：最终质量审查员独立审计规范与 PRISMA-S 评分放行令
+  - [specialist_role.md](role/specialist_role.md)：系统化检索主导专家契约与 6 大铁律 (含 Headless 与并发初筛协议)
+  - [domain_advisor.md](role/domain_advisor.md)：通用词矩阵与重点期刊助手（动态探索机制与学位论文策略）
+  - [quality_gatekeeper.md](role/quality_gatekeeper.md)：最终质量审查员独立审计规范与 PRISMA-S 评分放行令
 - **阶段详细规程 (`references/`)**：
-  - [stage0_grill_me.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/stage0_grill_me.md)：Stage 0 问题拆解与前置 Grill-Me 交互规程（含硕博必问项）
-  - [theses_retrieval.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/theses_retrieval.md)：中英文硕博士学位论文专项检索与下载规程（CNKI博硕/PQDT/OATD/高校IR）
-  - [subagent_screening.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/subagent_screening.md)：多 SubAgent 并发初筛分片与打分规程 (Map-Reduce)
-  - [prisma_s_checklist.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/prisma_s_checklist.md)：PRISMA-S 16 项系统评价文献检索扩展标准机审规程
-  - [concept_matrix.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/concept_matrix.md)：Stage 1-2 概念矩阵与检索式扩展规程
-  - [journal_mapping.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/journal_mapping.md)：四层级重点期刊评价体系与语法映射
-  - [databases_and_tools.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/databases_and_tools.md)：Stage 3 多数据源协同检索与工具调度指南
-  - [screening_and_chasing.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/screening_and_chasing.md)：Stage 4-6 去重、初筛与引文追踪规程
-  - [saturation_and_qc.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/saturation_and_qc.md)：Stage 7 饱和度收敛评估与 PRISMA 质控流
-  - [stage8_oa_download.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/stage8_oa_download.md)：Stage 8 开源文献下载与完整性审计规程
-  - [stage8b_browser_fallback.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/stage8b_browser_fallback.md)：Stage 8B 浏览器辅助兜底下载操作协议（站点适配、凭据安全、操作序列）
-  - [zotero_watch_folder.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/zotero_watch_folder.md)：Zotero 监听目录与双层 CSL-JSON 文献库生态沉淀指南
+  - [stage0_grill_me.md](references/stage0_grill_me.md)：Stage 0 问题拆解与前置 Grill-Me 交互规程（含硕博必问项）
+  - [theses_retrieval.md](references/theses_retrieval.md)：中英文硕博士学位论文专项检索与下载规程（CNKI博硕/PQDT/OATD/高校IR）
+  - [subagent_screening.md](references/subagent_screening.md)：多 SubAgent 并发初筛分片与打分规程 (Map-Reduce)
+  - [prisma_s_checklist.md](references/prisma_s_checklist.md)：PRISMA-S 16 项系统评价文献检索扩展标准机审规程
+  - [concept_matrix.md](references/concept_matrix.md)：Stage 1-2 概念矩阵与检索式扩展规程
+  - [journal_mapping.md](references/journal_mapping.md)：四层级重点期刊评价体系与语法映射
+  - [databases_and_tools.md](references/databases_and_tools.md)：Stage 3 多数据源协同检索与工具调度指南
+  - [screening_and_chasing.md](references/screening_and_chasing.md)：Stage 4-6 去重、初筛与引文追踪规程
+  - [saturation_and_qc.md](references/saturation_and_qc.md)：Stage 7 饱和度收敛评估与 PRISMA 质控流
+  - [stage8_oa_download.md](references/stage8_oa_download.md)：Stage 8 开源文献下载与完整性审计规程
+  - [stage8b_browser_fallback.md](references/stage8b_browser_fallback.md)：Stage 8B 浏览器辅助兜底下载操作协议（站点适配、凭据安全、操作序列）
+  - [zotero_watch_folder.md](references/zotero_watch_folder.md)：Zotero 监听目录与双层 CSL-JSON 文献库生态沉淀指南
 - **执行脚本与工具 (`scripts/`)**：
   - `scripts/download_oa_papers.py`：开源文献批量下载、魔数核验与双层 CSL-JSON 生成脚本
   - `scripts/agent_search.py`：Headless / Agent 模式专用纯数据检索管道脚本
 - **标准资产与模板 (`assets/`)**：
-  - [concept_matrix_template.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/assets/concept_matrix_template.md)：概念矩阵输出模板
-  - [journal_recommendation_template.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/assets/journal_recommendation_template.md)：重点期刊推荐与过滤语法模板
-  - [candidate_literature_schema.json](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/assets/candidate_literature_schema.json)：候选文献标准 JSON Schema
-  - [csl_json_schema.json](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/assets/csl_json_schema.json)：CSL-JSON 标准数据格式 Schema
-  - [site_registry_template.json](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/assets/site_registry_template.json)：Stage 8B 站点适配器注册表模板（CNKI/万方/学校代理）
-  - [browser_credentials_example.env](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/assets/browser_credentials_example.env)：Stage 8B 凭据文件示例（不含真实密码）
-  - [download_ledger_template.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/assets/download_ledger_template.md)：全文文献获取台账模板
-  - [search_log_template.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/assets/search_log_template.md)：检索审计日志模板
-  - [search_saturation_template.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/assets/search_saturation_template.md)：饱和度轮次跟踪表模板
-  - [screening_decision_template.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/assets/screening_decision_template.md)：初筛决策记录模板
+  - [concept_matrix_template.md](assets/concept_matrix_template.md)：概念矩阵输出模板
+  - [journal_recommendation_template.md](assets/journal_recommendation_template.md)：重点期刊推荐与过滤语法模板
+  - [candidate_literature_schema.json](assets/candidate_literature_schema.json)：候选文献标准 JSON Schema
+  - [csl_json_schema.json](assets/csl_json_schema.json)：CSL-JSON 标准数据格式 Schema
+  - [site_registry_template.json](assets/site_registry_template.json)：Stage 8B 站点适配器注册表模板（CNKI/万方/学校代理）
+  - [browser_credentials_example.env](assets/browser_credentials_example.env)：Stage 8B 凭据文件示例（不含真实密码）
+  - [download_ledger_template.md](assets/download_ledger_template.md)：全文文献获取台账模板
+  - [search_log_template.md](assets/search_log_template.md)：检索审计日志模板
+  - [search_saturation_template.md](assets/search_saturation_template.md)：饱和度轮次跟踪表模板
+  - [screening_decision_template.md](assets/screening_decision_template.md)：初筛决策记录模板
 - **案例与反模式对照 (`examples/`)**：
-  - [deep_search_ecology_case.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/examples/deep_search_ecology_case.md)：生态学/分子遗传学深度检索全流程案例（设计时参考）
-  - [quick_search_biomedical_case.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/examples/quick_search_biomedical_case.md)：生物医学快速精准检索案例（设计时参考）
-  - [anti_patterns.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/examples/anti_patterns.md)：12 种学术检索反模式与负向清单
-  - [real_execution_log_template.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/examples/real_execution_log_template.md)：真实执行日志归档模板——每次完成实际文献检索后，按 `real_execution_log_YYYY-MM-DD_<课题>.md` 归档，用于 Skill 校准与经验沉淀
+  - [deep_search_ecology_case.md](examples/deep_search_ecology_case.md)：生态学/分子遗传学深度检索全流程案例（设计时参考）
+  - [quick_search_biomedical_case.md](examples/quick_search_biomedical_case.md)：生物医学快速精准检索案例（设计时参考）
+  - [anti_patterns.md](examples/anti_patterns.md)：12 种学术检索反模式与负向清单
+  - [real_execution_log_template.md](examples/real_execution_log_template.md)：真实执行日志归档模板——每次完成实际文献检索后，按 `real_execution_log_YYYY-MM-DD_<课题>.md` 归档，用于 Skill 校准与经验沉淀
 
 ---
 
 ## 六、下游技能交接协议 (Handoff & Skill Boundaries)
 
-为了确保科研工作流的无缝衔接与职责边界清晰，本技能与项目内其他文献/分析技能遵循如下交接协议：
+为了确保科研工作流的无缝衔接与职责边界清晰，本技能作为 ScholarFlow 科研文献生命周期的上游总入口，与下游分析与综合技能遵循如下交接协议：
 
-1. **单篇精读制作文献卡片**：
-   - 当初筛出核心 `Include` 级关键文献（奠基作/高相关实证研究）需要深入解构时，交接给 [`black-muntjac-literature-card`](file:///d:/black-muntjac-project/.agents/skills/black-muntjac-literature-card/SKILL.md) 提取研究问题、采样设计、核心方法、局限性与论文启发。
-2. **多篇同主题横向对比**：
-   - 当需要对同一研究主题下的多篇文献（如不同团队开发的引物体系、微卫星筛选策略、种群估算模型）做方法学横向对比时，交接给 [`black-muntjac-paper-compare`](file:///d:/black-muntjac-project/.agents/skills/black-muntjac-paper-compare/SKILL.md) 输出结构化对比矩阵。
-3. **与项目专用 `black-muntjac-literature-search` 的职责边界**：
-   - **`black-muntjac-literature-search`**：黑麂项目专属的垂直检索工具，绑定了黑麂非损伤采样、微卫星、Capwire、SECR 等特定词汇体系与本地知识库，适合项目内的日常轻量补查；
-   - **`literature-discovery-acquisition`**（本技能）：跨学科通用的工业级文献发现与获取流水线，具备学科动态探索、前置 Grill-Me 问询交互、Map-Reduce 并发初筛、PRISMA-S 机器质检、OA 批量下载与 Zotero 自动沉淀能力，适合科研立项、学位论文开题与系统综述等重型场景。
+1. **文献可信内容与证据链提取 (`literature-evidence-extraction`)**：
+   - 当初筛与下载获得核心全文文献（PDF/HTML）后，若需按定制 Schema 提取结构化参数、实验设计、数值结果或事实核验，交接给 [`literature-evidence-extraction`](../literature-evidence-extraction/SKILL.md) 遵循 Quote → Extract → Verify 铁律进行 E1-E4 证据链抽取与伴生 JSON 生成。
+2. **多篇文献交叉综合与学术争议发掘 (`literature-synthesis`)**：
+   - 当完成文献批量初筛与证据提取，需要对多篇文献在核心假说、估算模型、机制分歧上展开横向跨篇对决、反方挑刺（Devil's Advocate）与学派图谱构建时，交接给 [`literature-synthesis`](../literature-synthesis/SKILL.md) 生成争议驱动型综述与共识边界矩阵。
 

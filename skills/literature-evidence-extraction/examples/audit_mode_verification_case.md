@@ -2,10 +2,10 @@
 
 ## 一、案例背景与送审问题
 
-- **待查论文**：`2015_Chen_Muntjac_Population_Genetics.pdf`
+- **待查论文**：`2015_Chen_Wildlife_Population_Genetics.pdf`
 - **引发争议的综述陈述**：
   在某篇 2020 年发表的中文综述论文中，作者引用了陈等（2015）的数据并写道：
-  > “陈等 (2015) 利用 12 个微卫星位点对千岛湖黑麂粪便样品进行了个体识别，PCR 体系为 25 μL，未添加任何 BSA 稳定剂，最终成功识别出 42 个人体，种群估算为 65 只。”
+  > “陈等 (2015) 利用 12 个微卫星位点对某片段化森林野生动物粪便样品进行了个体识别，PCR 体系为 25 μL，未添加任何 BSA 稳定剂，最终成功识别出 42 个个体，种群估算为 65 只。”
 - **用户的核查指令**：
   > “请帮我核实这段综述里提到的陈等 (2015) 细节是否属实？特别是 25 μL PCR、未添加 BSA 和 12 个位点，帮我逐一到陈等的 PDF 原文中反查对账！”
 
@@ -17,7 +17,7 @@
 - **Claim 1 (位点数量)**：陈等使用了 12 个微卫星位点进行个体识别；
 - **Claim 2 (PCR 体系)**：微卫星 PCR 反应体积为 25 μL；
 - **Claim 3 (BSA 添加)**：PCR 体系中明确未添加任何 BSA 稳定剂；
-- **Claim 4 (个体识别数)**：最终成功识别出 42 个黑麂个体；
+- **Claim 4 (个体识别数)**：最终成功识别出 42 个野生动物个体；
 - **Claim 5 (种群估算值)**：种群估算为 65 只。
 
 ---
@@ -62,7 +62,7 @@
 | **C1** | 使用了 12 个微卫星位点 | **PARTIALLY_SUPPORTED** | E1 | “...initially screened 15 loci; 12 polymorphic loci were selected for final typing...” | Page 3, Section 2.3 | 原文初筛 15 个位点，最终多态入选 12 个，综述略去筛选过程 |
 | **C2** | 微卫星PCR体系为 25 μL | **CONTRADICTORY** | E1 | “Multiplex STR PCR was carried out in a 10 μL volume containing...” | Page 4, Section 2.4 | ⚠️ **存在严重事实颠倒！** 原文微卫星实为 10 μL；综述作者错把物种鉴定的 25 μL 混入 |
 | **C3** | 未添加任何 BSA 稳定剂 | **UNSUPPORTED** | E4 (NR) | — | Full text scanned | ❌ **查无实据！** 原文通篇未提 BSA，犯了“将未报告当成未使用”的严重推断错误 |
-| **C4** | 成功识别出 42 个黑麂个体 | **SUPPORTED** | E1 | “...42 distinct individuals were identified from 88 valid fecal genotypes.” | Page 5, Section 3.2 | 证实完全属实，数据严格对应 |
+| **C4** | 成功识别出 42 个野生动物个体 | **SUPPORTED** | E1 | “...42 distinct individuals were identified from 88 valid fecal genotypes.” | Page 5, Section 3.2 | 证实完全属实，数据严格对应 |
 | **C5** | 种群估算为 65 只 | **PARTIALLY_SUPPORTED** | E1 | “TIRM model estimated N = 68 (95% CI: 52–89), while ECM model yielded N = 65...” | Page 6, Table 4 | 65 仅为次优模型 ECM 估算值，主流 TIRM 实际为 68 只 |
 
 ---

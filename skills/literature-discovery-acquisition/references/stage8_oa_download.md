@@ -64,7 +64,7 @@ flowchart TD
 ```
 - **格式示例**：
   - `2024_Wang_Targeting_KRAS_G12D_pancreatic_cancer.pdf`
-  - `2012_Zheng_Noninvasive_genetic_estimation_black_muntjac.pdf`
+  - `2012_Zheng_Noninvasive_genetic_estimation_wildlife.pdf`
 - **过滤规则**：
   - 剔除所有文件名非法字符（如 `\`, `/`, `:`, `*`, `?`, `"`, `<`, `>`, `|`）；
   - 连续空格替换为单下划线 `_`；
@@ -108,8 +108,8 @@ flowchart TD
 Stage 8 完成并生成本地 PDF 文件与《全文获取台账》后：
 
 1. **若台账中存在 `PAYWALLED` 文献且 `site_registry.json` 中有已启用站点**：
-   自动进入 **Stage 8B（浏览器辅助兜底下载）**，通过浏览器自动化进入知网/万方/学校代理等站点尝试补充下载。详见 [stage8b_browser_fallback.md](file:///d:/black-muntjac-project/.agents/skills/literature-discovery-acquisition/references/stage8b_browser_fallback.md)。
+   自动进入 **Stage 8B（浏览器辅助兜底下载）**，通过浏览器自动化进入知网/万方/学校代理等站点尝试补充下载。详见 [stage8b_browser_fallback.md](stage8b_browser_fallback.md)。
 
 2. **若台账中无 `PAYWALLED`，或无已启用站点**：
    直接进入 Quality Gatekeeper 独立审查，输出标准指引：
-   > **"已下载的文献 PDF 文件位于 `papers/downloads/`。下一步如需提取具体的 PCR 体系、引物设计参数、药品浓度与统计结果，请调用 `literature-extraction` 专用信息提取技能处理上述本地文件。"**
+   > **"已下载的文献 PDF 文件位于 `papers/downloads/`。下一步如需提取文献的实验方法、核心参数或进行事实核验，请调用 `literature-evidence-extraction` 证据抽取技能处理上述本地文件。"**
