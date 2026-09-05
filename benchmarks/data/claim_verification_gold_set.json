@@ -1,0 +1,36 @@
+{
+  "benchmark_name": "ScholarFlow Claim Verification Benchmark v0.1",
+  "document_text": "Page 1: Wildlife ecology survey conducted across 42 square kilometers. Page 2: PCR amplification in 20 uL volume with annealing temperature 55 °C and 35 cycles. Page 3: Individual identification confirmed 18 individuals using 10 microsatellite markers.",
+  "test_cases": [
+    {
+      "claim_id": "TC_01",
+      "claim": "PCR reaction volume was 20 uL",
+      "expected_verdict": "LOCATED_CO_OCCURRING",
+      "is_valid_support": true
+    },
+    {
+      "claim_id": "TC_02",
+      "claim": "Annealing temperature was 55 °C",
+      "expected_verdict": "LOCATED_CO_OCCURRING",
+      "is_valid_support": true
+    },
+    {
+      "claim_id": "TC_03",
+      "claim": "PCR volume was 42 uL",
+      "expected_verdict": "NUMBER_DISLOCATED",
+      "is_valid_support": false
+    },
+    {
+      "claim_id": "TC_04",
+      "claim": "Annealing temperature was 72 °C",
+      "expected_verdict": "NUMERICAL_MISMATCH",
+      "is_valid_support": false
+    },
+    {
+      "claim_id": "TC_05",
+      "claim": "Antarctic emperor penguin foraging distance",
+      "expected_verdict": "NO_SURFACE_MATCH",
+      "is_valid_support": false
+    }
+  ]
+}

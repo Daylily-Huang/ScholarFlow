@@ -1,0 +1,47 @@
+{
+  "benchmark_name": "ScholarFlow Extraction Benchmark v0.1",
+  "test_cases": [
+    {
+      "passage_id": "P01",
+      "text": "DNA was extracted from 150 fecal samples using the QIAamp DNA Stool Mini Kit. PCR amplification was carried out in a 20 uL reaction volume at annealing temperature 56 °C for 35 cycles. Primers used were labeled with fluorescent dyes.",
+      "ground_truth": [
+        {
+          "field": "sample_size",
+          "expected_value": "150",
+          "expected_support_type": "EXPLICIT",
+          "is_nr": false
+        },
+        {
+          "field": "reaction_volume",
+          "expected_value": "20 uL",
+          "expected_support_type": "EXPLICIT",
+          "is_nr": false
+        },
+        {
+          "field": "annealing_temperature",
+          "expected_value": "56 °C",
+          "expected_support_type": "EXPLICIT",
+          "is_nr": false
+        },
+        {
+          "field": "pcr_cycles",
+          "expected_value": "35",
+          "expected_support_type": "EXPLICIT",
+          "is_nr": false
+        },
+        {
+          "field": "allelic_dropout_rate",
+          "expected_value": "NR",
+          "expected_support_type": "NOT_REPORTED",
+          "is_nr": true
+        },
+        {
+          "field": "pid_sibs",
+          "expected_value": "NR",
+          "expected_support_type": "NOT_REPORTED",
+          "is_nr": true
+        }
+      ]
+    }
+  ]
+}

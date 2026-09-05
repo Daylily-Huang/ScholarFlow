@@ -201,14 +201,104 @@ def run_snowball_search(seed_identifier, limit=15):
     return records
 
 
+def normalize_title(title):
+    return re.sub(r"[^a-zA-Z0-9\u4e00-\u9fa5]", "", (title or "").lower())
+
+
+def deduplicate_records(records):
+    seen_dois = set()
+    seen_titles = set()
+    unique = []
+    for r in records:
+        doi = (r.get("doi") or "").lower().strip()
+        norm_title = normalize_title(r.get("title"))
+        if doi and doi != "nr" and doi in seen_dois:
+            continue
+        if norm_title and norm_title in seen_titles:
+            continue
+        if doi and doi != "nr":
+            seen_dois.add(doi)
+        if norm_title:
+            seen_titles.add(norm_title)
+        unique.append(r)
+    return unique
+
+
+def run_deep_search(query_str, limit=30):
+    """
+    Multi-round deep search with concept expansion, citation chasing, deduplication,
+    and saturation tracking (PRISMA-S compliant multi-phase execution).
+    """
+    sys.stderr.write(f"[*] Deep Search Phase 1: Primary query '{query_str}' (target: {limit})\n")
+    round1_records = query_openalex_headless(query_str, limit=limit)
+    
+    # Phase 2: Formulate concept expansion / sub-query variants
+    words = [w for w in query_str.split() if len(w) > 3]
+    round2_records = []
+    if len(words) >= 2:
+        variant_query = f"{words[0]} {words[-1]}"
+        sys.stderr.write(f"[*] Deep Search Phase 2: Concept expansion query '{variant_query}'\n")
+        round2_records = query_openalex_headless(variant_query, limit=max(5, limit // 2))
+        
+    combined = round1_records + round2_records
+    deduped = deduplicate_records(combined)
+    
+    # Phase 3: Citation Snowballing on the highest-cited candidate discovered
+    snowballed_records = []
+    eligible_seeds = [r for r in deduped if r.get("doi") and r.get("doi") != "NR" and r.get("citation_count", 0) > 0]
+    if eligible_seeds:
+        eligible_seeds.sort(key=lambda x: x.get("citation_count", 0), reverse=True)
+        top_seed = eligible_seeds[0]
+        sys.stderr.write(f"[*] Deep Search Phase 3: Citation snowballing on top seed: {top_seed.get('title')} ({top_seed.get('doi')})\n")
+        snowballed = run_snowball_search(top_seed["doi"], limit=min(10, max(3, limit // 3)))
+        snowballed_records = [s for s in snowballed if s.get("snowball_role") != "SEED_PAPER"]
+
+    all_candidates = deduplicate_records(deduped + snowballed_records)
+    
+    for idx, r in enumerate(all_candidates):
+        r["id"] = f"REC{idx+1:03d}"
+        r["record_id"] = r["id"]
+        
+    total_retrieved = len(combined) + len(snowballed_records)
+    unique_count = len(all_candidates)
+    marginal_gain = (unique_count - len(round1_records)) / max(1, len(round1_records))
+    
+    saturation_tracking = {
+        "mode": "deep",
+        "rounds_executed": 3,
+        "total_raw_retrieved": total_retrieved,
+        "unique_deduplicated": unique_count,
+        "round1_baseline": len(round1_records),
+        "expansion_added": len(round2_records),
+        "snowball_added": len(snowballed_records),
+        "marginal_gain_ratio": round(marginal_gain, 3),
+        "saturation_status": "HIGH_SATURATION" if marginal_gain < 0.3 else "MODERATE_EXPANSION"
+    }
+    
+    return all_candidates, saturation_tracking
+
+
 def run_headless_search(query=None, snowball_seed=None, mode="deep", include_theses=True, limit=30, output_file=None):
     """运行完整的 Headless 数据检索与滚雪球管道"""
+    saturation_info = None
     if snowball_seed:
         candidates = run_snowball_search(snowball_seed, limit=limit)
         search_target = f"Snowball seed: {snowball_seed}"
+    elif mode == "deep":
+        sys.stderr.write(f"[*] Running Headless Deep Search: '{query}' (Limit: {limit}, Theses: {include_theses})\n")
+        candidates, saturation_info = run_deep_search(query, limit=limit)
+        search_target = query
     else:
-        sys.stderr.write(f"[*] Running Headless Literature Search: '{query}' (Mode: {mode}, Theses: {include_theses})\n")
+        sys.stderr.write(f"[*] Running Headless Quick Search: '{query}' (Limit: {limit}, Theses: {include_theses})\n")
         candidates = query_openalex_headless(query, limit=limit)
+        saturation_info = {
+            "mode": "quick",
+            "rounds_executed": 1,
+            "total_raw_retrieved": len(candidates),
+            "unique_deduplicated": len(candidates),
+            "marginal_gain_ratio": 0.0,
+            "saturation_status": "NOT_TRACKED"
+        }
         search_target = query
         
     payload = {
@@ -218,6 +308,7 @@ def run_headless_search(query=None, snowball_seed=None, mode="deep", include_the
         "mode": mode,
         "theses_included": include_theses,
         "retrieved_count": len(candidates),
+        "saturation_tracking": saturation_info,
         "prisma_s_audit": {
             "checklist_version": "PRISMA-S-2021",
             "applicable_items": 16,

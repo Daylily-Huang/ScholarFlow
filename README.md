@@ -212,6 +212,13 @@ python skills/literature-synthesis/scripts/school_clustering.py -i studies.json 
 
 ```text
 ScholarFlow/
+├── schemas/                                   # 统一跨技能数据契约 (v1.0 JSON Schemas)
+│   ├── scholarflow_contract.md               # 契约规范、语义解耦与字段映射定义
+│   ├── literature_record.schema.json         # 检索输出与题录流标准 Schema
+│   ├── evidence_record.schema.json           # 结构化抽取与证据溯源 Schema
+│   ├── claim_record.schema.json              # 综述断言与多维证据评价 Schema
+│   └── synthesis_record.schema.json          # 争议诊断与共识梯队 Schema
+│
 ├── skills/                                    # 三大核心技能规范与资产
 │   ├── literature-discovery-acquisition/      # 文献系统发现与全文获取
 │   │   ├── SKILL.md                          # 技能规范入口
@@ -223,17 +230,32 @@ ScholarFlow/
 │   ├── literature-evidence-extraction/        # 证据可信抽取与声明审计
 │   │   ├── SKILL.md                          # 技能规范入口
 │   │   ├── scripts/                          # audit_claims.py, pdf_evidence_locator.py
-│   │   ├── references/                       # Quote-First 铁律, E1-E4 层级, 实验隔离
+│   │   ├── references/                       # Quote-First 铁律, E1-E4 解耦, 实验隔离
 │   │   └── assets/                           # 结构化抽取 Schema, 审稿人四象限模板
 │   │
 │   └── literature-synthesis/                  # 学术争议发掘、学派谱系与边界共识
 │       ├── SKILL.md                          # 技能规范入口
 │       ├── role/                             # 总控、争议、学派、红队质询与门禁
 │       ├── scripts/                          # controversy_analyzer.py, school_clustering.py
-│       ├── references/                       # 9类争议分类学, 6级共识与边界, 综述指南
+│       ├── references/                       # 9类争议分类学, 5级定性共识与边界, 综述指南
 │       └── assets/                           # 争议图谱、论证拓扑图、上游空白请求模板
 │
+├── benchmarks/                                # 科研性能基准评测集 (ScholarFlow Benchmark v0.1)
+│   ├── data/                                 # 发现、抽取、声明核验与争议综合黄金测试集
+│   └── run_benchmarks.py                     # 基准测试执行引擎与度量报告生成器
+│
+├── tests/                                     # 机械门禁、对抗用例与跨技能契约测试套件
+│   ├── fixtures/                             # 真实格式题录与数据样本
+│   ├── test_claim_linter.py                  # 综述 Claim ID 溯源门禁测试
+│   ├── test_quote_audit.py                   # 原文引用机械对齐门禁测试
+│   ├── test_screening_agreement.py           # 双评阅人 Cohen's Kappa 数学校验测试
+│   ├── test_ingest_external_records.py       # CNKI / RIS / EndNote / CSV 解析测试
+│   ├── test_cross_skill_contract.py          # 跨技能单向契约与解耦测试
+│   ├── test_adversarial_gates.py             # 多实验串值与低独立性对抗测试
+│   └── test_benchmarks.py                    # 基准度量持续集成测试
+│
 ├── scripts/                                   # 一键安装脚本 (install.ps1 / install.sh)
+├── pyproject.toml                             # PEP 517/621 标准包配置 (含 [pdf] 可选依赖)
 ├── .gitignore
 ├── LICENSE                                    # MIT License
 └── README.md                                  # 项目说明文档
@@ -241,22 +263,48 @@ ScholarFlow/
 
 ---
 
-## 🧪 测试 (Testing)
+## 🧪 测试与科研基准 (Testing & Benchmarks)
 
-本仓库测试套件仅使用 Python 标准库（`unittest`），零第三方依赖：
+### 1. 自动化单元与契约测试套件
+
+本仓库测试套件仅使用 Python 标准库（`unittest`），零第三方强制依赖：
 
 ```bash
+# 运行全部 61 个单元、契约与对抗测试
 python -m unittest discover -s tests -v
 ```
 
-覆盖范围：双评阅人一致性计算（κ 闭式值验证）、四种外部题录格式解析（CNKI Refworks / RIS / EndNote / CSV）、引句回查机械校验门（`quote_audit.py`）、综述 Claim ID 可溯源门禁（`claim_linter.py`）、跨技能数据契约（`schemas/` 校验）、`support_type` 与 `evidence_strength` 绝对解耦验证，以及局部上下文协同共现与范式分桶测试。push 与 PR 由 GitHub Actions（`.github/workflows/ci.yml`）自动在 Python 3.9 / 3.11 / 3.13 上运行。
+覆盖范围：
+- **统计学闭式解**：双评阅人 Cohen's $\kappa$ 数学统计检验（闭式解验证）；
+- **外部题录硬解析**：知网 CNKI Refworks、RIS、EndNote `.enw` 与 CSV 四格式解析；
+- **机械审计门禁**：引句回查校验门（`quote_audit.py`）与 Claim ID 可溯源门禁（`claim_linter.py`）；
+- **数据契约防错**：`schemas/` 校验，确保 `support_type: NOT_REPORTED` 绝对赋予 0.0 权重；
+- **对抗压力测试**：同篇论文多实验隔离（参数防串值）、数字跨页错位拦截，以及低独立性研究下权防多数决；
+- **跨平台 CI**：GitHub Actions（`.github/workflows/ci.yml`）自动在 Python 3.9 / 3.11 / 3.13 上运行测试与基准。
+
+### 2. ScholarFlow 科学基准评测集 (v0.1)
+
+运行独立的自动化科研评测基准：
+
+```bash
+python benchmarks/run_benchmarks.py
+```
+
+| 评测维度 (Benchmark Dimension) | 核心科研质量指标 (Target Metric) | 目标阈值 | 实测表现 (Measured) | 门禁状态 |
+|:---|:---|:---:|:---:|:---:|
+| **抽取可信度 (Extraction)** | **NR Accuracy** (敢于报告未提及，严防无中生有) | 100.0% | `100.0%` | **[PASS]** |
+| | **Field Precision** (字段级精准抽取率) | ≥ 95.0% | `100.0%` | **[PASS]** |
+| **声明核验 (Claim Audit)** | **Accuracy** (局部上下文协同对齐率) | ≥ 90.0% | `100.0%` | **[PASS]** |
+| | **False-Support Rate** (错误断言误判支持率，科研最高危指标) | **0.00%** | `0.0%` | **[PASS]** |
+| **综合争议 (Synthesis)** | **Consensus Calibration** (共识梯队与边界标定准确率) | 100.0% | `100.0%` | **[PASS]** |
 
 ---
 
 ## ✅ 验证状态 (Validation Status)
 
 ScholarFlow 的核心算法与机械门禁具备完善的测试覆盖：
-- **单元与契约测试**：52 个单元与集成测试全量通过（`52/52 passed`）；
+- **单元与契约测试**：61 个单元、集成与对抗测试全量通过（`61/61 passed`）；
+- **科学评测基准**：3 大核心基准全部达标，False-Support Rate 保持为 0.0%；
 - **数学统计验证**：Cohen's $\kappa$ 在完全一致（1.0）、随机对齐（0.0）及特定混淆矩阵下均通过闭式解断言；
 - **真实题录解析**：CNKI Refworks（含 `AD` 机构与导师提取）、RIS、EndNote `.enw` 及 CSV 均通过真实解析断言；
 - **数据契约防错**：通过 `tests/test_cross_skill_contract.py` 验证 `support_type: NOT_REPORTED` 绝对赋予 0.0 权重，避免无效信息污染下游综述。

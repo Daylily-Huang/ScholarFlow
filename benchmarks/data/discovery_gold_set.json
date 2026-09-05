@@ -1,0 +1,14 @@
+{
+  "benchmark_name": "ScholarFlow Discovery Benchmark v0.1",
+  "test_cases": [
+    {
+      "query": "noninvasive genetic capture recapture wildlife",
+      "target_dois": [
+        "10.1016/j.biocon.2020.108581",
+        "10.1111/j.1365-294x.2005.02611.x",
+        "10.2193/2006-538"
+      ],
+      "min_expected_recall": 0.6
+    }
+  ]
+}

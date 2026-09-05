@@ -1,0 +1,47 @@
+{
+  "benchmark_name": "ScholarFlow Synthesis Consensus Benchmark v0.1",
+  "test_cases": [
+    {
+      "topic": "Taxon Density Estimation Disparity",
+      "expected_classification": "ACTIVE_CONTROVERSY",
+      "claims": [
+        {
+          "paper_id": "TeamA_2021",
+          "stance": "SUPPORT",
+          "evidence_strength": "MODELED_EMPIRICAL",
+          "claim": "Density exceeds 5.0 individuals per km2 using traditional transects"
+        },
+        {
+          "paper_id": "TeamB_2022",
+          "stance": "REFUTE",
+          "evidence_strength": "DIRECT_EMPIRICAL",
+          "claim": "Density is below 1.5 individuals per km2 using spatially explicit capture recapture"
+        }
+      ]
+    },
+    {
+      "topic": "Multitube PCR Error Mitigation",
+      "expected_classification": "STRONG_CONSENSUS",
+      "claims": [
+        {
+          "paper_id": "P1_2015",
+          "stance": "SUPPORT",
+          "evidence_strength": "DIRECT_EMPIRICAL",
+          "claim": "Multi-tube replication reduces allelic dropout"
+        },
+        {
+          "paper_id": "P2_2018",
+          "stance": "SUPPORT",
+          "evidence_strength": "DIRECT_EMPIRICAL",
+          "claim": "Replication prevents false individual inflation"
+        },
+        {
+          "paper_id": "P3_2022",
+          "stance": "SUPPORT",
+          "evidence_strength": "MODELED_EMPIRICAL",
+          "claim": "Consensus genotypes eliminate ADO artifacts"
+        }
+      ]
+    }
+  ]
+}

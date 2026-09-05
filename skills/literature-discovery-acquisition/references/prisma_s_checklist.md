@@ -1,4 +1,4 @@
-﻿# PRISMA-S 16 项系统评价文献检索扩展标准机审规程 (PRISMA-S Checklist Protocol)
+# PRISMA-S 16 项系统评价文献检索扩展标准机审规程 (PRISMA-S Checklist Protocol)
 
 ## 一、标准概述与制定背景
 
@@ -38,7 +38,7 @@ Quality Gatekeeper 在最终报告末尾不倾倒冗长的 16 条细则，而是
 ```markdown
 ### 📋 PRISMA-S 国际系统评价检索标准合规卡 (PRISMA-S Scorecard)
 
-- **综合评级**：⭐ **PRISMA-S 16/16 完全合规 (FULLY COMPLIANT)**
+- **综合评级**：📋 **PRISMA-S 流程合规 (适用条目全部核验 / 非适用项明确理由)**
 - **核心合规审计项**：
   - [x] 多数据库与服务商透明声明 (Items 1-4)
   - [x] 经典综述引文双向追踪闭环 (Item 5)
