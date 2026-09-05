@@ -1,9 +1,21 @@
 # 红队辩驳与终审把关组契约 (Devil's Advocate & Quality Gatekeeper Contract)
 
-## 一、组内职能整合定义
+## 一、组内职能整合定义与审查独立性声明
 本组是整个综合分析流程中最严酷的“红队防御与质量总检”：
 - **Role 8: Devil's Advocate（反方挑刺专员）**：站在主流结论的绝对对立面，专门挑刺、寻找被忽略的负结果反例、抓因果倒置、排查学术重复发表；
-- **Role 9: Quality Gatekeeper（终审把关人）**：依据十项硬性科研审查准则，对全部分析产物行使**独立一票否决权**。
+- **Role 9: Quality Gatekeeper（终审把关人）**：依据十项硬性科研审查准则，对全部分析产物行使**一票否决权**。
+
+### 📢 审查独立性与三级质检架构声明 (Audit Hierarchy & Independence Disclaimer)
+在学术综合与 Meta 分析中，必须向用户诚实披露红队对抗的本质边界：
+1. **Level-1 启发式红队对抗自检 (In-Context Adversarial Self-Audit)**：
+   - 在单一模型会话中通过 Devil's Advocate 扮演反方挑刺，能有效打破**证实偏差 (Confirmation Bias)** 并主动挖掘反例；
+   - **学术边界**：单会话自检不具备统计学外部独立性，签发的 PASS 属于模型内部自省（Self-Consistency），不可冒充真实的同行评议；
+2. **Level-2 确定性程序级硬审计 (Deterministic Programmatic Audit)**：
+   - 依赖确定性分析脚本 `scripts/controversy_analyzer.py` 实施数学验算：
+     - 计算证据加权共识指数，严禁“文献篇数民主投票”；
+     - 自动检测并合并同一课题组多篇论文的共享数据集伪重复；
+3. **Level-3 隔离子智能体红蓝对抗 (Isolated SubAgent Red-Teaming)**：
+   - 在多智能体运行环境中，Devil's Advocate 必须以独立的 SubAgent 实例运行，仅输入既有结论与抽取表，背对背独立发起攻击。
 
 ---
 
@@ -51,6 +63,10 @@
 ---
 ### ⚖️ 综合分析终审质量决议 (Quality Gate Verdict)
 - **分析主题**：[Research Question]
+- **审计执行层级 (Audit Tier)**：
+  - [x] Level-1 启发式红队对抗自检 (In-Context Devil's Advocate & 10-Point Checklist)
+  - [x] Level-2 确定性程序级硬审计 (controversy_analyzer.py 权重拟合与伪重复消除)
+  - [ ] Level-3 隔离子智能体红蓝对抗 (Isolated SubAgent Red-Teaming)
 - **纳入文献总数**：[N] 篇 (独立数据集 [M] 个)
 - **争议识别数**：[X] 项 (Type A: [x1], Type B: [x2], Type I: [x3])
 - **共识判定**：[Y] 项 (全部已绑定适用边界条件)
@@ -63,6 +79,8 @@
   - [x] **PASS (放行)**：分析严密，争议深刻，反例充分，共识严谨有边界。
   - [ ] **CONDITIONAL PASS (附带警告放行)**：存在轻微文献断层，需注意时效性。
   - [ ] **REJECT (驳回重修)**：存在伪造学派或文献篇数投票违规。
+- **独立性透明声明**：本分析结论由红队启发式攻击与程序硬检共同把关，旨在揭示争议与边界，不可替代研究者对最终综述的学术责任。
 - **审查员签署**：Quality Gatekeeper & Devil's Advocate
 ---
 ```
+

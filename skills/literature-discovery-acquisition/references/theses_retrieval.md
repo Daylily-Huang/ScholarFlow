@@ -117,3 +117,57 @@ ti("fecal DNA" OR "noninvasive genetic") AND schl("University of California" OR 
 - 中文论文对应的知网/万方系统专属链接（URL）；
 - 英文论文对应的 ProQuest Document ID / URL；
 - 指导用户在学校校园网/机构 IP 内直接点击下载，或通过校图书馆“学位论文递送服务”获取。
+
+---
+
+## 六、30 秒人工导出与极速本地导入流水线 (The 30-Second Human Export & CLI Ingestion Pipeline)
+
+> [!TIP]
+> **为什么人工 30 秒导出远胜于无头浏览器爬虫？**
+> 知网 (CNKI) 与万方拥有极其严苛的反爬虫与滑块验证码机制，纯无头浏览器自动化经常引发 IP 封禁或会话中断。
+> **最高效的工业化解决方案**是：智能体生成专业检索式 → 用户在校园网内检索后一键导出题录文件（耗时仅需 30 秒）→ ScholarFlow 脚本自动化解析与无缝流转。
+
+### 1. 导出操作指引 (Export Steps)
+1. **知网 CNKI**：
+   - 复制生成的检索式，在“博硕士”数据库检索；
+   - 勾选检索结果（支持批量选择 50–500 条）→ 点击“导出与分析” → 选择 **Refworks** 或 **EndNote** 格式 → 下载为 `.txt` 文件；
+2. **万方数据 / ProQuest**：
+   - 选择检索结果 → 点击“导出” → 选择 **RIS** 格式；
+3. 将下载的文件保存至项目工作区（例如 `./inputs/cnki_theses.txt`）。
+
+### 2. 运行内置导入解析脚本 (`ingest_external_records.py`)
+
+系统内置无第三方依赖的专用解析工具，自动提取学位专属元数据（培养高校、学位级别、指导教师）：
+
+```bash
+# 导入知网导出的 Refworks 题录文件
+python skills/literature-discovery-acquisition/scripts/ingest_external_records.py \
+  -i ./inputs/cnki_theses.txt \
+  -o ./scratch/ingested_cnki_theses.json \
+  --source CNKI
+
+# 或批量导入包含 RIS/EndNote/Refworks 的整个目录
+python skills/literature-discovery-acquisition/scripts/ingest_external_records.py \
+  -i ./inputs/external_theses/ \
+  -o ./scratch/all_imported_theses.json
+```
+
+### 3. 解析器专有增强字段
+脚本解析后，生成的标准 JSON 记录包含完整的学位论文证据锚点：
+```json
+{
+  "id": "CNKI-CDMD-10248-2021001",
+  "title": "基于非损伤性取样的鹿科动物种群遗传结构与个体识别研究",
+  "authors": ["张三"],
+  "year": 2021,
+  "journal_or_publisher": "华东师范大学",
+  "document_type": "Thesis",
+  "degree": "Doctor",
+  "degree_granting_institution": "华东师范大学",
+  "advisor": ["李教授"],
+  "abstract": "...",
+  "source_database": "CNKI"
+}
+```
+该产物直接对接 Stage 4 去重与 Stage 5 PRISMA 双盲初筛，实现商业中文库与国际开源库的无缝合流！
+

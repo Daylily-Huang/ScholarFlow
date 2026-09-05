@@ -100,14 +100,93 @@ SubAgent 必须严格返回如下 JSON 数组，严禁包含任何前缀闲聊�
 
 ---
 
-## 四、Reduce 阶段：聚合与冲突仲裁机制
+## 四、模式一：高吞吐分块并行初筛 (High-Throughput Chunked Map-Reduce)
 
-主检索专家收集到所有 SubAgent 的 JSON 裁决后，执行标准化 Reduce 聚合：
-
+适用于常规科研立项、快速调研或开题文献筛选：
 1. **结构化拼装**：将各分片的打分结果按 `id` 回填至全局文献库；
 2. **保守保留兜底 (Conservative Principle)**：
    - 凡有任何 SubAgent 标记为 `Uncertain` 或置信度 $\text{confidence} < 0.70$ 的文献，**一律直接归入 `Uncertain` 候选池**，禁止降级为 Exclude；
 3. **排除原因审计**：
-   - 检查所有 `Exclude` 文献是否附带标准错误代码（`EXC_TAXON`, `EXC_METHOD` 等），对未说明具体理由的排除项强制回退为 `Uncertain`。
+   - 检查所有 `Exclude` 文献是否附带标准错误代码（`EXC_TAXON`, `EXC_METHOD` 等），对未说明具体理由的排除项强制回退为 `Uncertain`；
 4. **统计各批次初筛产出**：
    - 记录初筛批次总览表，作为检索报告中 Stage 5 的流转证据。
+
+---
+
+## 五、模式二：PRISMA 2020 Item 8 双盲独立初筛规程 (Dual-Reviewer Blind Protocol)
+
+> [!IMPORTANT]
+> **PRISMA 2020 Item 8 发表级硬规范**：
+> 系统综述 (Systematic Review) 与 Meta 分析的国际同行评审明确要求：**必须由至少两名独立审查员背对背（背靠背盲审）独立完成初筛**，报告评阅者一致性统计指标（如 Cohen's Kappa），任何分歧由第三人仲裁。
+> 单一智能体切片分工（单人初筛）在方法学上无法满足 PRISMA 2020 发表标准。本规程通过**真双盲并发双审 + 确定性程序仲裁**全面履约。
+
+### 1. 双盲初筛架构图
+
+```mermaid
+flowchart TD
+    Pool[待初筛文献池 N 篇] --> Dispatch[双盲隔离派发]
+    Dispatch --> RevA[审查员 A SubAgent-A<br/>独立上下文 / 盲审]
+    Dispatch --> RevB[审查员 B SubAgent-B<br/>独立上下文 / 盲审]
+    
+    RevA --> ResA[审查员 A 决策集 JSON]
+    RevB --> ResB[审查员 B 决策集 JSON]
+    
+    ResA & ResB --> Calc[运行脚本 calculate_screening_agreement.py]
+    
+    Calc --> Metric[计算 Cohen's Kappa 系数与混淆矩阵]
+    Calc --> AuditCSV[生成 PRISMA 审计追踪表 screening_dual_audit.csv]
+    
+    Metric --> SplitCheck{双方裁决是否一致?}
+    SplitCheck -- 完全一致 Include/Include --> DirectInclude[直接纳入 Stage 6 全文获取池]
+    SplitCheck -- 完全一致 Exclude/Exclude --> DirectExclude[正式排除并归档双重剔除理由]
+    SplitCheck -- 存在分歧 Include vs Exclude/Uncertain --> ArbQueue[分流至待仲裁池 arbitration_queue.json]
+    
+    ArbQueue --> SeniorHuman[第三评阅人 / 资深学者仲裁]
+    SeniorHuman --> FinalDecide[最终录入裁决意见]
+```
+
+### 2. 双评阅人隔离执行机制 (Blind Isolation)
+
+- **完全上下文隔离**：Reviewer A 与 Reviewer B 分别在独立的 SubAgent 实例中运行（或通过无共享历史的独立 API 会话调用），双方**互不知晓对方的身份、存在及打分决策**；
+- **提示词对称但可适度差异化**：
+  - Reviewer A 侧重于目标科学问题与实验方法的正面符合度；
+  - Reviewer B 侧重于排除标准与边界陷阱的反面严格校验；
+- 双方遵循统一的 3 分类标定：`Include`、`Exclude`、`Uncertain`。
+
+### 3. 一致性量化评定标准 (Cohen's Kappa 判准)
+
+系统调用内置脚本 `calculate_screening_agreement.py`，根据经典统计学标尺（Landis & Koch 1977）自动生成一致性检验报告：
+
+$$\kappa = \frac{P_o - P_e}{1 - P_e}$$
+
+| Cohen's Kappa (κ) | 一致性评级 (Interpretation) | PRISMA 发表合规度 | 后续操作建议 |
+|:---:|:---:|:---:|:---|
+| **0.81 – 1.00** | **Almost Perfect (极佳)** | ⭐⭐⭐ 顶级发表级 | 双一致项直接通过，仅对极少分歧项人工确认 |
+| **0.61 – 0.80** | **Substantial (良好)** | ⭐⭐ 国际规范级 | 双方一致项流转，分歧项移交第三评阅人仲裁 |
+| **0.41 – 0.60** | **Moderate (中度)** | ⚠️ 需补充对齐 | 需召开双人校准会议，由资深学者全量复核分歧项 |
+| **< 0.40** | **Fair / Poor (不可信)** | ❌ 不合规 | 纳入/排除标准定义有重大歧义，勒令重构标准后重筛 |
+
+### 4. 自动化脚本调用指引 (CLI Tool)
+
+在完成 Reviewer A 与 Reviewer B 独立初筛后，直接执行内置评估脚本：
+
+```bash
+# 执行双盲一致性检验，并同步生成发表级 Markdown 总结、PRISMA 审计追踪 CSV 与待仲裁队列
+python skills/literature-discovery-acquisition/scripts/calculate_screening_agreement.py \
+  -a ./scratch/screening_reviewer_a.json \
+  -b ./scratch/screening_reviewer_b.json \
+  -o ./output/screening_agreement_report.md \
+  --csv ./output/screening_dual_audit.csv \
+  --arbitration-json ./output/arbitration_queue.json
+```
+
+### 5. PRISMA 2020 审计追踪文件说明 (`screening_dual_audit.csv`)
+
+脚本导出的 CSV 包含完整的可审计字段，可直接作为系统综述与 Meta 分析投稿的 Supplementary File：
+- `record_id` / `title`：文献唯一标识与题名；
+- `reviewer_a_decision` / `reviewer_a_code` / `reviewer_a_reason`：审查员 A 裁决及具体判准代码；
+- `reviewer_b_decision` / `reviewer_b_code` / `reviewer_b_reason`：审查员 B 裁决及具体判准代码；
+- `consensus_status`：`AGREED`（完全一致）或 `DISCREPANCY`（分歧冲突）；
+- `arbitrated_decision`：仲裁后最终决策（一致项自动填入，分歧项预留待填）；
+- `arbitrator_notes`：资深评阅专家签署的仲裁理由。
+

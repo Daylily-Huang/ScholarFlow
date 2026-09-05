@@ -69,8 +69,9 @@ description: >-
    - **动态实时探索**：不设僵化死板的学科分身，在明确用户课题后，**通过实时检索网络（Search Web）、学术知识库与受控词表（MeSH/NCBI/ACM等）**，动态提炼 2–4 个正交概念桶与 7 维术语拓展；
    - 实时生成四层级重点期刊列表及适配各大数据库（WoS/PubMed/Scopus/CNKI）的来源过滤检索代码。
 3. **最终质量审查员 ([quality_gatekeeper.md](role/quality_gatekeeper.md))**：
-   - **独立审计红蓝把关**：在结果交付与报告生成前执行严苛独立核验，签署 `PASS` 或 `REJECT` 放行决议。
+   - **独立审计红蓝把关与三级质检架构**：在结果交付与报告生成前执行独立核验，诚实界定质检层级（Level-1 启发式角色自检、Level-2 确定性程序级硬检、Level-3 隔离子智能体盲审），行使一票否决权并签署放行决议；
    - 审查布尔语法正确性、漏词与查全风险、初筛决策与 Uncertain 保留、无脑补实验细节、全文下载文件魔数真实性。
+
 
 ---
 
@@ -156,7 +157,9 @@ flowchart TD
 调用环境中可用的学术工具与数据源，严格执行分层调度（详见 [databases_and_tools.md](references/databases_and_tools.md)）：
 1. **第一层：开放学术 API**（OpenAlex 全学科、PubMed/Europe PMC 生命科学与医学、arXiv/bioRxiv 预印本）；
 2. **第二层：Web 学术探测**（Google Scholar 关键文献补漏、出版商落地页解析、DOI 解析校验）；
-3. **第三层：受限商业数据库声明与人工补检式生成**（中国知网 CNKI、Web of Science、Scopus、万方数据）；
+3. **第三层：受限商业数据库声明与极速本地摄取**（中国知网 CNKI、Web of Science、Scopus、万方数据）：
+   - 自动生成对应数据库专业布尔检索式；
+   - 支持用户校园网内 30 秒导出后，运行 `scripts/ingest_external_records.py` 一键无缝解析并注入候选文献池；
 4. **提取标准题录元数据**：提取标题、作者、年份、期刊、DOI、URL、摘要、来源库、证据分级（`VERIFIED` / `INFERRED` / `UNVERIFIED`）。
 
 ---
@@ -172,14 +175,16 @@ flowchart TD
 
 ---
 
-### Stage 5：题录与摘要结构化初筛 (Screening & Map-Reduce Concurrency)
+### Stage 5：题录与摘要结构化初筛 (Screening & PRISMA Dual Independent Protocols)
 
-依据预先确立的标准对每篇去重文献进行审查：
+依据预先确立的标准对每篇去重文献进行审查（详见 [subagent_screening.md](references/subagent_screening.md)）：
 - **纳入 (`Include`)**：完全符合研究对象与方法；
 - **排除 (`Exclude`)**：必须附带结构化排除原因代码（如 `EXC_TAXON` 对象错误、`EXC_METHOD` 非目标方法等）；
 - **待定 (`Uncertain`)**：**绝不允许武断剔除**，凡标题摘要无法完全确证者一律保留至全文阶段；
-- **海量初筛并发调度 (Map-Reduce)**（详见 [subagent_screening.md](references/subagent_screening.md)）：
-  当独立候选文献量 $N \ge 30$ 篇时，自动触发动态批处理，按每批 15~25 篇切片并行分发轻量 `screening_subagent` 并发打分，最后由主专家聚合，彻底防止长文本注意力漂移。
+- **双轨初筛执行模式**：
+  - **模式一：高吞吐分块并行初筛 (Map-Reduce)**：当候选量 $N \ge 30$ 篇时，切片并行分发轻量 SubAgent 打分，防止长文本注意力漂移；
+  - **模式二：PRISMA 2020 Item 8 双盲独立初筛规程**：面向发表级系统评价与 Meta 分析，调度 Reviewer-A 与 Reviewer-B 隔离盲审，并运行 `scripts/calculate_screening_agreement.py` 自动化计算 Cohen's Kappa（$\kappa$）检验一致性，输出 `screening_dual_audit.csv` 决策审计追踪表与分歧仲裁队列。
+
 
 ---
 
@@ -285,7 +290,10 @@ flowchart TD
   - [zotero_watch_folder.md](references/zotero_watch_folder.md)：Zotero 监听目录与双层 CSL-JSON 文献库生态沉淀指南
 - **执行脚本与工具 (`scripts/`)**：
   - `scripts/download_oa_papers.py`：开源文献批量下载、魔数核验与双层 CSL-JSON 生成脚本
+  - `scripts/ingest_external_records.py`：外部文献 (CNKI/万方/WoS/RIS) 标准化导入与去重脚本
+  - `scripts/calculate_screening_agreement.py`：PRISMA 2020 Item 8 双评阅人一致性检验与 Cohen's Kappa 计算脚本
   - `scripts/agent_search.py`：Headless / Agent 模式专用纯数据检索管道脚本
+
 - **标准资产与模板 (`assets/`)**：
   - [concept_matrix_template.md](assets/concept_matrix_template.md)：概念矩阵输出模板
   - [journal_recommendation_template.md](assets/journal_recommendation_template.md)：重点期刊推荐与过滤语法模板

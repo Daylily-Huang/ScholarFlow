@@ -45,12 +45,24 @@ flowchart TD
 - **Google Scholar / Semantic Scholar 探测**：利用 `search_web` 针对特定复合检索短语进行检索，捕获高引用经典论文；
 - **DOI 官方解析与落地页元数据抓取**：通过 `read_url_content` 访问 `https://doi.org/<DOI>` 或出版商官方摘要页，核实准确标题、作者列表与摘要，严格消除幻觉。
 
-### 3. 第三层：商业/受限数据库人工补检式（声明式缺口）
+### 3. 第三层：商业/受限数据库人工补检与极速摄取（声明式缺口与 CLI 工具流）
 因绝大部分 Agent 环境无法直接绕过校园网 IP / 商业付费鉴权（Web of Science, Scopus, CNKI, 万方, ProQuest），**严禁伪称已经检索了这些数据库**。必须在报告中开辟独立章节，输出已经格式化、测试过的专用检索代码块：
 - **Web of Science Advanced Search** 检索式；
 - **Scopus Advanced Search** 检索式；
-- **CNKI 专业检索** 检索式（含中文字段限定）；
+- **CNKI 专业检索** 检索式（含中文字段限定与学位限定）；
 - **万方医学/科技高级检索** 检索式。
+
+#### 🚀 商业库题录极速摄取流水线 (Ingestion Pipeline)
+用户在校园网内检索并批量导出 Refworks/RIS/EndNote 文件（耗时约 30 秒）后，调用内置脚本实现免爬虫无缝解析合流：
+```bash
+# 一键解析并标准化知网/万方/WoS 外部导出文献
+python skills/literature-discovery-acquisition/scripts/ingest_external_records.py \
+  -i ./user_exports/cnki_refworks.txt \
+  -o ./output/external_candidates.json \
+  --source CNKI
+```
+脚本自动解析题名、作者、年份、摘要、期刊/高校，并按统一 Schema 注入 Stage 4 去重与 Stage 5 初筛流程，彻底打破封闭商业库壁垒。
+
 
 ---
 

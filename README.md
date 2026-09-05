@@ -59,9 +59,13 @@ graph TD
 ## 🧩 三大核心技能详解 (Skills Breakdown)
 
 ### 1. `literature-discovery-acquisition` (文献系统发现与全文获取)
-> **定位**：高召回、可审计的文献检索、双向滚雪球扩充与开源全文下载管道。
+> **定位**：高召回、可审计的文献检索、商业库免爬虫摄取、PRISMA 双盲初筛与开源全文下载管道。
 
 - **Stage 0 Grill-Me 问询门禁**：在发起检索前，先与用户厘清研究核心实体、目标时间窗口、排他条件与学位论文需求。
+- **商业受限库极速摄取 (External Ingestion Pipeline)**：
+  - 针对知网 (CNKI)、万方、Web of Science、Scopus 等反爬严格的商业库，提供布尔检索式生成 + 30 秒导出题录文件（Refworks/RIS/EndNote）一键自动化解析入库，免受验证码封禁之扰。
+- **PRISMA 2020 Item 8 双盲独立初筛 (Dual-Reviewer Blind Protocol)**：
+  - 派发双评阅人独立盲审，基于内置工具自动计算 **Cohen's Kappa ($\kappa$)** 与一致率，生成符合发表级 Meta 分析规范的 `screening_dual_audit.csv` 与分歧待仲裁队列。
 - **双向引用滚雪球 (Dual-Direction Snowballing)**：
   - 支持传入种子文献 DOI，利用 OpenAlex API 自动追溯参考文献（`Backward Snowballing`）并追踪最新施引文献（`Forward Snowballing`），自动补全学派谱系。
 - **PRISMA-S 16 项系统评价审计清单**：全流程记录概念矩阵（Concept Matrix）、检出饱和度日志（Search Saturation）与去重决策表。
@@ -160,21 +164,41 @@ chmod +x ./scripts/install.sh
 
 ---
 
-### 3. 独立运行配套 CLI 工具箱
+### 3. 三级质检与学术诚信架构 (Multi-Tier Audit Hierarchy)
+
+ScholarFlow 严格拒绝“同一个大模型换角色念台词的伪独立审查”，以学术诚信为底线清晰划分质检层级：
+- **Level-1 启发式角色自检 (In-Context Persona Audit)**：在单会话内通过 Quality Gatekeeper / Devil's Advocate 角色扮演打破思维惯性并核验清单。本质属于模型自省（Self-Consistency），不具有统计学外部独立性，签发的 PASS 声明为内部自检放行；
+- **Level-2 确定性程序级硬审计 (Deterministic Programmatic Audit)**：由纯 Python 确定性脚本对事实与数据进行程序级验真，杜绝大模型幻觉与偏见：
+  - `download_oa_papers.py`：PDF 二进制 `%PDF-` 魔数核验，拦截 403 伪装 HTML；
+  - `ingest_external_records.py`：知网/万方/WoS 外部导出题录 Schema 硬解析与四级去重；
+  - `calculate_screening_agreement.py`：双评阅人 Cohen's $\kappa$ 数学统计检验与分歧自动剥离；
+  - `audit_claims.py`：正文原句字符级精准对齐校验，零容忍 OCR 篡改与常识臆造；
+  - `controversy_analyzer.py`：共识度加权数学严密验算与同源数据伪重复消除；
+- **Level-3 物理隔离子智能体审计 (Isolated SubAgent Execution)**：在支持多智能体并发调度的平台中，Gatekeeper 与 Screening Reviewers 均通过无共享上下文的独立 SubAgent 会话执行，实现真正的背对背双盲审议。
+
+---
+
+### 4. 独立运行配套 CLI 工具箱
 
 ScholarFlow 配套的 Python 脚本均为纯标准库实现，支持独立作为命令行工具使用：
 
 ```bash
-# 1. 基于核心论文 DOI 发起双向引用滚雪球追溯
+# 1. 知网 (CNKI) / 万方 / WoS / Scopus 题录一键极速摄取与去重
+python skills/literature-discovery-acquisition/scripts/ingest_external_records.py -i cnki_theses.txt -o candidates.json --source CNKI
+
+# 2. PRISMA 2020 Item 8 双评阅人背对背初筛一致性检验 (计算 Cohen's Kappa 并输出仲裁表)
+python skills/literature-discovery-acquisition/scripts/calculate_screening_agreement.py -a rev_a.json -b rev_b.json -o report.md --csv audit.csv
+
+# 3. 基于核心论文 DOI 发起双向引用滚雪球追溯
 python skills/literature-discovery-acquisition/scripts/agent_search.py --snowball "10.1016/j.biocon.2020.108581" --limit 20 -o snowball.json
 
-# 2. 对论文执行 0-10 分前置相关性剪枝评估与声明核验
+# 4. 对论文执行 0-10 分前置相关性剪枝评估与声明核验
 python skills/literature-evidence-extraction/scripts/audit_claims.py -i paper.pdf -r "fecal DNA microsatellite snow leopard" --claim "PID-sibs was 0.0004"
 
-# 3. 运行争议诊断分析并生成 Mermaid 论证拓扑图
+# 5. 运行争议诊断分析并生成 Mermaid 论证拓扑图
 python skills/literature-synthesis/scripts/controversy_analyzer.py -i claims.json -f markdown -o controversy_report.md
 
-# 4. 运行学派谱系与范式演进聚类分析
+# 6. 运行学派谱系与范式演进聚类分析
 python skills/literature-synthesis/scripts/school_clustering.py -i studies.json -f markdown -o school_report.md
 ```
 
@@ -187,8 +211,9 @@ ScholarFlow/
 ├── skills/                                    # 三大核心技能规范与资产
 │   ├── literature-discovery-acquisition/      # 文献系统发现与全文获取
 │   │   ├── SKILL.md                          # 技能规范入口
-│   │   ├── scripts/                          # agent_search.py, download_oa_papers.py
-│   │   ├── references/                       # PRISMA-S, Stage 0, 双向滚雪球, Zotero联动
+│   │   ├── scripts/                          # agent_search.py, download_oa_papers.py,
+│   │   │                                     # ingest_external_records.py, calculate_screening_agreement.py
+│   │   ├── references/                       # PRISMA-S, Stage 0, 双盲初筛, 商业库摄取, Zotero联动
 │   │   └── assets/                           # 检索日志、概念矩阵、CSL-JSON Schema
 │   │
 │   ├── literature-evidence-extraction/        # 证据可信抽取与声明审计
@@ -224,4 +249,4 @@ ScholarFlow/
 ## 📄 开源许可证 (License)
 
 本项目基于 [MIT License](LICENSE) 开源发布。您可以自由地在学术研究、个人项目或商业应用中使用、修改与集成。
->>>>>>> 765bdad (feat: initial release of ScholarFlow full-lifecycle academic literature agent suite)
+
