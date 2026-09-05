@@ -1,0 +1,86 @@
+{
+  "_comment": "项目活动站点适配器注册表 (Stage 8B 浏览器兜底下载)。支持金榜图书馆(书同)学术代理。",
+  "_version": "1.0.0",
+  "sites": [
+    {
+      "id": "shutong_cn",
+      "name": "金榜图书馆-中文数据库 (中国知网/万方/维普)",
+      "enabled": true,
+      "platform_type": "proxy_aggregator",
+      "match_rules": {
+        "language": ["zh"],
+        "doc_types": ["journal_article", "thesis", "conference"],
+        "priority": 1
+      },
+      "login": {
+        "url": "https://xy.shutong2.com/",
+        "credential_keys": {
+          "username": "SHUTONG_USERNAME",
+          "password": "SHUTONG_PASSWORD"
+        },
+        "method": "form_submit",
+        "form_selector": "form[name='login']",
+        "username_field": "username",
+        "password_field": "password",
+        "captcha_field": "key",
+        "has_captcha": true,
+        "captcha_handling": "prompt_user_interactive",
+        "success_indicator": "退出"
+      },
+      "portal": {
+        "url": "https://xy.shutong2.com/zhongwenku/",
+        "target_resources": ["知网", "万方", "维普"]
+      },
+      "search": {
+        "strategy": "title_search",
+        "url_template": "https://xy.shutong2.com/zhongwenku/",
+        "notes": "登录后进入中文库选择可用知网/万方镜像入口进行检索"
+      },
+      "post_download": {
+        "expected_extension": ".pdf",
+        "fallback_extension": ".caj",
+        "caj_note": "若下载为 CAJ 格式，标记为 CAJ_ONLY 并提示用户本地转换"
+      }
+    },
+    {
+      "id": "shutong_en",
+      "name": "金榜图书馆-英文数据库 (Wiley/SD/IEEE/Springer/ProQuest)",
+      "enabled": true,
+      "platform_type": "proxy_aggregator",
+      "match_rules": {
+        "language": ["en"],
+        "doc_types": ["journal_article", "thesis", "conference"],
+        "priority": 1
+      },
+      "login": {
+        "url": "https://xy.shutong2.com/",
+        "credential_keys": {
+          "username": "SHUTONG_USERNAME",
+          "password": "SHUTONG_PASSWORD"
+        },
+        "method": "form_submit",
+        "form_selector": "form[name='login']",
+        "username_field": "username",
+        "password_field": "password",
+        "captcha_field": "key",
+        "has_captcha": true,
+        "captcha_handling": "prompt_user_interactive",
+        "success_indicator": "退出"
+      },
+      "portal": {
+        "url": "https://xy.shutong2.com/yingwenku/",
+        "target_resources": ["ScienceDirect", "Springer", "Wiley", "IEEE", "ProQuest"]
+      },
+      "search": {
+        "strategy": "doi_redirect",
+        "url_template": "https://xy.shutong2.com/yingwenku/",
+        "notes": "登录后进入英文库选择对应出版商镜像入口，通过 DOI 或标题检索下载"
+      },
+      "post_download": {
+        "expected_extension": ".pdf",
+        "fallback_extension": null,
+        "caj_note": null
+      }
+    }
+  ]
+}

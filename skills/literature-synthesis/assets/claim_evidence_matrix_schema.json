@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ClaimEvidenceMatrixSchema",
+  "description": "Standard schema for claim-evidence matrices in literature-synthesis",
+  "type": "object",
+  "required": [
+    "matrix_id",
+    "topic",
+    "generated_at",
+    "claims"
+  ],
+  "properties": {
+    "matrix_id": {
+      "type": "string",
+      "description": "Unique identifier for this evidence matrix"
+    },
+    "topic": {
+      "type": "string",
+      "description": "Primary scientific theme or question"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 generation timestamp"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "domain_profile": {
+          "type": "string",
+          "description": "Domain profile used (e.g. Ecology, Molecular Ecology)"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["controversy_scan", "deep_evidence_synthesis", "school_mapping", "claim_audit"]
+        }
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "claim_id",
+          "paper_id",
+          "stance",
+          "evidence_tier",
+          "claim_text"
+        ],
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "description": "Unique ID for the claim (e.g. CLM-001)"
+          },
+          "paper_id": {
+            "type": "string",
+            "description": "Unique key or citation for the paper (e.g. Author2021)"
+          },
+          "doi": {
+            "type": "string",
+            "description": "Digital Object Identifier"
+          },
+          "year": {
+            "type": "integer",
+            "description": "Publication year"
+          },
+          "authors": {
+            "type": "string",
+            "description": "Author list or lead author"
+          },
+          "target_question": {
+            "type": "string",
+            "description": "Scientific question addressed by this claim"
+          },
+          "claim_text": {
+            "type": "string",
+            "description": "Normalized assertion statement"
+          },
+          "stance": {
+            "type": "string",
+            "enum": ["SUPPORT", "REFUTE", "CONDITIONAL", "NEUTRAL"],
+            "description": "Stance relative to the primary scientific hypothesis"
+          },
+          "evidence_tier": {
+            "type": "string",
+            "enum": ["E1", "E2", "E3", "E4"],
+            "description": "Evidence hierarchy level: E1=Raw experimental/sequencing data, E2=Model output/peer-reviewed metrics, E3=Discussion deduction, E4=Expert opinion"
+          },
+          "method": {
+            "type": "string",
+            "description": "Primary experimental or statistical method"
+          },
+          "metric_name": {
+            "type": "string",
+            "description": "Name of quantitative metric (e.g. density, Fst, detection probability)"
+          },
+          "metric_value": {
+            "type": ["number", "null"],
+            "description": "Reported quantitative value"
+          },
+          "confidence_interval": {
+            "type": "array",
+            "items": { "type": "number" },
+            "minItems": 2,
+            "maxItems": 2,
+            "description": "[Lower, Upper] 95% confidence interval or standard error range"
+          },
+          "sample_size": {
+            "type": "string",
+            "description": "Sample size or effort (e.g. N=124 fecal samples, 32 camera stations)"
+          },
+          "spatial_boundary": {
+            "type": "string",
+            "description": "Geographic or spatial boundary conditions"
+          },
+          "temporal_boundary": {
+            "type": "string",
+            "description": "Timeframe, seasonality, or survey duration"
+          },
+          "methodological_boundary": {
+            "type": "string",
+            "description": "Method assumptions, detection thresholds, software versions"
+          },
+          "limitations": {
+            "type": "string",
+            "description": "Documented caveats, risks, or potential biases"
+          },
+          "quote_evidence": {
+            "type": "object",
+            "required": ["verbatim_quote"],
+            "properties": {
+              "verbatim_quote": {
+                "type": "string",
+                "description": "Exact text quoted directly from the source paper"
+              },
+              "page": {
+                "type": "string",
+                "description": "Page number or section name in source publication"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

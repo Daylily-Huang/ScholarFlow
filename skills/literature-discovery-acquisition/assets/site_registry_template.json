@@ -1,0 +1,93 @@
+{
+  "_comment": "站点适配器注册表模板。复制到项目配置目录，填入实际 URL 并设置 enabled: true 后使用。",
+  "_version": "1.0.0",
+  "sites": [
+    {
+      "id": "cnki",
+      "name": "中国知网 CNKI",
+      "enabled": false,
+      "match_rules": {
+        "language": ["zh"],
+        "doc_types": ["journal_article", "thesis"],
+        "priority": 1
+      },
+      "login": {
+        "url": "https://login.cnki.net/login/",
+        "credential_keys": {
+          "username": "CNKI_USERNAME",
+          "password": "CNKI_PASSWORD"
+        },
+        "method": "form_submit",
+        "success_indicator": "我的CNKI"
+      },
+      "search": {
+        "strategy": "title_search",
+        "url_template": "https://kns.cnki.net/kns8s/search?q={title}",
+        "result_selector": "首条标题最匹配结果"
+      },
+      "post_download": {
+        "expected_extension": ".pdf",
+        "fallback_extension": ".caj",
+        "caj_note": "CAJ 格式需用户本地使用 CAJViewer 转换为 PDF"
+      }
+    },
+    {
+      "id": "wanfang",
+      "name": "万方数据",
+      "enabled": false,
+      "match_rules": {
+        "language": ["zh"],
+        "doc_types": ["journal_article", "thesis"],
+        "priority": 2
+      },
+      "login": {
+        "url": "https://www.wanfangdata.com.cn/",
+        "credential_keys": {
+          "username": "WANFANG_USERNAME",
+          "password": "WANFANG_PASSWORD"
+        },
+        "method": "form_submit",
+        "success_indicator": "个人中心"
+      },
+      "search": {
+        "strategy": "title_search",
+        "url_template": "https://s.wanfangdata.com.cn/paper?q={title}",
+        "result_selector": "首条标题最匹配结果"
+      },
+      "post_download": {
+        "expected_extension": ".pdf",
+        "fallback_extension": null,
+        "caj_note": null
+      }
+    },
+    {
+      "id": "university_proxy",
+      "name": "学校图书馆代理（通用模板）",
+      "enabled": false,
+      "match_rules": {
+        "language": ["en"],
+        "doc_types": ["journal_article"],
+        "priority": 3
+      },
+      "login": {
+        "url": "REPLACE_WITH_YOUR_UNIVERSITY_VPN_URL",
+        "credential_keys": {
+          "username": "UNI_USERNAME",
+          "password": "UNI_PASSWORD"
+        },
+        "method": "form_submit",
+        "success_indicator": "REPLACE_WITH_LOGIN_SUCCESS_TEXT"
+      },
+      "search": {
+        "strategy": "doi_redirect",
+        "url_template": "REPLACE_WITH_PROXY_PREFIX/https://doi.org/{doi}",
+        "result_selector": null
+      },
+      "post_download": {
+        "expected_extension": ".pdf",
+        "fallback_extension": null,
+        "caj_note": null
+      }
+    }
+  ]
+}

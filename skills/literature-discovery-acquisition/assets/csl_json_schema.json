@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CSL_JSON_Item",
+  "description": "Schema for Citation Style Language JSON item for Zotero and Pandoc integration.",
+  "type": "object",
+  "required": ["id", "type", "title"],
+  "properties": {
+    "id": { "type": "string" },
+    "type": {
+      "type": "string",
+      "enum": ["article-journal", "thesis", "book", "chapter", "paper-conference", "report", "manuscript"]
+    },
+    "title": { "type": "string" },
+    "author": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "family": { "type": "string" },
+          "given": { "type": "string" },
+          "literal": { "type": "string" }
+        }
+      }
+    },
+    "issued": {
+      "type": "object",
+      "properties": {
+        "date-parts": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": { "type": "integer" }
+          }
+        }
+      }
+    },
+    "container-title": { "type": "string", "description": "Journal or book title" },
+    "publisher": { "type": "string", "description": "Publisher or university for theses" },
+    "genre": { "type": "string", "description": "Thesis type e.g. PhD Thesis, Master's Thesis" },
+    "DOI": { "type": "string" },
+    "URL": { "type": "string" },
+    "abstract": { "type": "string" },
+    "keyword": { "type": "string" },
+    "file": { "type": "string", "description": "Relative filename of paired PDF in same directory" }
+  }
+}
