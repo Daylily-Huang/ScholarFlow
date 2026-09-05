@@ -147,6 +147,7 @@ flowchart TD
 - **辅助分析脚本 (`scripts/`)**：
   - `scripts/controversy_analyzer.py`：跨文献 Claim 对撞、冲突矩阵生成与共识评分脚本
   - `scripts/school_clustering.py`：学派与方法学路线聚类辅助脚本
+  - `scripts/claim_linter.py`：综述正文 Claim ID 可溯源门禁（未解析引用硬失败、孤儿论断段落启发式标记、未引用 Claim 覆盖率统计、--check-matrix 矩阵自校验）
 - **资产与模板 (`assets/`)**：
   - [claim_evidence_matrix_schema.json](./assets/claim_evidence_matrix_schema.json)：Claim–Evidence Matrix JSON Schema
   - [controversy_map_template.md](./assets/controversy_map_template.md)：争议地图模板

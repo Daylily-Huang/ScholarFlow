@@ -237,6 +237,18 @@ ScholarFlow/
 
 ---
 
+## 🧪 测试 (Testing)
+
+本仓库测试套件仅使用 Python 标准库（`unittest`），零第三方依赖：
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+覆盖范围：双评阅人一致性计算（κ 闭式值验证）、四种外部题录格式解析（CNKI Refworks / RIS / EndNote / CSV）、引句回查机械校验门（`quote_audit.py`）与综述 Claim ID 可溯源门禁（`claim_linter.py`）。push 与 PR 由 GitHub Actions（`.github/workflows/ci.yml`）自动在 Python 3.9 / 3.11 / 3.13 上运行。
+
+---
+
 ## 🤝 贡献与反馈 (Contributing)
 
 欢迎科研同仁、导师学者以及 AI Agent 开发者提交 Issue 和 Pull Request！

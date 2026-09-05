@@ -1,0 +1,17 @@
+RT - Journal Article
+T1 - 黑麂夏季食性初步分析
+A1 - 王明;李华
+JF - 兽类学报
+YR - 2021
+AB - 采用粪便显微组织学分析法研究黑麂夏季食性组成
+K1 - 黑麂;食性;粪便分析
+DOI - 10.16829/j.slxb.2021.001
+LK - https://kns.cnki.net/kcms/detail/detail.aspx?dbcode=CJFD&filename=SLXB202101001
+
+RT - Thesis
+T1 - 黑麂生境选择与食性研究
+A1 - 张三
+AD - 浙江师范大学
+YR - 2022
+AB - 基于微卫星标记的黑麂亲权分析与生境选择研究
+K1 - 黑麂;微卫星;生境选择

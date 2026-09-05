@@ -153,6 +153,7 @@ flowchart TD
 - **辅助工具 (`scripts/`)**：
   - `scripts/pdf_evidence_locator.py`：PDF 页面与精准原句定位器（含特殊符号与 OCR 噪声检测）
   - `scripts/audit_claims.py`：既有 Claim 事实核查反查比对工具
+  - `scripts/quote_audit.py`：引句回查硬校验门——证据 JSON 每条 verbatim_quote 必须回查源文献定位（EXACT/HYPHEN_JOIN/FUZZY），NOT_FOUND 即门禁失败，零模型判断
 - **资产与模板 (`assets/`)**：
   - [evidence_extraction_schema.json](./assets/evidence_extraction_schema.json)：结构化证据标准 JSON Schema
   - [evidence_table_template.md](./assets/evidence_table_template.md)：标准 Markdown 证据矩阵模板
