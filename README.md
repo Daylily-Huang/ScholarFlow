@@ -56,12 +56,31 @@ graph TD
 
 ---
 
+## 🛡️ Stage 0 自适应科研决策门禁引擎 (Adaptive Research Grill Engine)
+
+各技能在消耗实质性算力与调用下游工具前，由共享的 **Adaptive Research Grill Engine (`shared/grill_me/`)** 强制执行前置科研决策门禁：
+
+1. **预设决策维度，动态筛选提问**：
+   - 不采用死板问卷；系统针对三个技能预设 9~14 个决策维度，根据任务描述与学科透镜，动态筛选 **3~5 个** 最关键未决问题；
+   - 自动识别已知条件为 `[INFERRED]`，次要维度自动应用科学默认值并标记为 `[DEFAULTED]`；
+2. **每题必带推荐，推荐必给理由**：
+   - 每个选项题强制提供 `(Recommended)` 选项，并附带 1 句话的方法学依据及置信度标签（`[高置信度]` / `[中置信度]` / `[需权衡]`）；
+3. **严格交互硬门禁 (STOP Rule)**：
+   - Agent 输出提问清单后，**必须立即终止当前回复，进入静默等待状态**，严禁自问自答或在同一轮次中偷跑下游工具；
+4. **低摩擦快捷回复与全量来源追溯**：
+   - 支持一键全盘采纳（`按推荐` / `全部按推荐`）、紧凑选项（`1A 2B 3C`）与自然语言局部覆盖；
+   - 确认通过后输出带四级来源追溯（`[USER]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）的【Stage 0 Protocol Snapshot】；
+5. **六大学科透镜 (Domain Lenses)**：
+   - 内置 `generic`（通用）、`biomedical`（生物医药 PICO）、`life_sciences`（生态与演化）、`computer_science`（AI与基准复现）、`physical_sciences`（物化实验与模拟）、`social_sciences`（因果推断与实证）六大学科透镜。
+
+---
+
 ## 🧩 三大核心技能详解 (Skills Breakdown)
 
 ### 1. `literature-discovery-acquisition` (文献系统发现与全文获取)
 > **定位**：高召回、可审计的文献检索、商业库人机协同摄取、PRISMA 双盲初筛与开源全文获取管道。
 
-- **Stage 0 Grill-Me 问询门禁 `[PROTOCOL]`**：在发起检索前，先与用户厘清研究核心实体、目标时间窗口、排他条件与学位论文需求。
+- **自适应决策门禁 `[PROTOCOL + ENGINE]`**：在发起检索前，基于 D1-D14 维度动态收敛研究实体、纳排边界与时间跨度。
 - **双层数据源架构 (Data Source Architecture)**：
   - 🌐 **全自动检索层 (AUTOMATED Tier)**：集成 OpenAlex API、Crossref 与 PubMed，支持程序化关键词检索与双向引文滚雪球（Snowballing）；
   - 🔐 **人机协同商业库摄取层 (USER_ASSISTED Tier)**：知网 (CNKI)、万方、Web of Science、Scopus 受校园网 IP 准入与反爬机制保护，ScholarFlow 严格遵守学术安全规范，不采用逆向爬虫；系统自动生成目标库的标准高级布尔检索式（Boolean Syntax），由学者在机构网络下一键导出标准题录（Refworks / RIS / EndNote / CSV），随后由 `ingest_external_records.py` 执行本地批量硬解析与四级去重入库。

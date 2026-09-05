@@ -1,64 +1,76 @@
-# Stage 0: 综合分析前置交互门禁规程 (Grill-Me Protocol)
+# Stage 0: 跨篇文献合成自适应决策门禁规程 (Grill-Me Protocol)
 
-## 一、为什么多文献综合分析必须强制前置 Grill-Me？
-
-多文献综合分析最容易面临三大灾难：
-1. **输入来源混乱**：用户给了一堆标题或不可靠的摘要，要求分析学术争议，直接导致基于幻觉构建伪争议；
-2. **核心科学问题发散**：没有明确聚焦点，输出变成涵盖几十个方向的万字流水账；
-3. **输出期望脱节**：用户只需要快速排查两个结论的冲突点，AI 却花费大量时间撰写长篇学术流派史。
-
-**Stage 0 的门禁目标**：
-在敲下任何一行分析前，强制通过结构化交互锁定输入基线、运行模式、核心科学命题与终极交付物。
+> **Status**: Production Standard  
+> **Skill**: `literature-synthesis`  
+> **Core Architecture**: Powered by [ScholarFlow Adaptive Research Grill Engine](../../../shared/grill_me/core_protocol.md)  
+> **Dimension Reference**: [grill_dimensions.md](./grill_dimensions.md) (S1 ~ S11)
 
 ---
 
-## 二、Stage 0 执行三步走流程
+## 一、规程目的与核心原则
 
-### Step 1：输入数据源就绪度预检 (Evidence Readiness Check)
-Agent 必须首先审查输入数据的结构化程度：
-- **等级 A (黄金输入)**：已提供 `literature-evidence-extraction` 输出的结构化 Evidence Tables 或同名伴生 JSON 实体。
-- **等级 B (银级输入)**：已提供多篇经过初步筛选的论文全文 PDF 文件或清洗后的纯文本。
-- **等级 C (不达标)**：用户仅提供了几篇论文的题目或摘要链接，却要求对退火温度优化、个体识别模型差异等实验细节进行学术争议深度发掘。
-  - 🚨 **触发熔断**：输出警示并建议：
-    > “当前仅获取到论文题目/摘要。学术争议与方法学差异分析（如模型假设、PCR 组分偏差、检测概率校正）高度依赖全文实证细节。建议先调用 `literature-discovery-acquisition` 下载全文，或由 `literature-evidence-extraction` 抽取事实证据表后再启动本技能。”
+多文献跨篇综合分析最容易面临三大灾难：
+1. **输入来源混乱**：基于不可靠的粗提摘要分析学术争议，直接导致基于模型幻觉构建伪争议；
+2. **核心科学问题发散**：缺乏明确聚焦点，输出变成涵盖几十个方向的流水账；
+3. **输出期望脱节**：用户仅需快速排查两个结论的冲突点，AI 却消耗大量算力撰写长篇学术流派史。
 
----
-
-### Step 2：发起针对性决策提问 (Grill-Me Questions)
-
-Agent 向用户提出 4 个聚焦的结构化决策问题（每个问题必须包含标有 `(Recommended)` 的推荐选项）：
-
-#### Q1 [运行模式选择（核心必选项）]
-- `(Recommended) Deep Evidence Synthesis（全景学术综合模式）：完整执行原子化主张映射、9大争议分类诊断、学派演化图谱、6级共识边界标定、红队辩驳挑刺与争议驱动型叙述综述生成。适合：学位论文开题/第一章、SCI综述、基金立项背景`
-- `Controversy Scan（快速争议扫描模式）：轻量聚焦，快速排查并输出这批文献的核心分歧点与 Controversy Map，不展开长篇学派史与大篇幅综述正文。适合：组会速览讨论、课题争议摸底`
-- `School / Paradigm Mapping（学派演化与理论框架模式）：重点梳理该领域不同学派阵营、方法学路线迭代历史与代表性学者传统。适合：理论框架构建、方法学论文引言`
-- `Claim Audit（多源学术主张对撞审计模式）：针对用户或学界流传的单项学术论断，全景核查多方文献的证实、证伪与适用边界`
-
-#### Q2 [核心科学问题与争议焦点（核心必选项）]
-- `(Recommended) 由 Agent 根据输入文献集自动提炼出当前最聚焦的 1–2 个核心科学命题初稿（如：“濒危野生动物种群数量与密度的不同模型估算争议”），由用户快速确认或微调`
-- `用户指定核心命题（请在对话中给出您希望深入对撞的具体科学问题）`
-- `全主题宏观扫描：不限制单一科学命题，自动将文献划分为若干主题模块全面展开`
-
-#### Q3 [学科领域配置 (Domain Profile)]
-- `(Recommended) 分子生态学与保护遗传学黄金 Profile (Molecular Ecology & Conservation Genetics)：自动激活针对微卫星位点多态性、无效等位基因、等位基因脱落率 (ADO)、多管 PCR 复孔、降解 DNA 质量偏倚的专属方法学诊断`
-- `宏观生态学与种群生态学黄金 Profile (Ecology & Population Ecology)：自动激活针对空间与时间尺度依赖、样线探测概率异质性、假重复、生境片段化效应的专属方法学诊断`
-- `通用跨学科自适应 Profile：由协调员根据文献实际涉及的自然科学、医学或工程领域动态自适应适配`
-
-#### Q4 [争议驱动型叙述综述 (Narrative Review) 输出选项]
-- `(Recommended) 完整生成两部曲交付物：结构化图谱矩阵（Claim 矩阵 + 争议地图 + 共识表）+ 章节化争议驱动叙述综述正文（可直接融入论文写作）`
-- `仅输出结构化图谱矩阵：仅输出核心分析表格、争议分类与上游缺口任务包，不生成长篇叙述文本，留由人工亲自撰写`
+**自适应合成门禁的核心目标**：
+1. **证据输入结构化预检**：优先接入经过 `literature-evidence-extraction` 质控的结构化证据表及伴生 JSON；若仅有无序粗文，给出降级警示；
+2. **预设决策维度，动态生成问题**：基于 [grill_dimensions.md](./grill_dimensions.md) 定义的 11 个合成决策维度（S1-S11），动态筛选 3~5 个最高影响度的问题发起提问；
+3. **每题必带推荐，推荐必给理由**：每个选项题必须包含 `(Recommended)` 选项，附带 1 句话的方法学依据与置信度标签；
+4. **严格交互硬门禁 (STOP Rule)**：Agent 在输出 Stage 0 问题后，**必须立即终止当前回复，进入静默等待状态**，严禁在同一回复中自问自答或直接调用分析工具；
+5. **低摩擦快捷协议与全量可追溯**：支持用户单指令极速确认（`按推荐`、`1A 2B 3C`），并在通过后生成包含参数来源追溯（`[USER]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）的协议快照（Protocol Snapshot）。
 
 ---
 
-### Step 3：固化任务协议快照并流转
+## 二、决策维度与层级映射
 
-用户确认后，Agent 必须在对话中输出明确的【综合分析基线快照】：
+系统在启动时评估 11 个维度：
+
+| 层级 | 维度清单 | 处理策略 |
+|---|---|---|
+| **Tier 1: CRITICAL** | `S1` 综合目的与产出定位<br>`S2` 核心争鸣命题与待检验假设<br>`S3` 证据库来源与纳入边界<br>`S4` 比较单元与聚合粒度 | **首轮必须解决**；未在初始提示中明确者优先列入提问清单；未解决前严禁开工。 |
+| **Tier 2: HIGH_IMPACT** | `S5` 可比性边界与条件控制<br>`S6` 证据质量评级与加权策略<br>`S7` 学派识别与聚类灵敏度 | 显著影响争议判定准确度与学派划分边界；按需放入首轮提问。 |
+| **Tier 3: DEFAULTABLE** | `S8` 时间演进与范式转移切片<br>`S9` 强制独立反方挑刺 (Devil's Advocate)<br>`S10` 知识空白上游反馈任务包 (Upstream Gap)<br>`S11` 叙事综述产出深度 (Claims-first) | **默认不提问**，自动应用科学规范默认值，打上 `[DEFAULTED]` 标签写入协议快照供复核。 |
+
+---
+
+## 三、Stage 0 执行三步走流程
+
+### Step 1：证据就绪预检与动态提问生成 (Verification & Dynamic Grill-Me)
+Agent 接收到请求后：
+1. **证据输入就绪度核查**：确认是否已有证据表或结构化参数；
+2. **提取已知要素**：识别任务指定的核心争鸣命题或限定主题；
+3. **动态输出 3 ~ 5 个问题**：从未决的 S1、S2、S4、S5、S6、S7 中组织提问；
+4. **Agent 输出问题后立即停止输出（STOP），等待用户回复！**
+
+### Step 2：用户快捷回复与解析 (Response Parsing)
+用户可通过以下方式快捷回复：
+- **全盘采纳**：输入 `按推荐` / `全部按推荐` / `全选A` / `yes` / `ok`，系统将所有提问项解析为推荐选项。
+- **代号速选**：输入 `1A 2B 3C` 或 `1.A 2.B 3.C`，按题号精准匹配。
+- **混合微调**：输入 `1按推荐，2选A (聚焦效应量方向对立)，3选C`。
+
+### Step 3：协议快照固化与门禁放行 (Protocol Snapshot & Gate Clearance)
+确认全部 `CRITICAL` 维度闭环后，系统生成标准的【Stage 0 Protocol Snapshot】：
+
 ```markdown
-> **已确认综合分析任务快照**：
-> - 纳入文献：共 8 篇论文 (包含 2 篇博硕论文)
-> - 运行模式：Deep Evidence Synthesis (全景学术综合)
-> - 核心命题：濒危兽类非损伤性遗传取样与不同模型对种群数量估算的分歧根源
-> - 学科配置：Molecular Ecology & Conservation Genetics Profile
-> - 终极交付：完整矩阵表 + 章节化争议驱动综述正文 + 上游任务包
+# Stage 0 Protocol Snapshot (Research Gate Confirmed)
+- **Skill**: literature-synthesis
+- **Domain Lens**: biomedical / life_sciences / generic
+- **Gate Status**: CONFIRMED
+- **Interaction Rounds**: 1
+
+| Dimension ID | Dimension Name | Priority | Selected Setting / Boundary | Provenance | Rationale / Notes |
+|---|---|---|---|---|---|
+| `S1` | 综合产出定位 | `CRITICAL` | 全景学术争议诊断与学派演进图谱 | `[USER]` | 揭示前沿学术争鸣与理论分歧 |
+| `S2` | 核心争鸣命题 | `CRITICAL` | 因果效应方向分歧 (促进 vs 抑制) | `[USER]` | 聚焦核心矛盾假设 |
+| `S3` | 证据输入边界 | `CRITICAL` | 经 Extraction 质控的结构化证据表 | `[INFERRED]` | 输入已具备 E1-E4 证据矩阵 |
+| `S4` | 比较聚合粒度 | `CRITICAL` | 细粒度独立实验 / 独立处理组单元 | `[USER]` | 采纳推荐方案消除组间混杂 |
+| `S6` | 质量评级加权 | `HIGH_IMPACT` | 多维循证质量加权 (样本量与偏倚风险) | `[DEFAULTED]` | 遵循循证医学与定量综合规范 |
+| `SYS_RULE` | 方法学守则 | `CRITICAL` | Claims-first + 强制独立反方挑刺 | `[SYSTEM_RULE]` | ScholarFlow 核心防伪铁律 |
+
+> [!NOTE]
+> **门禁状态**: `CONFIRMED`。Step 1 证据单元标准化与争议矩阵构建已获授权，即刻进入执行。
 ```
-快照确认后，正式进入 Step 1 证据处理流。
+
+快照输出后，正式进入 Step 1 证据处理与争议发掘流水线。

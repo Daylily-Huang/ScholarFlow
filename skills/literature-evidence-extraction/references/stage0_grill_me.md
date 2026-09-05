@@ -1,63 +1,75 @@
-# Stage 0: 论文接入、模式确认与动态 Schema 交互门禁 (Grill-Me Protocol)
+# Stage 0: 证据抽取自适应决策门禁规程 (Grill-Me Protocol)
 
-## 一、前置交互的核心价值与门禁原则
-
-学术论文内容抽取绝不能搞“黑盒盲盒运行”。用户的实际科研需求千差万别：有人只需要核实某篇文章的退火温度，有人需要提取完整的 PCR 体系组分，有人需要对一篇已有争议结论进行证据反查。
-
-**Stage 0 的门禁目标**：
-1. **全文输入有效性门禁**：核验用户是否真正提供了论文全文（PDF 文件、文本粘贴或本地路径）。若只有摘要（Abstract），坚决拒绝提取实验参数并发出警示；
-2. **确认运行模式**：区分是常规参数抽取（Extract Mode）、既有主张事实核查（Audit Mode）还是多文献矩阵提取（Batch-Matrix）；
-3. **动态确认抽取 Schema**：尊重用户全定制字段需求；若用户未指定，现场分析文献特征并动态提炼 4 模块建议 Schema；
-4. **澄清多 Assay 上下文边界**：确认当文献中存在多种并行实验时（如物种鉴定 vs 微卫星分型），用户关注的是哪一个体系；
-5. **锁定事实与推论边界**：确认用户是否需要科学解释（Phase C），默认仅输出客观证据矩阵。
+> **Status**: Production Standard  
+> **Skill**: `literature-evidence-extraction`  
+> **Core Architecture**: Powered by [ScholarFlow Adaptive Research Grill Engine](../../../shared/grill_me/core_protocol.md)  
+> **Dimension Reference**: [grill_dimensions.md](./grill_dimensions.md) (E1 ~ E9)
 
 ---
 
-## 二、Stage 0 执行三步走流程
+## 一、规程目的与核心原则
 
-### Step 1：输入全文预检 (Full-Text Verification)
-Agent 接收到请求后，首先核查文献全文是否就绪：
-- **情况 A (就绪)**：已提供本地 PDF 路径、纯文本全文或上游 `literature-discovery-acquisition` 下载的 PDF。状态标记为 `READY`。
-- **情况 B (仅有摘要)**：用户仅提供了一段 Abstract 或标题，却要求提取 PCR 体积、引物序列或反应试剂。
-  - 🚨 **触发熔断**：输出警示：
-    > “当前仅获取到论文摘要（Abstract）。根据本技能【严禁用摘要代替方法】铁律，无法从摘要中推断微卫星引物、PCR反应体系或实验试剂参数。请提供论文全文 PDF 或正文文本后再行抽取。”
+学术论文内容抽取绝不能搞“黑盒盲盒运行”。用户的实际科研需求千差万别：有人需要提取完整的 PCR 体系组分，有人需要提取临床试验效应量，有人需要对既有争议结论进行原子化事实核验。
 
----
-
-### Step 2：发起针对性决策提问 (Grill-Me Questions)
-
-Agent 向用户提出 2–4 个聚焦的结构化决策问题（每个问题必须提供带有 `(Recommended)` 标注的推荐选项）：
-
-#### Q1 [运行模式选择（核心必选项）]
-- `(Recommended) Extract Mode（标准字段抽取模式）：针对提供的全文，按照定制 Schema 执行像素级参数抽取、引文绑定与 E1-E4 证据评级，生成标准证据矩阵与伴生 JSON`
-- `Audit Mode（既有结论反查审计模式）：针对用户或他人已总结的若干条学术 Claim，在论文全文中逐条寻证，判定其为 SUPPORTED（证实）、UNSUPPORTED（无证据）或 CONTRADICTORY（矛盾）`
-- `Batch-Matrix（多文献横向矩阵模式）：对提供的多篇文献按相同字段进行横向提取对比，输出学术对比大表`
-
-#### Q2 [抽取字段 Schema 范围确认（核心必选项）]
-- `(Recommended) 采用 Agent 根据本篇论文结构动态提炼的建议 Schema（包含：研究元数据、前处理与提取、关键实验反应体系/引物、分析质控指标、核心观测结果）`
-- `仅提取实验方法与关键参数（Methods Only：聚焦试剂、浓度、引物、退火温度、循环数、仪器）`
-- `仅提取核心研究结果与效应量（Results Only：聚焦样本量、成功率、多态性参数、观测值及置信区间）`
-- `使用我指定的自定义字段清单（请在对话中列出具体字段）`
-
-#### Q3 [多实验体系 (Assay Context) 处理偏好]
-- `(Recommended) 自动隔离所有实验体系：若论文包含物种鉴别、微卫星分型或性别扩增等多个实验，按 Assay-01/02 建立独立上下文分别展示，严防参数混淆`
-- `仅聚焦本课题核心体系：仅提取微卫星（Microsatellite / STR）多态性分型实验参数，忽略其他辅助实验`
-
-#### Q4 [科学推论与解释 (Phase C) 启用选项]
-- `(Recommended) 严格保持纯粹客观抽取：仅输出文献事实证据矩阵（Phase A+B），不附加任何未经验证的 AI 主观解释或推断`
-- `在证据矩阵后附带专业科学推论与建议（启用 Phase C：必须与事实表严格物理隔离，提供方法学横向评价与避坑建议）`
+**自适应抽取门禁的核心目标**：
+1. **全文输入有效性前置硬筛**：核验是否真正具备论文全文（PDF 文件、全文文本或本地路径）。若只有摘要（Abstract），坚决拒绝提取实验参数并触发熔断；
+2. **预设决策维度，动态生成问题**：基于 [grill_dimensions.md](./grill_dimensions.md) 定义的 9 个抽取决策维度（E1-E9），动态筛选 3~5 个最高影响度的问题提问；
+3. **每题必带推荐，推荐必给理由**：每个选项题必须包含 `(Recommended)` 选项，附带 1 句话的方法学依据与置信度标签；
+4. **严格交互硬门禁 (STOP Rule)**：Agent 在输出 Stage 0 问题清单后，**必须立即终止当前回复，进入静默等待状态**，严禁在同一回复中自问自答或直接调用抽取工具；
+5. **低摩擦快捷协议与全量可追溯**：支持用户单指令极速确认（`按推荐`、`1A 2B 3C`），并在通过后生成包含参数来源追溯（`[USER]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）的协议快照（Protocol Snapshot）。
 
 ---
 
-### Step 3：固化检索协议快照并流转
+## 二、决策维度与层级映射
 
-用户确认后，Agent 必须在对话中输出明确的【抽取任务基线快照】：
+系统在启动时评估 9 个维度：
+
+| 层级 | 维度清单 | 处理策略 |
+|---|---|---|
+| **Tier 1: CRITICAL** | `E1` 抽取目的与任务类型<br>`E2` 待抽取的文献范围与输入边界<br>`E3` 抽取 Schema 选择与定制<br>`E4` 证据单元切分与多实验隔离粒度 | **首轮必须解决**；未在初始提示中明确者优先列入提问清单；未解决前严禁开工。 |
+| **Tier 2: HIGH_IMPACT** | `E5` 推导证据与重计算策略<br>`E6` 计量单位与数值归一化要求 | 显著影响下游定量分析与横向可比性；按需放入首轮提问。 |
+| **Tier 3: DEFAULTABLE** | `E7` 表格与附录材料优先挖掘<br>`E8` Quote-before-Extract 物理隔离<br>`E9` 10% 关键高危字段抽检审计 | **默认不提问**，自动应用科学规范默认值，打上 `[DEFAULTED]` 标签写入协议快照供复核。 |
+
+---
+
+## 三、Stage 0 执行三步走流程
+
+### Step 1：全文预检与动态提问生成 (Verification & Dynamic Grill-Me)
+Agent 接收到请求后：
+1. **输入全文预检**：
+   - 若仅有 Abstract：触发熔断，提示用户提供全文，不进入参数提取。
+   - 若具备全文：标记 `E2` 为 `[INFERRED: fulltext_pdf]`。
+2. **提取已知要素**：识别任务中指定的目标 Schema 或核验目标。
+3. **动态输出 3 ~ 5 个问题**：从未决的 E1、E3、E4、E5、E6 中组织提问。
+4. **Agent 输出问题后立即停止输出（STOP），等待用户回复！**
+
+### Step 2：用户快捷回复与解析 (Response Parsing)
+用户可通过以下方式快捷回复：
+- **全盘采纳**：输入 `按推荐` / `全部按推荐` / `全选A` / `yes` / `ok`，系统将所有提问项解析为推荐选项。
+- **代号速选**：输入 `1A 2B 3C` 或 `1.A 2.B 3.C`，按题号精准匹配。
+- **混合微调**：输入 `1按推荐，2选C (采用生态专属Schema)，3选A`。
+
+### Step 3：协议快照固化与门禁放行 (Protocol Snapshot & Gate Clearance)
+确认全部 `CRITICAL` 维度闭环后，系统生成标准的【Stage 0 Protocol Snapshot】：
+
 ```markdown
-> **已确认抽取任务快照**：
-> - 目标文献：2021_Journal_Author_Title.pdf
-> - 运行模式：Extract Mode (标准抽取)
-> - 字段范围：Dynamic Schema (4 模块共 18 字段)
-> - 实验体系：Assay Isolation Enabled (STR PCR & Species ID PCR 分立)
-> - 科学解释：Disabled (纯客观事实证据表)
+# Stage 0 Protocol Snapshot (Research Gate Confirmed)
+- **Skill**: literature-evidence-extraction
+- **Domain Lens**: biomedical / life_sciences / generic
+- **Gate Status**: CONFIRMED
+- **Interaction Rounds**: 1
+
+| Dimension ID | Dimension Name | Priority | Selected Setting / Boundary | Provenance | Rationale / Notes |
+|---|---|---|---|---|---|
+| `E1` | 抽取任务类型 | `CRITICAL` | 系统综述与定量参数精准提取 | `[USER]` | 遵循高精度可复现规范 |
+| `E2` | 文献输入形态 | `CRITICAL` | 全文 PDF 解析文本 (已就绪) | `[INFERRED]` | 输入已验证为完整全文 |
+| `E3` | 抽取 Schema | `CRITICAL` | schemas/v1.0/general_empirical.json | `[USER]` | 采纳推荐标准双轨 Schema |
+| `E4` | 多实验隔离粒度 | `CRITICAL` | 细粒度独立 Assay 上下文物理隔离 | `[USER]` | 采纳推荐方案防参数混淆 |
+| `E5` | 推导重计算策略 | `HIGH_IMPACT` | 允许透明重计算（附带原始值与公式） | `[DEFAULTED]` | 兼顾可用性与可审计性 |
+| `SYS_RULE` | 方法学守则 | `CRITICAL` | Quote-before-Extract + E1-E4 分层 | `[SYSTEM_RULE]` | ScholarFlow 核心防伪铁律 |
+
+> [!NOTE]
+> **门禁状态**: `CONFIRMED`。Phase A 事实定位与引文抽取已获授权，即刻进入执行。
 ```
-快照确认后，正式激活 Phase A 抽取流。
+
+快照输出后，正式进入 Phase A 事实抽取流水线。

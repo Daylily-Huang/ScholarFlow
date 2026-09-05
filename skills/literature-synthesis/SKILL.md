@@ -101,6 +101,14 @@ flowchart TD
     QG --> S10[Step 10: 争议驱动型叙述综述正文生成 Narrative Review]
 ```
 
+### Stage 0：自适应科研决策门禁 (Adaptive Research Decision Gate)
+在执行任何学术争议诊断或综述撰写前，系统强制接入自适应科研决策门禁（详见 [stage0_grill_me.md](./references/stage0_grill_me.md) 与 [grill_dimensions.md](./references/grill_dimensions.md)）：
+- **证据就绪预检**：优先接入结构化证据表及伴生 JSON；若仅有论文标题/摘要则给出降级警示；
+- **动态筛选提问**：评估 S1 至 S11 决策维度，从未决的 `CRITICAL` 维度（S1 综合目的、S2 核心争鸣假说、S3 证据边界、S4 比较单元）与关键 `HIGH_IMPACT` 维度（S5 可比性、S6 证据加权、S7 学派灵敏度）中动态生成 **3~5 个** 结构化提问；
+- **每题必带推荐**：提供 `(Recommended)` 选项并标注依据与置信度；
+- **严格交互硬门禁 (STOP Rule)**：**Agent 输出问题后必须立即终止当前回复，进入静默等待状态**，严禁在同一回复中自问自答或直接调用分析工具；
+- **低摩擦确认与快照**：支持 `按推荐`、`1A 2B 3C` 极速回复，确认后生成四级来源追溯（`[USER]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）的 Protocol Snapshot，解锁 Step 1。
+
 ---
 
 ## 四、核心输出契约与模板
