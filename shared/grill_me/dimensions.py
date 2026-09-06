@@ -102,7 +102,7 @@ def get_discovery_dimensions() -> list[GrillDimension]:
             description="检索表达式中同义词、布尔逻辑与上位概念构建方案。",
             options=[
                 DimensionOption("A", "标准概念矩阵构建（核心词 + 英文正名/曾用名 + 缩写 + 核心方法）", is_recommended=True,
-                                rationale="PRISMA-S 规范推荐，平衡查全率与查准率", confidence="high", value="concept_matrix"),
+                                rationale="标准概念矩阵构建，平衡查全率与查准率", confidence="high", value="concept_matrix"),
                 DimensionOption("B", "极简核心词检索（仅使用最标准关键词）",
                                 rationale="快速探测文献量级", confidence="moderate", value="strict_keywords"),
             ],
@@ -116,7 +116,7 @@ def get_discovery_dimensions() -> list[GrillDimension]:
             description="文献研究对象的地域或空间尺度限制。",
             options=[
                 DimensionOption("A", "不设地理限制（全球文献，关注普适性机制与规律）", is_recommended=True,
-                                rationale="国际科学研究通用偏好", confidence="high", value="global"),
+                                rationale="关注普适性机制与规律，不设先验地域边界", confidence="high", value="global"),
                 DimensionOption("B", "限定于特定国家/地理区域/生态大区",
                                 rationale="区域性生态或政策研究适用", confidence="moderate", value="regional"),
             ],
@@ -146,7 +146,7 @@ def get_discovery_dimensions() -> list[GrillDimension]:
             description="期刊长文、会议、博硕论文、专利等文献类型优先级。",
             options=[
                 DimensionOption("A", "同行评审学术期刊研究论文 (Research Articles) 优先", is_recommended=True,
-                                rationale="科研证据金标准", confidence="high", value="peer_reviewed_articles"),
+                                rationale="经严格同行评议的学术研究，确保论证严谨性", confidence="high", value="peer_reviewed_articles"),
                 DimensionOption("B", "期刊论文 + 权威博硕士学位论文 + 顶会论文",
                                 rationale="增加未完全发表细节补充", confidence="moderate", value="articles_theses_conferences"),
             ],
@@ -199,8 +199,8 @@ def get_discovery_dimensions() -> list[GrillDimension]:
             priority=PriorityTier.DEFAULTABLE,
             description="引用追溯层数与边际递减终止阈值。",
             options=[
-                DimensionOption("A", "2 层追溯；连续 20 篇新增文献中无新概念时达到饱和终止", is_recommended=True,
-                                rationale="符合 PRISMA 饱和度科学停止标准", confidence="high", value="depth_2_saturation"),
+                DimensionOption("A", "2 层追溯；连续若干轮新增文献中无独立新概念时达到饱和终止", is_recommended=True,
+                                rationale="ScholarFlow 启发式停止信号（边际概念饱和）", confidence="high", value="depth_2_saturation"),
                 DimensionOption("B", "单层直接检索（不滚雪球）", rationale="快速粗查", confidence="moderate", value="single_pass"),
             ],
             default_key="A",
@@ -230,7 +230,7 @@ def get_extraction_dimensions() -> list[GrillDimension]:
             description="明确本次证据抽取的下游科研用途与严谨性级别。",
             options=[
                 DimensionOption("A", "系统综述 / Meta 分析结构化参数与定量数据提取", is_recommended=True,
-                                rationale="遵循标准循证医学与生态学循证标准", confidence="high", value="meta_analysis_params"),
+                                rationale="遵循严格结构化参数与定量数据标准", confidence="high", value="meta_analysis_params"),
                 DimensionOption("B", "特定论文事实核验（Claim Audit 模式）",
                                 rationale="对照文献审核既有结论真实性", confidence="moderate", value="claim_audit"),
                 DimensionOption("C", "方法学与实验协议关键参数对比",
@@ -433,7 +433,7 @@ def get_synthesis_dimensions() -> list[GrillDimension]:
             description="对不同来源证据赋予权重的评价规则。",
             options=[
                 DimensionOption("A", "多维循证质量加权（根据样本量、研究设计、偏倚风险等级赋予置信权重）", is_recommended=True,
-                                rationale="循证综合 Gold Standard，防止低质文献左右结论", confidence="high", value="quality_weighted"),
+                                rationale="多维证据质量加权，防止低质文献左右结论", confidence="high", value="quality_weighted"),
                 DimensionOption("B", "等权重民主计数（一文一票）",
                                 rationale="简单频次统计，存在质量稀释风险", confidence="low", value="equal_weight"),
             ],

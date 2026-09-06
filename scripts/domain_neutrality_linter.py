@@ -140,6 +140,37 @@ def check_skill_frontmatter_for_default_domain(filepath: str) -> List[Tuple[int,
     return violations
 
 
+RECOMMENDATION_FILES = [
+    "shared/grill_me/dimensions.py",
+    "shared/grill_me/recommendation_policy.md",
+]
+
+UNIVERSAL_DEFAULT_DOMAIN_PATTERNS = [
+    r"永远\s*(PubMed|PCR|patient|ecology)",
+    r"always\s*(PubMed|PCR|patient|ecology)",
+    r"默认\s*(PubMed|PCR|patient|生态)",
+    r"default\s+(PubMed|PCR|patient|ecology)",
+]
+
+
+def check_recommendation_neutrality(filepath: str) -> List[Tuple[int, str, str]]:
+    """Ensure recommendation dimensions and policy do not mandate a single universal default domain."""
+    if not os.path.exists(filepath):
+        return []
+
+    violations = []
+    with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+        lines = f.readlines()
+
+    for idx, line in enumerate(lines, start=1):
+        stripped = line.strip()
+        for pat in UNIVERSAL_DEFAULT_DOMAIN_PATTERNS:
+            m = re.search(pat, stripped, re.IGNORECASE)
+            if m:
+                violations.append((idx, m.group(0), stripped))
+    return violations
+
+
 def audit_repository(repo_root: str) -> Dict[str, List[Tuple[int, str, str]]]:
     results = {}
     for rel_path in CORE_PATHS:
@@ -149,6 +180,13 @@ def audit_repository(repo_root: str) -> Dict[str, List[Tuple[int, str, str]]]:
             v.extend(check_skill_frontmatter_for_default_domain(full_path))
         if v:
             results[rel_path] = v
+
+    for rel_path in RECOMMENDATION_FILES:
+        full_path = os.path.join(repo_root, rel_path.replace("/", os.sep))
+        v = check_recommendation_neutrality(full_path)
+        if v:
+            results[rel_path] = v
+
     return results
 
 

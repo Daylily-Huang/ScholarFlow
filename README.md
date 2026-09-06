@@ -299,6 +299,28 @@ ScholarFlow/
 
 ---
 
+## 📦 分发模型契约 (Distribution Model)
+
+ScholarFlow 明确区分两层分发界面，保障按需使用与依赖极简：
+
+### 1. Python 运行时引擎 (`pip install scholarflow`)
+提供标准 Python 运行时计算与门禁核心（Zero Mandatory Dependencies）：
+- **上下文感知解析引擎**：`shared.context_resolution`
+- **自适应 Grill-Me 与动态推荐引擎**：`shared.grill_me` (含 `recommender.py`)
+- **不可信内容安全与脱敏层**：`shared.security`
+- **规范版本与契约元数据**：`shared.version`
+- **跨学科视角静态资产**：内置 9 个领域 Lens（通过 `importlib.resources` 访问 `shared.domain_lenses/*.md`）
+
+### 2. 全量科研技能套件 (`git clone` / GitHub Release Archive)
+面向 Agent 工作区、论文作者与课题组，提供端到端科研智能体体系：
+- **三大技能完整 Manifest**：`skills/`（Discovery、Extraction、Synthesis 的 `SKILL.md`）
+- **规范化 JSON Schemas**：`schemas/*.schema.json`（含双层契约与 Envelope 定义）
+- **方法论参考与角色提示词**：`references/` 与 `roles/`（如 Gatekeeper、Devil's Advocate 协议）
+- **多领域案例与对抗夹具**：`examples/` 与 `benchmarks/data/`
+- **科研回归基准与中立性 Linter**：`benchmarks/` 与 `scripts/`
+
+---
+
 ## 🧪 测试与科研基准 (Testing & Benchmarks)
 
 ### 1. 自动化单元与契约测试套件

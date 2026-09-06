@@ -85,7 +85,7 @@ python skills/literature-discovery-acquisition/scripts/ingest_external_records.p
   "document_type": "Article",
   "source_databases": ["PubMed", "OpenAlex"],
   "query_id": "Q01",
-  "evidence_level": "VERIFIED"
+  "metadata_verification_status": "VERIFIED_API"
 }
 ```
 

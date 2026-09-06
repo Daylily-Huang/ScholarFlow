@@ -89,7 +89,7 @@ def parse_openalex_item(item, snowball_role=None, seed_id=None):
         "screening_status": "Uncertain",
         "screening_reason": "Automated OpenAlex API retrieval",
         "metadata_verification_status": "VERIFIED_API",
-        "evidence_level": "VERIFIED"
+        "fulltext_verification_status": "NOT_CHECKED"
     }
     if snowball_role:
         rec["snowball_role"] = snowball_role

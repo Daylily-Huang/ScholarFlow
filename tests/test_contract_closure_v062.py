@@ -8,6 +8,7 @@ ScholarFlow_v0.6.2_Contract_Closure_修复操作手册.md (Section 11).
 
 import io
 import json
+import os
 import unittest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
@@ -33,6 +34,10 @@ from tests.schema_helpers import validate_payload, JSONSCHEMA_AVAILABLE, Validat
 
 class TestContractClosureV062(unittest.TestCase):
     """16 specific contract closure tests for ScholarFlow v0.6.2."""
+
+    def setUp(self):
+        if os.getenv("SCHOLARFLOW_STRICT_CONTRACT_CI") == "1":
+            self.assertTrue(JSONSCHEMA_AVAILABLE, "Strict contract CI must have jsonschema installed")
 
     # 1. test_discovery_skill_points_to_canonical_schema
     def test_discovery_skill_points_to_canonical_schema(self):
@@ -396,8 +401,8 @@ class TestContractClosureV062(unittest.TestCase):
             violations = check_skill_frontmatter_for_default_domain(str(sk_md))
             self.assertEqual(violations, [], f"Domain bias found in {sk_md}: {violations}")
 
-    # 16. test_built_wheel_contains_required_assets
-    def test_built_wheel_contains_required_assets(self):
+    # 16. test_repository_contains_required_skill_assets
+    def test_repository_contains_required_skill_assets(self):
         verified = verify_repo_assets(helpers.REPO_ROOT)
         self.assertTrue(verified, "verify_repo_assets must return True")
 

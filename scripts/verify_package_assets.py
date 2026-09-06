@@ -37,9 +37,29 @@ REQUIRED_SKILLS = [
 ]
 
 
+def verify_installed_wheel() -> bool:
+    """Verifies that in an installed environment (outside repo), engine modules and resources load."""
+    try:
+        import shared
+        import shared.version
+        import shared.grill_me
+        import shared.context_resolution
+        from importlib.resources import files
+
+        lens = files("shared").joinpath("domain_lenses/generic.md")
+        if not lens.is_file():
+            print("[FAIL] generic.md not accessible via importlib.resources")
+            return False
+        print(f"[PASS] Installed wheel engine verified (version: {shared.version.__version__})")
+        return True
+    except Exception as e:
+        print(f"[FAIL] Installed wheel verification failed: {e}")
+        return False
+
+
 def verify_repo_assets(repo_root: Path) -> bool:
     print("==================================================")
-    print("  ScholarFlow Package Assets Verification (v0.6.2)")
+    print("  ScholarFlow Package Assets Verification (v0.6.3)")
     print("==================================================")
     
     missing = []
@@ -104,4 +124,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 

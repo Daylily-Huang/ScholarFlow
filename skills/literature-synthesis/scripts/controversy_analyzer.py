@@ -224,6 +224,12 @@ def normalize_claim(raw: Dict[str, Any]) -> Dict[str, Any]:
     support_type = str(raw.get("support_type", "")).upper().strip()
     appraisal = raw.get("appraisal", {})
     final_weight, strength, _ = resolve_evidence_weight(raw)
+
+    is_eligible = (
+        strength not in {"UNKNOWN", "NOT_REPORTED", "AMBIGUOUS_LEGACY_TIER"}
+        and support_type not in {"NOT_REPORTED", "NR"}
+        and final_weight > 0.0
+    )
         
     return {
         "topic": topic.strip(),
@@ -239,6 +245,7 @@ def normalize_claim(raw: Dict[str, Any]) -> Dict[str, Any]:
         "support_type": support_type if support_type else None,
         "appraisal": appraisal if isinstance(appraisal, dict) and appraisal else None,
         "weight": final_weight,
+        "consensus_eligible": is_eligible,
         "boundary": raw.get("boundary") or "Unspecified Boundary"
     }
 
@@ -328,27 +335,107 @@ def diagnose_controversy_type(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         }
 
     return {
-        "type": "Type A (Direct Empirical Contradiction)",
-        "confidence": "Medium",
-        "reason": "Direct opposing assertions detected across independent studies without clear single-factor explanation."
+        "type": "Candidate Type A (Direct claim disagreement)",
+        "confidence": "Low",
+        "causal_status": "NOT_ESTABLISHED",
+        "reason": (
+            "Opposing claims are present in the supplied evidence set, "
+            "but the source of disagreement has not been adjudicated."
+        ),
+        "requires_review": [
+            "outcome definition",
+            "population/entity comparability",
+            "measurement comparability",
+            "study design",
+            "context boundary"
+        ]
     }
 
 
 def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Compute evidence-weighted metrics and consensus level for a cluster of claims."""
-    total_papers = len(claims)
+    total_claims = len(claims)
+    
+    # Determine consensus eligibility for each claim
+    eligible_claims = []
+    excluded_counts = defaultdict(int)
+    all_papers_by_stance = defaultdict(list)
+    
+    for c in claims:
+        s = c.get("stance", "NEUTRAL")
+        all_papers_by_stance[s].append(c.get("paper_id", "Unknown"))
+        
+        # Check eligibility
+        if "consensus_eligible" in c:
+            eligible = bool(c["consensus_eligible"])
+        else:
+            strn = c.get("evidence_strength") or c.get("evidence_tier") or c.get("evidence_level") or "UNKNOWN"
+            styp = str(c.get("support_type", "")).upper().strip()
+            wt = float(c.get("weight", 0.0))
+            eligible = (
+                strn not in {"UNKNOWN", "NOT_REPORTED", "AMBIGUOUS_LEGACY_TIER"}
+                and styp not in {"NOT_REPORTED", "NR"}
+                and wt > 0.0
+            )
+        
+        if eligible:
+            eligible_claims.append(c)
+        else:
+            reason_key = c.get("evidence_strength") or c.get("support_type") or "UNKNOWN"
+            if reason_key in {"NOT_REPORTED", "NR"}:
+                excluded_counts["NOT_REPORTED"] += 1
+            elif reason_key == "AMBIGUOUS_LEGACY_TIER":
+                excluded_counts["AMBIGUOUS_LEGACY_TIER"] += 1
+            elif reason_key == "UNKNOWN":
+                excluded_counts["UNKNOWN"] += 1
+            elif float(c.get("weight", 0.0)) <= 0.0:
+                excluded_counts["ZERO_WEIGHT"] += 1
+            else:
+                excluded_counts[str(reason_key)] += 1
+
+    total_eligible_claims = len(eligible_claims)
     weights_by_stance = defaultdict(float)
     papers_by_stance = defaultdict(list)
     
-    for c in claims:
-        w = c["weight"]
-        s = c["stance"]
+    for c in eligible_claims:
+        w = float(c.get("weight", 0.0))
+        s = c.get("stance", "NEUTRAL")
         weights_by_stance[s] += w
-        papers_by_stance[s].append(c["paper_id"])
+        papers_by_stance[s].append(c.get("paper_id", "Unknown"))
         
     total_weight = sum(weights_by_stance.values())
-    if total_weight == 0:
-        total_weight = 1.0
+    
+    # Zero weight or zero eligible claims strictly yields INSUFFICIENT_EVIDENCE
+    if total_weight <= 0.0 or total_eligible_claims == 0:
+        return {
+            "total_claims": total_claims,
+            "consensus_eligible_claims": 0,
+            "excluded_from_consensus": dict(excluded_counts),
+            "total_evidence_weight": 0.0,
+            "stance_weights": {k: round(v, 2) for k, v in weights_by_stance.items()},
+            "heuristic_balance_score": {
+                "SUPPORT": 0.0,
+                "REFUTE": 0.0,
+                "CONDITIONAL": 0.0,
+                "NEUTRAL": 0.0,
+            },
+            "stance_percentages": {
+                "SUPPORT": 0.0,
+                "REFUTE": 0.0,
+                "CONDITIONAL": 0.0,
+                "NEUTRAL": 0.0,
+            },
+            "consensus_classification": "INSUFFICIENT_EVIDENCE",
+            "consensus_level": "Level 6 (Nascent / Insufficient Evidence Frontier)",
+            "classification_scope": "CURRENT_EVIDENCE_SET_ONLY",
+            "external_consensus_claim": False,
+            "papers_by_stance": dict(all_papers_by_stance),
+            "controversy_diagnosis": {
+                "type": "NO_ELIGIBLE_EVIDENCE",
+                "confidence": "High",
+                "reason": "No consensus-eligible evidence is available in the supplied evidence set."
+            }
+        }
         
     support_ratio = weights_by_stance["SUPPORT"] / total_weight
     refute_ratio = weights_by_stance["REFUTE"] / total_weight
@@ -356,7 +443,7 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
     
     # Qualitative Consensus Classification (replacing mechanical majority voting)
     # Never claim "Universal Consensus"
-    if total_weight < 1.0 or total_papers < 2:
+    if total_weight < 1.0 or total_eligible_claims < 2:
         consensus_classification = "INSUFFICIENT_EVIDENCE"
         consensus_level = "Level 6 (Nascent / Insufficient Evidence Frontier)"
     elif (support_ratio >= 0.40 and refute_ratio >= 0.40) or (0.30 <= support_ratio <= 0.70 and 0.30 <= refute_ratio <= 0.70):
@@ -375,7 +462,7 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         consensus_classification = "CONDITIONAL_CONSENSUS"
         consensus_level = "Level 4 (Method-Dependent Convergence)"
         
-    diagnosis = diagnose_controversy_type(claims)
+    diagnosis = diagnose_controversy_type(eligible_claims if eligible_claims else claims)
     
     heuristic_balance = {
         "SUPPORT": round(support_ratio * 100, 1),
@@ -385,7 +472,9 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
     return {
-        "total_claims": total_papers,
+        "total_claims": total_claims,
+        "consensus_eligible_claims": total_eligible_claims,
+        "excluded_from_consensus": dict(excluded_counts),
         "total_evidence_weight": round(total_weight, 2),
         "stance_weights": {k: round(v, 2) for k, v in weights_by_stance.items()},
         "heuristic_balance_score": heuristic_balance,
@@ -394,7 +483,7 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         "consensus_level": consensus_level,
         "classification_scope": "CURRENT_EVIDENCE_SET_ONLY",
         "external_consensus_claim": False,
-        "papers_by_stance": dict(papers_by_stance),
+        "papers_by_stance": dict(all_papers_by_stance),
         "controversy_diagnosis": diagnosis
     }
 

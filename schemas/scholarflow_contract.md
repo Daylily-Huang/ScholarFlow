@@ -1,8 +1,23 @@
-# ScholarFlow 统一跨技能数据契约规范 (Data Contract Specification v1.0)
+# ScholarFlow 统一跨技能数据契约规范 (Data Contract Specification v1.1)
 
-> **版本**：1.0  
+> **版本**：1.1  
 > **生效范围**：`literature-discovery-acquisition` ➔ `literature-evidence-extraction` ➔ `literature-synthesis`  
 > **核心哲学**：**字段语义正交、单向契约严格、版本明确可溯源。**
+
+> [!NOTE]
+> Contract specification version does not require every atomic record schema to share the same version number.
+>
+> **Current Canonical Versions:**
+>
+> | Contract / Artifact | Schema Version | Description |
+> |---|---:|---|
+> | Contract specification | 1.1 | Unified cross-skill contract & pipeline flow |
+> | DiscoveryResult | 1.1 | Search execution envelope schema (`discovery_result.schema.json`) |
+> | LiteratureRecord | 1.0 | Atomic candidate literature record schema (`literature_record.schema.json`) |
+> | ExtractionResult | 1.1 | Extraction execution envelope schema (`extraction_result.schema.json`) |
+> | EvidenceRecord | 1.0 | Atomic extracted evidence schema (`evidence_record.schema.json`) |
+> | ClaimRecord | 1.0 | Atomic claim argument schema (`claim_record.schema.json`) |
+> | SynthesisRecord | 1.0 | Topic synthesis argument matrix schema (`synthesis_record.schema.json`) |
 
 ---
 
@@ -24,7 +39,7 @@ flowchart LR
 ## 二、核心正交解耦：`support_type` vs `evidence_strength`
 
 在早期版本中，`E1–E4` 在抽取阶段（表示抽取自原文的方式）与综合阶段（表示证据的科学强度）发生了严重语义冲突。  
-**v1.0 规范彻底解耦这两个正交维度**：
+**v1.1 规范彻底解耦这两个正交维度**：
 
 ### 1. 抽取溯源维度：`support_type` (Extraction Dimension)
 回答核心问题：**“这个字段值是如何从当前论文文本中得到的？”**
@@ -37,21 +52,21 @@ flowchart LR
 | `NOT_REPORTED` | 全文及补充材料通篇未提及该参数 | 严格标记为 `NR`，严禁常识脑补填空 |
 
 > [!CAUTION]
-> **绝对隔离规则**：当 `support_type == "NOT_REPORTED"` 时，其进入下游综合分析的权重**恒为 0.0**，严禁被下游误当作“弱证据”或“专家观点”进行加权！
+> **绝对隔离规则**：当 `support_type == "NOT_REPORTED"` 时，其进入下游综合分析的权重**恒为 0.0**，且 `consensus_eligible = False`，严禁被下游误当作“弱证据”或“专家观点”进行加权！
 
 ---
 
 ### 2. 证据论证强度维度：`evidence_strength` (Synthesis Dimension)
 回答核心问题：**“这项科学断言本身的方法学与证据效力处于什么层级？”**
 
-| 取值 (`evidence_strength`) | 固有权重参考 | 科学定义与适用范围 |
-|---|:---:|---|
-| `DIRECT_EMPIRICAL` | 1.0 | 原始直接实证：第一手分子测序读数、野外第一手实测捕获数据、严格对照实验 |
-| `MODELED_EMPIRICAL` | 0.8 | 模型估计实证：经过空间捕获重捕（SECR）、混合线性模型推导的估计值 |
-| `AUTHOR_INTERPRETATION`| 0.4 | 讨论推论假说：作者在 Discussion 中提出的机制推测或定性归纳 |
-| `SECONDARY_EVIDENCE` | 0.2 | 二级文献转引：综述引用或引言中援引的其他学者数据 |
-| `EXPERT_OPINION` | 0.1 | 专家观点/质性断言：无实测数据支持的呼吁、政策倡议或个人通讯 |
-| `UNKNOWN` | 0.3 | 证据来源层级不详 |
+| 取值 (`evidence_strength`) | 固有权重参考 | 共识准入资格 (`consensus_eligible`) | 科学定义与适用范围 |
+|---|:---:|:---:|---|
+| `DIRECT_EMPIRICAL` | 1.0 | True | 原始直接实证：第一手分子测序读数、野外第一手实测捕获数据、严格对照实验 |
+| `MODELED_EMPIRICAL` | 0.8 | True | 模型估计实证：经过空间捕获重捕（SECR）、混合线性模型推导的估计值 |
+| `AUTHOR_INTERPRETATION`| 0.4 | True | 讨论推论假说：作者在 Discussion 中提出的机制推测或定性归纳 |
+| `SECONDARY_EVIDENCE` | 0.2 | True | 二级文献转引：综述引用或引言中援引的其他学者数据 |
+| `EXPERT_OPINION` | 0.1 | True / Low | 专家观点/质性断言：无实测数据支持的呼吁、政策倡议或个人通讯 |
+| `UNKNOWN` | 0.3 | False | 证据来源层级不详（仅作展示参考权重，禁止累积形成强共识） |
 
 ---
 
@@ -69,6 +84,6 @@ flowchart LR
 
 ## 四、版本与兼容性保证 (Versioning & Compatibility)
 
-1. 所有标准 JSON 文件必须在根级包含 `"schema_version": "1.0"`；
+1. 每种 artifact 必须声明自身 `schema_version`，且必须与对应 canonical schema 的版本兼容；
 2. 现有脚本如果读取旧版包含 `evidence_tier: "E1"~"E4"` 的数据，将通过向下兼容映射层自动转换为对应的 `evidence_strength`；
 3. 如果输入同时包含 `support_type` 和 `evidence_tier`，以 `support_type` 为事实依据，绝不产生跨技能语义畸变。

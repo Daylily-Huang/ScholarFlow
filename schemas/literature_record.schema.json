@@ -32,6 +32,24 @@
       "enum": ["Include", "Exclude", "Uncertain"]
     },
     "screening_reason": { "type": ["string", "null"] },
+    "metadata_verification_status": {
+      "type": "string",
+      "enum": [
+        "VERIFIED_API",
+        "IMPORTED_USER_SOURCE",
+        "UNVERIFIED",
+        "CONFLICTING_METADATA"
+      ]
+    },
+    "fulltext_verification_status": {
+      "type": "string",
+      "enum": [
+        "NOT_CHECKED",
+        "FULLTEXT_AVAILABLE",
+        "FULLTEXT_MISSING",
+        "PAYWALLED"
+      ]
+    },
     "thesis_metadata": {
       "type": ["object", "null"],
       "properties": {

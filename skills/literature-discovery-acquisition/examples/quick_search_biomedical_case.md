@@ -1,4 +1,4 @@
-﻿# 快速精准检索案例：KRAS G12D 抑制剂耐药机制 (Quick Search Biomedical Case)
+# 快速精准检索案例：KRAS G12D 抑制剂耐药机制 (Quick Search Biomedical Case)
 
 本案例演示 `literature-discovery-acquisition` Skill 在【快速探索模式 (Quick Search)】下的标准执行流。该模式追求高查准率（High Precision），旨在以最快速度抓取 10–30 篇顶尖核心文献，帮助研究者建立领域全景认知，同时遵循严谨的学术免责声明。
 
@@ -56,7 +56,7 @@ Agent 呈现解析初稿，并仅提出 1 个最关键的聚焦确认：
 1. **检索命中**：PubMed 返回 43 篇，OpenAlex 返回 38 篇；
 2. **DOI 去重**：合并重复后得到 51 篇独立候选论文；
 3. **期刊优先级过滤**：优先排序发表在 Tier 1 (Nature, Science, Nature Medicine, Cancer Discovery) 与 Tier 2 (Clinical Cancer Research, Cancer Research) 上的论文；
-4. **精选输出**：剔除 28 篇非 G12D 专属（泛 RAS 综述）文献，精准锁定 **18 篇** 顶级实证与机制解析文献（均标注 `evidence_level: VERIFIED`）。
+4. **精选输出**：剔除 28 篇非 G12D 专属（泛 RAS 综述）文献，精准锁定 **18 篇** 顶级实证与机制解析文献（均标注 `metadata_verification_status: VERIFIED_API`）。
 
 ---
 

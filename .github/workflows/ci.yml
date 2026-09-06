@@ -24,6 +24,29 @@ jobs:
       - name: Run domain neutrality linter
         run: python scripts/domain_neutrality_linter.py
 
+  contract-validation:
+    runs-on: ubuntu-latest
+    env:
+      SCHOLARFLOW_STRICT_CONTRACT_CI: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install contract-test dependencies
+        run: |
+          python -m pip install -U pip
+          pip install -e ".[dev]"
+      - name: Enforce JSON Schema availability
+        run: |
+          python - <<'PY'
+          import jsonschema
+          import referencing
+          print("jsonschema contract validation enabled")
+          PY
+      - name: Run strict contract tests
+        run: python -m unittest discover -s tests -v
+
   packaging:
     runs-on: ubuntu-latest
     steps:
@@ -31,17 +54,30 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Upgrade pip and install package in dev mode
+      - name: Upgrade pip and install build dependencies
         run: |
           python -m pip install -U pip
           pip install -e ".[dev]"
-      - name: Verify package imports and assets
+          python -m pip install build
+      - name: Verify repo package assets
         run: |
           python -c "import shared.version; print('ScholarFlow Version:', shared.version.__version__)"
-          python -c "import shared.grill_me"
-          python -c "import shared.context_resolution"
           python scripts/verify_package_assets.py
-      - name: Test wheel build and installation
+      - name: Build wheel
+        run: python -m build --wheel
+      - name: Install wheel into isolated venv and verify outside repo
         run: |
-          pip wheel --no-deps -w dist .
-          pip install dist/*.whl --force-reinstall
+          python -m venv /tmp/scholarflow-wheel-test
+          /tmp/scholarflow-wheel-test/bin/pip install dist/*.whl
+          cd /tmp
+          /tmp/scholarflow-wheel-test/bin/python - <<'PY'
+          import shared
+          import shared.version
+          import shared.grill_me
+          import shared.context_resolution
+          from importlib.resources import files
+
+          lens = files("shared").joinpath("domain_lenses/generic.md")
+          assert lens.is_file(), "generic.md domain lens must be packaged in wheel"
+          print("Installed wheel smoke test passed in isolated venv outside repo!")
+          PY
