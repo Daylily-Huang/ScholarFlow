@@ -55,8 +55,12 @@ class TestHardeningV063(unittest.TestCase):
                 "Strict contract-validation CI job must have jsonschema installed and available",
             )
         else:
-            # When run locally with dev environment, it should be available
-            self.assertTrue(JSONSCHEMA_AVAILABLE)
+            if not JSONSCHEMA_AVAILABLE:
+                self.skipTest(
+                    "jsonschema is optional in stdlib-only CI (enforced in contract-validation job with SCHOLARFLOW_STRICT_CONTRACT_CI=1)"
+                )
+            else:
+                self.assertTrue(JSONSCHEMA_AVAILABLE)
 
     # 2. test_valid_discovery_schema_executes_not_skips
     def test_valid_discovery_schema_executes_not_skips(self):

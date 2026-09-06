@@ -3,7 +3,7 @@
 """
 claim_alignment.py
 ------------------
-Universal Claim-Evidence Alignment Gate & Auditor for ScholarFlow.
+Universal Claim-Evidence Alignment Gate & Deterministic Auditor for ScholarFlow.
 Part of `literature-evidence-extraction` skill and cross-skill architecture.
 
 Core Epistemic Principles:
@@ -12,19 +12,15 @@ Core Epistemic Principles:
 - Contextual proximity != Relation
 - Entity evidence != Claim evidence
 
-Capabilities:
-1. Dynamic semantic bifurcation: ATTRIBUTE vs CLAIM_RELATION vs MIXED.
-2. 5 Alignment Gates:
-   - Gate 1: Target Claim Identity
-   - Gate 2: Evidence Context Match
-   - Gate 3: Proposition / Relation Support Test
-   - Gate 4: Source Role Classification
-   - Gate 5: Inference Boundary & Predicate Insertion Check
-3. 10-Status Relation Taxonomy:
-   SUPPORTED, PARTIALLY_SUPPORTED, DERIVED, AMBIGUOUS, CONTRADICTORY,
-   BACKGROUND_ONLY, CONTEXT_ONLY, OTHER_ENTITY_CONTEXT, REFERENCED_ONLY, NOT_REPORTED.
-4. Confirmed Output Gatekeeper: Only SUPPORTED, PARTIALLY_SUPPORTED, and DERIVED
-   belonging to current study (CURRENT_STUDY_RESULT) may enter confirmed outputs.
+Role Definition:
+- AI/Agent Specialist: Evaluates semantic scientific relations and claims.
+- claim_alignment.py: Deterministic Alignment Guard preventing cheating:
+  1. Enforces strict entity binding (Subject + Object must be bound).
+  2. Blocks cross-context and cohort-mismatched evidence assembly.
+  3. Fails closed when source_role is UNKNOWN or unverified.
+  4. Demotes cited previous literature (REFERENCED_WORK) and discussion speculations.
+  5. Enforces directional table comparison (HIGHER_IS_BETTER vs LOWER_IS_BETTER).
+  6. Rejects mere co-occurrence / co-measurement from being promoted to confirmed relations.
 """
 
 import re
@@ -52,6 +48,7 @@ class RelationStatus:
 
 
 class SourceRole:
+    UNKNOWN = "UNKNOWN"
     CURRENT_STUDY_RESULT = "CURRENT_STUDY_RESULT"
     CURRENT_STUDY_METHOD = "CURRENT_STUDY_METHOD"
     BACKGROUND = "BACKGROUND"
@@ -70,11 +67,11 @@ CONFIRMED_ELIGIBLE_STATUSES = {
 
 # Relation/claim intent markers across disciplines (used for semantic intent routing)
 CLAIM_INTENT_PATTERNS = [
-    r"(是否|怎样|如何)?(影响|导致|促成|抑制|降低|提高|增加|诱发|调控|优于|胜过|超越)",
-    r"(相关|关联|相伴|协同|因果|机制|依赖|支持|反驳|证实|证伪|交互|作用于)",
+    r"(是否|怎样|如何)?(影响|导致|促成|抑制|降低|提高|增加|诱发|调控|优于|胜过|超越|取食|捕食)",
+    r"(相关|关联|相伴|协同|因果|机制|依赖|支持|反驳|证实|证伪|交互|作用于|控制)",
     r"(affect|cause|reduce|increase|inhibit|promote|regulate|outperform|surpass)",
     r"(correlat|associat|depend|interact|mediat|support|refut|impact|superior)",
-    r"(feed|prey|compet|symbio|normative|jurisprudence|holding)",
+    r"(feed|prey|compet|symbio|normative|jurisprudence|holding|reject)",
 ]
 
 # Patterns that signal mere co-occurrence, co-measurement, or coexistence without relational predicate
@@ -135,6 +132,75 @@ def detect_extraction_semantics(
     return ExtractionSemantics.ATTRIBUTE
 
 
+def _check_entity_presence(entity_str: str, text: str) -> bool:
+    """Check if entity is present in text allowing minor case/spacing/punctuation variations."""
+    if not entity_str:
+        return True
+    ent_lower = entity_str.strip().lower()
+    text_lower = text.lower()
+    if ent_lower in text_lower:
+        return True
+    # Normalize hyphens, underscores, and multiple spaces
+    norm_ent = re.sub(r"[\s_\-]+", " ", ent_lower).strip()
+    norm_text = re.sub(r"[\s_\-]+", " ", text_lower).strip()
+    if norm_ent in norm_text:
+        return True
+    # Normalized punctuation check
+    clean_ent = " ".join(re.sub(r"[^\w\s]", " ", ent_lower).split())
+    clean_text = " ".join(re.sub(r"[^\w\s]", " ", text_lower).split())
+    if clean_ent and clean_ent in clean_text:
+        return True
+    return False
+
+
+def _check_predicate_grounding(predicate: str, text: str) -> bool:
+    """Check if a relational predicate is grounded in evidence text across disciplines.
+    
+    Supports root matching for common relational terms without an exhaustive rigid enum.
+    """
+    if not predicate:
+        return True
+    pred_lower = predicate.strip().lower()
+    text_lower = text.lower()
+
+    if pred_lower in text_lower:
+        return True
+
+    # Root mapping for inflectional variations across disciplines
+    # e.g., "feeds on" -> "feed", "regulates" -> "regulat", "reduced" -> "reduc"
+    root_patterns = [
+        (r"feed", r"\b(feeds?|feeding|fed)\b"),
+        (r"regulat", r"\b(regulates?|regulating|regulated|regulation)\b"),
+        (r"reduc", r"\b(reduces?|reducing|reduced|reduction)\b"),
+        (r"increas", r"\b(increases?|increasing|increased)\b"),
+        (r"outperform", r"\b(outperforms?|outperforming|outperformed)\b"),
+        (r"surpass", r"\b(surpasses?|surpassing|surpassed)\b"),
+        (r"caus", r"\b(causes?|causing|caused)\b"),
+        (r"promot", r"\b(promotes?|promoting|promoted)\b"),
+        (r"inhibit", r"\b(inhibits?|inhibiting|inhibited|inhibition)\b"),
+        (r"suppress", r"\b(suppresses?|suppressing|suppressed)\b"),
+        (r"associat", r"\b(associates?|associated|association)\b"),
+        (r"correlat", r"\b(correlates?|correlated|correlation)\b"),
+        (r"control", r"\b(controls?|controlling|controlled)\b"),
+        (r"reject", r"\b(rejects?|rejecting|rejected|rejection)\b"),
+        (r"support", r"\b(supports?|supporting|supported)\b"),
+        (r"refut", r"\b(refutes?|refuting|refuted)\b"),
+        (r"interact", r"\b(interacts?|interacting|interacted|interaction)\b"),
+    ]
+
+    for stem, pat in root_patterns:
+        if stem in pred_lower:
+            if re.search(pat, text_lower):
+                return True
+
+    # Check multi-word phrase components (e.g. "positively associated with")
+    words = [w for w in re.split(r"\s+", pred_lower) if len(w) > 3 and w not in {"with", "that", "from"}]
+    if words and all(w in text_lower for w in words):
+        return True
+
+    return False
+
+
 def verify_claim_alignment(
     target_claim: Dict[str, Any],
     evidence_text: str,
@@ -144,30 +210,21 @@ def verify_claim_alignment(
 ) -> Dict[str, Any]:
     """Execute the 5 Claim-Evidence Alignment Gates on a target claim and its candidate evidence.
 
-    Args:
-        target_claim: Dict containing:
-            - text: str (e.g. "Treatment A reduces Outcome B")
-            - subject: Optional[str] (e.g. "Treatment A")
-            - predicate: Optional[str] (e.g. "reduces")
-            - object: Optional[str] (e.g. "Outcome B")
-            - claim_type: str ("RELATION" | "PROPOSITION")
-        evidence_text: Verbatim snippet or structured text.
-        evidence_context: Dict containing:
-            - context_id: str (e.g. "CTX01")
-            - target_context_id: Optional[str]
-            - source_role: str (SourceRole enum)
-            - location: Optional[str] (Section/Page, e.g. "Discussion", "Results")
-        table_bundle: Optional structured table bundle (TABLE_HEADER_ROW_BUNDLE).
-        is_cross_context: True if evidence was assembled across mismatched contexts.
-
-    Returns:
-        Dict with status, is_confirmed_eligible, gate_results, violation_reasons, notes.
+    Deterministic Alignment Guard Principles:
+    - Subject + Object must be bound to target entities.
+    - source_role defaults to UNKNOWN and fails closed.
+    - Directional table comparisons require explicit or inferable metric_direction.
+    - Mere co-occurrence or co-measurement is prevented from entering confirmed output.
     """
     ctx = evidence_context or {}
-    source_role = ctx.get("source_role", SourceRole.CURRENT_STUDY_RESULT)
+    # P1: Fail-closed default on source_role
+    source_role = ctx.get("source_role", SourceRole.UNKNOWN)
     section = (ctx.get("location") or "").lower()
     claim_str = target_claim.get("text", "")
-    predicate = target_claim.get("predicate", "").strip().lower()
+    subject = target_claim.get("subject", "").strip()
+    predicate = target_claim.get("predicate", "").strip()
+    obj = target_claim.get("object", "").strip()
+    semantic_verdict = target_claim.get("semantic_verdict")
 
     gate_results = {
         "gate1_identity": True,
@@ -181,9 +238,18 @@ def verify_claim_alignment(
     # ----------------------------------------------------
     # Gate 1: Target Claim Identity
     # ----------------------------------------------------
-    if not claim_str.strip():
+    if not claim_str.strip() and not (subject and predicate and obj):
         gate_results["gate1_identity"] = False
-        violations.append("Target claim string is empty.")
+        violations.append("Target claim string and components are empty.")
+        return {
+            "status": RelationStatus.AMBIGUOUS,
+            "is_confirmed_eligible": False,
+            "gate_results": gate_results,
+            "violations": violations,
+            "source_role": source_role,
+            "audit_verdict": "REJECT_EMPTY_CLAIM",
+            "notes": "Empty target claim."
+        }
 
     # ----------------------------------------------------
     # Gate 2: Evidence Context Match
@@ -217,8 +283,22 @@ def verify_claim_alignment(
         }
 
     # ----------------------------------------------------
-    # Gate 4: Source Role Classification
+    # Gate 4: Source Role Classification (Fail-Closed)
     # ----------------------------------------------------
+    # Fail-closed if source_role is UNKNOWN
+    if source_role == SourceRole.UNKNOWN:
+        gate_results["gate4_source_role"] = False
+        violations.append("Source role is UNKNOWN; evidence cannot be confirmed without explicit origin attribution.")
+        return {
+            "status": RelationStatus.AMBIGUOUS,
+            "is_confirmed_eligible": False,
+            "gate_results": gate_results,
+            "violations": violations,
+            "source_role": SourceRole.UNKNOWN,
+            "audit_verdict": "FAIL_CLOSED_UNKNOWN_ROLE",
+            "notes": "Fail-closed: unverified source role cannot enter confirmed output."
+        }
+
     # Check if cited work
     if source_role == SourceRole.REFERENCED_WORK or any(re.search(p, evidence_text, re.IGNORECASE) for p in REFERENCED_WORK_PATTERNS):
         gate_results["gate4_source_role"] = False
@@ -278,9 +358,48 @@ def verify_claim_alignment(
                 }
 
     # ----------------------------------------------------
+    # Gate 1 & 3: Entity Binding Check (Subject + Object)
+    # ----------------------------------------------------
+    search_corpus = evidence_text
+    if table_bundle:
+        search_corpus += " " + str(table_bundle.get("table_title", "")) + " " + str(table_bundle.get("column_header", "")) + " " + str(table_bundle.get("row_identifier", "")) + " " + str(table_bundle.get("baseline_row_identifier", ""))
+
+    if table_bundle and table_bundle.get("type") == "TABLE_HEADER_ROW_BUNDLE":
+        cell_vals = table_bundle.get("cell_values", {})
+        row_id = table_bundle.get("row_identifier")
+        if row_id:
+            subject_bound = _check_entity_presence(subject, row_id) or _check_entity_presence(subject, search_corpus)
+        else:
+            subject_bound = ("target" in cell_vals) or _check_entity_presence(subject, search_corpus)
+
+        base_row_id = table_bundle.get("baseline_row_identifier")
+        if base_row_id:
+            object_bound = _check_entity_presence(obj, base_row_id) or _check_entity_presence(obj, search_corpus)
+        else:
+            object_bound = ("baseline" in cell_vals) or _check_entity_presence(obj, search_corpus)
+    else:
+        subject_bound = _check_entity_presence(subject, search_corpus)
+        object_bound = _check_entity_presence(obj, search_corpus)
+
+    if not subject_bound or not object_bound:
+        gate_results["gate1_identity"] = False
+        violations.append(
+            f"Entity binding failed for target claim: subject '{subject}' bound={subject_bound}, object '{obj}' bound={object_bound}."
+        )
+        return {
+            "status": RelationStatus.OTHER_ENTITY_CONTEXT if (not subject_bound and subject) else RelationStatus.AMBIGUOUS,
+            "is_confirmed_eligible": False,
+            "gate_results": gate_results,
+            "violations": violations,
+            "source_role": source_role,
+            "audit_verdict": "UNBOUND_ENTITIES",
+            "notes": "Target claim subject or object not bound in evidence."
+        }
+
+    # ----------------------------------------------------
     # Gate 3: Proposition / Relation Support Test
     # ----------------------------------------------------
-    # Structured table bundle support
+    # Structured table bundle support (with metric_direction support)
     if table_bundle:
         bundle_type = table_bundle.get("type", "")
         if bundle_type == "TABLE_HEADER_ROW_BUNDLE":
@@ -288,15 +407,53 @@ def verify_claim_alignment(
             target_val = float(cell_vals.get("target", 0))
             base_val = float(cell_vals.get("baseline", 0))
             metric = table_bundle.get("column_header", "")
-            if target_val > base_val:
+
+            # Direction of comparison: HIGHER_IS_BETTER vs LOWER_IS_BETTER vs UNKNOWN
+            metric_direction = table_bundle.get("metric_direction")
+            if not metric_direction:
+                m_lower = metric.lower()
+                if any(k in m_lower for k in ["accuracy", "f1", "precision", "recall", "bleu", "rouge", "auc", "yield", "survival", "score", "rate"]):
+                    if not any(k in m_lower for k in ["error", "loss", "mortality", "failure"]):
+                        metric_direction = "HIGHER_IS_BETTER"
+                if not metric_direction and any(k in m_lower for k in ["loss", "error", "rmse", "mae", "mortality", "toxicity", "latency", "delay", "cost"]):
+                    metric_direction = "LOWER_IS_BETTER"
+
+            if metric_direction == "HIGHER_IS_BETTER":
+                outperforms = (target_val > base_val)
+            elif metric_direction == "LOWER_IS_BETTER":
+                outperforms = (target_val < base_val)
+            else:
+                gate_results["gate5_inference_boundary"] = False
+                violations.append(f"Metric direction for '{metric}' is UNKNOWN; cannot infer outperformance.")
+                return {
+                    "status": RelationStatus.AMBIGUOUS,
+                    "is_confirmed_eligible": False,
+                    "gate_results": gate_results,
+                    "violations": violations,
+                    "source_role": source_role,
+                    "audit_verdict": "UNKNOWN_METRIC_DIRECTION",
+                    "notes": "Table comparison has unknown metric optimization direction."
+                }
+
+            if outperforms:
                 return {
                     "status": RelationStatus.SUPPORTED,
                     "is_confirmed_eligible": True,
                     "gate_results": gate_results,
                     "violations": [],
-                    "source_role": SourceRole.CURRENT_STUDY_RESULT,
+                    "source_role": source_role,
                     "audit_verdict": "PASS",
-                    "notes": f"Supported via structured table bundle ({metric}: {target_val} vs {base_val})."
+                    "notes": f"Supported via structured table bundle ({metric}: {target_val} vs {base_val}, direction={metric_direction})."
+                }
+            else:
+                return {
+                    "status": RelationStatus.CONTRADICTORY,
+                    "is_confirmed_eligible": False,
+                    "gate_results": gate_results,
+                    "violations": [f"Target value ({target_val}) did not outperform baseline ({base_val}) for metric {metric} ({metric_direction})."],
+                    "source_role": source_role,
+                    "audit_verdict": "REJECT_CONTRADICTORY",
+                    "notes": "Baseline achieved superior or equal metric value."
                 }
 
     # Check Co-occurrence Only pattern (Mention != Relation, Co-occurrence != Relation)
@@ -306,9 +463,10 @@ def verify_claim_alignment(
             is_co_occurrence_only = True
             break
 
-    if is_co_occurrence_only:
-        # Check whether text contains an explicit relational predicate linking them
-        # If predicate is absent or only co-measurement words appear
+    predicate_grounded = _check_predicate_grounding(predicate, evidence_text)
+
+    # If evidence is a pure co-occurrence statement without explicit relational predicate
+    if is_co_occurrence_only and not predicate_grounded:
         gate_results["gate3_proposition_support"] = False
         violations.append("Entities merely co-occur or were co-measured; no relation predicate supported.")
         return {
@@ -324,32 +482,36 @@ def verify_claim_alignment(
     # ----------------------------------------------------
     # Gate 5: Inference Boundary & Predicate Insertion Check
     # ----------------------------------------------------
-    # If the user targets a specific predicate (e.g. "reduces", "outperforms", "causes")
-    # check if the text explicitly states the relation or direct effect
-    direct_support_patterns = [
-        r"\b(significantly\s+(reduced|increased|improved|decreased|outperformed)|demonstrated\s+a\s+significant)\b",
-        r"\b(reduced|suppressed|inhibited|promoted|enhanced|caused|outperformed|surpassed)\b",
-        r"(显著(降低|提高|减少|增加|促进|抑制|优于))",
-        r"(直接(调控|导致|抑制|促进))",
-    ]
-    has_direct_support = any(re.search(p, evidence_text, re.IGNORECASE) for p in direct_support_patterns)
-
-    if has_direct_support:
+    # If upstream model/agent provided semantic confirmation
+    if semantic_verdict == "SUPPORTED" and predicate_grounded:
         return {
             "status": RelationStatus.SUPPORTED,
             "is_confirmed_eligible": True,
             "gate_results": gate_results,
             "violations": [],
-            "source_role": SourceRole.CURRENT_STUDY_RESULT,
+            "source_role": source_role,
             "audit_verdict": "PASS",
-            "notes": "Direct empirical claim support verified."
+            "notes": "Target claim confirmed by semantic evaluation with entity and context alignment."
         }
 
-    # If neither co-occurrence flagged nor direct support, check predicate presence
-    if predicate and predicate not in evidence_text.lower():
-        # Predicate insertion detected
+    # If predicate is grounded in evidence text with bound entities and current study result
+    if predicate_grounded and source_role == SourceRole.CURRENT_STUDY_RESULT:
+        # Check that it's not co-occurrence
+        if not is_co_occurrence_only:
+            return {
+                "status": RelationStatus.SUPPORTED,
+                "is_confirmed_eligible": True,
+                "gate_results": gate_results,
+                "violations": [],
+                "source_role": source_role,
+                "audit_verdict": "PASS",
+                "notes": f"Claim relation grounded in empirical evidence text (predicate '{predicate}' bound)."
+            }
+
+    # If predicate is completely absent from text and not semantic confirmed -> Predicate Insertion
+    if predicate and not predicate_grounded:
         gate_results["gate5_inference_boundary"] = False
-        violations.append(f"Unsupported predicate insertion: '{predicate}' does not appear in evidence text.")
+        violations.append(f"Unsupported predicate insertion: predicate '{predicate}' not grounded in evidence.")
         return {
             "status": RelationStatus.AMBIGUOUS,
             "is_confirmed_eligible": False,
@@ -357,10 +519,10 @@ def verify_claim_alignment(
             "violations": violations,
             "source_role": source_role,
             "audit_verdict": "UNSUPPORTED_PREDICATE",
-            "notes": f"Predicate '{predicate}' was inserted by model without text grounding."
+            "notes": f"Predicate '{predicate}' was not grounded in source text."
         }
 
-    # Fallback to AMBIGUOUS if claim cannot be verified as full SUPPORTED
+    # Fallback to AMBIGUOUS
     return {
         "status": RelationStatus.AMBIGUOUS,
         "is_confirmed_eligible": False,

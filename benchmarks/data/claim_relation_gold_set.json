@@ -1,7 +1,7 @@
 {
   "benchmark_name": "Claim-Evidence Relation Alignment Benchmark",
-  "version": "1.0",
-  "description": "Cross-disciplinary gold set evaluating Universal Claim-Evidence Alignment Principle and 0% False Relation Rate.",
+  "version": "1.1",
+  "description": "Cross-disciplinary gold set evaluating Universal Claim-Evidence Alignment Principle, 0% False Relation Rate, and bidirectional verification across natural sciences, medicine, engineering, social sciences, and humanities.",
   "target_metrics": {
     "false_relation_rate": 0.0,
     "unsupported_predicate_insertion_rate": 0.0
@@ -141,56 +141,77 @@
       "predicate_grounded": true
     },
     {
-      "case_id": "TEST_D_DIRECT_CLAIM_POSITIVE",
-      "adversarial_type": "Test D — Direct Claim",
+      "case_id": "TEST_WRONG_ENTITY_RELATION_PREDICATE",
+      "adversarial_type": "Test C — Relational Predicate on Wrong Entities",
       "discipline": "Medicine",
-      "evidence_text": "Treatment A significantly reduced Outcome B in the double-blind randomized evaluation.",
+      "evidence_text": "Treatment B significantly reduced Blood Pressure in hypertensive models.",
       "target_claim": {
-        "text": "Treatment A reduces Outcome B",
+        "text": "Treatment A reduces Mortality",
         "subject": "Treatment A",
         "predicate": "reduces",
-        "object": "Outcome B",
+        "object": "Mortality",
         "claim_type": "RELATION"
       },
       "evidence_context": {
-        "context_id": "RCT_PRIMARY",
+        "context_id": "STUDY_ARM_02",
         "source_role": "CURRENT_STUDY_RESULT",
         "location": "Results"
       },
-      "expected_status": "SUPPORTED",
-      "is_true_non_relation": false,
+      "expected_status": "OTHER_ENTITY_CONTEXT",
+      "is_true_non_relation": true,
       "tests_predicate_insertion": false,
       "predicate_grounded": true
     },
     {
-      "case_id": "TEST_E_STRUCTURED_TABLE_RELATION",
-      "adversarial_type": "Test E — Structured Table Relation",
-      "discipline": "Computer Science",
-      "evidence_text": "Table 2: Comparison of Model Performance on Dataset-Alpha. Proposed Method: 94.2, Baseline-A: 88.1.",
+      "case_id": "TEST_FAIL_CLOSED_UNKNOWN_ROLE",
+      "adversarial_type": "Fail-Closed Source Role",
+      "discipline": "Pharmacology",
+      "evidence_text": "Compound X inhibits Kinase Y in vitro.",
       "target_claim": {
-        "text": "Proposed Method outperforms Baseline-A on Dataset-Alpha",
-        "subject": "Proposed Method",
+        "text": "Compound X inhibits Kinase Y",
+        "subject": "Compound X",
+        "predicate": "inhibits",
+        "object": "Kinase Y",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {},
+      "expected_status": "AMBIGUOUS",
+      "is_true_non_relation": true,
+      "tests_predicate_insertion": false,
+      "predicate_grounded": true
+    },
+    {
+      "case_id": "TEST_TABLE_UNKNOWN_METRIC_DIRECTION",
+      "adversarial_type": "Table Comparison — Unknown Direction",
+      "discipline": "Computer Science",
+      "evidence_text": "Table 4: Evaluation results.",
+      "target_claim": {
+        "text": "Model Alpha outperforms Model Beta on Benchmark C",
+        "subject": "Model Alpha",
         "predicate": "outperforms",
-        "object": "Baseline-A",
+        "object": "Model Beta",
         "claim_type": "RELATION"
       },
       "evidence_context": {
-        "context_id": "BENCH_TABLE_2",
+        "context_id": "BENCH_4",
         "source_role": "CURRENT_STUDY_RESULT",
-        "location": "Table 2"
+        "location": "Table 4"
       },
       "table_bundle": {
         "type": "TABLE_HEADER_ROW_BUNDLE",
-        "table_id": "Table 2",
-        "column_header": "F1-Score (%)",
+        "table_id": "Table 4",
+        "column_header": "CustomIndexScore",
+        "row_identifier": "Model Alpha",
+        "baseline_row_identifier": "Model Beta",
+        "metric_direction": "UNKNOWN",
         "cell_values": {
-          "target": "94.2",
-          "baseline": "88.1"
+          "target": "10.0",
+          "baseline": "5.0"
         },
-        "dataset_context": "Dataset-Alpha"
+        "dataset_context": "Benchmark C"
       },
-      "expected_status": "SUPPORTED",
-      "is_true_non_relation": false,
+      "expected_status": "AMBIGUOUS",
+      "is_true_non_relation": true,
       "tests_predicate_insertion": false,
       "predicate_grounded": true
     },
@@ -280,6 +301,208 @@
       },
       "expected_status": "REFERENCED_ONLY",
       "is_true_non_relation": true,
+      "tests_predicate_insertion": false,
+      "predicate_grounded": true
+    },
+    {
+      "case_id": "TEST_D_DIRECT_CLAIM_POSITIVE_MEDICINE",
+      "adversarial_type": "Test D — Direct Claim (Positive)",
+      "discipline": "Medicine",
+      "evidence_text": "Treatment A significantly reduced Outcome B in the double-blind randomized evaluation.",
+      "target_claim": {
+        "text": "Treatment A reduces Outcome B",
+        "subject": "Treatment A",
+        "predicate": "reduces",
+        "object": "Outcome B",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "RCT_PRIMARY",
+        "source_role": "CURRENT_STUDY_RESULT",
+        "location": "Results"
+      },
+      "expected_status": "SUPPORTED",
+      "is_true_non_relation": false,
+      "tests_predicate_insertion": false,
+      "predicate_grounded": true
+    },
+    {
+      "case_id": "TEST_E_STRUCTURED_TABLE_HIGHER_BETTER",
+      "adversarial_type": "Test E — Structured Table (Accuracy: Higher is Better)",
+      "discipline": "Computer Science",
+      "evidence_text": "Table 2: Comparison of Model Performance on Dataset-Alpha. Proposed Method: 94.2, Baseline-A: 88.1.",
+      "target_claim": {
+        "text": "Proposed Method outperforms Baseline-A on Dataset-Alpha",
+        "subject": "Proposed Method",
+        "predicate": "outperforms",
+        "object": "Baseline-A",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "BENCH_TABLE_2",
+        "source_role": "CURRENT_STUDY_RESULT",
+        "location": "Table 2"
+      },
+      "table_bundle": {
+        "type": "TABLE_HEADER_ROW_BUNDLE",
+        "table_id": "Table 2",
+        "column_header": "F1-Score (%)",
+        "row_identifier": "Proposed Method",
+        "baseline_row_identifier": "Baseline-A",
+        "metric_direction": "HIGHER_IS_BETTER",
+        "cell_values": {
+          "target": "94.2",
+          "baseline": "88.1"
+        },
+        "dataset_context": "Dataset-Alpha"
+      },
+      "expected_status": "SUPPORTED",
+      "is_true_non_relation": false,
+      "tests_predicate_insertion": false,
+      "predicate_grounded": true
+    },
+    {
+      "case_id": "TEST_TABLE_LOWER_BETTER_LOSS",
+      "adversarial_type": "Test E — Structured Table (Loss: Lower is Better)",
+      "discipline": "Computer Science",
+      "evidence_text": "Table 3: Cross-entropy Loss comparison on Benchmark-Z.",
+      "target_claim": {
+        "text": "Model X outperforms Baseline Y on Benchmark-Z",
+        "subject": "Model X",
+        "predicate": "outperforms",
+        "object": "Baseline Y",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "BENCH_TABLE_3",
+        "source_role": "CURRENT_STUDY_RESULT",
+        "location": "Table 3"
+      },
+      "table_bundle": {
+        "type": "TABLE_HEADER_ROW_BUNDLE",
+        "table_id": "Table 3",
+        "column_header": "Loss",
+        "row_identifier": "Model X",
+        "baseline_row_identifier": "Baseline Y",
+        "metric_direction": "LOWER_IS_BETTER",
+        "cell_values": {
+          "target": "0.12",
+          "baseline": "0.45"
+        },
+        "dataset_context": "Benchmark-Z"
+      },
+      "expected_status": "SUPPORTED",
+      "is_true_non_relation": false,
+      "tests_predicate_insertion": false,
+      "predicate_grounded": true
+    },
+    {
+      "case_id": "TEST_POSITIVE_ECOLOGY_DIET",
+      "adversarial_type": "Positive Confirmed — Ecology Diet",
+      "discipline": "Ecology & Environment",
+      "evidence_text": "Direct feeding observations confirmed that Species X feeds on Plant Y throughout the winter season.",
+      "target_claim": {
+        "text": "Species X feeds on Plant Y",
+        "subject": "Species X",
+        "predicate": "feeds on",
+        "object": "Plant Y",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "FIELD_OBS_01",
+        "source_role": "CURRENT_STUDY_RESULT",
+        "location": "Results"
+      },
+      "expected_status": "SUPPORTED",
+      "is_true_non_relation": false,
+      "tests_predicate_insertion": false,
+      "predicate_grounded": true
+    },
+    {
+      "case_id": "TEST_POSITIVE_MOLECULAR_REGULATION",
+      "adversarial_type": "Positive Confirmed — Molecular Regulation",
+      "discipline": "Life Sciences",
+      "evidence_text": "Chromatin immunoprecipitation and luciferase reporter assays demonstrated that Gene A directly regulates Gene B expression.",
+      "target_claim": {
+        "text": "Gene A regulates Gene B",
+        "subject": "Gene A",
+        "predicate": "regulates",
+        "object": "Gene B",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "ASSAY_CHIP_01",
+        "source_role": "CURRENT_STUDY_RESULT",
+        "location": "Results"
+      },
+      "expected_status": "SUPPORTED",
+      "is_true_non_relation": false,
+      "tests_predicate_insertion": false,
+      "predicate_grounded": true
+    },
+    {
+      "case_id": "TEST_POSITIVE_SOCIAL_ASSOCIATION",
+      "adversarial_type": "Positive Confirmed — Social Science Association",
+      "discipline": "Social Sciences",
+      "evidence_text": "Multivariate regression analysis revealed that parental education is positively and significantly associated with household income (beta = 0.42, p < 0.001).",
+      "target_claim": {
+        "text": "Parental education is positively associated with household income",
+        "subject": "parental education",
+        "predicate": "positively associated with",
+        "object": "household income",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "REG_SURVEY_01",
+        "source_role": "CURRENT_STUDY_RESULT",
+        "location": "Results"
+      },
+      "expected_status": "SUPPORTED",
+      "is_true_non_relation": false,
+      "tests_predicate_insertion": false,
+      "predicate_grounded": true
+    },
+    {
+      "case_id": "TEST_POSITIVE_LAW_HOLDING",
+      "adversarial_type": "Positive Confirmed — Legal Holding",
+      "discipline": "Law",
+      "evidence_text": "The court explicitly held that Principle K controls the resolution of Issue M in the present dispute.",
+      "target_claim": {
+        "text": "Principle K controls Issue M",
+        "subject": "Principle K",
+        "predicate": "controls",
+        "object": "Issue M",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "RULING_01",
+        "source_role": "CURRENT_STUDY_RESULT",
+        "location": "Holding"
+      },
+      "expected_status": "SUPPORTED",
+      "is_true_non_relation": false,
+      "tests_predicate_insertion": false,
+      "predicate_grounded": true
+    },
+    {
+      "case_id": "TEST_POSITIVE_HUMANITIES_REJECTION",
+      "adversarial_type": "Positive Confirmed — Humanities / Textual Analysis",
+      "discipline": "Humanities",
+      "evidence_text": "In Chapter 4, Author A explicitly rejects Theory B, demonstrating that its foundational premises are internally inconsistent.",
+      "target_claim": {
+        "text": "Author A rejects Theory B",
+        "subject": "Author A",
+        "predicate": "rejects",
+        "object": "Theory B",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "ANALYSIS_CH4",
+        "source_role": "CURRENT_STUDY_RESULT",
+        "location": "Analysis"
+      },
+      "expected_status": "SUPPORTED",
+      "is_true_non_relation": false,
       "tests_predicate_insertion": false,
       "predicate_grounded": true
     }

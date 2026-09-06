@@ -3,8 +3,8 @@
 test_claim_evidence_alignment.py
 --------------------------------
 Automated Test Suite for ScholarFlow Universal Claim-Evidence Alignment Principle.
-Ensures zero False Relation Rate, zero Unsupported Predicate Insertion, and complete
-cross-disciplinary adversarial test coverage (Tests A-G).
+Ensures zero False Relation Rate, zero Unsupported Predicate Insertion, complete
+adversarial test coverage (Tests A-G), and cross-disciplinary positive support verification.
 """
 
 import json
@@ -62,6 +62,10 @@ class TestSemanticBifurcation(unittest.TestCase):
             detect_extraction_semantics("哪些基因调控该信号通路？"),
             ExtractionSemantics.CLAIM_RELATION
         )
+        self.assertEqual(
+            detect_extraction_semantics("该物种是否主要取食某种植物？"),
+            ExtractionSemantics.CLAIM_RELATION
+        )
 
     def test_mixed_task_detection(self):
         self.assertEqual(
@@ -75,7 +79,7 @@ class TestSemanticBifurcation(unittest.TestCase):
 
 
 class TestAdversarialCases(unittest.TestCase):
-    """Test the 7 adversarial patterns (Test A through Test G)."""
+    """Test the 7 adversarial patterns (Test A through Test G) and entity binding guards."""
 
     def test_a_co_occurrence_only_life_sciences(self):
         """Test A: Gene A and Gene B both expressed != Gene A regulates Gene B."""
@@ -87,7 +91,8 @@ class TestAdversarialCases(unittest.TestCase):
             "claim_type": "RELATION"
         }
         evidence = "In our RNA-seq analysis, Gene A and Gene B were both expressed at elevated levels in liver tissues."
-        res = verify_claim_alignment(claim, evidence)
+        context = {"source_role": SourceRole.CURRENT_STUDY_RESULT, "location": "Results"}
+        res = verify_claim_alignment(claim, evidence, evidence_context=context)
         self.assertEqual(res["status"], RelationStatus.AMBIGUOUS)
         self.assertFalse(res["is_confirmed_eligible"])
         self.assertFalse(res["gate_results"]["gate3_proposition_support"])
@@ -102,7 +107,8 @@ class TestAdversarialCases(unittest.TestCase):
             "claim_type": "RELATION"
         }
         evidence = "Compound A was administered to all hospitalized cohorts. Overall 30-day mortality was 12%."
-        res = verify_claim_alignment(claim, evidence)
+        context = {"source_role": SourceRole.CURRENT_STUDY_RESULT, "location": "Results"}
+        res = verify_claim_alignment(claim, evidence, evidence_context=context)
         self.assertEqual(res["status"], RelationStatus.AMBIGUOUS)
         self.assertFalse(res["is_confirmed_eligible"])
 
@@ -116,7 +122,8 @@ class TestAdversarialCases(unittest.TestCase):
             "claim_type": "RELATION"
         }
         evidence = "Model A and Model B were both evaluated under standard configurations."
-        res = verify_claim_alignment(claim, evidence)
+        context = {"source_role": SourceRole.CURRENT_STUDY_RESULT, "location": "Experiments"}
+        res = verify_claim_alignment(claim, evidence, evidence_context=context)
         self.assertEqual(res["status"], RelationStatus.AMBIGUOUS)
         self.assertFalse(res["is_confirmed_eligible"])
 
@@ -156,6 +163,87 @@ class TestAdversarialCases(unittest.TestCase):
         self.assertFalse(res["is_confirmed_eligible"])
         self.assertFalse(res["gate_results"]["gate2_context_match"])
 
+    def test_wrong_entity_with_relational_predicate(self):
+        """Guard against false support: 'significantly reduced' on Treatment B cannot confirm Treatment A."""
+        claim = {
+            "text": "Treatment A reduces Mortality",
+            "subject": "Treatment A",
+            "predicate": "reduces",
+            "object": "Mortality",
+            "claim_type": "RELATION"
+        }
+        evidence = "Treatment B significantly reduced Blood Pressure in hypertensive models."
+        context = {"source_role": SourceRole.CURRENT_STUDY_RESULT, "location": "Results"}
+        res = verify_claim_alignment(claim, evidence, evidence_context=context)
+        self.assertFalse(res["is_confirmed_eligible"])
+        self.assertNotEqual(res["status"], RelationStatus.SUPPORTED)
+
+    def test_fail_closed_unknown_source_role(self):
+        """Guard against unverified attribution: source_role defaults to UNKNOWN and fails closed."""
+        claim = {
+            "text": "Compound X inhibits Kinase Y",
+            "subject": "Compound X",
+            "predicate": "inhibits",
+            "object": "Kinase Y",
+            "claim_type": "RELATION"
+        }
+        evidence = "Compound X inhibits Kinase Y in vitro."
+        # Context without source_role
+        res = verify_claim_alignment(claim, evidence, evidence_context={})
+        self.assertEqual(res["status"], RelationStatus.AMBIGUOUS)
+        self.assertFalse(res["is_confirmed_eligible"])
+        self.assertEqual(res["audit_verdict"], "FAIL_CLOSED_UNKNOWN_ROLE")
+
+    def test_table_metric_directionality(self):
+        """Test that Table comparisons obey metric directionality."""
+        claim = {
+            "text": "Model X outperforms Baseline Y on Benchmark-Z",
+            "subject": "Model X",
+            "predicate": "outperforms",
+            "object": "Baseline Y",
+            "claim_type": "RELATION"
+        }
+        context = {"source_role": SourceRole.CURRENT_STUDY_RESULT, "location": "Table 3"}
+
+        # 1. Lower is better (Loss): 0.12 vs 0.45 -> PASS
+        table_loss = {
+            "type": "TABLE_HEADER_ROW_BUNDLE",
+            "column_header": "Loss",
+            "row_identifier": "Model X",
+            "baseline_row_identifier": "Baseline Y",
+            "metric_direction": "LOWER_IS_BETTER",
+            "cell_values": {"target": "0.12", "baseline": "0.45"}
+        }
+        res_loss = verify_claim_alignment(claim, "Table 3", evidence_context=context, table_bundle=table_loss)
+        self.assertEqual(res_loss["status"], RelationStatus.SUPPORTED)
+        self.assertTrue(res_loss["is_confirmed_eligible"])
+
+        # 2. Unknown metric direction: cannot infer outperformance
+        table_unknown = {
+            "type": "TABLE_HEADER_ROW_BUNDLE",
+            "column_header": "CustomMetric",
+            "row_identifier": "Model X",
+            "baseline_row_identifier": "Baseline Y",
+            "metric_direction": "UNKNOWN",
+            "cell_values": {"target": "10.0", "baseline": "5.0"}
+        }
+        res_unknown = verify_claim_alignment(claim, "Table 3", evidence_context=context, table_bundle=table_unknown)
+        self.assertEqual(res_unknown["status"], RelationStatus.AMBIGUOUS)
+        self.assertFalse(res_unknown["is_confirmed_eligible"])
+
+        # 3. Wrong entity in table row identifier -> OTHER_ENTITY_CONTEXT
+        table_wrong = {
+            "type": "TABLE_HEADER_ROW_BUNDLE",
+            "column_header": "Loss",
+            "row_identifier": "Model Z",
+            "baseline_row_identifier": "Baseline Y",
+            "metric_direction": "LOWER_IS_BETTER",
+            "cell_values": {"target": "0.12", "baseline": "0.45"}
+        }
+        res_wrong = verify_claim_alignment(claim, "Table 3", evidence_context=context, table_bundle=table_wrong)
+        self.assertEqual(res_wrong["status"], RelationStatus.OTHER_ENTITY_CONTEXT)
+        self.assertFalse(res_wrong["is_confirmed_eligible"])
+
     def test_d_direct_claim_positive(self):
         """Test D: Explicit empirical support yields SUPPORTED and enters confirmed."""
         claim = {
@@ -186,10 +274,12 @@ class TestAdversarialCases(unittest.TestCase):
             "type": "TABLE_HEADER_ROW_BUNDLE",
             "table_id": "Table 2",
             "column_header": "Accuracy (%)",
+            "metric_direction": "HIGHER_IS_BETTER",
             "cell_values": {"target": "94.5", "baseline": "87.2"},
             "dataset_context": "Dataset-Alpha"
         }
-        res = verify_claim_alignment(claim, evidence, table_bundle=table_bundle)
+        context = {"source_role": SourceRole.CURRENT_STUDY_RESULT, "location": "Table 2"}
+        res = verify_claim_alignment(claim, evidence, evidence_context=context, table_bundle=table_bundle)
         self.assertEqual(res["status"], RelationStatus.SUPPORTED)
         self.assertTrue(res["is_confirmed_eligible"])
 
@@ -218,10 +308,85 @@ class TestAdversarialCases(unittest.TestCase):
             "claim_type": "RELATION"
         }
         evidence = "Experiment 1 observed Component A stability. Unrelated Experiment 2 recorded Component B degradation."
-        res = verify_claim_alignment(claim, evidence, is_cross_context=True)
+        context = {"source_role": SourceRole.CURRENT_STUDY_RESULT, "location": "Results"}
+        res = verify_claim_alignment(claim, evidence, evidence_context=context, is_cross_context=True)
         self.assertEqual(res["status"], RelationStatus.REJECTED)
         self.assertFalse(res["is_confirmed_eligible"])
         self.assertEqual(res["audit_verdict"], "REJECT")
+
+
+class TestCrossDisciplinaryPositiveSupport(unittest.TestCase):
+    """Verify that genuine positive relations across diverse disciplines are confirmed."""
+
+    def test_ecology_diet_positive(self):
+        claim = {
+            "text": "Species X feeds on Plant Y",
+            "subject": "Species X",
+            "predicate": "feeds on",
+            "object": "Plant Y",
+            "claim_type": "RELATION"
+        }
+        evidence = "Direct feeding observations confirmed that Species X feeds on Plant Y throughout the winter season."
+        context = {"source_role": SourceRole.CURRENT_STUDY_RESULT, "location": "Results"}
+        res = verify_claim_alignment(claim, evidence, evidence_context=context)
+        self.assertEqual(res["status"], RelationStatus.SUPPORTED)
+        self.assertTrue(res["is_confirmed_eligible"])
+
+    def test_molecular_regulation_positive(self):
+        claim = {
+            "text": "Gene A regulates Gene B",
+            "subject": "Gene A",
+            "predicate": "regulates",
+            "object": "Gene B",
+            "claim_type": "RELATION"
+        }
+        evidence = "Chromatin immunoprecipitation and luciferase reporter assays demonstrated that Gene A directly regulates Gene B expression."
+        context = {"source_role": SourceRole.CURRENT_STUDY_RESULT, "location": "Results"}
+        res = verify_claim_alignment(claim, evidence, evidence_context=context)
+        self.assertEqual(res["status"], RelationStatus.SUPPORTED)
+        self.assertTrue(res["is_confirmed_eligible"])
+
+    def test_social_science_association_positive(self):
+        claim = {
+            "text": "Parental education is positively associated with household income",
+            "subject": "parental education",
+            "predicate": "positively associated with",
+            "object": "household income",
+            "claim_type": "RELATION"
+        }
+        evidence = "Multivariate regression analysis revealed that parental education is positively and significantly associated with household income (beta = 0.42, p < 0.001)."
+        context = {"source_role": SourceRole.CURRENT_STUDY_RESULT, "location": "Results"}
+        res = verify_claim_alignment(claim, evidence, evidence_context=context)
+        self.assertEqual(res["status"], RelationStatus.SUPPORTED)
+        self.assertTrue(res["is_confirmed_eligible"])
+
+    def test_law_holding_positive(self):
+        claim = {
+            "text": "Principle K controls Issue M",
+            "subject": "Principle K",
+            "predicate": "controls",
+            "object": "Issue M",
+            "claim_type": "RELATION"
+        }
+        evidence = "The court explicitly held that Principle K controls the resolution of Issue M in the present dispute."
+        context = {"source_role": SourceRole.CURRENT_STUDY_RESULT, "location": "Holding"}
+        res = verify_claim_alignment(claim, evidence, evidence_context=context)
+        self.assertEqual(res["status"], RelationStatus.SUPPORTED)
+        self.assertTrue(res["is_confirmed_eligible"])
+
+    def test_humanities_rejection_positive(self):
+        claim = {
+            "text": "Author A rejects Theory B",
+            "subject": "Author A",
+            "predicate": "rejects",
+            "object": "Theory B",
+            "claim_type": "RELATION"
+        }
+        evidence = "In Chapter 4, Author A explicitly rejects Theory B, demonstrating that its foundational premises are internally inconsistent."
+        context = {"source_role": SourceRole.CURRENT_STUDY_RESULT, "location": "Analysis"}
+        res = verify_claim_alignment(claim, evidence, evidence_context=context)
+        self.assertEqual(res["status"], RelationStatus.SUPPORTED)
+        self.assertTrue(res["is_confirmed_eligible"])
 
 
 class TestCrossDisciplinaryBenchmarkMetrics(unittest.TestCase):
