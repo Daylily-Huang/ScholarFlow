@@ -63,7 +63,7 @@ Agent 接收到请求后：
 |---|---|---|---|---|---|
 | `E1` | 抽取任务类型 | `CRITICAL` | 系统综述与定量参数精准提取 | `[USER]` | 遵循高精度可复现规范 |
 | `E2` | 文献输入形态 | `CRITICAL` | 全文 PDF 解析文本 (已就绪) | `[INFERRED]` | 输入已验证为完整全文 |
-| `E3` | 抽取 Schema | `CRITICAL` | schemas/v1.0/general_empirical.json | `[USER]` | 采纳推荐标准双轨 Schema |
+| `E3` | 抽取 Schema | `CRITICAL` | schemas/extraction_result.schema.json | `[USER]` | 采纳推荐标准双轨 Schema |
 | `E4` | 多实验隔离粒度 | `CRITICAL` | 细粒度独立 Assay 上下文物理隔离 | `[USER]` | 采纳推荐方案防参数混淆 |
 | `E5` | 推导重计算策略 | `HIGH_IMPACT` | 允许透明重计算（附带原始值与公式） | `[DEFAULTED]` | 兼顾可用性与可审计性 |
 | `SYS_RULE` | 方法学守则 | `CRITICAL` | Quote-before-Extract + E1-E4 分层 | `[SYSTEM_RULE]` | ScholarFlow 核心防伪铁律 |

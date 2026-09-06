@@ -12,7 +12,7 @@
 |---|---|---|---|---|
 | `E1` | 抽取目的与任务类型 | `CRITICAL` | 系统综述 / Meta 分析结构化参数与定量数据提取 | `[高置信度]` |
 | `E2` | 待抽取的文献范围与输入边界 | `CRITICAL` | 初筛合格的全文 PDF / 权威解析全文文本 | `[高置信度]` |
-| `E3` | 抽取 Schema 选择与定制 | `CRITICAL` | 通用实证研究双轨 Schema (`schemas/v1.0/general_empirical.json`) | `[高置信度]` |
+| `E3` | 抽取 Schema 选择与定制 | `CRITICAL` | 通用实证研究双轨 Schema (`schemas/extraction_result.schema.json`) | `[高置信度]` |
 | `E4` | 证据单元切分与多实验隔离粒度 | `CRITICAL` | 细粒度拆分：每个独立 Assay/Trial/采样点单独一行记录 | `[高置信度]` |
 | `E5` | 推导证据与重计算策略 | `HIGH_IMPACT` | 允许透明重计算（必须附带明确公式、原始输入与代码） | `[高置信度]` |
 | `E6` | 计量单位与数值归一化要求 | `HIGH_IMPACT` | 保留原文原始数值与单位，并在标准列并列给出 SI 国际标准换算值 | `[高置信度]` |
@@ -34,9 +34,9 @@
 - **[B]** 仅限公开发表的摘要 (Abstract) 与标题粗提 — *[依据：无全文时的降级应急模式]* `[需权衡]`
 
 ### E3: 抽取 Schema 选择与定制 (`CRITICAL`)
-- **[A] (Recommended)** 通用实证研究双轨 Schema (`schemas/v1.0/general_empirical.json`) — *[依据：内置 E1-E4 证据隔离与双轨输出规范]* `[高置信度]`
-- **[B]** 生物医药临床干预 Schema (`schemas/v1.0/biomedical_intervention.json`) — *[依据：聚焦 PICO、对照组与临床效应量]* `[高置信度]`
-- **[C]** 生态种群与野外调查 Schema (`schemas/v1.0/ecological_population.json`) — *[依据：聚焦野外样带、种群参数与分子标记]* `[高置信度]`
+- **[A] (Recommended)** 通用实证研究双轨 Schema (`schemas/extraction_result.schema.json`) — *[依据：内置 E1-E4 证据隔离与双轨输出规范]* `[高置信度]`
+- **[B]** 生物医药临床干预 Schema（规划中，交付前回落至全局 `schemas/extraction_result.schema.json`） — *[依据：聚焦 PICO、对照组与临床效应量]* `[高置信度]`
+- **[C]** 生态种群与野外调查 Schema（规划中，交付前回落至全局 `schemas/extraction_result.schema.json`） — *[依据：聚焦野外样带、种群参数与分子标记]* `[高置信度]`
 
 ### E4: 证据单元切分与多实验隔离粒度 (`CRITICAL`)
 - **[A] (Recommended)** 细粒度拆分：每个独立 Assay / Trial / 样点单独形成一行记录 — *[依据：杜绝组间混杂，保障横向精准对比]* `[高置信度]`

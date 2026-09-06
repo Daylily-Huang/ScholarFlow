@@ -23,7 +23,7 @@
         "context_type": { "type": "string" }
       }
     },
-    "assay_id": { "type": ["string", "null"] },
+    "analysis_unit_id": { "type": ["string", "null"] },
     "field": { "type": "string" },
     "field_id": { "type": "string" },
     "field_name": { "type": "string" },

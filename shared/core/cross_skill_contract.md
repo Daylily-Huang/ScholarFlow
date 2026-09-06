@@ -45,7 +45,7 @@
 
 ```json
 {
-  "$schema": "https://scholarflow.org/schemas/v1.0/evidence_unit.json",
+  "$schema": "schemas/evidence_record.schema.json",
   "evidence_id": "EV-001",
   "source_doi": "10.1016/j.jbi.2023.104250",
   "source_title": "Comparative evaluation of deep learning architectures on clinical records",

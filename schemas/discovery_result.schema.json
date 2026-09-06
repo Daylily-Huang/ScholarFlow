@@ -11,7 +11,8 @@
   ],
   "properties": {
     "schema_version": { "type": "string" },
-    "status": { "type": "string", "enum": ["SUCCESS", "PARTIAL", "FAILED"] },
+    "errors": { "type": "array", "items": { "type": "string" }, "description": "Non-fatal query failures; empty on clean SUCCESS. A FAILED status with zero candidates must never be emitted as SUCCESS." },
+    "status": { "type": "string", "enum": ["SUCCESS", "SUCCESS_WITH_ERRORS", "FAILED"] },
     "search_target": { "type": "string" },
     "search_protocol": {
       "type": "object",
