@@ -25,6 +25,9 @@ class Provenance(str, Enum):
     INFERRED = "INFERRED"          # Inferred with high confidence from user's initial prompt
     DEFAULTED = "DEFAULTED"        # Applied from canonical scientific domain default
     SYSTEM_RULE = "SYSTEM_RULE"    # Enforced by ScholarFlow methodology rules (e.g. E1-E4)
+    CONTEXT = "CONTEXT"            # Resolved from task attachments or conversational context
+    UPSTREAM = "UPSTREAM"          # Inherited from upstream ScholarFlow skill output
+    PROJECT = "PROJECT"            # Retrieved on-demand from project repository documentation
 
 
 class GrillState(str, Enum):
@@ -353,6 +356,8 @@ class GrillEngine:
         self.active_questions: List[GrillQuestion] = []
         self.resolutions: Dict[str, DimensionResolution] = {}
         self.all_dimensions: Dict[str, GrillDimension] = {}
+        self.context_brief: str = ""
+        self.context_resolver: Optional[Any] = None
 
     def register_dimensions(self, dimensions: List[GrillDimension]) -> None:
         for dim in dimensions:
@@ -362,9 +367,48 @@ class GrillEngine:
         self,
         task_prompt: str,
         inferred_values: Optional[Dict[str, Any]] = None,
+        context_resolver: Optional[Any] = None,
     ) -> List[GrillQuestion]:
-        """Select 3-5 high impact questions based on priority tiers and unstated parameters."""
-        inferred = inferred_values or {}
+        """Select 3-5 high impact questions based on priority tiers, unstated parameters, and resolved context."""
+        inferred = dict(inferred_values or {})
+
+        if context_resolver is not None:
+            self.context_resolver = context_resolver
+            target_dims = list(self.all_dimensions.keys())
+            ctx_resolved, unresolved_dims = context_resolver.resolve(
+                task_prompt, target_dims, domain_hint=self.domain
+            )
+            self.context_brief = context_resolver.render_context_brief_markdown()
+            for dim_id, val in ctx_resolved.items():
+                if dim_id in self.all_dimensions:
+                    dim = self.all_dimensions[dim_id]
+                    var = context_resolver.resolved_variables.get(dim_id)
+                    prov = Provenance.CONTEXT
+                    if var and var.primary_fact:
+                        layer = var.primary_fact.source_layer
+                        if layer in ("current_user", "conversation"):
+                            prov = Provenance.USER
+                        elif layer == "upstream_outputs":
+                            prov = Provenance.UPSTREAM
+                        elif layer == "project_search":
+                            prov = Provenance.PROJECT
+                    rat = (
+                        f"Resolved from {var.primary_fact.source_layer} ({var.primary_fact.source_ref})"
+                        if var and var.primary_fact
+                        else "Resolved from research context"
+                    )
+                    self.resolutions[dim_id] = DimensionResolution(
+                        dimension_id=dim.id,
+                        dimension_name=dim.name,
+                        selected_key="CONTEXT",
+                        selected_value=val,
+                        selected_label=str(val),
+                        provenance=prov,
+                        priority=dim.priority,
+                        rationale=rat,
+                    )
+                    inferred[dim_id] = val
+
         selected_dims: List[GrillDimension] = []
 
         # Tier 1: CRITICAL dimensions not yet inferred
@@ -372,7 +416,7 @@ class GrillEngine:
             if dim.priority == PriorityTier.CRITICAL:
                 if dim.id not in inferred:
                     selected_dims.append(dim)
-                else:
+                elif dim.id not in self.resolutions:
                     self.resolutions[dim.id] = DimensionResolution(
                         dimension_id=dim.id,
                         dimension_name=dim.name,
@@ -434,8 +478,31 @@ class GrillEngine:
             self.active_questions.append(q)
 
         self.round = 1
-        self.state = GrillState.STAGE0_UNRESOLVED
+        if not self.active_questions:
+            self.state = GrillState.STAGE0_CONFIRMED
+        else:
+            self.state = GrillState.STAGE0_UNRESOLVED
         return self.active_questions
+
+    def render_presentation(self) -> str:
+        """Render complete presentation including context brief (Stage 0A) and questions (Stage 0B)."""
+        parts = []
+        if self.context_brief:
+            parts.append(self.context_brief)
+            parts.append("")
+        if self.active_questions:
+            parts.append("### 待确认科研决策维度 (Unresolved Dimensions)")
+            for q in self.active_questions:
+                parts.append(f"**{q.index}. {q.prompt}**")
+                for opt in q.options:
+                    rec_tag = " `[Recommended]`" if opt.is_recommended else ""
+                    parts.append(f"  - **[{opt.key}]** {opt.label}{rec_tag}")
+                    if opt.rationale:
+                        parts.append(f"    *{opt.rationale}*")
+                parts.append("")
+        elif self.state == GrillState.STAGE0_CONFIRMED:
+            parts.append(self.generate_snapshot_markdown())
+        return "\n".join(parts)
 
     def submit_response(self, user_response: str) -> Tuple[GrillState, Dict[str, Any]]:
         """Process user response, transition state machine, and return status payload."""

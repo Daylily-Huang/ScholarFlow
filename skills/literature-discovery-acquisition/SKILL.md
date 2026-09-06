@@ -106,20 +106,23 @@ flowchart TD
 
 ---
 
-### Stage 0：自适应科研决策门禁 (Adaptive Research Decision Gate)
+### Stage 0：自适应科研决策门禁 (Context-Aware Research Gate)
 
-在执行任何实际搜索调用前，系统强制接入自适应科研决策门禁（详见 [stage0_grill_me.md](references/stage0_grill_me.md) 与 [grill_dimensions.md](references/grill_dimensions.md)）：
+在执行任何实际搜索调用前，系统强制接入自适应科研决策门禁（三阶段流水线，详见 [stage0_grill_me.md](references/stage0_grill_me.md)、[grill_dimensions.md](references/grill_dimensions.md) 与 `shared/context_resolution/`）：
 
-1. **预设决策维度，动态筛选提问**：
-   - 评估 D1 至 D14 共 14 个决策维度，根据任务描述自动提取已知参数（标记 `[INFERRED]`）；
-   - 从未决的 `CRITICAL` 维度（D1-D5）与高影响 `HIGH_IMPACT` 维度（D6-D9）中动态生成 **3~5 个** 结构化提问；
-   - 每个问题必须提供带有明确依据的 `(Recommended)` 选项与置信度标签（`[高置信度]` / `[中置信度]` / `[需权衡]`）；
-   - 次要 `DEFAULTABLE` 维度（D10-D14）自动按学科透镜应用科学默认值。
-2. **严格交互硬门禁 (STOP Rule)**：
-   - **Agent 在输出 Stage 0 问题清单后，必须立即终止当前回复，进入静默等待状态**，严禁自问自答或在同一轮次中调用检索/下载工具。
-3. **低摩擦回复解析与协议快照生成**：
-   - 支持一键通过（`按推荐`、`1A 2B 3C` 或混合覆盖）；
-   - 确认通过后固化四级来源追溯（`[USER]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）的【Stage 0 Protocol Snapshot】，流转至 Stage 1。
+1. **Stage 0A：科研上下文解析层 (Context Resolution Layer)**
+   - **五层来源递进解析**：优先提取当前提示词 (`current_user`)、对话历史 (`conversation`)、任务附件 (`current_attachments`)、上游技能产物 (`upstream_outputs`)，仅在必要时按需查询项目资料 (`project_search`)；
+   - **正交过滤与已知要素确认**：启用跨学科正交防泄漏过滤，已知约束自动确认为 `RESOLVED`（标记 `[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]`），输出《现有科研上下文确认简报》，严禁对已知要素重复发问；
+   - **同级冲突仲裁**：检测到无时间戳的同级资料矛盾时，标记 `UNRESOLVED_CONFLICT` 提交用户裁决。
+
+2. **Stage 0B：自适应科研决策追问 (Adaptive Research Grill-Me)**
+   - **只问未决高影响变量**：仅针对上下文未覆盖的 `CRITICAL`（D1-D5）与高影响 `HIGH_IMPACT`（D6-D9）维度动态筛选 **3~5 个** 核心追问；
+   - **每题必带推荐**：提供带有明确依据的 `(Recommended)` 选项与置信度标签；次要 `DEFAULTABLE` 维度（D10-D14）自动应用学科透镜默认值；
+   - **严格交互硬门禁 (STOP Rule)**：**Agent 输出问题清单后必须立即终止回复，进入静默等待状态**，严禁自问自答或在同轮调用检索/下载工具。
+
+3. **Stage 0C：协议快照生成与执行放行 (Protocol Snapshot & Execution Gate)**
+   - **极速低摩擦响应**：支持一键通过（`按推荐`、`1A 2B 3C` 或混合自定义覆盖）；
+   - **来源审计快照**：生成包含完整来源可信追溯（`[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）的【Stage 0 Protocol Snapshot】，状态转为 `CONFIRMED` 后方可解锁 Stage 1 实质执行。
 
 ---
 

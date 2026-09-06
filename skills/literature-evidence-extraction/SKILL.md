@@ -92,13 +92,19 @@ flowchart TD
     P3 --> P3_Skip
 ```
 
-### 0. Stage 0 — 自适应科研决策门禁 (Adaptive Research Decision Gate)
-在执行任何正文解析或数据抽取前，系统强制接入自适应科研决策门禁（详见 [stage0_grill_me.md](./references/stage0_grill_me.md) 与 [grill_dimensions.md](./references/grill_dimensions.md)）：
-- **全文预检**：核验输入是否具备论文全文（PDF 或完整文本）；若仅有摘要坚决熔断，拒绝提取实验参数；
-- **动态筛选提问**：评估 E1 至 E9 决策维度，从未决的 `CRITICAL` 维度（E1 目的、E3 Schema、E4 实验隔离）与关键 `HIGH_IMPACT` 维度（E5 重计算、E6 单位归一化）中动态生成 **3~5 个** 结构化提问；
-- **每题必带推荐**：提供 `(Recommended)` 选项并标注依据与置信度；
-- **严格交互硬门禁 (STOP Rule)**：**Agent 输出问题后必须立即终止当前回复，进入静默等待状态**，严禁在同一回复中自问自答或直接调用抽取工具；
-- **低摩擦确认与快照**：支持 `按推荐`、`1A 2B 3C` 极速回复，确认后生成四级来源追溯（`[USER]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）的 Protocol Snapshot，解锁 Phase A。
+### 0. Stage 0 — 自适应科研决策门禁 (Context-Aware Research Gate)
+在执行任何正文解析或数据抽取前，系统强制接入自适应科研决策门禁（三阶段流水线，详见 [stage0_grill_me.md](./references/stage0_grill_me.md)、[grill_dimensions.md](./references/grill_dimensions.md) 与 `shared/context_resolution/`）：
+- **Stage 0A：科研上下文解析层 (Context Resolution Layer)**：
+  - 自动读取任务附件/PDF、对话历史、上游 Discovery 产物（继承已确定的时间范围与检索协议）以及上游 Schema 快照；
+  - 核验输入是否具备论文全文（PDF 或完整文本）；若仅有摘要坚决熔断，拒绝提取实验参数；
+  - 若输入文献中检测到多队列/多数据集（Multi-Cohort），自动识别出上下文复杂性，并在《现有科研上下文确认简报》中标记，保留 E4 隔离决策供确认；
+  - 已知约束与上游 Schema 自动确认为 `RESOLVED`（标记 `[USER]` / `[CONTEXT]` / `[UPSTREAM]`），杜绝重复询问。
+- **Stage 0B：自适应科研决策追问 (Adaptive Research Grill-Me)**：
+  - 评估 E1 至 E9 决策维度，仅从未决的 `CRITICAL` 维度（E1 目的、E3 Schema、E4 实验隔离）与关键 `HIGH_IMPACT` 维度（E5 重计算、E6 单位归一化）中动态生成 **3~5 个** 结构化提问；
+  - 每题配备带有充分依据的 `(Recommended)` 选项与置信度标签；
+  - **严格交互硬门禁 (STOP Rule)**：**Agent 输出问题后必须立即终止当前回复，进入静默等待状态**，严禁在同一回复中自问自答或直接调用抽取工具。
+- **Stage 0C：协议快照生成与执行放行 (Protocol Snapshot & Execution Gate)**：
+  - 支持 `按推荐`、`1A 2B 3C` 极速回复，确认后生成包含完整来源追溯（`[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）的 Protocol Snapshot，状态转为 `CONFIRMED` 后解锁 Phase A。
 
 ### 1. Phase A — Extraction（纯粹抽取）
 - 只定位原文句子、表格行、附录；
