@@ -106,7 +106,7 @@ class TestContractClosureV062(unittest.TestCase):
                 return MockResponse(seed_data)
 
         with patch("urllib.request.urlopen", side_effect=fake_urlopen):
-            records = run_snowball_search("10.1000/seed", limit=10, include_theses=False)
+            records, _ = run_snowball_search("10.1000/seed", limit=10, include_theses=False)
 
         titles = [r.get("title") for r in records]
         self.assertIn("Legitimate Journal Article", titles)
@@ -157,7 +157,7 @@ class TestContractClosureV062(unittest.TestCase):
                 return MockResponse(seed_data)
 
         with patch("urllib.request.urlopen", side_effect=fake_urlopen):
-            records = run_snowball_search("10.1000/seed", limit=10, include_theses=False)
+            records, _ = run_snowball_search("10.1000/seed", limit=10, include_theses=False)
 
         titles = [r.get("title") for r in records]
         self.assertIn("Subsequent Journal Paper", titles)
@@ -198,9 +198,9 @@ class TestContractClosureV062(unittest.TestCase):
                     "authors": ["Author B"],
                     "year": 2020,
                 }
-            ]
+            ], []
 
-        with patch("agent_search.query_openalex_headless", return_value=r1):
+        with patch("agent_search.query_openalex_headless", return_value=(r1, None)):
             with patch("agent_search.run_snowball_search", side_effect=fake_snowball):
                 candidates, _ = run_deep_search("biodiversity survey", limit=10, include_theses=False)
 

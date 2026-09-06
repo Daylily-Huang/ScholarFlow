@@ -33,7 +33,10 @@ if sys.platform == "win32":
     except Exception:
         pass
 
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 (Headless Agent Search Pipeline)"
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+# OpenAlex politeness pool: declare contact in URL; custom agent-style UA suffixes
+# (e.g. "(Headless Agent Search Pipeline)") trigger instant HTTP 429 throttling.
+OPENALEX_MAILTO = "academic_support@openacademic.org"
 
 
 def parse_openalex_item(item, snowball_role=None, seed_id=None):
@@ -122,11 +125,19 @@ def is_thesis_work(item: dict) -> bool:
 
 
 def query_openalex_headless(query_str, limit=25, include_theses=True):
-    """通过 OpenAlex API 关键词获取候选文献"""
-    url = f"https://api.openalex.org/works?search={urllib.parse.quote(query_str)}&per-page={limit}"
+    """通过 OpenAlex API 关键词获取候选文献。
+
+    Returns:
+        (records, error): error is None on success, otherwise a human-readable
+        failure string. Callers MUST surface error in the output contract —
+        a failed query with 0 records must never be reported as a plain
+        empty SUCCESS (downstream would misread it as "no literature exists").
+    """
+    url = f"https://api.openalex.org/works?search={urllib.parse.quote(query_str)}&per-page={limit}&mailto={OPENALEX_MAILTO}"
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     records = []
-    
+
+    error = None
     try:
         with urllib.request.urlopen(req, timeout=20) as resp:
             if resp.status == 200:
@@ -141,9 +152,10 @@ def query_openalex_headless(query_str, limit=25, include_theses=True):
                     if len(records) >= limit:
                         break
     except Exception as e:
-        sys.stderr.write(f"[-] OpenAlex headless query failed: {str(e)}\n")
-        
-    return records
+        error = f"OpenAlex query failed for '{query_str[:60]}': {str(e)}"
+        sys.stderr.write(f"[-] {error}\n")
+
+    return records, error
 
 
 def run_snowball_search(seed_identifier, limit=15, include_theses=True):
@@ -156,16 +168,17 @@ def run_snowball_search(seed_identifier, limit=15, include_theses=True):
     sys.stderr.write(f"[*] Starting Dual-Direction Citation Snowballing for: '{seed_identifier}' (Limit: {limit}, Theses: {include_theses})\n")
     clean_id = seed_identifier.strip()
     if clean_id.startswith("http"):
-        work_api_url = f"https://api.openalex.org/works/{urllib.parse.quote(clean_id)}"
+        work_api_url = f"https://api.openalex.org/works/{urllib.parse.quote(clean_id)}?mailto={OPENALEX_MAILTO}"
     elif clean_id.startswith("10."):
-        work_api_url = f"https://api.openalex.org/works/https://doi.org/{urllib.parse.quote(clean_id)}"
+        work_api_url = f"https://api.openalex.org/works/https://doi.org/{urllib.parse.quote(clean_id)}?mailto={OPENALEX_MAILTO}"
     elif clean_id.upper().startswith("W"):
-        work_api_url = f"https://api.openalex.org/works/{clean_id}"
+        work_api_url = f"https://api.openalex.org/works/{clean_id}?mailto={OPENALEX_MAILTO}"
     else:
         # Fallback to search if not a direct DOI
-        work_api_url = f"https://api.openalex.org/works?search={urllib.parse.quote(clean_id)}&per-page=1"
+        work_api_url = f"https://api.openalex.org/works?search={urllib.parse.quote(clean_id)}&per-page=1&mailto={OPENALEX_MAILTO}"
 
     records = []
+    errors = []
     seed_item = None
 
     try:
@@ -178,12 +191,14 @@ def run_snowball_search(seed_identifier, limit=15, include_theses=True):
             else:
                 seed_item = data
     except Exception as e:
-        sys.stderr.write(f"[-] Failed to fetch seed paper: {str(e)}\n")
-        return []
+        err = f"Failed to fetch seed paper '{seed_identifier[:60]}': {str(e)}"
+        sys.stderr.write(f"[-] {err}\n")
+        return [], [err]
 
     if not seed_item:
-        sys.stderr.write(f"[-] Seed work not resolved in OpenAlex: {seed_identifier}\n")
-        return []
+        err = f"Seed work not resolved in OpenAlex: {seed_identifier}"
+        sys.stderr.write(f"[-] {err}\n")
+        return [], [err]
 
     if include_theses or not is_thesis_work(seed_item):
         seed_rec = parse_openalex_item(seed_item, snowball_role="SEED_PAPER")
@@ -202,7 +217,7 @@ def run_snowball_search(seed_identifier, limit=15, include_theses=True):
         sys.stderr.write(f"[*] Backward Snowballing: Found {len(ref_ids)} references, fetching top {min(len(ref_ids), limit)}...\n")
         clean_ref_ids = [r.split("/")[-1] for r in ref_ids[:limit]]
         pipe_ids = "|".join(clean_ref_ids)
-        ref_url = f"https://api.openalex.org/works?filter=openalex_id:{pipe_ids}&per-page={limit}"
+        ref_url = f"https://api.openalex.org/works?filter=openalex_id:{pipe_ids}&per-page={limit}&mailto={OPENALEX_MAILTO}"
         try:
             r_req = urllib.request.Request(ref_url, headers={"User-Agent": USER_AGENT})
             with urllib.request.urlopen(r_req, timeout=20) as resp:
@@ -215,12 +230,14 @@ def run_snowball_search(seed_identifier, limit=15, include_theses=True):
                     rec["record_id"] = rec["id"]
                     records.append(rec)
         except Exception as e:
-            sys.stderr.write(f"[-] Backward snowballing query failed: {str(e)}\n")
+            err = f"Backward snowballing query failed: {str(e)}"
+            sys.stderr.write(f"[-] {err}\n")
+            errors.append(err)
 
     # 2. Forward Snowballing: Fetch works that cite the seed
     if seed_openalex_id:
         clean_seed_id = seed_openalex_id.split("/")[-1]
-        forward_url = f"https://api.openalex.org/works?filter=cites:{clean_seed_id}&per-page={limit}"
+        forward_url = f"https://api.openalex.org/works?filter=cites:{clean_seed_id}&per-page={limit}&mailto={OPENALEX_MAILTO}"
         sys.stderr.write(f"[*] Forward Snowballing: Fetching works citing {clean_seed_id} (up to {limit})...\n")
         try:
             f_req = urllib.request.Request(forward_url, headers={"User-Agent": USER_AGENT})
@@ -234,10 +251,12 @@ def run_snowball_search(seed_identifier, limit=15, include_theses=True):
                     rec["record_id"] = rec["id"]
                     records.append(rec)
         except Exception as e:
-            sys.stderr.write(f"[-] Forward snowballing query failed: {str(e)}\n")
+            err = f"Forward snowballing query failed: {str(e)}"
+            sys.stderr.write(f"[-] {err}\n")
+            errors.append(err)
 
     sys.stderr.write(f"[+] Snowballing complete: {len(records)} total records collected (Seed, {sum(1 for r in records if r.get('snowball_role')=='BACKWARD_REFERENCE')} Backward, {sum(1 for r in records if r.get('snowball_role')=='FORWARD_CITATION')} Forward).\n")
-    return records
+    return records, errors
 
 
 def normalize_title(title):
@@ -269,7 +288,10 @@ def run_deep_search(query_str, limit=30, include_theses=True):
     and saturation tracking (Enhanced OpenAlex multi-pass expansion and limited citation chasing).
     """
     sys.stderr.write(f"[*] Deep Search Phase 1: Primary query '{query_str}' (target: {limit})\n")
-    round1_records = query_openalex_headless(query_str, limit=limit, include_theses=include_theses)
+    errors = []
+    round1_records, r1_err = query_openalex_headless(query_str, limit=limit, include_theses=include_theses)
+    if r1_err:
+        errors.append(r1_err)
     
     # Phase 2: Formulate concept expansion / sub-query variants
     words = [w for w in query_str.split() if len(w) > 3]
@@ -277,7 +299,9 @@ def run_deep_search(query_str, limit=30, include_theses=True):
     if len(words) >= 2:
         variant_query = f"{words[0]} {words[-1]}"
         sys.stderr.write(f"[*] Deep Search Phase 2: Concept expansion query '{variant_query}'\n")
-        round2_records = query_openalex_headless(variant_query, limit=max(5, limit // 2), include_theses=include_theses)
+        round2_records, r2_err = query_openalex_headless(variant_query, limit=max(5, limit // 2), include_theses=include_theses)
+        if r2_err:
+            errors.append(r2_err)
         
     combined = round1_records + round2_records
     deduped = deduplicate_records(combined)
@@ -289,7 +313,8 @@ def run_deep_search(query_str, limit=30, include_theses=True):
         eligible_seeds.sort(key=lambda x: x.get("citation_count", 0), reverse=True)
         top_seed = eligible_seeds[0]
         sys.stderr.write(f"[*] Deep Search Phase 3: Citation snowballing on top seed: {top_seed.get('title')} ({top_seed.get('doi')})\n")
-        snowballed = run_snowball_search(top_seed["doi"], limit=min(10, max(3, limit // 3)), include_theses=include_theses)
+        snowballed, sb_errs = run_snowball_search(top_seed["doi"], limit=min(10, max(3, limit // 3)), include_theses=include_theses)
+        errors.extend(sb_errs)
         snowballed_records = [s for s in snowballed if s.get("snowball_role") != "SEED_PAPER"]
 
     all_candidates = deduplicate_records(deduped + snowballed_records)
@@ -313,7 +338,8 @@ def run_deep_search(query_str, limit=30, include_theses=True):
         "snowball_added": len(snowballed_records),
         "marginal_gain_ratio": round(marginal_gain, 3),
         "expansion_gain_status": expansion_status,
-        "saturation_status": expansion_status
+        "saturation_status": expansion_status,
+        "errors": errors
     }
     
     return all_candidates, saturation_tracking
@@ -350,17 +376,21 @@ def build_prisma_s_audit(mode: str, snowball_seed: str = None) -> dict:
 
 def run_headless_search(query=None, snowball_seed=None, mode="deep", include_theses=True, limit=30, output_file=None):
     """运行完整的 Headless 数据检索与滚雪球管道"""
+    errors = []
     saturation_info = None
     if snowball_seed:
-        candidates = run_snowball_search(snowball_seed, limit=limit, include_theses=include_theses)
+        candidates, sb_errors = run_snowball_search(snowball_seed, limit=limit, include_theses=include_theses)
+        errors = sb_errors
         search_target = f"Snowball seed: {snowball_seed}"
     elif mode == "deep":
         sys.stderr.write(f"[*] Running Headless Deep Search: '{query}' (Limit: {limit}, Theses: {include_theses})\n")
         candidates, saturation_info = run_deep_search(query, limit=limit, include_theses=include_theses)
+        errors = saturation_info.get("errors", [])
         search_target = query
     else:
         sys.stderr.write(f"[*] Running Headless Quick Search: '{query}' (Limit: {limit}, Theses: {include_theses})\n")
-        candidates = query_openalex_headless(query, limit=limit, include_theses=include_theses)
+        candidates, q_err = query_openalex_headless(query, limit=limit, include_theses=include_theses)
+        errors = [q_err] if q_err else []
         saturation_info = {
             "mode": "quick",
             "rounds_executed": 1,
@@ -368,13 +398,24 @@ def run_headless_search(query=None, snowball_seed=None, mode="deep", include_the
             "unique_deduplicated": len(candidates),
             "marginal_gain_ratio": 0.0,
             "expansion_gain_status": "NOT_TRACKED",
-            "saturation_status": "NOT_TRACKED"
+            "saturation_status": "NOT_TRACKED",
+            "errors": errors
         }
         search_target = query
-        
+
+    # Contract: a failed query with zero records must NOT be reported as a plain
+    # empty SUCCESS — downstream would misread it as "no literature exists".
+    if errors and not candidates:
+        status = "FAILED"
+    elif errors:
+        status = "SUCCESS_WITH_ERRORS"
+    else:
+        status = "SUCCESS"
+
     payload = {
         "schema_version": "1.1",
-        "status": "SUCCESS",
+        "status": status,
+        "errors": errors,
         "search_target": search_target,
         "search_protocol": {
             "mode": mode,
@@ -409,11 +450,12 @@ def run_headless_search(query=None, snowball_seed=None, mode="deep", include_the
     if output_file:
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(output_json)
-        sys.stderr.write(f"[+] Headless results saved to: {output_file}\n")
+        sys.stderr.write(f"[+] Headless results saved to: {output_file} (status: {status})\n")
     else:
         print(output_json)
-        
-    return 0
+
+    # Non-zero exit code lets headless consumers detect pipeline failure at a glance.
+    return 1 if status == "FAILED" else 0
 
 
 def main():
