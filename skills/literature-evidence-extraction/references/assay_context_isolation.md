@@ -1,76 +1,78 @@
-# 复杂多实验体系参数隔离指南 (Assay Context Isolation Protocol)
+# 通用实验与观察上下文隔离指南 (Context Isolation Protocol)
 
-## 一、为什么多实验参数交叉污染是致命痛点？
-
-在分子生物学、生态学和生物医学论文中，一篇完整的学术论文通常由多个不同的实验反应（Assays）串联而成。
-例如，在一篇典型的非损伤性粪便遗传学论文中，往往同时包含以下多项实验：
-1. **物种鉴定实验 (Species Identification Assay)**：扩增线粒体 Cytb 或 16S rRNA 片段，验证粪便是否来自目标物种；
-2. **微卫星分型实验 (Microsatellite Multiplex PCR Assay)**：使用 10–15 对多态性 STR 引物进行个体识别；
-3. **分子性别鉴定实验 (Sex Identification PCR Assay)**：扩增 Y 染色体特异性 SRY 基因；
-4. **低浓度复孔实验 (Replicate PCR / Multi-tube Assay)**：对稀有或降解模板进行的多次独立复孔扩增。
-
-### 常见的严重抽取事故（参数混淆）：
-- ❌ 论文中写：`16S PCR 反应体系为 25 μL`，`微卫星 PCR 反应体系为 10 μL`。用户询问微卫星 PCR 条件时，模型却把 25 μL 填入微卫星字段；
-- ❌ 论文中写：`物种鉴定退火温度 58°C`，`微卫星退火温度 53–56°C 梯度`。模型提取时直接混为一谈；
-- ❌ 论文中写：`微卫星使用 AmpliTaq Gold`，`物种鉴定使用普通 Taq`。模型将试剂品牌张冠李戴。
+> **Status**: Production Standard  
+> **Applicability**: Literature Extraction across all scientific disciplines  
+> **Core Principle**: Parameter extraction must be strictly bound to its independent context unit. Universal cross-discipline isolation prevents condition cross-contamination.
 
 ---
 
-## 二、Assay Context 隔离三步法
+## 一、为什么跨条件/跨实验参数混淆是致命痛点？
 
-为了彻底杜绝此类串染事故，本技能推行严格的**实验上下文隔离机制**：
+在实证学术论文中，一篇完整的文献通常由多个不同的实验反应、对照组别、测试基准或观察批次（Context Units）组合而成。
+如果不对上下文进行物理隔离，模型将产生严重的**上下文串染事故（Context Cross-Contamination）**：
+
+### 跨学科典型混淆事故案例：
+- **生命科学 / 分子实验**：
+  - ❌ 论文中写：`物种鉴定 16S PCR 反应体系为 25 μL`，`微卫星分型 PCR 体系为 10 μL`。用户询问微卫星条件时，模型却错取了 25 μL。
+- **计算机科学 / 机器学习**：
+  - ❌ 论文在 `Dataset A (80k 数据)` 上准确率为 `88.5%`，在 `Dataset B (10k 少量样本)` 上为 `72.1%`。模型在汇报总体性能时将两个数据集的指标混为一谈。
+- **临床医学 / 药理学**：
+  - ❌ 试验包含 `低剂量组 (50mg)` 与 `高剂量组 (100mg)`。模型在提取不良反应发生率时，将两组数据合并计算或张冠李戴。
+- **材料科学 / 化学**：
+  - ❌ 在 `450°C 煅烧 2h` 条件下产物为相态 A，在 `600°C 煅烧 4h` 下为相态 B。模型错将 600°C 的物相性质赋给 450°C 的样品。
+- **社会科学 / 经济学**：
+  - ❌ 论文区分 `城市样本群` 与 `农村样本群` 分别做异质性分析。模型把城市子群的系数报告为全样本平均效应。
+
+---
+
+## 二、通用上下文隔离单元映射 (Context Unit Mapping)
+
+根据当前激活的学科透镜（Domain Lens），上下文隔离单元（Context Unit）映射为对应的科学实体：
+
+| 学科领域 | 最小上下文隔离单元 (Context Unit) | 典型标识符示例 | 典型混淆风险点 |
+|---|---|---|---|
+| **生命科学 / 分子** | 独立反应体系 (Assay / PCR Panel) | `[Assay-A: STR]`, `[Assay-B: Cytb]` | 反应体积、退火温度、试剂组分 |
+| **生物医药 / 临床** | 治疗组别 / 队列 (Arm / Cohort) | `[Arm-1: Control]`, `[Arm-2: Drug-100mg]` | 样本量 N、不良反应率、给药周期 |
+| **计算机科学 / AI** | 评测基准 / 模型变体 (Dataset / Variant) | `[Ctx-1: LLaMA-7B/MMLU]`, `[Ctx-2: LoRA]` | Benchmark Split、超参数、Metric |
+| **材料 / 化学** | 制备批次 / 工况 (Condition / Batch) | `[Batch-A: 400C/Ar]`, `[Batch-B: 600C/Air]` | 煅烧气氛、退火温度、相变产率 |
+| **社会 / 经济** | 调查轮次 / 样本亚群 (Wave / Subgroup) | `[Wave-2020: Urban]`, `[Wave-2022: Rural]` | 抽样权重、控制变量集、回归系数 |
+
+---
+
+## 三、上下文隔离三步法 (The 3-Step Isolation Workflow)
 
 ```mermaid
 flowchart TD
-    Scan[通读 Methods 章节] --> Identify[识别并标记所有独立的 Assay 实体]
-    Identify --> Assign[分配唯一 Assay 标识符 e.g. Assay-01 / Assay-02]
-    Assign --> Bind[所有 PCR 组分与反应条件必须显式绑定对应 Assay]
-    Bind --> Check[质检员核对：是否存在未绑定 Assay 的裸奔参数?]
+    Scan[通读论文实验/设计章节] --> Identify[识别并标定所有独立的 Context Units]
+    Identify --> Assign[分配唯一上下文编号 e.g. Ctx-01 / Assay-01 / Arm-01]
+    Assign --> Bind[所有定量参数与实验条件必须显式绑定所属上下文]
+    Bind --> Check[质检审计：是否存在未绑定上下文的裸奔数据?]
 ```
 
-### 步骤 1：建立 Assay 实体清单
-在进入参数提取前，首先由 `context_modeler` 在草稿区建立实验清单：
-
+### 步骤 1：建立上下文实体清单 (Context Unit Inventory)
+在进入参数提取前，首先由 `context_modeler` 在结构化草稿中建立上下文清单，例如：
 ```markdown
-- **[Assay-A: Species Identification]**
-  - 目标：线粒体 Cytb 扩增 (395 bp)
-  - 引物：L14724 / H15149
-  - 章节：Methods 2.2
-- **[Assay-B: Microsatellite Typing]**
-  - 目标：15 个 STR 微卫星位点 (STR-01 ~ STR-15)
-  - 章节：Methods 2.4 & Table 1
-- **[Assay-C: Sex Identification]**
-  - 目标：SRY / ZFX 扩增
-  - 章节：Methods 2.5
+- **[Context-01: Low-temperature Annealing Batch]**
+  - 条件：T = 400°C, Atmosphere = N2, Duration = 2h
+  - 对应章节：Methods 2.2 & Table 1
+- **[Context-02: High-temperature Annealing Batch]**
+  - 条件：T = 600°C, Atmosphere = Air, Duration = 4h
+  - 对应章节：Methods 2.3 & Table 2
 ```
-
----
 
 ### 步骤 2：字段命名空间化 (Namespaced Fields)
-所有参数字段必须带上前缀命名空间，禁止出现无前缀的裸字段名：
+所有参数字段必须带上前缀命名空间，**严禁使用无上下文前缀的裸字段名**：
+- ❌ 错误（裸字段）：`Reaction Volume` / `Accuracy` / `Yield`
+- ✅ 正确（带命名空间）：`[Ctx-01] Reaction Volume` / `[Ctx-01: LLaMA-7B/GSM8k] Accuracy` / `[Batch-A] Yield`
 
-| 规范字段名 (Namespaced Field) | 严禁使用的裸字段名 (Banned Naked Field) |
-|---|---|
-| `[Assay-B STR] PCR Reaction Volume` | `PCR Volume` (极易错取 Assay-A 的 25 μL) |
-| `[Assay-B STR] Annealing Temperature` | `Annealing Temp` (极易错取 Assay-A 的 58°C) |
-| `[Assay-B STR] Primer Concentration` | `Primer Concentration` |
-| `[Assay-B STR] Polymerase Enzyme` | `Taq Polymerase` |
-
----
-
-### 步骤 3：多 Assay 对比矩阵输出格式
-
-当用户需要同时了解多项实验，或论文结构复杂时，应输出横向分列的 **Assay Context 对比证据表**：
+### 步骤 3：多上下文对比矩阵输出 (Context Matrix Output)
+输出横向分列的上下文对比证据表，清晰呈现组间差异：
 
 ```markdown
-| Parameter Field | [Assay-A] Species ID (Cytb) | [Assay-B] Microsatellite STR | [Assay-C] Sexing (SRY) | Evidence Location | Status |
-|---|---|---|---|---|---|
-| **Target Gene / Marker** | mtDNA Cytb | 15 STR loci | SRY / ZFX | Section 2.2–2.5 | SUPPORTED |
-| **Total Reaction Volume** | 25 μL (E1) | 10 μL (E1) | 15 μL (E1) | Section 2.2, 2.4, 2.5 | SUPPORTED |
-| **DNA Template Volume** | 2.5 μL (E1) | 2.0 μL (E1) | 1.5 μL (E1) | Section 2.2, 2.4, 2.5 | SUPPORTED |
-| **Annealing Temperature** | 58°C (E1) | 53–56°C (Table 1) (E1) | 55°C (E1) | Section 2.2 & Table 1 | SUPPORTED |
-| **Polymerase Brand** | TaKaRa rTaq (E1) | Qiagen Multiplex PCR Kit (E1) | TaKaRa ExTaq (E1) | Section 2.2, 2.4, 2.5 | SUPPORTED |
-| **BSA Included?** | Yes, 0.2 mg/mL (E1) | NR (E4) | NR (E4) | Section 2.2 | SUPPORTED |
+| Parameter Field | [Context-01] Condition A / Model A | [Context-02] Condition B / Model B | Evidence Location | Epistemic Status |
+|---|---|---|---|---|
+| **Primary Metric / Value** | 84.5% (E1) | 91.2% (E1) | Table 2, Page 6 | SUPPORTED |
+| **Sample Size / Evaluation N**| 120 (E1) | 120 (E1) | Section 3.1 | SUPPORTED |
+| **Baseline Setting** | Standard (E1) | Optimized (E1) | Section 2.4 | SUPPORTED |
+| **Uncertainty / CI** | [82.1, 86.9] (E1) | [89.4, 93.0] (E1) | Table 2, Page 6 | SUPPORTED |
 ```
-
-通过此种格式，不同实验的条件一目了然，彻底杜绝了模型在潜意识中混淆试剂组分的可能。

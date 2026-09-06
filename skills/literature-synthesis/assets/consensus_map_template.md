@@ -1,6 +1,6 @@
 # 学术共识与边界图谱 (Consensus & Boundary Map)
 
-> **任务标识**：`{{TASK_ID}}` | **主题**：`{{TOPIC}}` | **生成时间**：`{{TIMESTAMP}}` | **共识算法**：加权证据等级（禁止文献篇数多数决）
+> **任务标识**：`{{TASK_ID}}` | **主题**：`{{TOPIC}}` | **生成时间**：`{{TIMESTAMP}}` | **共识算法**：多维证据加权（严禁文献篇数多数决）
 
 ---
 
@@ -24,28 +24,31 @@
   - 总加权得分：`{{TOTAL_WEIGHT_SCORE}}` (E1 占比: {{E1_PCT}}%, E2 占比: {{E2_PCT}}%, E3 占比: {{E3_PCT}}%)
   - 支撑文献集合：{{SUPPORTING_PAPERS_LIST}}
 
-#### 2.1 适用边界与约束条件 (Mandatory Boundary Specification)
-任何学术共识均非无条件普适真理，本共识仅在以下硬性约束下成立：
-1. **空间与地理尺度边界**：
-   - {{SPATIAL_BOUNDARY_CONDITIONS}} (如：仅限于武夷山脉与天目山脉中高海拔林区)
-2. **时间与季节窗口边界**：
-   - {{TEMPORAL_BOUNDARY_CONDITIONS}} (如：仅限于非繁殖季冬季取样)
-3. **方法与工具链约束**：
-   - {{METHODOLOGICAL_BOUNDARY_CONDITIONS}} (如：必须满足多管 PCR 重复扩增且 PID-sibs < 0.01)
-4. **生物学与生态学假定**：
-   - {{BIOLOGICAL_ASSUMPTIONS}}
+#### 2.1 通用多维适用边界 (Universal Boundary Specification)
+任何科学共识均非无条件普适真理，本共识仅在以下硬性约束下成立：
+1. **研究实体 / 人群系统边界 (Entity / Population Boundary)**：
+   - {{ENTITY_BOUNDARY_CONDITIONS}} (如：特定患者亚群、模型架构族、材料化学组分体系或生物类群)
+2. **环境介质与试验工况边界 (Context Boundary)**：
+   - {{CONTEXT_BOUNDARY_CONDITIONS}} (如：特定评测基准数据集、温度/气氛工况或野外环境介质)
+3. **方法学与实验设计约束 (Methodological Boundary)**：
+   - {{METHODOLOGICAL_BOUNDARY_CONDITIONS}} (如：双盲对照要求、充分消融实验、独立复孔质控要求)
+4. **测量精度与指标定义边界 (Measurement Boundary)**：
+   - {{MEASUREMENT_BOUNDARY_CONDITIONS}} (如：特定量程范围、信噪比阈值或指标计算定义)
+5. **时间时段与发展代际边界 (Temporal / Epoch Boundary)**：
+   - {{TEMPORAL_BOUNDARY_CONDITIONS}} (如：特定数据分布时段、技术代际阶段)
+6. **底层机理与理论假定 (Theoretical Assumptions)**：
+   - {{THEORETICAL_ASSUMPTIONS}} (如：线性响应假设、无混杂内生性假设或热力学平衡态假设)
 
 #### 2.2 少数异议与离群点审查 (Dissenting Voice Audit)
 - **异议文献**：{{DISSENTING_PAPERS}}
 - **异议主张**：{{DISSENTING_CLAIMS}}
 - **异议成因剖析**：
-  - 为何异议存在？是否源于极端微环境差异、采样季节偏误或方法分辨率退化？
+  - 为何异议存在？是否源于测试工况差异、混杂变量未控、或是测量分辨率不足？
   - {{DISSENT_ROOT_CAUSE}}
 
 #### 2.3 共识脆弱度与证伪测试 (Consensus Fragility & Falsification Test)
 - **脆弱度等级**：`{{FRAGILITY_LEVEL}}` (稳固 / 中等 / 极脆弱)
 - **潜在证伪情境**：在何种条件下，该共识会被打破或修正？
-  - *例：若未来全基因组重测序揭示隐秘种分化，或者引入高精度 GPS 项圈发现此前未知的季节性长距离垂直迁徙。*
   - {{POTENTIAL_FALSIFICATION_SCENARIOS}}
 
 ---

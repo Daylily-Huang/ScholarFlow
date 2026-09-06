@@ -27,6 +27,12 @@
 4. **全生命周期闭环（Upstream Gap Loop）**：综合分析发现文献断裂或数据模糊时，自动生成结构化任务载荷驱动上游补充检索与精准核验。
 5. **轻量与零外部依赖（Zero External Pip Dependencies）**：所有配套自动化脚本均基于 Python 3 标准库构建，跨平台零配置、毫秒级响应。
 
+### 🌟 核心设计信条 (Core Epistemic Principles)
+- **Principle 1: Domain-neutral core, domain-aware execution (核心学科中立，视角按需注入)**：核心协议与证据纪律保持全学科中立，领域特有概念与风险点通过按需加载的 Domain Lens 动态注入。
+- **Principle 2: Examples must not become rules (示例严禁上升为规则)**：核心规范中任何具体学科的案例（如 PCR、临床队列、神经网络）仅作为理解辅助，执行规则严格使用通用抽象本体（Target Entity, Method, Context Unit, Outcome, Boundary）。
+- **Principle 3: Domain knowledge may specialize the workflow, but may not override evidence integrity (领域知识可特化流程，不可覆盖证据纪律)**：学科规范只能细化关注维度，严禁放宽或违背原句绑定、未报告不脑补、客观事实物理隔离等通用证据铁律。
+- **Principle 4: No single discipline defines the default ontology of ScholarFlow (没有任何单一学科定义 ScholarFlow 的默认本体)**：系统默认不以任何特定学科专家的偏见思考，首先作为中立科研证据系统运行，再动态加载对应学科透镜。
+
 ---
 
 ## 🏗️ 架构总览 (System Architecture)
@@ -174,16 +180,22 @@ chmod +x ./scripts/install.sh
 
 ### 2. 在 Agent 中直接唤醒与使用
 
-只要您的 Agent 支持标准 `SKILL.md` 规范，输入如下指令即可直接激活对应能力：
+只要您的 Agent 支持标准 `SKILL.md` 规范，输入如下指令即可直接激活对应能力，ScholarFlow 会根据课题自适应加载对应的学科透镜（Domain Lens）：
 
-#### 场景 A：开展严谨开题与高召回文献检索
-> *“请使用 `literature-discovery-acquisition` 帮我针对‘高山林线野生动物非损伤性遗传取样与个体识别’开展系统文献检索，先通过 Stage 0 问询明确边界。”*
+#### 💻 计算机科学 / AI (Computer Science Lens)
+> *“请使用 `literature-discovery-acquisition` 帮我针对‘大语言模型 KV-Cache 动态剪枝与长文本评测基准’开展系统检索，通过 Stage 0 决策门禁锁定包含开源仓库与消融实验的纳入标准。”*
 
-#### 场景 B：从 PDF 中可信抽取实验数据与质控参数
-> *“请调用 `literature-evidence-extraction`，按照多管 PCR 实验 Schema 抽取附件论文中的退火温度、循环数、ADO 率和 PID-sibs，恪守 Quote-First 铁律。”*
+#### 🩺 生物医药 / 临床医学 (Biomedical Lens)
+> *“请调用 `literature-evidence-extraction`，按照 PICO 临床诊断架构抽取这篇乳腺癌 AI 影像筛查文献中的灵敏度、特异性、AUC-ROC 及 95% 置信区间，恪守 Quote-First 铁律。”*
 
-#### 场景 C：多篇文献学术争议发掘与争议驱动型综述
-> *“针对这 8 篇文献在种群密度估算上的分歧，使用 `literature-synthesis` 进行 9 类争议分类溯源，输出加权证据对决表、Mermaid 论证图和具备适用边界的收敛共识。”*
+#### 🔋 材料科学 / 化学 (Chemistry & Materials Lens)
+> *“请使用 `literature-synthesis` 对比这 6 篇钙钛矿太阳能电池文献，以合成工况（温度/退火气氛）为上下文隔离单元，诊断 2D/3D 钝化层提升湿热稳定性的共识与适用边界。”*
+
+#### 📊 社会与行为科学 (Social Sciences Lens)
+> *“请调用 `literature-synthesis`，针对‘混合办公制对知识工作者客观生产率与离职率的因果影响’，排查相关性偏倚与准实验内生性控制，输出加权证据对决与论证拓扑图。”*
+
+#### 🌿 生命科学与生态学 (Life Sciences Lens)
+> *“针对这批野生动物非损伤遗传学文献，使用 `literature-evidence-extraction` 严格按独立 Assay 隔离微卫星 PCR 分型体系与线粒体鉴别反应，严防退火温度与组分串染。”*
 
 ---
 
