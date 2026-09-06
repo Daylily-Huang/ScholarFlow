@@ -1,38 +1,32 @@
-"""ScholarFlow Context Resolution Layer.
+"""ScholarFlow Context Resolution Subpackage."""
 
-Deterministic, multi-layer context resolution engine for Stage 0 research gates.
-Extracts known parameters from conversation history, attachments, upstream outputs,
-and on-demand project search to eliminate redundant questioning.
-"""
-
-from .context_resolver import (
-    SOURCE_LAYER_PRIORITY,
-    AttachmentContextProvider,
+from shared.context_resolution.context_resolver import (
+    ContextScope,
+    VariableStatus,
+    FactVolatility,
+    FactType,
     ContextFact,
+    ResolvedVariable,
     ContextProvider,
     ContextResolver,
-    ContextScope,
+    AttachmentContextProvider,
     ConversationContextProvider,
-    FactType,
-    FactVolatility,
-    ProjectSearchContextProvider,
-    ResolvedVariable,
     UpstreamArtifactContextProvider,
-    VariableStatus,
+    ProjectSearchContextProvider,
 )
 
 __all__ = [
-    "ContextResolver",
-    "ContextProvider",
-    "ContextFact",
-    "ResolvedVariable",
     "ContextScope",
     "VariableStatus",
     "FactVolatility",
     "FactType",
-    "SOURCE_LAYER_PRIORITY",
-    "ConversationContextProvider",
+    "ContextFact",
+    "ResolvedVariable",
+    "ContextProvider",
+    "ContextResolver",
     "AttachmentContextProvider",
+    "ConversationContextProvider",
     "UpstreamArtifactContextProvider",
     "ProjectSearchContextProvider",
 ]
+

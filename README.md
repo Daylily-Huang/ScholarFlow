@@ -89,7 +89,9 @@ graph TD
 
 - **自适应决策门禁 `[PROTOCOL + ENGINE]`**：在发起检索前，基于 D1-D14 维度动态收敛研究实体、纳排边界与时间跨度。
 - **双层数据源架构 (Data Source Architecture)**：
-  - 🌐 **全自动检索层 (AUTOMATED Tier)**：集成 OpenAlex API、Crossref 与 PubMed，支持程序化关键词检索与双向引文滚雪球（Snowballing）；
+  - 🌐 **全自动检索层 (AUTOMATED Tier)**：
+    - **Headless CLI 原生实现**：基于 Python 标准库原生集成 OpenAlex API 开放元数据检索与双向引文滚雪球（Snowballing）；
+    - **Host 交互式编排**：当宿主 Agent 环境配备相应工具能力时，可进一步编排调用 PubMed、Crossref、学术 Web 搜索等外部接口；
   - 🔐 **人机协同商业库摄取层 (USER_ASSISTED Tier)**：知网 (CNKI)、万方、Web of Science、Scopus 受校园网 IP 准入与反爬机制保护，ScholarFlow 严格遵守学术安全规范，不采用逆向爬虫；系统自动生成目标库的标准高级布尔检索式（Boolean Syntax），由学者在机构网络下一键导出标准题录（Refworks / RIS / EndNote / CSV），随后由 `ingest_external_records.py` 执行本地批量硬解析与四级去重入库。
 - **PRISMA 2020 Item 8 双盲独立初筛 `[PROTOCOL + DETERMINISTIC]`**：
   - 派发双评阅人独立盲审，基于内置工具自动计算 **Cohen's Kappa ($\kappa$)** 与一致率，生成符合发表级规范的 `screening_dual_audit.csv` 与分歧待仲裁队列。
@@ -152,7 +154,7 @@ graph TD
 | **共识算法** | 篇数多数决投票 | 频率多数决 | 无 | 综合叙述 | **多维证据评价 (Appraisal) + 定性共识梯队 + 硬性边界** |
 | **防确认偏误** | 倾向于顺从与讨好 | 无独立对抗 | 无 | 多视角专家 | **专设 Devil's Advocate (红队反方质询)** |
 | **可视化呈现** | 纯文本 | Markdown 表格 | 脑图/思维导图 | 目录大纲树 | **自动化 Mermaid 论证拓扑图 (Argument Graph)** |
-| **外部依赖** | 复杂环境配置 | 庞大 Python 库 | 复杂依赖 | 较多依赖 | **纯 Python 3 标准库，零外部 Pip 依赖** |
+| **外部依赖** | 复杂环境配置 | 庞大 Python 库 | 复杂依赖 | 较多依赖 | **Zero Mandatory Runtime Dependencies (纯 Python 3 标准库，可选 PDF 与 Dev 依赖)** |
 
 ---
 
@@ -244,9 +246,11 @@ python skills/literature-synthesis/scripts/school_clustering.py -i studies.json 
 
 ```text
 ScholarFlow/
-├── schemas/                                   # 统一跨技能数据契约 (v1.0 JSON Schemas)
+├── schemas/                                   # 统一跨技能数据契约 (v1.1 Canonical JSON Schemas)
 │   ├── scholarflow_contract.md               # 契约规范、语义解耦与字段映射定义
-│   ├── literature_record.schema.json         # 检索输出与题录流标准 Schema
+│   ├── discovery_result.schema.json          # 检索输出 Envelope 顶层契约
+│   ├── literature_record.schema.json         # 候选文献记录标准 Schema
+│   ├── extraction_result.schema.json         # 结构化抽取 Envelope 顶层契约
 │   ├── evidence_record.schema.json           # 结构化抽取与证据溯源 Schema
 │   ├── claim_record.schema.json              # 综述断言与多维证据评价 Schema
 │   └── synthesis_record.schema.json          # 争议诊断与共识梯队 Schema
@@ -287,7 +291,7 @@ ScholarFlow/
 │   └── test_benchmarks.py                    # 基准度量持续集成测试
 │
 ├── scripts/                                   # 一键安装脚本 (install.ps1 / install.sh)
-├── pyproject.toml                             # PEP 517/621 标准包配置 (含 [pdf] 可选依赖)
+├── pyproject.toml                             # PEP 517/621 标准包配置 (含 [pdf] 与 [dev] 可选依赖)
 ├── .gitignore
 ├── LICENSE                                    # MIT License
 └── README.md                                  # 项目说明文档
@@ -315,7 +319,7 @@ python -m unittest discover -s tests -v
 - **跨学科中立性审查**：Domain Neutrality Linter 自动化扫描核心协议与门禁，严禁单一学科偏置；
 - **跨平台 CI**：GitHub Actions（`.github/workflows/ci.yml`）自动在 Python 3.9 / 3.11 / 3.13 上运行测试与基准。
 
-### 2. ScholarFlow 评测集与内部回归基准 (v0.1)
+### 2. ScholarFlow 评测集与内部回归基准 (Internal Regression Benchmark v0.1)
 
 运行独立的自动化科研评测基准：
 
@@ -325,6 +329,7 @@ python benchmarks/run_benchmarks.py
 
 | 评测维度 (Benchmark Dimension) | 核心科研质量指标 (Target Metric) | 目标阈值 | 实测表现 (Measured) | 门禁状态 |
 |:---|:---|:---:|:---:|:---:|
+| **发现检索基准 (Discovery)** | **Seed Recovery Rate** (已知种子文献召回率) | 100.0% | `100.0%` | **[PASS]** |
 | **抽取契约基准 (Extraction)** | **NR Accuracy** (敢于报告未提及，严防无中生有) | 100.0% | `100.0%` | **[PASS]** |
 | | **Field Precision** (字段级精准抽取率) | ≥ 95.0% | `100.0%` | **[PASS]** |
 | **声明核验 (Claim Audit)** | **Accuracy** (局部上下文协同对齐率) | ≥ 90.0% | `100.0%` | **[PASS]** |

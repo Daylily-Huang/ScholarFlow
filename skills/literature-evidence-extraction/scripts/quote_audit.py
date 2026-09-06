@@ -5,7 +5,7 @@ quote_audit.py
 --------------
 ScholarFlow mechanical quote back-verification gate (literature-evidence-extraction).
 
-For every `verbatim_quote` in an evidence JSON (assets/evidence_extraction_schema.json),
+For every `verbatim_quote` in an evidence JSON (schemas/extraction_result.schema.json),
 verifies that the quoted text actually occurs in the source document (PDF or TXT).
 A quote that cannot be located in the source is mechanically demoted to UNSUPPORTED:
 no language model judgement is involved in this check.
@@ -218,7 +218,7 @@ Examples:
 Exit codes: 0 all verified | 1 gate failed | 2 input error
         """)
     parser.add_argument("-i", "--evidence", required=True,
-                        help="Evidence JSON following assets/evidence_extraction_schema.json")
+                        help="Evidence JSON following schemas/extraction_result.schema.json")
     parser.add_argument("-s", "--source", required=True, help="Source document (.pdf or .txt)")
     parser.add_argument("-o", "--output", help="Optional path to write the JSON audit report")
     parser.add_argument("--strict", action="store_true",

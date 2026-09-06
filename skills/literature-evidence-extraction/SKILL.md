@@ -142,7 +142,7 @@ flowchart TD
 ```
 
 ### 2. 伴生落盘结构化 JSON 文件
-每篇提取结果必须在工作区生成同名伴生 JSON（如 `<Paper_Slug>_evidence.json`），严格通过 `assets/evidence_extraction_schema.json` 结构验证。
+每篇提取结果必须在工作区生成同名伴生 JSON（如 `<Paper_Slug>_evidence.json`），严格通过 `schemas/extraction_result.schema.json`（及其引用的 `schemas/evidence_record.schema.json`）结构验证。
 
 ---
 
@@ -171,7 +171,7 @@ flowchart TD
   - `scripts/audit_claims.py`：既有 Claim 事实核查反查比对工具
   - `scripts/quote_audit.py`：引句回查硬校验门——证据 JSON 每条 verbatim_quote 必须回查源文献定位（EXACT/HYPHEN_JOIN/FUZZY），NOT_FOUND 即门禁失败，零模型判断
 - **资产与模板 (`assets/`)**：
-  - [evidence_extraction_schema.json](./assets/evidence_extraction_schema.json)：结构化证据标准 JSON Schema
+  - **Canonical Schemas**：提取与证据产物遵循 [`schemas/extraction_result.schema.json`](../../schemas/extraction_result.schema.json) 与 [`schemas/evidence_record.schema.json`](../../schemas/evidence_record.schema.json)（统一单一真源，Skill assets 内不保留重复 executable schema）
   - [evidence_table_template.md](./assets/evidence_table_template.md)：标准 Markdown 证据矩阵模板
   - [audit_report_template.md](./assets/audit_report_template.md)：审计模式反查报告模板
   - [extraction_audit_log_template.md](./assets/extraction_audit_log_template.md)：抽取审计轨迹日志模板

@@ -265,7 +265,8 @@ def diagnose_controversy_type(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         return {
             "type": "No Active Disagreement",
             "confidence": "High",
-            "reason": "Unanimous stance across examined evidence."
+            "reason": "No active disagreement detected within the supplied evidence set.",
+            "scoped_to_evidence": True
         }
         
     # Check if methods completely bifurcate with stances
@@ -274,9 +275,22 @@ def diagnose_controversy_type(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
     
     if support_methods and refute_methods and not (support_methods & refute_methods):
         return {
-            "type": "Type B (Methodological Artifact / Tool Artifact)",
-            "confidence": "High",
-            "reason": f"Disagreement aligns 100% with differing methodological paradigms: Support used ({', '.join(support_methods)}) vs Refute used ({', '.join(refute_methods)})."
+            "type": "Type B Candidate (Method-associated disagreement)",
+            "confidence": "Medium",
+            "causal_status": "NOT_ESTABLISHED",
+            "observed_pattern": "Opposing study groups use non-overlapping methods",
+            "candidate_type": "METHOD_ASSOCIATED_DISAGREEMENT",
+            "reason": (
+                f"Opposing study groups use non-overlapping methods: Support used ({', '.join(sorted(support_methods))}) vs Refute used ({', '.join(sorted(refute_methods))}). "
+                "This indicates a method-associated pattern, but does not establish that methodology caused the disagreement."
+            ),
+            "requires_review": [
+                "measurement equivalence",
+                "population comparability",
+                "scale comparability",
+                "sampling period",
+                "model assumptions"
+            ]
         }
         
     # Check numeric CI overlap
@@ -289,9 +303,21 @@ def diagnose_controversy_type(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
             ratio = max(sup_mean, ref_mean) / (min(sup_mean, ref_mean) + 1e-9)
             if ratio > 2.0:
                 return {
-                    "type": "Type A (Direct Empirical Contradiction / Discrepancy)",
-                    "confidence": "High",
-                    "reason": f"Discrepancy in reported metrics exceeds 2-fold ({sup_mean:.2f} vs {ref_mean:.2f})."
+                    "type": "Candidate Type A (Large metric discrepancy)",
+                    "confidence": "Medium",
+                    "causal_status": "NOT_ESTABLISHED",
+                    "observed_pattern": f"Discrepancy in reported metrics exceeds 2-fold ({sup_mean:.2f} vs {ref_mean:.2f})",
+                    "candidate_type": "METRIC_DISCREPANCY_UNVERIFIED_COMPARABILITY",
+                    "reason": (
+                        f"Discrepancy in reported metrics exceeds 2-fold ({sup_mean:.2f} vs {ref_mean:.2f}). "
+                        "Direct empirical contradiction is not established until outcome definition and measurement comparability are confirmed."
+                    ),
+                    "requires_review": [
+                        "same outcome definition",
+                        "same unit and denominator",
+                        "same target population",
+                        "spatial and temporal scale comparability"
+                    ]
                 }
 
     if len(boundaries) > 1 and any("season" in b or "region" in b or "scale" in b for b in boundaries):
@@ -366,6 +392,8 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         "stance_percentages": heuristic_balance,  # Backward compatibility
         "consensus_classification": consensus_classification,
         "consensus_level": consensus_level,
+        "classification_scope": "CURRENT_EVIDENCE_SET_ONLY",
+        "external_consensus_claim": False,
         "papers_by_stance": dict(papers_by_stance),
         "controversy_diagnosis": diagnosis
     }

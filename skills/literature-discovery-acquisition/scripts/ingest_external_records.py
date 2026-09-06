@@ -7,7 +7,7 @@ ScholarFlow External Bibliography Ingestion Pipeline
 
 Ingests and normalizes structured reference export files from commercial databases
 (CNKI, Wanfang, Web of Science, Scopus, PubMed) into the ScholarFlow standardized
-candidate literature schema (assets/candidate_literature_schema.json).
+candidate literature schema (schemas/literature_record.schema.json).
 
 Supported Formats:
 1. CNKI Refworks export (*.txt) - supports journal articles, master/doctoral theses

@@ -98,6 +98,29 @@ def parse_openalex_item(item, snowball_role=None, seed_id=None):
     return rec
 
 
+THESIS_TITLE_PATTERNS = [
+    r"\bdoctoral thesis\b",
+    r"\bphd thesis\b",
+    r"\bmaster'?s thesis\b",
+    r"\bdoctoral dissertation\b",
+    r"\bmaster dissertation\b",
+]
+
+
+def is_thesis_work(item: dict) -> bool:
+    """Accurately identify thesis/dissertation works without false positives on general articles."""
+    work_type = str(item.get("type", "")).lower().strip()
+    if work_type in {"dissertation", "thesis"}:
+        return True
+
+    title = str(item.get("display_name") or item.get("title") or "").lower()
+    for pat in THESIS_TITLE_PATTERNS:
+        if re.search(pat, title, re.IGNORECASE):
+            return True
+
+    return False
+
+
 def query_openalex_headless(query_str, limit=25, include_theses=True):
     """通过 OpenAlex API 关键词获取候选文献"""
     url = f"https://api.openalex.org/works?search={urllib.parse.quote(query_str)}&per-page={limit}"
@@ -109,11 +132,8 @@ def query_openalex_headless(query_str, limit=25, include_theses=True):
             if resp.status == 200:
                 data = json.loads(resp.read().decode('utf-8'))
                 for item in data.get("results", []):
-                    work_type = str(item.get("type", "")).lower()
-                    title = str(item.get("display_name") or item.get("title") or "").lower()
-                    if not include_theses:
-                        if work_type in ["dissertation", "thesis"] or "thesis" in title or "dissertation" in title or "degree" in title:
-                            continue
+                    if not include_theses and is_thesis_work(item):
+                        continue
                     rec = parse_openalex_item(item)
                     rec["id"] = f"REC{len(records)+1:03d}"
                     rec["record_id"] = rec["id"]
@@ -126,14 +146,14 @@ def query_openalex_headless(query_str, limit=25, include_theses=True):
     return records
 
 
-def run_snowball_search(seed_identifier, limit=15):
+def run_snowball_search(seed_identifier, limit=15, include_theses=True):
     """
     基于种子文献 DOI / OpenAlex ID 执行双向滚雪球拓展
     1. 抓取种子文献本身
     2. Backward: 抓取种子文献引用的参考文献 (referenced_works)
     3. Forward: 抓取引用了种子文献的施引文献 (cited_by)
     """
-    sys.stderr.write(f"[*] Starting Dual-Direction Citation Snowballing for: '{seed_identifier}' (Limit: {limit})\n")
+    sys.stderr.write(f"[*] Starting Dual-Direction Citation Snowballing for: '{seed_identifier}' (Limit: {limit}, Theses: {include_theses})\n")
     clean_id = seed_identifier.strip()
     if clean_id.startswith("http"):
         work_api_url = f"https://api.openalex.org/works/{urllib.parse.quote(clean_id)}"
@@ -165,10 +185,15 @@ def run_snowball_search(seed_identifier, limit=15):
         sys.stderr.write(f"[-] Seed work not resolved in OpenAlex: {seed_identifier}\n")
         return []
 
-    seed_rec = parse_openalex_item(seed_item, snowball_role="SEED_PAPER")
-    seed_rec["id"] = "REC001"
-    seed_rec["record_id"] = "REC001"
-    records.append(seed_rec)
+    if include_theses or not is_thesis_work(seed_item):
+        seed_rec = parse_openalex_item(seed_item, snowball_role="SEED_PAPER")
+        seed_rec["id"] = "REC001"
+        seed_rec["record_id"] = "REC001"
+        records.append(seed_rec)
+        seed_doi = seed_rec.get("doi")
+    else:
+        seed_doi = seed_item.get("doi")
+
     seed_openalex_id = seed_item.get("id")
 
     # 1. Backward Snowballing: Fetch referenced works
@@ -183,7 +208,9 @@ def run_snowball_search(seed_identifier, limit=15):
             with urllib.request.urlopen(r_req, timeout=20) as resp:
                 ref_data = json.loads(resp.read().decode('utf-8'))
                 for r_item in ref_data.get("results", []):
-                    rec = parse_openalex_item(r_item, snowball_role="BACKWARD_REFERENCE", seed_id=seed_rec["doi"])
+                    if not include_theses and is_thesis_work(r_item):
+                        continue
+                    rec = parse_openalex_item(r_item, snowball_role="BACKWARD_REFERENCE", seed_id=seed_doi)
                     rec["id"] = f"REC{len(records)+1:03d}"
                     rec["record_id"] = rec["id"]
                     records.append(rec)
@@ -200,14 +227,16 @@ def run_snowball_search(seed_identifier, limit=15):
             with urllib.request.urlopen(f_req, timeout=20) as resp:
                 f_data = json.loads(resp.read().decode('utf-8'))
                 for f_item in f_data.get("results", []):
-                    rec = parse_openalex_item(f_item, snowball_role="FORWARD_CITATION", seed_id=seed_rec["doi"])
+                    if not include_theses and is_thesis_work(f_item):
+                        continue
+                    rec = parse_openalex_item(f_item, snowball_role="FORWARD_CITATION", seed_id=seed_doi)
                     rec["id"] = f"REC{len(records)+1:03d}"
                     rec["record_id"] = rec["id"]
                     records.append(rec)
         except Exception as e:
             sys.stderr.write(f"[-] Forward snowballing query failed: {str(e)}\n")
 
-    sys.stderr.write(f"[+] Snowballing complete: {len(records)} total records collected (1 Seed, {sum(1 for r in records if r.get('snowball_role')=='BACKWARD_REFERENCE')} Backward, {sum(1 for r in records if r.get('snowball_role')=='FORWARD_CITATION')} Forward).\n")
+    sys.stderr.write(f"[+] Snowballing complete: {len(records)} total records collected (Seed, {sum(1 for r in records if r.get('snowball_role')=='BACKWARD_REFERENCE')} Backward, {sum(1 for r in records if r.get('snowball_role')=='FORWARD_CITATION')} Forward).\n")
     return records
 
 
@@ -260,7 +289,7 @@ def run_deep_search(query_str, limit=30, include_theses=True):
         eligible_seeds.sort(key=lambda x: x.get("citation_count", 0), reverse=True)
         top_seed = eligible_seeds[0]
         sys.stderr.write(f"[*] Deep Search Phase 3: Citation snowballing on top seed: {top_seed.get('title')} ({top_seed.get('doi')})\n")
-        snowballed = run_snowball_search(top_seed["doi"], limit=min(10, max(3, limit // 3)))
+        snowballed = run_snowball_search(top_seed["doi"], limit=min(10, max(3, limit // 3)), include_theses=include_theses)
         snowballed_records = [s for s in snowballed if s.get("snowball_role") != "SEED_PAPER"]
 
     all_candidates = deduplicate_records(deduped + snowballed_records)
@@ -323,7 +352,7 @@ def run_headless_search(query=None, snowball_seed=None, mode="deep", include_the
     """运行完整的 Headless 数据检索与滚雪球管道"""
     saturation_info = None
     if snowball_seed:
-        candidates = run_snowball_search(snowball_seed, limit=limit)
+        candidates = run_snowball_search(snowball_seed, limit=limit, include_theses=include_theses)
         search_target = f"Snowball seed: {snowball_seed}"
     elif mode == "deep":
         sys.stderr.write(f"[*] Running Headless Deep Search: '{query}' (Limit: {limit}, Theses: {include_theses})\n")
@@ -369,7 +398,7 @@ def run_headless_search(query=None, snowball_seed=None, mode="deep", include_the
         },
         "metadata": {
             "agent_pipeline": "literature-discovery-acquisition",
-            "version": "0.6.1",
+            "version": "0.6.2",
             "schema_version": "1.1",
             "features": ["OpenAlex Headless", "Dual-Direction Snowballing", "PRISMA-S Itemized Audit"]
         }

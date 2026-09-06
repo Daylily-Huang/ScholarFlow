@@ -57,7 +57,10 @@ description: >-
 
 #### 🤖 分支 C：若为 `Headless / Agent` 自动化模式（零对话加载，0 KB Markdown）
 - **直接执行脚本**：运行 `python scripts/agent_search.py -q "..." --mode <quick|deep>`；
-- **硬性输出契约**：输出 JSON 必须严格遵循 `assets/candidate_literature_schema.json`，不符合 schema 的输出由 Quality Gatekeeper 直接 REJECT。禁止加载对话型文档或生成非结构化 Markdown。
+- **硬性输出契约**：
+  1. Headless 顶层 JSON 输出必须遵循 canonical envelope 规范：`schemas/discovery_result.schema.json`；
+  2. 其中 `candidates[]` 数组中的每一条文献记录必须遵循：`schemas/literature_record.schema.json`；
+  3. Skill-local assets 中的模板不得作为 canonical executable contract。任何与上述 schema 不一致的输出由 Quality Gatekeeper 直接 REJECT。禁止加载对话型文档或生成非结构化 Markdown。
 
 ---
 
@@ -301,7 +304,7 @@ flowchart TD
 - **标准资产与模板 (`assets/`)**：
   - [concept_matrix_template.md](assets/concept_matrix_template.md)：概念矩阵输出模板
   - [journal_recommendation_template.md](assets/journal_recommendation_template.md)：重点期刊推荐与过滤语法模板
-  - [candidate_literature_schema.json](assets/candidate_literature_schema.json)：候选文献标准 JSON Schema
+  - **Canonical Schemas**：检索输出遵循 [`schemas/discovery_result.schema.json`](../../schemas/discovery_result.schema.json) 与 [`schemas/literature_record.schema.json`](../../schemas/literature_record.schema.json)（统一单一真源，Skill assets 内不保留重复 executable schema）
   - [csl_json_schema.json](assets/csl_json_schema.json)：CSL-JSON 标准数据格式 Schema
   - [site_registry_template.json](assets/site_registry_template.json)：Stage 8B 站点适配器注册表模板（CNKI/万方/学校代理）
   - [browser_credentials_example.env](assets/browser_credentials_example.env)：Stage 8B 凭据文件示例（不含真实密码）

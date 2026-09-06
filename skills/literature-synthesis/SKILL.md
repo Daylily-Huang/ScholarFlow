@@ -1,6 +1,6 @@
 ---
 name: literature-synthesis
-description: 通用学科科研文献跨篇证据综合分析、学术争议发掘与学派图谱技能。对标 PaperQA2 思路，严格遵循 Claims-first, narrative-later 原则。内置 Stage 0 Grill-Me 交互门禁、9 大学术争议类型诊断（Type A~I）、6 级共识度评级与适用边界标定、学派与知识演化图谱、独创 Devil's Advocate（反方辩驳挑刺）与独立 Gatekeeper、生态/分子生态黄金 Profile、闭环反馈上游 Search/Extraction Gap 任务包，以及争议驱动型综述（Narrative Review）自动生成能力。
+description: 通用学科科研文献跨篇证据综合分析、学术争议发掘与学派图谱技能。对标 PaperQA2 思路，严格遵循 Claims-first, narrative-later 原则。内置 Stage 0 Grill-Me 交互门禁、9 大学术争议类型诊断（Type A~I）、6 级共识度评级与适用边界标定、学派与知识演化图谱、独创 Devil's Advocate（反方辩驳挑刺）与独立 Gatekeeper、支持按任务动态加载跨学科 Domain Lens（不得将任何单一学科 Profile 设为默认执行本体）、闭环反馈上游 Search/Extraction Gap 任务包，以及争议驱动型综述（Narrative Review）自动生成能力。
 ---
 
 # 学科文献综合分析与学术争议发掘专业技能 (literature-synthesis)

@@ -101,11 +101,52 @@ def check_file_domain_neutrality(filepath: str) -> List[Tuple[int, str, str]]:
     return violations
 
 
+DEFAULT_DOMAIN_PATTERNS = [
+    r"golden\s+profile",
+    r"黄金\s*profile",
+    r"默认生态",
+    r"默认临床",
+    r"默认材料",
+    r"默认医学",
+    r"default\s+biomedical",
+    r"default\s+ecology",
+    r"default\s+clinical",
+]
+
+
+def check_skill_frontmatter_for_default_domain(filepath: str) -> List[Tuple[int, str, str]]:
+    """Ensure SKILL.md frontmatter/description does not hardcode a single domain as default."""
+    if not os.path.exists(filepath):
+        return []
+
+    violations = []
+    with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+        lines = f.readlines()
+
+    in_frontmatter = False
+    for idx, line in enumerate(lines, start=1):
+        stripped = line.strip()
+        if idx == 1 and stripped == "---":
+            in_frontmatter = True
+            continue
+        if in_frontmatter and stripped == "---":
+            in_frontmatter = False
+            break
+        if in_frontmatter:
+            for pat in DEFAULT_DOMAIN_PATTERNS:
+                m = re.search(pat, line, re.IGNORECASE)
+                if m:
+                    violations.append((idx, m.group(0), stripped))
+    return violations
+
+
 def audit_repository(repo_root: str) -> Dict[str, List[Tuple[int, str, str]]]:
     results = {}
     for rel_path in CORE_PATHS:
         full_path = os.path.join(repo_root, rel_path.replace("/", os.sep))
         v = check_file_domain_neutrality(full_path)
+        if rel_path.endswith("SKILL.md"):
+            v.extend(check_skill_frontmatter_for_default_domain(full_path))
         if v:
             results[rel_path] = v
     return results
