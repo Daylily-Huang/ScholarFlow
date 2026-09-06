@@ -156,8 +156,7 @@ flowchart TD
   - [school_and_paradigm_mapping.md](./references/school_and_paradigm_mapping.md)：学派与理论框架严谨识别指南
   - [knowledge_gaps_and_upstream_loop.md](./references/knowledge_gaps_and_upstream_loop.md)：10 类研究空白识别与上游闭环反馈规程
   - [narrative_review_guidelines.md](./references/narrative_review_guidelines.md)：争议驱动型综述正文撰写指南
-  - `domain_profiles/ecology_profile.md`：生态学黄金偏倚与理论框架 Profile
-  - `domain_profiles/molecular_ecology_profile.md`：分子生态与保护遗传学黄金 Profile
+  - **学科透镜（v0.5+ 单一真源）**：`shared/domain_lenses/*.md`（9 学科）——生态与环境科学用 `ecology_environment.md`，分子生态/保护遗传学用 `life_sciences.md`；旧 `references/domain_profiles/` 下保留向后兼容副本（已与共享透镜对齐，仅供历史引用）
 - **辅助分析脚本 (`scripts/`)**：
   - `scripts/controversy_analyzer.py`：跨文献 Claim 对撞、冲突矩阵生成与共识评分脚本
   - `scripts/school_clustering.py`：学派与方法学路线聚类辅助脚本

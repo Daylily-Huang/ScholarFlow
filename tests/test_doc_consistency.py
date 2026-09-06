@@ -63,6 +63,22 @@ class TestRootDirectoryHygiene(unittest.TestCase):
         self.assertEqual(offenders, [],
                          "internal manuals must live in docs/rfcs/archive/, found in root: %s" % offenders)
 
+    def test_relative_md_links_in_skills_resolve(self):
+        """skills/ 与 shared/ 内 markdown 的相对链接必须解析到真实文件（防 domain_profiles 类断链复发）。"""
+        import re
+        broken = []
+        for base in ["skills", "shared"]:
+            for fp in Path(REPO_ROOT, base).rglob("*.md"):
+                text = fp.read_text(encoding="utf-8", errors="replace")
+                for m in re.finditer(r"\[[^\]]*\]\(([^)#h][^)]*)\)", text):
+                    href = m.group(1).strip()
+                    if not href or href.startswith(("http", "mailto:")):
+                        continue
+                    target = (fp.parent / href.split("#")[0]).resolve()
+                    if not target.exists():
+                        broken.append(f"{fp.relative_to(REPO_ROOT)} -> {href}")
+        self.assertEqual(broken, [], "断链: %s" % broken)
+
     def test_archive_copies_are_single_source(self):
         archive = REPO_ROOT / "docs" / "rfcs" / "archive"
         names = [p.name for p in archive.glob("*.md")]
