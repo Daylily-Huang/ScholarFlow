@@ -12,7 +12,17 @@
   "properties": {
     "schema_version": { "type": "string" },
     "errors": { "type": "array", "items": { "type": "string" }, "description": "Non-fatal query failures; empty on clean SUCCESS. A FAILED status with zero candidates must never be emitted as SUCCESS." },
-    "status": { "type": "string", "enum": ["SUCCESS", "SUCCESS_WITH_ERRORS", "FAILED"] },
+    "status": {
+      "type": "string",
+      "enum": [
+        "SUCCESS",
+        "SUCCESS_WITH_ERRORS",
+        "SUCCESS_WITH_RETRIEVAL_GAPS",
+        "SUCCESS_WITH_ACQUISITION_GAPS",
+        "SUCCESS_WITH_RETRIEVAL_AND_ACQUISITION_GAPS",
+        "FAILED"
+      ]
+    },
     "search_target": { "type": "string" },
     "search_protocol": {
       "type": "object",
@@ -50,6 +60,10 @@
     },
     "saturation_tracking": { "type": ["object", "null"] },
     "grounding_controls": { "type": ["object", "null"] },
+    "retrieval_coverage_ledger": { "type": ["object", "null"], "description": "Ledger A: comprehensive database and query coverage audit." },
+    "metadata_corpus_summary": { "type": ["object", "null"], "description": "Frozen metadata corpus statistics prior to full-text acquisition." },
+    "retrieval_gaps": { "type": ["array", "null"], "items": { "type": "object" }, "description": "Unsearched or partially truncated databases (HIGH SCIENTIFIC RISK)." },
+    "acquisition_gaps": { "type": ["array", "null"], "items": { "type": "object" }, "description": "Known discovered literature lacking full text (OPERATIONAL LIMITATION)." },
     "metadata": { "type": ["object", "null"] }
   }
 }

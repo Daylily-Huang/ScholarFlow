@@ -444,41 +444,378 @@ def parse_csv_tsv(file_path: Path) -> List[Dict[str, Any]]:
     return records
 
 
+def parse_vip_format(content: str, source_name: str = "VIP") -> List[Dict[str, Any]]:
+    """
+    Parses VIP (维普) database export formats.
+    Supports:
+      - Bracketed tag format (e.g. 【题名】/【作者】/【机构】/【刊名】/【年份】/【摘要】/【关键词】/【DOI】)
+      - Standard VIP field tag format (U: Title, A: Author, J: Journal, Y: Year, R: Abstract, K: Keywords)
+    """
+    if not content or not content.strip():
+        return []
+
+    records = []
+    # Split records by bracketed title, or tagged U:, or [序号]
+    if "【题" in content or "【文章题目】" in content or "【Title】" in content:
+        blocks = re.split(r"\n\s*(?=【(?:题名|题\s*名|文章题目|Title)】)", content)
+    elif re.search(r"\n\s*(?=\[\d+\]|\[序号\])", content):
+        blocks = re.split(r"\n\s*(?=\[\d+\]|\[序号\])", content)
+    elif re.search(r"(?:^|\n)U:\s+", content):
+        blocks = re.split(r"\n\s*(?=U:\s+)", content)
+    else:
+        blocks = re.split(r"\n\s*\n", content)
+
+    for block in blocks:
+        if not block.strip():
+            continue
+
+        fields: Dict[str, List[str]] = {}
+        curr_tag = None
+
+        for line in block.splitlines():
+            line_str = line.strip()
+            if not line_str:
+                continue
+
+            bracket_match = re.match(r"^【([^】]+)】\s*[:-]?\s*(.*)$", line_str)
+            if bracket_match:
+                tag_name = re.sub(r"\s+", "", bracket_match.group(1))
+                curr_tag = tag_name
+                val = bracket_match.group(2).strip()
+                if curr_tag not in fields:
+                    fields[curr_tag] = []
+                if val:
+                    fields[curr_tag].append(val)
+                continue
+
+            tag_match = re.match(r"^([A-Z]{1,3}|[A-Za-z ]{2,10})\s*[:-]\s*(.*)$", line_str)
+            if tag_match:
+                curr_tag = tag_match.group(1).upper().strip()
+                val = tag_match.group(2).strip()
+                if curr_tag not in fields:
+                    fields[curr_tag] = []
+                if val:
+                    fields[curr_tag].append(val)
+                continue
+
+            if curr_tag and curr_tag in fields and fields[curr_tag]:
+                fields[curr_tag][-1] += " " + line_str
+            elif curr_tag and curr_tag in fields and not fields[curr_tag]:
+                fields[curr_tag].append(line_str)
+
+        # Extract field values by first matching tag
+        def _get_first(tags):
+            for t in tags:
+                if t in fields and fields[t]:
+                    return fields[t]
+            return []
+
+        title_candidates = _get_first(["题名", "题 名", "文章题目", "Title", "TITLE", "U", "TI", "T1"])
+        title = clean_str(" ".join(title_candidates))
+        if not title:
+            continue
+
+        author_candidates = _get_first(["作者", "作 者", "作名", "Author", "A", "AU", "A1"])
+        authors = []
+        for a_str in author_candidates:
+            for sub_a in re.split(r"[;；,，、/]", a_str):
+                cleaned = clean_str(sub_a)
+                if cleaned and cleaned not in authors:
+                    authors.append(cleaned)
+
+        inst_candidates = _get_first(["机构", "机 构", "工作单位", "单位", "AD", "IN"])
+        institution = clean_str(" ".join(inst_candidates))
+
+        journal_candidates = _get_first(["刊名", "刊 名", "来源出处", "Journal", "J", "JF", "JO"])
+        journal = clean_str(" ".join(journal_candidates))
+
+        year_candidates = _get_first(["年份", "年卷(期)", "年，卷(期)", "年", "出版年", "出 版 年", "Y", "YR", "PY"])
+        year_str = clean_str(" ".join(year_candidates))
+        year_match = re.search(r"\b(19\d\d|20\d\d)\b", year_str)
+        year = int(year_match.group(1)) if year_match else None
+
+        abs_candidates = _get_first(["文摘", "摘要", "摘 要", "Abstract", "R", "AB"])
+        abstract = clean_str(" ".join(abs_candidates))
+
+        kw_candidates = _get_first(["关键词", "关 键 词", "Keywords", "K", "K1", "KW"])
+        keywords = []
+        for kw_str in kw_candidates:
+            for sub_kw in re.split(r"[;；,，、/]", kw_str):
+                cleaned = clean_str(sub_kw)
+                if cleaned and cleaned not in keywords:
+                    keywords.append(cleaned)
+
+        doi_candidates = _get_first(["DOI", "doi", "DO"])
+        doi_raw = clean_str(" ".join(doi_candidates))
+        doi_match = re.search(r"\b10\.\d{4,9}/[-._;()/:A-Za-z0-9]+\b", doi_raw)
+        doi = doi_match.group(0) if doi_match else "NR"
+
+        doc_type = "Journal Article"
+        thesis_info = {}
+        if any(k in title or k in journal for k in ["硕士", "博士", "学位论文", "硕士论文", "博士论文"]):
+            doc_type = "Thesis"
+            degree = "Doctoral" if ("博" in title or "博" in journal) else "Master"
+            thesis_info = {
+                "degree": degree,
+                "institution": institution or journal,
+                "document_type": "Thesis"
+            }
+
+        record = {
+            "title": title,
+            "authors": authors,
+            "year": year,
+            "journal": journal,
+            "doi": doi,
+            "url": None,
+            "abstract": abstract if abstract else None,
+            "keywords": keywords,
+            "document_type": doc_type,
+            "source_databases": [source_name],
+            "evidence_tier": "UNVERIFIED",
+            "screening_status": "Uncertain",
+            "ingestion_method": f"{source_name}_Import"
+        }
+        if thesis_info:
+            record["thesis_metadata"] = thesis_info
+
+        records.append(record)
+
+    return records
+
+
 def detect_and_parse_file(file_path: Path, source_override: Optional[str] = None) -> List[Dict[str, Any]]:
     """Automatically detects format and parses single export file."""
     ext = file_path.suffix.lower()
-    
+
     if ext in {".csv", ".tsv"}:
-        return parse_csv_tsv(file_path)
-        
+        records = parse_csv_tsv(file_path)
+        if source_override and source_override != "auto":
+            for r in records:
+                r["source_databases"] = [source_override]
+                r["ingestion_method"] = f"{source_override}_Import"
+        return records
+
     try:
         with open(file_path, "r", encoding="utf-8-sig", errors="replace") as f:
             content = f.read()
     except Exception as e:
         print(f"[ERROR] Failed to read {file_path}: {e}", file=sys.stderr)
         return []
-        
-    # Check for Refworks signature
-    if source_override == "CNKI" or re.search(r"\b(RT\s+Journal|RT\s+Thesis|Reference Type:|SR\s+1|K1\s+)", content):
+
+    # Direct source overrides
+    if source_override == "CNKI":
         return parse_cnki_refworks(content)
-        
-    # Check for RIS signature
+    elif source_override == "VIP":
+        recs = parse_vip_format(content, source_name="VIP")
+        if not recs:
+            recs = parse_cnki_refworks(content)
+            for r in recs:
+                r["source_databases"] = ["VIP"]
+                r["ingestion_method"] = "VIP_Import"
+        return recs
+    elif source_override == "Wanfang":
+        if ext == ".ris" or re.search(r"^TY\s*-\s*", content, re.M):
+            recs = parse_ris(content)
+        elif ext == ".enw" or re.search(r"^%0\s+", content, re.M):
+            recs = parse_endnote_enw(content)
+        else:
+            recs = parse_cnki_refworks(content) or parse_ris(content)
+        for r in recs:
+            r["source_databases"] = ["Wanfang"]
+            r["ingestion_method"] = "Wanfang_Import"
+        return recs
+
+    # Auto-detection based on file markers
+    # 1. VIP signature
+    if re.search(r"^【(?:题名|文章题目|题\s*名|文摘|机构|分类号)】", content, re.M) or re.search(r"^U:\s+", content, re.M):
+        recs = parse_vip_format(content, source_name="VIP")
+        if recs:
+            return recs
+
+    # 2. Refworks signature
+    if re.search(r"\b(RT\s+Journal|RT\s+Thesis|Reference Type:|SR\s+1|K1\s+)", content):
+        return parse_cnki_refworks(content)
+
+    # 3. RIS signature
     if ext == ".ris" or source_override in {"RIS", "WoS", "Scopus"} or re.search(r"^TY\s*-\s*", content, re.M):
-        return parse_ris(content)
-        
-    # Check for EndNote signature
+        recs = parse_ris(content)
+        if source_override and source_override not in {"auto", "RIS"}:
+            for r in recs:
+                r["source_databases"] = [source_override]
+                r["ingestion_method"] = f"{source_override}_Import"
+        return recs
+
+    # 4. EndNote signature
     if ext == ".enw" or source_override == "EndNote" or re.search(r"^%0\s+", content, re.M):
         return parse_endnote_enw(content)
-        
-    # Fallback to Refworks if Chinese keywords present
+
+    # 5. Chinese keywords fallback
     if "【关键词】" in content or "【作者】" in content or "【摘要】" in content:
+        vip_recs = parse_vip_format(content)
+        if vip_recs:
+            return vip_recs
         return parse_cnki_refworks(content)
-        
-    # Default fallback to RIS or Refworks
+
+    # Default fallback
     records = parse_cnki_refworks(content)
     if records:
         return records
     return parse_ris(content)
+
+
+def merge_candidate_records(
+    existing_records: List[Dict[str, Any]],
+    new_records: List[Dict[str, Any]]
+) -> Dict[str, Any]:
+    """
+    Merges newly imported candidate records into existing candidate corpus.
+    Features:
+    1. Cross-source deduplication via normalized DOI and normalized Title.
+    2. Source tracking: preserves all contributing sources in `source_databases`.
+    3. Metadata enrichment: fills missing abstract, keywords, DOI, URL from new records.
+    4. Conflict detection: flags non-matching publication years or contradictory metadata
+       as `CONFLICTING_METADATA` without silently overwriting.
+    5. Retains title-only records (never dropped).
+    6. Returns structured summary with unique contributions and source distributions.
+    """
+    def _norm_t(t: Optional[str]) -> str:
+        return re.sub(r"[^a-zA-Z0-9\u4e00-\u9fa5]", "", str(t or "").lower())
+
+    def _norm_doi(d: Optional[str]) -> Optional[str]:
+        d_str = str(d or "").strip().lower()
+        return d_str if d_str and d_str != "nr" else None
+
+    # Deep copy existing records
+    merged: List[Dict[str, Any]] = [dict(r) for r in existing_records]
+    doi_index: Dict[str, int] = {}
+    title_index: Dict[str, int] = {}
+
+    for idx, r in enumerate(merged):
+        doi = _norm_doi(r.get("doi"))
+        if doi:
+            doi_index[doi] = idx
+        nt = _norm_t(r.get("title"))
+        if nt:
+            title_index[nt] = idx
+
+    conflicts: List[Dict[str, Any]] = []
+
+    for new_r in new_records:
+        rec_copy = dict(new_r)
+        new_doi = _norm_doi(rec_copy.get("doi"))
+        new_nt = _norm_t(rec_copy.get("title"))
+
+        matched_idx = None
+        if new_doi and new_doi in doi_index:
+            matched_idx = doi_index[new_doi]
+        elif new_nt and new_nt in title_index:
+            matched_idx = title_index[new_nt]
+
+        if matched_idx is not None:
+            target = merged[matched_idx]
+            # 1. Preserve and union source databases
+            existing_sources = target.get("source_databases", [])
+            incoming_sources = rec_copy.get("source_databases", [])
+            for s in incoming_sources:
+                if s not in existing_sources:
+                    existing_sources.append(s)
+            target["source_databases"] = existing_sources
+
+            # 2. Check for conflicting metadata (e.g. publication year)
+            old_year = target.get("year")
+            new_year = rec_copy.get("year")
+            if old_year and new_year and old_year != new_year:
+                conflict_entry = {
+                    "title": target.get("title"),
+                    "field": "year",
+                    "existing_value": old_year,
+                    "incoming_value": new_year,
+                    "status": "CONFLICTING_METADATA"
+                }
+                conflicts.append(conflict_entry)
+                if "metadata_conflicts" not in target:
+                    target["metadata_conflicts"] = []
+                target["metadata_conflicts"].append(conflict_entry)
+
+            # 3. Metadata enrichment (fill missing fields without overwriting valid data)
+            if not target.get("abstract") and rec_copy.get("abstract"):
+                target["abstract"] = rec_copy["abstract"]
+                target["abstract_source"] = incoming_sources[0] if incoming_sources else "CrossSourceEnriched"
+
+            if (not target.get("doi") or target.get("doi") == "NR") and new_doi:
+                target["doi"] = rec_copy.get("doi")
+                doi_index[new_doi] = matched_idx
+
+            if not target.get("url") and rec_copy.get("url"):
+                target["url"] = rec_copy["url"]
+
+            if not target.get("authors") and rec_copy.get("authors"):
+                target["authors"] = rec_copy["authors"]
+
+            existing_kw = target.get("keywords", [])
+            for kw in rec_copy.get("keywords", []):
+                if kw not in existing_kw:
+                    existing_kw.append(kw)
+            target["keywords"] = existing_kw
+
+            # Check metadata completeness
+            has_title = bool(target.get("title"))
+            has_abs = bool(target.get("abstract"))
+            has_authors = bool(target.get("authors"))
+            if has_title and has_abs and has_authors:
+                target["metadata_status"] = "FULL_METADATA"
+            elif has_title and has_abs:
+                target["metadata_status"] = "TITLE_ABSTRACT"
+            elif has_title and has_authors:
+                target["metadata_status"] = "TITLE_AUTHOR"
+            elif has_title:
+                target["metadata_status"] = "TITLE_ONLY"
+
+        else:
+            # Title-only or new candidate record: retain in corpus
+            has_title = bool(rec_copy.get("title"))
+            has_abs = bool(rec_copy.get("abstract"))
+            has_authors = bool(rec_copy.get("authors"))
+            if has_title and has_abs and has_authors:
+                rec_copy["metadata_status"] = "FULL_METADATA"
+            elif has_title and has_abs:
+                rec_copy["metadata_status"] = "TITLE_ABSTRACT"
+            elif has_title and has_authors:
+                rec_copy["metadata_status"] = "TITLE_AUTHOR"
+            elif has_title:
+                rec_copy["metadata_status"] = "TITLE_ONLY"
+
+            new_idx = len(merged)
+            merged.append(rec_copy)
+            if new_doi:
+                doi_index[new_doi] = new_idx
+            if new_nt:
+                title_index[new_nt] = new_idx
+
+    # Calculate source distribution and unique contributions
+    source_dist: Dict[str, int] = {}
+    unique_contribs: Dict[str, int] = {}
+
+    for r in merged:
+        sources = r.get("source_databases", [])
+        for s in sources:
+            source_dist[s] = source_dist.get(s, 0) + 1
+        if len(sources) == 1:
+            unique_contribs[sources[0]] = unique_contribs.get(sources[0], 0) + 1
+
+    for s in source_dist:
+        if s not in unique_contribs:
+            unique_contribs[s] = 0
+
+    return {
+        "merged_records": merged,
+        "raw_count": len(existing_records) + len(new_records),
+        "unique_count": len(merged),
+        "source_distribution": source_dist,
+        "source_unique_contributions": unique_contribs,
+        "conflicts": conflicts
+    }
 
 
 def main():
@@ -499,7 +836,7 @@ Examples:
     )
     parser.add_argument("-i", "--input", required=True, help="Input export file path (*.txt, *.ris, *.enw, *.csv) or directory containing export files")
     parser.add_argument("-o", "--output", required=True, help="Output standardized JSON file path")
-    parser.add_argument("-s", "--source", choices=["CNKI", "Wanfang", "WoS", "Scopus", "EndNote", "RIS", "auto"], default="auto", help="Source database identifier override (default: auto)")
+    parser.add_argument("-s", "--source", choices=["CNKI", "Wanfang", "VIP", "WoS", "Scopus", "EndNote", "RIS", "auto"], default="auto", help="Source database identifier override (default: auto)")
     
     args = parser.parse_args()
     

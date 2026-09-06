@@ -81,6 +81,14 @@
 
 ---
 
+### 铁律 7：题录覆盖优先与候选保留红线 (Metadata Coverage First & Candidate Retention)
+- **核心原则**：*A discovered record remains part of the candidate corpus regardless of full-text acquisition status.*
+- **凡已经被可靠发现的文献题录，无论全文是否成功获取，都必须永久保留在候选文献库中**。绝对禁止因 PDF 下载失败、登录限制、403 或付费墙而删除题录记录。
+- **检索真实性红线**：遇到访问阻断、反爬或鉴权失败（403/AUTH_REQUIRED/BOT_BLOCKED）时，必须诚实记录状态为异常、命中数为 `null`、覆盖度为 `UNKNOWN`，**严禁伪报为 0 篇结果**。
+- **分页完整性红线**：命中数大于获取数时必须如实标记 `TRUNCATED_BY_LIMIT` 与 `PARTIAL` 覆盖度，严禁截断分页冒充完全检索。
+
+---
+
 ## 三、专家工作思维模型
 
 1. **召回优先 (Recall First)**：宁可首轮多检出 50 篇待定文献，也绝不能因为检索词狭窄而漏掉 1 篇关键开创性论文。

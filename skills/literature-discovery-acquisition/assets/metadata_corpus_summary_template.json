@@ -1,0 +1,22 @@
+{
+  "summary_type": "METADATA_CORPUS_SUMMARY",
+  "version": "1.0",
+  "description": "ScholarFlow Skill 1 — Frozen Candidate Corpus Metadata Summary Template",
+  "status": "CORPUS_FROZEN",
+  "frozen_timestamp": "2026-09-07T00:00:00Z",
+  "total_raw_records": 623,
+  "unique_records": 417,
+  "records_with_abstract": 381,
+  "records_without_abstract": 36,
+  "sources_distribution": {
+    "OpenAlex": 394,
+    "CNKI": 138,
+    "Wanfang": 91
+  },
+  "source_unique_contributions": {
+    "OpenAlex": 230,
+    "CNKI": 112,
+    "Wanfang": 75
+  },
+  "notes": "Frozen before full-text acquisition; all discovered records survive downstream PDF acquisition outcomes."
+}

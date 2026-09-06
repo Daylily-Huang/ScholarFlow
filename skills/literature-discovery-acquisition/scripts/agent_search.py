@@ -25,6 +25,30 @@ import urllib.request
 import urllib.parse
 import re
 
+try:
+    from retrieval_coverage import (
+        build_retrieval_ledger_entry,
+        freeze_metadata_corpus,
+        audit_discovery_coverage_gate,
+        RetrievalStatus,
+        CoverageStatus,
+        PaginationStatus,
+        OverallDiscoveryStatus,
+    )
+except ImportError:
+    import sys
+    import os
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from retrieval_coverage import (
+        build_retrieval_ledger_entry,
+        freeze_metadata_corpus,
+        audit_discovery_coverage_gate,
+        RetrievalStatus,
+        CoverageStatus,
+        PaginationStatus,
+        OverallDiscoveryStatus,
+    )
+
 # Ensure UTF-8 encoding on Windows consoles
 if sys.platform == "win32":
     try:
@@ -443,9 +467,87 @@ def run_headless_search(query=None, snowball_seed=None, mode="deep", include_the
     else:
         status = "SUCCESS"
 
+    # Build Ledger A (Retrieval Coverage Ledger) & Freeze Metadata Corpus
+    if snowball_seed:
+        if errors and not candidates:
+            exec_status = RetrievalStatus.TEMPORARILY_UNAVAILABLE
+            total_hits = None
+            cov_status = CoverageStatus.UNKNOWN
+            pag_status = PaginationStatus.FAILED_MIDWAY
+        elif errors:
+            exec_status = RetrievalStatus.SEARCHED_WITH_ERRORS
+            total_hits = len(candidates)
+            cov_status = CoverageStatus.PARTIAL
+            pag_status = PaginationStatus.PARTIAL
+        else:
+            exec_status = RetrievalStatus.SEARCHED_COMPLETE
+            total_hits = len(candidates)
+            cov_status = CoverageStatus.COMPLETE
+            pag_status = PaginationStatus.COMPLETE
+
+        entry = build_retrieval_ledger_entry(
+            source_id="OpenAlex_Snowball",
+            query_id="SB01",
+            query_text=str(snowball_seed),
+            execution_status=exec_status,
+            reported_total_hits=total_hits,
+            metadata_records_retrieved=len(candidates),
+            unique_records_after_source_dedup=len(candidates),
+            pagination_status=pag_status,
+            coverage_status=cov_status,
+            failure_reason="; ".join(errors) if errors else None,
+            search_mode="API_AUTOMATED",
+            notes="Dual-direction citation snowballing"
+        )
+    else:
+        if errors and not candidates:
+            exec_status = RetrievalStatus.TEMPORARILY_UNAVAILABLE
+            total_hits = None
+            cov_status = CoverageStatus.UNKNOWN
+            pag_status = PaginationStatus.FAILED_MIDWAY
+        elif errors:
+            exec_status = RetrievalStatus.SEARCHED_WITH_ERRORS
+            total_hits = len(candidates)
+            cov_status = CoverageStatus.PARTIAL
+            pag_status = PaginationStatus.PARTIAL
+        else:
+            exec_status = RetrievalStatus.SEARCHED_COMPLETE
+            total_hits = len(candidates)
+            cov_status = CoverageStatus.COMPLETE
+            pag_status = PaginationStatus.COMPLETE if len(candidates) < limit else PaginationStatus.TRUNCATED_BY_LIMIT
+            if pag_status == PaginationStatus.TRUNCATED_BY_LIMIT and len(candidates) >= limit:
+                cov_status = CoverageStatus.PARTIAL
+
+        entry = build_retrieval_ledger_entry(
+            source_id="OpenAlex",
+            query_id="Q01",
+            query_text=str(query or ""),
+            execution_status=exec_status,
+            reported_total_hits=total_hits,
+            metadata_records_retrieved=len(candidates),
+            unique_records_after_source_dedup=len(candidates),
+            pagination_status=pag_status,
+            coverage_status=cov_status,
+            failure_reason="; ".join(errors) if errors else None,
+            search_mode="DIRECT_METADATA_SEARCH",
+            notes=f"Headless {mode} search"
+        )
+
+    retrieval_ledger = [entry]
+    metadata_corpus_summary = freeze_metadata_corpus(candidates)
+    gate_a_audit = audit_discovery_coverage_gate(retrieval_ledger, metadata_corpus_summary)
+    retrieval_gaps = [e for e in retrieval_ledger if e.get("coverage_status") in {CoverageStatus.PARTIAL, CoverageStatus.UNKNOWN}]
+    acquisition_gaps = []
+
     payload = {
         "schema_version": "1.1",
         "status": status,
+        "overall_discovery_status": "SUCCESS" if status == "SUCCESS" else ("FAILED" if status == "FAILED" else "SUCCESS_WITH_RETRIEVAL_GAPS"),
+        "retrieval_coverage_ledger": retrieval_ledger,
+        "metadata_corpus_summary": metadata_corpus_summary,
+        "retrieval_gaps": retrieval_gaps,
+        "acquisition_gaps": acquisition_gaps,
+        "gate_a_audit": gate_a_audit,
         "errors": errors,
         "search_target": search_target,
         "search_protocol": {

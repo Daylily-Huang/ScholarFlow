@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ScholarFlowRetrievalCoverageLedger",
+  "description": "Ledger A canonical schema: auditable multi-source retrieval completeness and query execution tracking.",
+  "type": "object",
+  "required": [
+    "ledger_type",
+    "total_planned_sources",
+    "complete_sources",
+    "database_coverage_rate",
+    "has_retrieval_gaps",
+    "entries"
+  ],
+  "properties": {
+    "ledger_type": { "type": "string", "const": "RETRIEVAL_COVERAGE_LEDGER_A" },
+    "timestamp": { "type": "string" },
+    "total_planned_sources": { "type": "integer" },
+    "complete_sources": { "type": "integer" },
+    "database_coverage_rate": { "type": "number" },
+    "query_execution_rate": { "type": "number" },
+    "has_retrieval_gaps": { "type": "boolean" },
+    "retrieval_gaps": { "type": "array" },
+    "source_coverage_summary": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source_id", "coverage_status"],
+        "properties": {
+          "source_id": { "type": "string" },
+          "search_mode": { "type": "string" },
+          "executed": { "type": "boolean" },
+          "query_count": { "type": "integer" },
+          "total_reported_hits": { "type": ["integer", "null"] },
+          "metadata_records_retrieved": { "type": "integer" },
+          "unique_records": { "type": "integer" },
+          "coverage_status": {
+            "type": "string",
+            "enum": ["COMPLETE", "PARTIAL", "UNKNOWN", "NOT_APPLICABLE"]
+          }
+        }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "source_id",
+          "query_id",
+          "execution_status",
+          "metadata_records_retrieved",
+          "pagination_status",
+          "coverage_status"
+        ],
+        "properties": {
+          "source_id": { "type": "string" },
+          "query_id": { "type": "string" },
+          "query_text": { "type": "string" },
+          "search_mode": { "type": "string" },
+          "execution_status": {
+            "type": "string",
+            "enum": [
+              "SEARCHED_COMPLETE",
+              "SEARCHED_PARTIAL",
+              "SEARCHED_WITH_ERRORS",
+              "SEARCHED_VIA_USER_EXPORT",
+              "USER_ASSISTED_REQUIRED",
+              "AUTH_REQUIRED",
+              "JS_BROWSER_REQUIRED",
+              "BOT_BLOCKED",
+              "RATE_LIMITED",
+              "TEMPORARILY_UNAVAILABLE",
+              "NOT_SEARCHED"
+            ]
+          },
+          "reported_total_hits": { "type": ["integer", "null"] },
+          "metadata_records_retrieved": { "type": "integer" },
+          "unique_records_after_source_dedup": { "type": "integer" },
+          "pagination_status": {
+            "type": "string",
+            "enum": ["COMPLETE", "PARTIAL", "TRUNCATED_BY_LIMIT", "FAILED_MIDWAY", "UNKNOWN"]
+          },
+          "coverage_status": {
+            "type": "string",
+            "enum": ["COMPLETE", "PARTIAL", "UNKNOWN", "NOT_APPLICABLE"]
+          },
+          "metadata_retrieval_rate": { "type": ["number", "null"] },
+          "failure_reason": { "type": ["string", "null"] },
+          "notes": { "type": "string" }
+        }
+      }
+    }
+  }
+}

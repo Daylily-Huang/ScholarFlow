@@ -72,22 +72,26 @@ flowchart TD
 
 ---
 
-### 维度 5：数据源真实覆盖与缺口披露审计 (Database Transparency Audit)
-- **审查重点**：
-  - 是否诚实区分了【已实际检索】与【当前不可访问】的数据库？
-  - 严查是否存在“明明只用了 Web 搜索，却声称检索了 Web of Science 核心合集与 CNKI”的虚假声称；
-  - 对受限商业数据库，是否为用户提供了排版完整、可直接复制到学校/机构局域网内执行的高级检索代码块。
+### 维度 5：Gate A 检索发现完整性审计 (Gate A — Discovery Coverage Audit)
+- **审查重点**（优先于全文下载执行，杜绝虚假全覆盖）：
+  - **全量数据库状态明确**：所有计划数据库必须有明确执行状态（`SEARCHED_COMPLETE` / `SEARCHED_PARTIAL` / `AUTH_REQUIRED` 等）；
+  - **零命中真实性 (Rule 10)**：**严禁将访问失败（403/AUTH/BOT）谎报为 0 篇**，命中数必须为 `null`，覆盖度记为 `UNKNOWN`；
+  - **总命中数对账**：数据库总命中数 (`reported_total_hits`) 与抓取数必须严格对账；
+  - **分页完整性审计**：分页截断必须如实标记 `TRUNCATED_BY_LIMIT` 与 `PARTIAL` 覆盖度，严禁截断分页虚报完全检索；
+  - **元数据底册固化**：在启动全文获取前，发现候选文献全集必须已通过 `freeze_metadata_corpus()` 固化；
+  - **跨库替代严禁**：严禁将 OpenAlex 或 Web 检索结果冒充为 CNKI/万方数据库已搜（Cross-database discovery is complementary, NOT substitutive）；
+  - **检索缺口声明**：任何未检索或截断库必须作为 `Retrieval Gap` 标为 **HIGH SCIENTIFIC RISK**。
 
 ---
 
-### 维度 6：开源文献下载与文件真实性审计 (Download Integrity Audit)
-- **审查重点**（当启用了 Stage 8 文献下载功能时）：
-  - 下载到本地的 PDF 文件是否通过了二进制魔数检验（文件头必须以 `%PDF-` 开头）？
-  - 是否排除了被出版商反爬拦截重定向的 403 / 404 HTML 伪装文件？
-  - 文件大小是否合理（$>10\text{ KB}$）？
-  - 《全文获取台账》(Download Ledger) 是否对 `OA_DOWNLOADED`、`PREPRINT_AVAILABLE` 和 `PAYWALLED` 进行了清晰归类？
-  - **台账覆盖度自检**：全部 Include/Uncertain 记录是否均已按三级状态（OA_DOWNLOADED / OA_BOT_BLOCKED / PAYWALLED）归入台账？缺任何一条即 REJECT（脚本覆盖自检 exit 2 为硬信号）；
-  - **付费墙防误导**：实质开放获取却被反爬拦截的文献是否标注为 `OA_BOT_BLOCKED` 并附免费 DOI 直链，而非误导性的 `PAYWALLED`？
+### 维度 6：Gate B 全文获取与学术诚信审计 (Gate B — Full-Text Acquisition Audit)
+- **审查重点**（在发现底册固化后执行）：
+  - **候选保留红线 (Rule 4)**：**严禁因全文下载失败从候选文献库中删除题录记录**；未下载成功的文献必须完整保留在文献集合中；
+  - **文件真实性魔数检验**：下载的 PDF 必须通过 `%PDF-` 魔数与 $\ge 10\text{ KB}$ 体积校验，杜绝 HTML 403 伪装文件；
+  - 《全文获取台账》(Download Ledger) 与《检索覆盖台账》(Retrieval Coverage Ledger) 必须严格分立；
+  - **台账覆盖度自检**：全部 Include/Uncertain 记录必须归入台账三级状态（`OA_DOWNLOADED` / `OA_BOT_BLOCKED` / `PAYWALLED`）；
+  - **付费墙防误导**：实质开放获取却被反爬拦截的文献标注为 `OA_BOT_BLOCKED` 并附免费 DOI 直链，而非误导性的 `PAYWALLED`；
+  - **获取缺口声明**：全文获取失败作为 `Acquisition Gap` 归类为 **OPERATIONAL LIMITATION**，并输出《用户手动补检推荐清单》。
 
 ---
 

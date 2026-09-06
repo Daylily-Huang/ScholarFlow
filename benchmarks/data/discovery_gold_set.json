@@ -1,5 +1,5 @@
 {
-  "benchmark_name": "ScholarFlow Discovery Benchmark v0.1",
+  "benchmark_name": "ScholarFlow Discovery Benchmark v0.2",
   "test_cases": [
     {
       "query": "noninvasive genetic capture recapture wildlife",
@@ -9,6 +9,40 @@
         "10.2193/2006-538"
       ],
       "min_expected_recall": 0.6
+    }
+  ],
+  "coverage_test_cases": [
+    {
+      "source_id": "OpenAlex",
+      "execution_status": "SEARCHED_COMPLETE",
+      "reported_total_hits": 100,
+      "metadata_records_retrieved": 100,
+      "pagination_status": "COMPLETE",
+      "expected_coverage": "COMPLETE"
+    },
+    {
+      "source_id": "Wanfang",
+      "execution_status": "SEARCHED_COMPLETE",
+      "reported_total_hits": 100,
+      "metadata_records_retrieved": 60,
+      "pagination_status": "PARTIAL",
+      "expected_coverage": "PARTIAL"
+    },
+    {
+      "source_id": "CNKI",
+      "execution_status": "AUTH_REQUIRED",
+      "reported_total_hits": null,
+      "metadata_records_retrieved": 0,
+      "pagination_status": "UNKNOWN",
+      "expected_coverage": "UNKNOWN"
+    },
+    {
+      "source_id": "PubMed",
+      "execution_status": "SEARCHED_COMPLETE",
+      "reported_total_hits": 0,
+      "metadata_records_retrieved": 0,
+      "pagination_status": "COMPLETE",
+      "expected_coverage": "COMPLETE"
     }
   ]
 }

@@ -12,6 +12,26 @@ description: >-
 > **核心哲学**：
 > 搜索的任务是发现真实的候选证据，而不是制造答案。
 > 首要目标是提高召回率（Recall / Coverage），宁可如实陈述检索缺口，也绝不捏造文献元数据或根据摘要脑补全文实验细节。
+>
+> ### 题录覆盖优先与双层目标 (Ordered Objectives)
+> 1. **首要目标 (Primary) — 题录发现完整性 (Comprehensive Metadata Discovery)**：  
+>    最大化相关文献的发现率和题录覆盖率（Recall-first），明确“有哪些相关文献存在”，彻底降低系统性漏检风险。
+> 2. **次要目标 (Secondary) — 全文尽力获取 (Best-Effort Full-Text Acquisition)**：  
+>    在合法、技术可行与资源允许范围内尽力获取已发现文献的全文；但**全文获取失败绝不能删除题录记录**。
+>
+> **核心铁律**：  
+> > **A discovered record remains part of the candidate corpus regardless of full-text acquisition status.**  
+> > 凡已经被可靠发现的文献题录，无论全文是否成功获取，都必须保留在候选文献集中。严禁因 PDF 获取失败而从文献全集中剔除题录。
+>
+> **双台账解耦 (Dual Independent Ledgers)**：  
+> - **Ledger A — 检索覆盖台账 (Retrieval Coverage Ledger)**：审计数据库与检索式执行完整度（搜了多少、抓了多少、分页是否截断、数据库覆盖是否 COMPLETE / PARTIAL / UNKNOWN）；  
+> - **Ledger B — 全文获取台账 (Full-Text Acquisition Ledger)**：审计已发现文献的全文获取状态（OA下载、反爬拦截、需登录墙、付费受限）。
+>
+> **检索诚实性原则 (Truth in Search)**：  
+> 1. **访问失败 ≠ 0 篇**：遇到 403、AUTH_REQUIRED、BOT_BLOCKED 时，`reported_total_hits` 必须记为 `null`，`coverage_status` 必须为 `UNKNOWN`，严禁谎报为 0 条；  
+> 2. **截断分页 ≠ 完全检索**：检索命中数大于抓取数时（如命中 863 条只抓 50 条），必须标记 `TRUNCATED_BY_LIMIT` / `PARTIAL`；  
+> 3. **跨库发现不具替代性**：OpenAlex 或 Web 检索中发现知网文献，绝不代表知网数据库本身已完成检索；  
+> 4. **两类缺口严格隔离**：`Retrieval Gap` 属于**高科研风险 (HIGH SCIENTIFIC RISK)**（可能漏文献）；`Acquisition Gap` 属于**操作层限制 (OPERATIONAL LIMITATION)**（已知文献存在，可后续手动补）。
 
 ---
 
@@ -99,7 +119,8 @@ flowchart TD
     S0[Stage 0: 核心问题解析 + 动态初稿生成 + Grill-Me 交互门禁] --> S1[Stage 1: 正交概念矩阵与多维词义实时探索]
     S1 --> S2[Stage 2: 四层级重点期刊推荐 + 多组检索式派生]
     S2 --> S3[Stage 3: 多数据源分层并发检索 OpenAlex/PubMed/Web]
-    S3 --> S4[Stage 4: 四级级联去重流水线 DOI/PMID/Title]
+    S3 --> S3B[Stage 3B: 检索覆盖对账与元数据固化 Ledger A / Freeze]
+    S3B --> S4[Stage 4: 四级级联去重流水线 DOI/PMID/Title]
     S4 --> S5[Stage 5: 题录与摘要结构化初筛 Include/Exclude/Uncertain]
     S5 --> S6[Stage 6: 核心种子文献双向引文追踪 Backward/Forward]
     S6 --> S4
@@ -165,10 +186,20 @@ flowchart TD
 调用环境中可用的学术工具与数据源，严格执行分层调度（详见 [databases_and_tools.md](references/databases_and_tools.md)）：
 1. **第一层：开放学术 API**（OpenAlex 全学科、PubMed/Europe PMC 生命科学与医学、arXiv/bioRxiv 预印本）；
 2. **第二层：Web 学术探测**（Google Scholar 关键文献补漏、出版商落地页解析、DOI 解析校验）；
-3. **第三层：受限商业数据库声明与极速本地摄取**（中国知网 CNKI、Web of Science、Scopus、万方数据）：
+3. **第三层：受限商业数据库声明与极速本地摄取**（中国知网 CNKI、Web of Science、Scopus、万方数据、维普 VIP）：
    - 自动生成对应数据库专业布尔检索式；
-   - 支持用户校园网内 30 秒导出后，运行 `scripts/ingest_external_records.py` 一键无缝解析并注入候选文献池；
+   - 支持三种支持模式：Mode A（直接检索）、Mode B（浏览器辅助）、Mode C（用户导出题录后由 `scripts/ingest_external_records.py` 一键无缝解析并注入候选文献池）；
 4. **提取标准题录元数据**：提取标题、作者、年份、期刊、DOI、URL、摘要、来源库、证据分级（`VERIFIED` / `INFERRED` / `UNVERIFIED`）。
+
+---
+
+### Stage 3B：检索覆盖度对账与元数据冻结 (Retrieval Coverage Reconciliation & Corpus Freeze)
+
+在进入去重、初筛与全文下载之前，强制执行检索覆盖度对账与元数据固化（详见 `scripts/retrieval_coverage.py`）：
+1. **生成 Ledger A (Retrieval Coverage Ledger)**：对每个计划数据源与检索式记录实际执行状态（`SEARCHED_COMPLETE` / `SEARCHED_PARTIAL` / `AUTH_REQUIRED` 等）、数据库总命中数 (`reported_total_hits`)、实际抓取题录数 (`metadata_records_retrieved`) 与分页状态 (`COMPLETE` / `TRUNCATED_BY_LIMIT`)；
+2. **执行检索诚实性核验**：确保访问阻断/权限不足不被篡改记为 0 篇，截断分页如实标为 `PARTIAL`；
+3. **固化发现全集 (Metadata Corpus Freeze)**：调用 `freeze_metadata_corpus()` 固化候选文献底册，统计各库原始贡献分布与独有贡献 (`source_unique_contributions`)，生成候选底册快照；**即使后续任何全文下载失败，已发现文献也永久保留在该底册中**；
+4. **识别检索缺口 (Retrieval Gaps)**：识别未执行或被截断的数据源，评估科学漏检风险并生成预警。
 
 ---
 
@@ -260,18 +291,24 @@ flowchart TD
 
 ## 四、最终质量审查员独立门禁 (Gatekeeper Checkpoints)
 
-在生成最终交付物前，最终质量审查员 ([quality_gatekeeper.md](role/quality_gatekeeper.md)) 必须执行独立核验并签署审查决议：
+在生成最终交付物前，最终质量审查员 ([quality_gatekeeper.md](role/quality_gatekeeper.md)) 必须严格执行双门禁独立核验：
 
-- [ ] 1. **检索式布尔语法**：括号严格匹配，无逻辑符号颠倒；
-- [ ] 2. **概念矩阵查全度**：已发掘 7 维变体与拉丁学名，无单一检索式偷懒；
-- [ ] 3. **重点期刊与来源过滤**：已生成四层级期刊及 WoS/PubMed 过滤代码；
-- [ ] 4. **初筛一致性**：无主观随意排除，所有 `Uncertain` 文献均完整保留；
-- [ ] 5. **零伪造红线**：无法核验 DOI 均标记 `DOI = NR`，无任何由摘要凭空推断具体实验参数或数值的违规；
-- [ ] 6. **数据源披露透明度**：诚实标明实际检索与受限商业库，提供人工补检式；
-- [ ] 7. **开源下载真实性**：若执行 Stage 8，本地 PDF 均通过 `%PDF-` 魔数与文件体量校验，无 HTML 伪装损坏文件；
-- [ ] 8. **硕博士学位论文履约核验**：严格按照 Grill-Me 确认的学位论文需求，落实专属检索式生成、高校知识库直链探测与台账标识；
-- [ ] 9. **PRISMA-S 系统评价扩展标准机审**：对照 [prisma_s_checklist.md](references/prisma_s_checklist.md) 校验适用条目，在最终决议中输出 PRISMA-S 评分卡（按实际工作流标明适用项与合规等级，严禁未核验写死 16/16）；
-- [ ] 10. **浏览器兜底下载安全与凭据审计**（若执行 Stage 8B）：确认凭据未泄露、`.env` 在 `.gitignore` 中、下载文件通过校验、未下错文献、请求频率合规。
+### Gate A — 检索发现完整性门禁 (Discovery Coverage Gate — 优先执行)
+- [ ] 1. **计划数据源全量审计**：所有计划数据库均有明确执行状态（`SEARCHED_COMPLETE` / `SEARCHED_PARTIAL` / `AUTH_REQUIRED` 等），绝无漏报；
+- [ ] 2. **零命中诚实性核验 (Rule 10)**：严禁将访问失败（403/AUTH_REQUIRED/BOT_BLOCKED/NOT_SEARCHED）伪报为 0 篇命中，命中数必须记为 `null`，覆盖度记为 `UNKNOWN`；
+- [ ] 3. **总命中数与抓取数对账**：数据库显示总命中数 (`reported_total_hits`) 与实际抓取题录数严格对账；
+- [ ] 4. **分页完整性审计**：分页存在截断必须如实标记 `TRUNCATED_BY_LIMIT`，覆盖度标为 `PARTIAL`，严禁截断分页虚报完全检索；
+- [ ] 5. **元数据底册固化 (Corpus Frozen)**：在启动全文获取前，发现候选文献全集底册已通过 `freeze_metadata_corpus()` 冻结固化；
+- [ ] 6. **跨库替代严禁红线**：严禁将第三方平台（如 OpenAlex/Web）中偶发检索到的文献当作专业专库（如知网/万方）的完整检索证据；
+- [ ] 7. **检索缺口显式声明**：若存在任何未执行或截断库，必须显式输出 `Retrieval Gaps` 科学风险预警。
+
+### Gate B — 全文获取与学术诚信门禁 (Full-Text Acquisition Gate — 后续执行)
+- [ ] 8. **初筛候选尽力获取**：对所有 `Include` 及 `Uncertain` 题录穷尽合法 OA 与机构获取路径；
+- [ ] 9. **候选保留红线 (Rule 4)**：严禁因全文下载失败从候选文献全集中删除题录，未获得全文记录必须永久保留并归入《手动补检清单》；
+- [ ] 10. **全文文件真实性**：本地 PDF 均通过 `%PDF-` 魔数与 $\ge 10\text{ KB}$ 体量校验，彻底杜绝 HTML 伪装损坏文件；
+- [ ] 11. **零伪造红线**：无法核验 DOI 标记 `DOI = NR`，严禁从摘要凭空捏造全文实验细节与参数；
+- [ ] 12. **PRISMA-S 标准机审与评分**：对照 [prisma_s_checklist.md](references/prisma_s_checklist.md) 校验适用条目并出具真实评分卡；
+- [ ] 13. **浏览器兜底下载安全与凭据审计**（若执行 Stage 8B）：确认凭据未泄露、`.env` 在 `.gitignore` 中、下载文件通过校验、未下错文献、请求频率合规。
 
 审查员必须在报告末尾签署形式化核验决议（PASS 放行 / REJECT 驳回重修）。
 
@@ -280,9 +317,9 @@ flowchart TD
 ## 五、支撑文档与参考资源目录
 
 - **角色与审查模块 (`role/`)**：
-  - [specialist_role.md](role/specialist_role.md)：系统化检索主导专家契约与 6 大铁律 (含 Headless 与并发初筛协议)
+  - [specialist_role.md](role/specialist_role.md)：系统化检索主导专家契约与核心铁律 (含 Headless 与并发初筛协议)
   - [domain_advisor.md](role/domain_advisor.md)：通用词矩阵与重点期刊助手（动态探索机制与学位论文策略）
-  - [quality_gatekeeper.md](role/quality_gatekeeper.md)：最终质量审查员独立审计规范与 PRISMA-S 评分放行令
+  - [quality_gatekeeper.md](role/quality_gatekeeper.md)：最终质量审查员独立审计规范与 Gate A/Gate B 质检双规程
 - **阶段详细规程 (`references/`)**：
   - [stage0_grill_me.md](references/stage0_grill_me.md)：Stage 0 自适应决策门禁与动态维度收敛规程
   - [theses_retrieval.md](references/theses_retrieval.md)：中英文硕博士学位论文专项检索与下载规程（CNKI博硕/PQDT/OATD/高校IR）
@@ -290,22 +327,24 @@ flowchart TD
   - [prisma_s_checklist.md](references/prisma_s_checklist.md)：PRISMA-S 16 项系统评价文献检索扩展标准机审规程
   - [concept_matrix.md](references/concept_matrix.md)：Stage 1-2 概念矩阵与检索式扩展规程
   - [journal_mapping.md](references/journal_mapping.md)：四层级重点期刊评价体系与语法映射
-  - [databases_and_tools.md](references/databases_and_tools.md)：Stage 3 多数据源协同检索与工具调度指南
+  - [databases_and_tools.md](references/databases_and_tools.md)：Stage 3 多数据源协同检索、三种支持模式与工具调度指南
   - [screening_and_chasing.md](references/screening_and_chasing.md)：Stage 4-6 去重、初筛与引文追踪规程
   - [saturation_and_qc.md](references/saturation_and_qc.md)：Stage 7 饱和度收敛评估与 PRISMA 质控流
   - [stage8_oa_download.md](references/stage8_oa_download.md)：Stage 8 开源文献下载与完整性审计规程
   - [stage8b_browser_fallback.md](references/stage8b_browser_fallback.md)：Stage 8B 浏览器辅助兜底下载操作协议（站点适配、凭据安全、操作序列）
   - [zotero_watch_folder.md](references/zotero_watch_folder.md)：Zotero 监听目录与双层 CSL-JSON 文献库生态沉淀指南
 - **执行脚本与工具 (`scripts/`)**：
+  - `scripts/retrieval_coverage.py`：检索覆盖度对账 (Ledger A)、元数据底册固化与 Gate A 独立审计脚本
   - `scripts/download_oa_papers.py`：开源文献批量下载、魔数核验与双层 CSL-JSON 生成脚本
-  - `scripts/ingest_external_records.py`：外部文献 (CNKI/万方/WoS/RIS) 标准化导入与去重脚本
+  - `scripts/ingest_external_records.py`：外部文献 (CNKI/万方/维普/WoS/RIS) 标准化导入、交叉去重与元数据补全脚本
   - `scripts/calculate_screening_agreement.py`：PRISMA 2020 Item 8 双评阅人一致性检验与 Cohen's Kappa 计算脚本
   - `scripts/agent_search.py`：Headless / Agent 模式专用纯数据检索管道脚本
-
 - **标准资产与模板 (`assets/`)**：
+  - [retrieval_coverage_ledger_template.json](assets/retrieval_coverage_ledger_template.json)：检索覆盖度台账 Ledger A 模板
+  - [metadata_corpus_summary_template.json](assets/metadata_corpus_summary_template.json)：固化候选文献底册元数据概览模板
   - [concept_matrix_template.md](assets/concept_matrix_template.md)：概念矩阵输出模板
   - [journal_recommendation_template.md](assets/journal_recommendation_template.md)：重点期刊推荐与过滤语法模板
-  - **Canonical Schemas**：检索输出遵循 [`schemas/discovery_result.schema.json`](../../schemas/discovery_result.schema.json) 与 [`schemas/literature_record.schema.json`](../../schemas/literature_record.schema.json)（统一单一真源，Skill assets 内不保留重复 executable schema）
+  - **Canonical Schemas**：检索输出遵循 [`schemas/discovery_result.schema.json`](../../schemas/discovery_result.schema.json)、[`schemas/retrieval_coverage_ledger.schema.json`](../../schemas/retrieval_coverage_ledger.schema.json) 与 [`schemas/literature_record.schema.json`](../../schemas/literature_record.schema.json)
   - [csl_json_schema.json](assets/csl_json_schema.json)：CSL-JSON 标准数据格式 Schema
   - [site_registry_template.json](assets/site_registry_template.json)：Stage 8B 站点适配器注册表模板（CNKI/万方/学校代理）
   - [browser_credentials_example.env](assets/browser_credentials_example.env)：Stage 8B 凭据文件示例（不含真实密码）
@@ -316,7 +355,7 @@ flowchart TD
 - **案例与反模式对照 (`examples/`)**：
   - [deep_search_ecology_case.md](examples/deep_search_ecology_case.md)：生态学/分子遗传学深度检索全流程案例（设计时参考）
   - [quick_search_biomedical_case.md](examples/quick_search_biomedical_case.md)：生物医学快速精准检索案例（设计时参考）
-  - [anti_patterns.md](examples/anti_patterns.md)：12 种学术检索反模式与负向清单
+  - [anti_patterns.md](examples/anti_patterns.md)：16 种学术检索反模式与负向清单（含虚假全覆盖、下载偏倚、阻断伪称零检出、跨源替代）
   - [real_execution_log_template.md](examples/real_execution_log_template.md)：真实执行日志归档模板——每次完成实际文献检索后，按 `real_execution_log_YYYY-MM-DD_<课题>.md` 归档，用于 Skill 校准与经验沉淀
 
 ---

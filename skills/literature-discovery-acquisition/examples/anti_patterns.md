@@ -99,3 +99,32 @@
 - ❌ **违规表现**：在付费站点搜索后，不验证搜索结果的标题、作者和年份是否与目标文献一致，直接点击第一条结果的下载按钮。
 - ⚠️ **学术危害**：下错文献将导致后续精读、引用和论文写作建立在错误的原始材料上，属于严重的证据链断裂。
 - ✅ **正确做法**：下载前必须交叉验证搜索结果的标题（归一化后 ≥ 85% 字符重叠）、年份（精确匹配）和第一作者姓氏（必须出现在结果作者列表中）。不匹配时标记 `MATCH_FAILED`，绝不下载。
+
+---
+
+### 反模式 15：虚假完全检索 / 隐瞒分页截断 (Phantom Completeness / Hidden Truncation)
+- ❌ **违规表现**：数据库返回 863 条命中，系统受限仅抓取第 1 页 50 条，却声称“知网检索已完成 (COMPLETE)”。
+- ⚠️ **学术危害**：遗漏超过 90% 的候选文献，给科研人员造成“查全”的虚假安全感，引发重大文献漏检。
+- ✅ **正确做法**：抓取数少于总命中数时，必须明确标记 `pagination_status: TRUNCATED_BY_LIMIT`，覆盖度标为 `PARTIAL`，并在 Gate A 审查中如实披露检索缺口。
+
+---
+
+### 反模式 16：下载偏倚 / 丢弃未获取全文题录 (Download Bias / Record Dropping on Acquisition Failure)
+- ❌ **违规表现**：因文献处于付费墙、遭遇 403 阻断或校园网权限不足，下载失败后直接将该文献从候选文献表中删除。
+- ⚠️ **学术危害**：将全文获取能力的技术局限扭曲为文献不存在，系统性遗漏重要商业文献，破坏系统评价全景性。
+- ✅ **正确做法**：恪守核心铁律 *A discovered record remains part of the candidate corpus regardless of full-text acquisition status*。题录一经可靠发现永久保留在候选集，下载失败归入《手动补检清单》。
+
+---
+
+### 反模式 17：访问阻断伪称零检出 (Access Failure Masquerading as Zero Hits)
+- ❌ **违规表现**：遇到知网或万方登录鉴权（AUTH_REQUIRED）、反爬拦截（BOT_BLOCKED）或 403 时，在报告中记录 `CNKI: 0 hits`。
+- ⚠️ **学术危害**：没有执行检索 ≠ 检索结果为零。将访问障碍冒充为“该领域无文献”，属于严重的不严谨与学术造假。
+- ✅ **正确做法**：遇到阻断时，`reported_total_hits: null`，`execution_status: AUTH_REQUIRED`，`coverage_status: UNKNOWN`。只有数据库成功响应且明确返回 0 条时才允许记录 0 hits。
+
+---
+
+### 反模式 18：跨源发现冒充专库检索 (Cross-source Substitution)
+- ❌ **违规表现**：在 OpenAlex 或 Google Scholar 中偶然发现了几篇知网中文文献，便在审计报告中声称“知网 (CNKI) 已完成检索”。
+- ⚠️ **学术危害**：跨库发现是互补的（Complementary），绝不具替代性（Substitutive）。第三方开放平台对特定专业库的收录极其残缺，不可替代专库检索。
+- ✅ **正确做法**：第三方平台发现的文献源标记为原检出平台；知网/万方必须通过直接检索、浏览器会话或用户题录导出（Mode A/B/C）独立执行，否则必须如实披露该库的检索缺口 (Retrieval Gap)。
+

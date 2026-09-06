@@ -46,10 +46,11 @@ from controversy_analyzer import compute_topic_consensus, normalize_claim
 from audit_claims import audit_single_claim
 from agent_search import deduplicate_records
 from claim_alignment import verify_claim_alignment, calculate_alignment_metrics
+from retrieval_coverage import evaluate_coverage_status, RetrievalStatus, CoverageStatus, PaginationStatus
 
 
 def evaluate_discovery_benchmark() -> dict:
-    """Evaluate Discovery Benchmark focusing on Known-Seed Recovery and Deduplication Accuracy (P1-12)."""
+    """Evaluate Discovery Benchmark focusing on Known-Seed Recovery, Dedup, and Retrieval Coverage (P1-12)."""
     gold_file = DATA_DIR / "discovery_gold_set.json"
     with open(gold_file, "r", encoding="utf-8") as f:
         gold = json.load(f)
@@ -78,6 +79,18 @@ def evaluate_discovery_benchmark() -> dict:
         dedup_accurate = (len(deduped) == len(sample_pool) - 1)
 
         if recall >= min_recall and dedup_accurate:
+            passed_cases += 1
+
+    for ctc in gold.get("coverage_test_cases", []):
+        total_test_cases += 1
+        exec_st = ctc.get("execution_status", RetrievalStatus.SEARCHED_COMPLETE)
+        cov = evaluate_coverage_status(
+            execution_status=exec_st,
+            reported_total_hits=ctc.get("reported_total_hits"),
+            metadata_records_retrieved=ctc.get("metadata_records_retrieved", 0),
+            pagination_status=ctc.get("pagination_status", PaginationStatus.COMPLETE)
+        )
+        if cov == ctc.get("expected_coverage"):
             passed_cases += 1
 
     pass_rate = passed_cases / max(1, total_test_cases)

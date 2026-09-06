@@ -46,23 +46,39 @@ flowchart TD
 - **Google Scholar / Semantic Scholar 探测**：利用 `search_web` 针对特定复合检索短语进行检索，捕获高引用经典论文；
 - **DOI 官方解析与落地页元数据抓取**：通过 `read_url_content` 访问 `https://doi.org/<DOI>` 或出版商官方摘要页，核实准确标题、作者列表与摘要，严格消除幻觉。
 
-### 3. 第三层：商业/受限数据库人工补检与极速摄取（声明式缺口与 CLI 工具流）
-因绝大部分 Agent 环境无法直接绕过校园网 IP / 商业付费鉴权（Web of Science, Scopus, CNKI, 万方, ProQuest），**严禁伪称已经检索了这些数据库**。必须在报告中开辟独立章节，输出已经格式化、测试过的专用检索代码块：
-- **Web of Science Advanced Search** 检索式；
-- **Scopus Advanced Search** 检索式；
-- **CNKI 专业检索** 检索式（含中文字段限定与学位限定）；
-- **万方医学/科技高级检索** 检索式。
+### 3. 第三层：商业/受限数据库支持模式与极速摄取 (Three Coverage Modes)
+因绝大部分 Agent 环境无法直接绕过商业付费鉴权（Web of Science, Scopus, CNKI, 万方, 维普 VIP, ProQuest），系统正式支持**三种合法可审计的数据源覆盖模式 (Three Coverage Modes)**：
+
+| 模式 | 模式名称 | 执行方式 | 覆盖认定标准 |
+|---|---|---|---|
+| **Mode A** | `DIRECT_METADATA_SEARCH` | 自动化环境直接访问可用 API 或开放元数据接口执行检索 | 接口返回完整命中且抓取全部题录 |
+| **Mode B** | `BROWSER_METADATA_SEARCH` | 浏览器会话处理 JS 动态渲染/Session 登录，读取检索结果列表 | 完整遍历分页至总命中数 |
+| **Mode C** | `USER_ASSISTED_EXPORT` | 用户在校园网/机构内执行 ScholarFlow 派生的检索式，导出全部题录文件交由脚本解析 | 导出记录数与检索命中数严格对账一致 |
+
+> [!NOTE]
+> **三种模式均属于合格的数据库覆盖路径**。无论哪种模式，只要完整获取了检索式对应的题录，均可在 Ledger A 中标记为 `COMPLETE` 覆盖。
+
+#### 🇨🇳 中文数据库支持画像 (Chinese Database Support Profiles)
+1. **中国知网 (CNKI)**：
+   - 支持 Refworks 格式题录导入、期刊文献与博硕士学位论文解析；
+   - 记录 `reported_total_hits` 并校验分页完整性；
+2. **万方数据 (Wanfang)**：
+   - 支持 RIS、EndNote 及 CSV 表格题录导入；
+   - 保留 `source_databases: ["Wanfang"]` 独立溯源；
+3. **维普数据库 (VIP)**：
+   - 支持维普自定义字段标签（`【题名】`、`【作者】`、`【机构】`、`【刊名】`、`【年份】`、`【文摘】`、`【关键词】`、`【DOI】`）及标准 Tagged 格式解析；
+   - 自动识别期刊论文与博硕士学位论文。
 
 #### 🚀 商业库题录极速摄取流水线 (Ingestion Pipeline)
-用户在校园网内检索并批量导出 Refworks/RIS/EndNote 文件（耗时约 30 秒）后，调用内置脚本实现免爬虫无缝解析合流：
+用户在校园网内检索并批量导出 Refworks/RIS/EndNote/VIP 文件后，调用内置脚本实现免爬虫无缝解析合流：
 ```bash
-# 一键解析并标准化知网/万方/WoS 外部导出文献
+# 一键解析并标准化知网/万方/维普/WoS 外部导出文献
 python skills/literature-discovery-acquisition/scripts/ingest_external_records.py \
-  -i ./user_exports/cnki_refworks.txt \
+  -i ./user_exports/ \
   -o ./output/external_candidates.json \
-  --source CNKI
+  --source auto
 ```
-脚本自动解析题名、作者、年份、摘要、期刊/高校，并按统一 Schema 注入 Stage 4 去重与 Stage 5 初筛流程，彻底打破封闭商业库壁垒。
+脚本自动解析题名、作者、年份、摘要、期刊/高校，并执行跨源去重与元数据相互补全（`merge_candidate_records`），保留多库重合证据（`source_databases`），严禁因无全文丢弃题录。
 
 
 ---

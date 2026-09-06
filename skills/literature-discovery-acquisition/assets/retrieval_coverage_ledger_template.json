@@ -1,0 +1,97 @@
+{
+  "ledger_type": "RETRIEVAL_COVERAGE_LEDGER_A",
+  "version": "1.0",
+  "description": "ScholarFlow Skill 1 — Retrieval Coverage Ledger (Ledger A) Template",
+  "total_planned_sources": 3,
+  "complete_sources": 2,
+  "database_coverage_rate": 0.6667,
+  "query_execution_rate": 1.0,
+  "has_retrieval_gaps": true,
+  "retrieval_gaps": [
+    {
+      "source_id": "Wanfang",
+      "gap_type": "PARTIAL_OR_UNRESOLVED_COVERAGE",
+      "risk_level": "HIGH_SCIENTIFIC_RISK",
+      "description": "Source Wanfang achieved PARTIAL coverage (74 records retrieved vs 91 reported hits)."
+    }
+  ],
+  "source_coverage_summary": [
+    {
+      "source_id": "OpenAlex",
+      "search_mode": "DIRECT_API",
+      "executed": true,
+      "query_count": 2,
+      "total_reported_hits": 315,
+      "metadata_records_retrieved": 315,
+      "unique_records": 315,
+      "coverage_status": "COMPLETE"
+    },
+    {
+      "source_id": "CNKI",
+      "search_mode": "USER_ASSISTED_EXPORT",
+      "executed": true,
+      "query_count": 1,
+      "total_reported_hits": 138,
+      "metadata_records_retrieved": 138,
+      "unique_records": 138,
+      "coverage_status": "COMPLETE"
+    },
+    {
+      "source_id": "Wanfang",
+      "search_mode": "BROWSER_METADATA_SEARCH",
+      "executed": true,
+      "query_count": 1,
+      "total_reported_hits": 91,
+      "metadata_records_retrieved": 74,
+      "unique_records": 74,
+      "coverage_status": "PARTIAL"
+    }
+  ],
+  "entries": [
+    {
+      "source_id": "OpenAlex",
+      "query_id": "Q01",
+      "query_text": "concept A AND concept B",
+      "search_mode": "DIRECT_API",
+      "execution_status": "SEARCHED_COMPLETE",
+      "reported_total_hits": 315,
+      "metadata_records_retrieved": 315,
+      "unique_records_after_source_dedup": 315,
+      "pagination_status": "COMPLETE",
+      "coverage_status": "COMPLETE",
+      "metadata_retrieval_rate": 1.0,
+      "failure_reason": null,
+      "notes": "Full automated pagination completed."
+    },
+    {
+      "source_id": "CNKI",
+      "query_id": "Q04",
+      "query_text": "篇名=(主题词A) AND 全文=(方法词B)",
+      "search_mode": "USER_ASSISTED_EXPORT",
+      "execution_status": "SEARCHED_COMPLETE",
+      "reported_total_hits": 138,
+      "metadata_records_retrieved": 138,
+      "unique_records_after_source_dedup": 138,
+      "pagination_status": "COMPLETE",
+      "coverage_status": "COMPLETE",
+      "metadata_retrieval_rate": 1.0,
+      "failure_reason": null,
+      "notes": "Imported via RefWorks user export, verified count."
+    },
+    {
+      "source_id": "Wanfang",
+      "query_id": "Q04_WF",
+      "query_text": "题名:(主题词A) and 关键词:(方法词B)",
+      "search_mode": "BROWSER_METADATA_SEARCH",
+      "execution_status": "SEARCHED_PARTIAL",
+      "reported_total_hits": 91,
+      "metadata_records_retrieved": 74,
+      "unique_records_after_source_dedup": 74,
+      "pagination_status": "TRUNCATED_BY_LIMIT",
+      "coverage_status": "PARTIAL",
+      "metadata_retrieval_rate": 0.8132,
+      "failure_reason": "Pagination stopped at page 4 due to rate limiting.",
+      "notes": "Partial retrieval; 17 records unretrieved."
+    }
+  ]
+}
