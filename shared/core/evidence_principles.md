@@ -64,6 +64,11 @@
 - 核心规范中出现的一切学科特定案例（如 PCR、临床试验队列、神经网络层数等），仅仅作为理解辅助示例；
 - 执行规则本身必须使用学科中立的抽象术语（如 `Target Entity`, `Method`, `Context Unit`, `Outcome`）。
 
+### 原则 7：主张必须由主张级证据支持 (Claim–Evidence Alignment Principle)
+- **认识论红线**：**Mention ≠ Relation**（提及 ≠ 关系），**Co-occurrence ≠ Relation**（共现 ≠ 关系），**Contextual proximity ≠ Relation**（上下文邻近 ≠ 目标关系），**Entity evidence ≠ Claim evidence**（实体证据 ≠ 主张证据）；
+- 提取科学关系、机制、因果、优劣对比、调控或命题型事实时，必须验证目标主张本身；实体在同一上下文中的共现、共测或邻近，绝不能作为该关系成立的充分证据；
+- 仅当证据在正确的同质上下文内直接、结构化支持目标主张本身时，才允许进入确认输出（Confirmed Output）；严禁模型擅自添加关系谓词，严禁跨不兼容上下文拼凑断言。
+
 ---
 
 ## 三、跨学科通用本体映射 (Universal Ontology)

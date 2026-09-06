@@ -45,6 +45,7 @@ for p in [
 from controversy_analyzer import compute_topic_consensus, normalize_claim
 from audit_claims import audit_single_claim
 from agent_search import deduplicate_records
+from claim_alignment import verify_claim_alignment, calculate_alignment_metrics
 
 
 def evaluate_discovery_benchmark() -> dict:
@@ -201,11 +202,56 @@ def evaluate_synthesis_benchmark() -> dict:
     }
 
 
+def evaluate_claim_relation_alignment_benchmark() -> dict:
+    """Evaluate Universal Claim-Evidence Relation Alignment Benchmark (0% False Relation Rate)."""
+    gold_file = DATA_DIR / "claim_relation_gold_set.json"
+    with open(gold_file, "r", encoding="utf-8") as f:
+        gold = json.load(f)
+
+    eval_records = []
+    total_cases = 0
+    passed_cases = 0
+
+    for tc in gold["test_cases"]:
+        total_cases += 1
+        verdict = verify_claim_alignment(
+            target_claim=tc["target_claim"],
+            evidence_text=tc["evidence_text"],
+            evidence_context=tc.get("evidence_context"),
+            table_bundle=tc.get("table_bundle"),
+            is_cross_context=tc.get("is_cross_context", False)
+        )
+        if verdict["status"] == tc["expected_status"]:
+            passed_cases += 1
+
+        eval_records.append({
+            "case_id": tc["case_id"],
+            "is_true_non_relation": tc.get("is_true_non_relation", False),
+            "tests_predicate_insertion": tc.get("tests_predicate_insertion", False),
+            "predicate_grounded": tc.get("predicate_grounded", True),
+            "verdict": verdict
+        })
+
+    metrics = calculate_alignment_metrics(eval_records)
+    all_matched = (passed_cases == total_cases)
+    meets_targets = (metrics["false_relation_rate"] == 0.0 and metrics["unsupported_predicate_insertion_rate"] == 0.0)
+
+    return {
+        "benchmark": "Claim-Evidence Relation Alignment Benchmark",
+        "total_cases": total_cases,
+        "passed_cases": passed_cases,
+        "false_relation_rate": metrics["false_relation_rate"],
+        "unsupported_predicate_insertion_rate": metrics["unsupported_predicate_insertion_rate"],
+        "status": "PASS" if (all_matched and meets_targets) else "FAIL"
+    }
+
+
 def run_all_benchmarks(output_format="markdown", output_file=None):
     results = [
         evaluate_discovery_benchmark(),
         evaluate_extraction_benchmark(),
         evaluate_claim_verification_benchmark(),
+        evaluate_claim_relation_alignment_benchmark(),
         evaluate_synthesis_benchmark(),
     ]
 
@@ -229,6 +275,9 @@ def run_all_benchmarks(output_format="markdown", output_file=None):
             elif "false_support_rate" in r:
                 lines.append(f"| **{name}** | Accuracy (Co-location Match) | ≥ 90% | `{r['accuracy'] * 100:.1f}%` | **[{r['status']}]** |")
                 lines.append(f"| | False-Support Rate (Adversarial False Acceptance) | 0.00% | `{r['false_support_rate'] * 100:.1f}%` | **[{r['status']}]** |")
+            elif "false_relation_rate" in r:
+                lines.append(f"| **{name}** | False-Relation Rate (Strict Non-Relation Rejection) | 0.00% | `{r['false_relation_rate'] * 100:.1f}%` | **[{r['status']}]** |")
+                lines.append(f"| | Unsupported Predicate Insertion Rate | 0.00% | `{r['unsupported_predicate_insertion_rate'] * 100:.1f}%` | **[{r['status']}]** |")
             elif "calibration_rate" in r:
                 lines.append(f"| **{name}** | Consensus Calibration Rate | 1.00 | `{r['calibration_rate'] * 100:.1f}%` | **[{r['status']}]** |")
 

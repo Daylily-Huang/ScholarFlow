@@ -15,6 +15,11 @@ description: 通用学科科研文献证据可信抽取与事实核验专业技�
 > 严厉执行总原则：**Quote → Extract → Verify → Interpret**
 > 严厉禁止反模式：**Read → Remember → Guess → Answer**
 > 核心承诺：**没有直接证据时输出 `NR`（Not Reported），严禁捏造看起来合理的参数。**
+>
+> ### 🛡️ 主张—证据对齐底层原则 (Universal Claim–Evidence Alignment Principle)
+> **Mention ≠ Relation. Co-occurrence ≠ Relation. Contextual proximity ≠ Relation. Entity evidence ≠ claim evidence.**  
+> **提及 ≠ 关系。共现 ≠ 关系。上下文邻近 ≠ 目标关系。实体证据 ≠ 主张证据。**  
+> 当用户请求输出科学关系、因果、关联、比较、机制、调控、支持/反驳判定或命题型事实时，ScholarFlow 必须验证**目标主张（Target Claim）本身**。相关实体、变量或关键词的单纯出现、共同出现、上下文邻近或共同测量，绝不能作为该关系或主张成立的充分证据。只有当证据在正确的证据上下文（Evidence Context）中显式或结构化地支持该主张本身时，才允许进入 Confirmed Output。绝对禁止将实体级证据（Entity Evidence）静默升级为关系级证据（Relation Evidence）。
 
 ---
 
@@ -52,6 +57,10 @@ description: 通用学科科研文献证据可信抽取与事实核验专业技�
 - **直接执行辅助脚本**：使用 `scripts/pdf_evidence_locator.py` 或 `scripts/audit_claims.py`；
 - **硬性输出契约**：结构化 JSON 输出必须严格遵循 canonical `schemas/extraction_result.schema.json`。
 
+#### 🔗 分支 D：关系与主张型抽取分支 (Claim / Relation Extraction Mode)
+- **触发条件**：当任务提取涉及关系、因果、影响、机制、比较、关联、调控、支持/反驳判定等命题型主张时（`extraction_semantics == CLAIM_RELATION` 或 `MIXED` 中涉及关系部分）；
+- **强制加载**：**必须加载** [references/claim_evidence_alignment.md](./references/claim_evidence_alignment.md)（掌握 5 大对齐门禁、10 大状态标签及跨上下文拼接禁令）；纯属性值抽取（`ATTRIBUTE`）无需额外加载。
+
 ---
 
 ## 一、三位一体协同角色架构 (Triad Role Architecture)
@@ -59,16 +68,16 @@ description: 通用学科科研文献证据可信抽取与事实核验专业技�
 技能执行中由三个专门角色协同运作（详见 `role/` 目录）：
 
 1. **主导抽取专员 ([specialist_role.md](./role/specialist_role.md))**：
-   - 统筹执行全流程抽取，严格遵循 8 大铁律；
+   - 统筹执行全流程抽取，严格遵循 9 大硬铁律；
    - 负责正文/表格/附录拆解、截取最小充分原文引句并提取候选值；
-   - 严禁凭空脑补、严禁把引用别人研究当成本文结果、严禁将 Discussion 推测记为结论。
+   - 严禁凭空脑补、严禁把引用别人研究当成本文结果、严禁将 Discussion 推测记为结论、严禁将实体共现升级为关系结论。
 2. **实验上下文与动态 Schema 建模助手 ([context_modeler.md](./role/context_modeler.md))**：
    - 动态解析目标论文结构并构建针对性抽取 Schema；
    - 负责复杂实验体系（Assay Context）严格隔离，防止不同实验参数交叉污染；
    - 建立正文、主表与补充材料的数据映射层级。
 3. **证据链独立核验审查员 ([evidence_auditor.md](./role/evidence_auditor.md))**：
-   - **独立一票降级与否决权**：在交付最终报告前对每个字段进行反向对账核验；
-   - 审查候选值是否能由引文直接推导；对无法证实者一律强制降级为 `DERIVED`、`REFERENCED` 或 `NR`；
+   - **独立一票降级与否决权**：在交付最终报告前对每个字段进行 15 项硬指标反向对账核验；
+   - 审查候选值是否能由引文直接推导；对无法证实者一律强制降级为 `DERIVED`、`REFERENCED`、`AMBIGUOUS` 或 `NR`；
    - 检查 OCR 风险标记，签署核验通告令。
 
 ---
@@ -87,9 +96,10 @@ description: 通用学科科研文献证据可信抽取与事实核验专业技�
 
 ```mermaid
 flowchart TD
-    S0[Stage 0: 论文全文接入 + 模式确认 + 动态定制 Schema] --> P1[Phase A: 候选事实定位与最小充分引文截取 Extraction]
-    P1 --> P2[Phase B: 证据链逐条反向核验与降级 Verification]
-    P2 --> QG[证据审查员 Evidence Auditor 签署通告]
+    S0[Stage 0: 论文全文接入 + 模式确认 + 动态定制 Schema] --> P1A[Phase A1: 候选事实定位与证据截取 Candidate Detection]
+    P1A --> P1B[Phase A2: 主张—证据对齐判定 Claim-Evidence Alignment Gate]
+    P1B --> P2[Phase B: 证据链逐条反向核验与降级 Verification]
+    P2 --> QG[证据审查员 Evidence Auditor 签署通告 (含 15 项清单)]
     QG -->|用户未要求解释| P3_Skip[输出双轨交付物: Markdown 证据矩阵 + JSON]
     QG -->|用户明确要求解释| P3[Phase C: 科学解释与推论 Interpretation 严格隔离]
     P3 --> P3_Skip
@@ -109,20 +119,19 @@ flowchart TD
 - **Stage 0C：协议快照生成与执行放行 (Protocol Snapshot & Execution Gate)**：
   - 支持 `按推荐`、`1A 2B 3C` 极速回复，确认后生成包含完整来源追溯（`[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）的 Protocol Snapshot，状态转为 `CONFIRMED` 后解锁 Phase A。
 
-### 1. Phase A — Extraction（纯粹抽取）
-- 只定位原文句子、表格行、附录；
-- 截取“最小充分原句（Verbatim Quote）”；
-- 提取原始字面值（Candidate Value），不做任何评价与推论。
+### 1. Phase A — Candidate Detection & Alignment（候选定位与主张对齐）
+- **Phase A1 — Candidate Evidence Detection（候选定位）**：定位原文句子、表格行、附录，截取“最小充分原句（Verbatim Quote）”，允许高召回；
+- **Phase A2 — Claim–Evidence Alignment Gate（主张对齐硬门禁）**：当涉及关系或命题型事实时，严格核对“证据是否真正支持用户要求的完整科学主张”，坚决阻断“共现冒充关系”；属性值抽取直接进入 Phase B。
 
 ### 2. Phase B — Verification（证据核验）
-- 逐条审查：**当前候选值是否能由原句直接、完全支持？**
+- 逐条审查：**当前候选值/主张是否能由原句直接、完全支持？**
 - 严格评定四级证据体系代码：
   - **E1 (EXPLICIT)**：原文明示，直接匹配；
   - **E2 (DERIVED)**：原文提供数据计算得出，必附推导公式；
   - **E3 (REFERENCED)**：引述外文（如“following Smith 2012”），本篇值记为 `NR`，引文单列；
-  - **E4 (NR)**：Not Reported，全文未提及，绝不常识补缺。
-- 标记状态标签（`SUPPORTED`, `UNSUPPORTED`, `CONTRADICTORY`, `AMBIGUOUS`, `OCR_UNCERTAIN`）。
-- **NR 语义防护（NOT_REPORTED ≠ UNSUPPORTED）**：未报告记录的 `claim_status` 一律记 `AMBIGUOUS` 并在 notes 注明「NR 非论断」，严禁记 `UNSUPPORTED`——"论文没写"不等于"论文说错了"。
+- 标记通用状态标签（属性事实：`SUPPORTED`, `UNSUPPORTED`, `CONTRADICTORY`, `AMBIGUOUS`, `OCR_UNCERTAIN`；关系主张事实扩展：`SUPPORTED`, `PARTIALLY_SUPPORTED`, `DERIVED`, `AMBIGUOUS`, `CONTRADICTORY`, `BACKGROUND_ONLY`, `CONTEXT_ONLY`, `OTHER_ENTITY_CONTEXT`, `REFERENCED_ONLY`, `NOT_REPORTED`）。
+- **NR 语义防护（NOT_REPORTED ≠ UNSUPPORTED）**：未报告记录的 `claim_status` 一律记 `AMBIGUOUS` / `NOT_REPORTED` 并在 notes 注明「NR 非论断」，严禁记 `UNSUPPORTED`——"论文没写"不等于"论文说错了"。
+- 仅 `SUPPORTED`, `PARTIALLY_SUPPORTED`, `DERIVED` 且属于当前研究（`current_study = true`）的主张才允许进入 Confirmed Output。
 
 ### 3. Phase C — Interpretation（科学解释，仅在用户明确要求时启用）
 - **严格与证据表物理隔离**，以独立章节 `### 科学解释与分析推论 (Scientific Interpretation)` 呈现；
@@ -163,10 +172,11 @@ flowchart TD
 ## 六、支撑资源与文档目录
 
 - **角色规范 (`role/`)**：
-  - [specialist_role.md](./role/specialist_role.md)：主导抽取专员契约与 8 大硬铁律
+  - [specialist_role.md](./role/specialist_role.md)：主导抽取专员契约与 9 大硬铁律
   - [context_modeler.md](./role/context_modeler.md)：上下文隔离与动态 Schema 建模助手
-  - [evidence_auditor.md](./role/evidence_auditor.md)：独立证据链核验员与一票否决审计
+  - [evidence_auditor.md](./role/evidence_auditor.md)：独立证据链核验员与 15 项清单一票否决审计
 - **核心规程 (`references/`)**：
+  - [claim_evidence_alignment.md](./references/claim_evidence_alignment.md)：全学科通用主张—证据对齐协议与关系硬门禁
   - [stage0_grill_me.md](./references/stage0_grill_me.md)：Stage 0 模式选择与动态 Schema 交互规程
   - [evidence_levels_and_status.md](./references/evidence_levels_and_status.md)：E1-E4 四级证据与状态标签定义
   - [assay_context_isolation.md](./references/assay_context_isolation.md)：复杂多实验体系参数隔离指南

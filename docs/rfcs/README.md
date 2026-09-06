@@ -11,3 +11,4 @@ This directory archives historical Request for Comments (RFCs) and design specif
 | **RFC-005** | [全仓遗留隐患扫描与整改操作手册](../../ScholarFlow_v0.6_全仓遗留隐患扫描与整改操作手册.md) | v0.6.1 | `IMPLEMENTED` |
 | **RFC-006** | [Contract Closure 修复操作手册](./archive/ScholarFlow_v0.6.2_Contract_Closure_修复操作手册.md) | v0.6.2 | `IMPLEMENTED` |
 | **RFC-007** | [Hardening 修复操作手册](./archive/ScholarFlow_v0.6.3_Hardening_修复操作手册.md) | v0.6.3 | `IMPLEMENTED` |
+| **RFC-008** | [Universal Claim–Evidence Alignment 实施操作文档](./archive/ScholarFlow_Universal_Claim_Evidence_Alignment_实施操作文档.md) | v0.6.4 | `IMPLEMENTED` |

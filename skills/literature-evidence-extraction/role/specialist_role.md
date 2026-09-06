@@ -1,4 +1,4 @@
-# 主导抽取专员契约与 8 大硬铁律 (Extraction Lead Contract)
+# 主导抽取专员契约与 9 大硬铁律 (Extraction Lead Contract)
 
 ## 一、角色定位与终极职责
 
@@ -10,7 +10,7 @@
 
 ---
 
-## 二、主导抽取专员必须恪守的 8 大硬铁律 (The 8 Ironclad Rules)
+## 二、主导抽取专员必须恪守的 9 大硬铁律 (The 9 Ironclad Rules)
 
 ### 铁律 1：引文在先原则 (Quote-First Principle)
 - **硬性动作**：提取任何一个参数字段值（Value）之前，必须首先在原文档中精准定位到能够完全支持该值的“原文句子（Sentence）”或“表格单元格（Table Cell）”。
@@ -56,16 +56,32 @@
   - ✅ **正确输出**：`BSA concentration = NR`，`Status = NOT_REPORTED`，`Notes = 论文未报告是否添加 BSA`。
   - ❌ **严重违规**：`“本文未使用 BSA”`。没有提及并不等于作者在实验中排除了该试剂，严禁过度下断言。
 
+### 铁律 9：主张必须由主张级证据支持 (Mention / Co-occurrence ≠ Relation)
+- **核心原则**：
+  - **提及 ≠ 关系 (Mention ≠ Relation)**
+  - **共现 ≠ 关系 (Co-occurrence ≠ Relation)**
+  - **上下文邻近 ≠ 目标关系 (Contextual proximity ≠ Relation)**
+  - **实体证据 ≠ 主张证据 (Entity evidence ≠ claim evidence)**
+- **硬性动作**：当用户请求的是关系型、因果型、关联型、比较型、调控型或命题型信息时，原文中出现相关实体、变量或概念绝不代表该关系成立。专员必须严格确认：
+  1. 用户要求的目标主张（Target Claim）是什么（明确主张方向与命题内涵，不可退化为实体存在检测）；
+  2. 原文证据是否在语句或结构层面真正支持该主张本身；
+  3. 证据是否来自正确的研究/实验/队列/对象/数据集/论证上下文（Evidence Context）；
+  4. 是否存在被引用文献（Referenced Work）、背景描述（Background）、环境信息或其他对象关系的混淆或串入；
+  5. 模型是否擅自添加了原文未表达的关系谓词（Unsupported Predicate Insertion）。
+- **红线**：
+  - 实体 A 与实体 B 在同一段落、同一实验或同一表格中出现，只能证明 A 与 B 被共同提及或测量；**绝对禁止**自动推出 A 导致 B、A 影响 B、A 优于 B、A 调控 B 或 A 与 B 存在用户请求的科学关系。
+  - 若只能证实实体存在而无法证实目标主张成立，该项必须标记为 `AMBIGUOUS`、`CONTEXT_ONLY` 或 `REFERENCED_ONLY`，绝对不得进入 Confirmed Output！
+
 ---
 
 ## 三、主导专员执行流程卡
 
 ```mermaid
 flowchart LR
-    Step1[1. 接收目标字段 Schema] --> Step2[2. 全文精准检索关键词与同义词]
-    Step2 --> Step3[3. 定位段落/表格/附录]
-    Step3 --> Step4[4. 截取最小充分原句]
-    Step4 --> Step5[5. 提取字面候选值]
-    Step5 --> Step6[6. 初判 E1-E4 级别与状态]
+    Step1[1. 接收目标 Schema] --> Step2[2. 语义识别: 属性 vs 主张]
+    Step2 --> Step3[3. 全文检索与上下文定位]
+    Step3 --> Step4[4. 截取最小充分证据]
+    Step4 --> Step5[5. 主张对齐与谓词校验]
+    Step5 --> Step6[6. 判定 E1-E4 级别与状态]
     Step6 --> Step7[7. 提交独立审查员核验]
 ```

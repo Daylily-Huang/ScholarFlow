@@ -1,0 +1,287 @@
+{
+  "benchmark_name": "Claim-Evidence Relation Alignment Benchmark",
+  "version": "1.0",
+  "description": "Cross-disciplinary gold set evaluating Universal Claim-Evidence Alignment Principle and 0% False Relation Rate.",
+  "target_metrics": {
+    "false_relation_rate": 0.0,
+    "unsupported_predicate_insertion_rate": 0.0
+  },
+  "test_cases": [
+    {
+      "case_id": "TEST_A_CO_OCCURRENCE_LIFE_SCIENCES",
+      "adversarial_type": "Test A — Co-occurrence Only",
+      "discipline": "Life Sciences",
+      "evidence_text": "In our RNA-seq analysis, Gene X and Gene Y both showed elevated expression levels in liver tissues.",
+      "target_claim": {
+        "text": "Gene X regulates Gene Y",
+        "subject": "Gene X",
+        "predicate": "regulates",
+        "object": "Gene Y",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "CTX_RNA_01",
+        "source_role": "CURRENT_STUDY_RESULT",
+        "location": "Results"
+      },
+      "expected_status": "AMBIGUOUS",
+      "is_true_non_relation": true,
+      "tests_predicate_insertion": true,
+      "predicate_grounded": false
+    },
+    {
+      "case_id": "TEST_A_CO_OCCURRENCE_MEDICINE",
+      "adversarial_type": "Test A — Co-occurrence Only",
+      "discipline": "Medicine",
+      "evidence_text": "Compound A was administered to all hospitalized cohorts. Overall 30-day mortality was 12%.",
+      "target_claim": {
+        "text": "Compound A reduces mortality",
+        "subject": "Compound A",
+        "predicate": "reduces",
+        "object": "mortality",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "CTX_CLIN_01",
+        "source_role": "CURRENT_STUDY_RESULT",
+        "location": "Results"
+      },
+      "expected_status": "AMBIGUOUS",
+      "is_true_non_relation": true,
+      "tests_predicate_insertion": true,
+      "predicate_grounded": false
+    },
+    {
+      "case_id": "TEST_A_CO_OCCURRENCE_COMPUTER_SCIENCE",
+      "adversarial_type": "Test A — Co-occurrence Only",
+      "discipline": "Computer Science",
+      "evidence_text": "We evaluated Model A and Model B under standard configurations. Table 1 lists their respective loss values.",
+      "target_claim": {
+        "text": "Model A outperforms Model B",
+        "subject": "Model A",
+        "predicate": "outperforms",
+        "object": "Model B",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "CTX_EVAL_01",
+        "source_role": "CURRENT_STUDY_RESULT",
+        "location": "Experiments"
+      },
+      "expected_status": "AMBIGUOUS",
+      "is_true_non_relation": true,
+      "tests_predicate_insertion": true,
+      "predicate_grounded": false
+    },
+    {
+      "case_id": "TEST_A_CO_OCCURRENCE_SOCIAL_SCIENCES",
+      "adversarial_type": "Test A — Co-occurrence Only",
+      "discipline": "Social Sciences",
+      "evidence_text": "We surveyed 1,200 households, recording both parental education levels and household income.",
+      "target_claim": {
+        "text": "Parental education causes higher household income",
+        "subject": "Parental education",
+        "predicate": "causes",
+        "object": "higher household income",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "CTX_SURVEY_01",
+        "source_role": "CURRENT_STUDY_RESULT",
+        "location": "Methods"
+      },
+      "expected_status": "AMBIGUOUS",
+      "is_true_non_relation": true,
+      "tests_predicate_insertion": true,
+      "predicate_grounded": false
+    },
+    {
+      "case_id": "TEST_B_BACKGROUND_MENTION",
+      "adversarial_type": "Test B — Background Mention",
+      "discipline": "Generic Science",
+      "evidence_text": "Previous research has discussed that Factor A and Factor B interact strongly (Smith et al. 2018).",
+      "target_claim": {
+        "text": "Current study demonstrates Factor A interacts with Factor B",
+        "subject": "Factor A",
+        "predicate": "interacts with",
+        "object": "Factor B",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "CTX_INTRO_01",
+        "source_role": "REFERENCED_WORK",
+        "location": "Introduction"
+      },
+      "expected_status": "REFERENCED_ONLY",
+      "is_true_non_relation": true,
+      "tests_predicate_insertion": false,
+      "predicate_grounded": true
+    },
+    {
+      "case_id": "TEST_C_WRONG_ENTITY_CONTEXT",
+      "adversarial_type": "Test C — Wrong Entity Context",
+      "discipline": "Clinical Research",
+      "evidence_text": "Cohort Y exhibited a marked reduction in symptom recurrence.",
+      "target_claim": {
+        "text": "Cohort X exhibited a marked reduction in symptom recurrence",
+        "subject": "Cohort X",
+        "predicate": "reduced",
+        "object": "recurrence",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "COHORT_Y",
+        "target_context_id": "COHORT_X",
+        "source_role": "CURRENT_STUDY_RESULT",
+        "location": "Results"
+      },
+      "expected_status": "OTHER_ENTITY_CONTEXT",
+      "is_true_non_relation": true,
+      "tests_predicate_insertion": false,
+      "predicate_grounded": true
+    },
+    {
+      "case_id": "TEST_D_DIRECT_CLAIM_POSITIVE",
+      "adversarial_type": "Test D — Direct Claim",
+      "discipline": "Medicine",
+      "evidence_text": "Treatment A significantly reduced Outcome B in the double-blind randomized evaluation.",
+      "target_claim": {
+        "text": "Treatment A reduces Outcome B",
+        "subject": "Treatment A",
+        "predicate": "reduces",
+        "object": "Outcome B",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "RCT_PRIMARY",
+        "source_role": "CURRENT_STUDY_RESULT",
+        "location": "Results"
+      },
+      "expected_status": "SUPPORTED",
+      "is_true_non_relation": false,
+      "tests_predicate_insertion": false,
+      "predicate_grounded": true
+    },
+    {
+      "case_id": "TEST_E_STRUCTURED_TABLE_RELATION",
+      "adversarial_type": "Test E — Structured Table Relation",
+      "discipline": "Computer Science",
+      "evidence_text": "Table 2: Comparison of Model Performance on Dataset-Alpha. Proposed Method: 94.2, Baseline-A: 88.1.",
+      "target_claim": {
+        "text": "Proposed Method outperforms Baseline-A on Dataset-Alpha",
+        "subject": "Proposed Method",
+        "predicate": "outperforms",
+        "object": "Baseline-A",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "BENCH_TABLE_2",
+        "source_role": "CURRENT_STUDY_RESULT",
+        "location": "Table 2"
+      },
+      "table_bundle": {
+        "type": "TABLE_HEADER_ROW_BUNDLE",
+        "table_id": "Table 2",
+        "column_header": "F1-Score (%)",
+        "cell_values": {
+          "target": "94.2",
+          "baseline": "88.1"
+        },
+        "dataset_context": "Dataset-Alpha"
+      },
+      "expected_status": "SUPPORTED",
+      "is_true_non_relation": false,
+      "tests_predicate_insertion": false,
+      "predicate_grounded": true
+    },
+    {
+      "case_id": "TEST_F_DISCUSSION_SPECULATION",
+      "adversarial_type": "Test F — Discussion Speculation",
+      "discipline": "Physical Sciences",
+      "evidence_text": "In the Discussion: It is plausible that mechanism Alpha may explain the observed divergence, though direct verification remains unconfirmed.",
+      "target_claim": {
+        "text": "Mechanism Alpha causes divergence",
+        "subject": "Mechanism Alpha",
+        "predicate": "causes",
+        "object": "divergence",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "CTX_DISC_01",
+        "source_role": "DISCUSSION_INTERPRETATION",
+        "location": "Discussion"
+      },
+      "expected_status": "AMBIGUOUS",
+      "is_true_non_relation": true,
+      "tests_predicate_insertion": true,
+      "predicate_grounded": false
+    },
+    {
+      "case_id": "TEST_G_CROSS_CONTEXT_ASSEMBLY",
+      "adversarial_type": "Test G — Cross-Context Assembly",
+      "discipline": "Engineering",
+      "evidence_text": "Experiment 1 observed Component A stability. Unrelated Experiment 2 recorded Component B degradation.",
+      "target_claim": {
+        "text": "Component A causes Component B degradation",
+        "subject": "Component A",
+        "predicate": "causes",
+        "object": "Component B degradation",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "EXP1_EXP2_MIX",
+        "source_role": "CURRENT_STUDY_RESULT",
+        "location": "Results"
+      },
+      "is_cross_context": true,
+      "expected_status": "REJECTED",
+      "is_true_non_relation": true,
+      "tests_predicate_insertion": true,
+      "predicate_grounded": false
+    },
+    {
+      "case_id": "TEST_CONTEXT_ONLY_ECOLOGY",
+      "adversarial_type": "Test A — Contextual Coexistence",
+      "discipline": "Ecology & Environment",
+      "evidence_text": "Survey plots in Forest Alpha confirmed the presence of Species X. Vegetation sampling recorded abundant Plant Y in the same plots.",
+      "target_claim": {
+        "text": "Species X feeds on Plant Y",
+        "subject": "Species X",
+        "predicate": "feeds on",
+        "object": "Plant Y",
+        "claim_type": "RELATION"
+      },
+      "evidence_context": {
+        "context_id": "PLOT_ALPHA",
+        "source_role": "ENVIRONMENT_OR_CONTEXT",
+        "location": "Field Survey Results"
+      },
+      "expected_status": "CONTEXT_ONLY",
+      "is_true_non_relation": true,
+      "tests_predicate_insertion": true,
+      "predicate_grounded": false
+    },
+    {
+      "case_id": "TEST_REFERENCED_LAW",
+      "adversarial_type": "Test B — Legal Precedent Citation",
+      "discipline": "Law",
+      "evidence_text": "The court cited Principle K in its review of previous jurisprudence.",
+      "target_claim": {
+        "text": "Principle K determined the ruling in Case M",
+        "subject": "Principle K",
+        "predicate": "determined",
+        "object": "ruling in Case M",
+        "claim_type": "PROPOSITION"
+      },
+      "evidence_context": {
+        "context_id": "LEGAL_PRECEDENT",
+        "source_role": "REFERENCED_WORK",
+        "location": "Background Jurisprudence"
+      },
+      "expected_status": "REFERENCED_ONLY",
+      "is_true_non_relation": true,
+      "tests_predicate_insertion": false,
+      "predicate_grounded": true
+    }
+  ]
+}
