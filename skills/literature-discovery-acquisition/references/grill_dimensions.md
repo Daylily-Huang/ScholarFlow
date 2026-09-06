@@ -24,6 +24,7 @@
 | `D12` | 数据库边界与工具链偏好 | `DEFAULTABLE` | OpenAlex + Europe PMC + PubMed + arXiv/bioRxiv 多源聚合 | `[高置信度]` |
 | `D13` | 检索深度与饱和度停止条件 | `DEFAULTABLE` | 2 层追溯；连续 20 篇新增文献中无新概念时饱和终止 | `[高置信度]` |
 | `D14` | 交付物类型与下游承接 | `DEFAULTABLE` | PRISMA 结构化初筛台账 + 全文下载清单 + 概念矩阵 | `[高置信度]` |
+| `D15` | **交付格式** | `DEFAULTABLE` | **三轨全套：MD 底稿 + CSV 数据（Excel 可开）+ HTML 报告**；可选 xlsx（openpyxl 存在时） | `[高置信度]` |
 
 ---
 

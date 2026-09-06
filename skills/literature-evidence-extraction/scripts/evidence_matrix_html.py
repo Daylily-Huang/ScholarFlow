@@ -239,6 +239,8 @@ def main() -> None:
     parser.add_argument("-i", "--input", required=True,
                         help="证据 JSON（schemas/extraction_result.schema.json 契约）")
     parser.add_argument("-o", "--output", required=True, help="输出 HTML 报告路径")
+    parser.add_argument("--xlsx", default=None,
+                       help="可选：同时导出 xlsx 数据表（需 openpyxl；未安装时给出提示并跳过）")
     args = parser.parse_args()
 
     inp, out = Path(args.input), Path(args.output)
@@ -252,6 +254,28 @@ def main() -> None:
         sys.exit(2)
 
     html_text = render_report(data)
+
+    if args.xlsx:
+        try:
+            import openpyxl
+        except ImportError:
+            print("[WARN] 未安装 openpyxl，跳过 xlsx 导出（pip install openpyxl 启用）。", file=sys.stderr)
+        else:
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            ws.title = "证据矩阵"
+            headers = ["序号", "字段", "抽取值", "支撑类型", "证据强度", "逐字引句", "页码", "状态", "备注"]
+            ws.append(headers)
+            for i, r in enumerate(data.get("evidence_records", []), 1):
+                sup = _support_type(r)
+                st = _claim_status(r)
+                loc = (r.get("location") or {}).get("page")
+                ws.append([i, r.get("field") or r.get("field_name"), r.get("extracted_value"),
+                           SUPPORT_ZH.get(sup, sup), _strength_zh(r),
+                           r.get("verbatim_quote", ""), loc,
+                           STATUS_ZH.get(st, st), r.get("notes") or ""])
+            wb.save(args.xlsx)
+            print(f"[+] xlsx 数据表已导出: {args.xlsx}")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html_text, encoding="utf-8")
     print(f"[+] 全中文 HTML 报告已生成: {out}（{len(data.get('evidence_records', []))} 条证据记录）")

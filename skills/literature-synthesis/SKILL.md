@@ -114,6 +114,7 @@ flowchart TD
   - **严格交互硬门禁 (STOP Rule)**：**Agent 输出问题后必须立即终止当前回复，进入静默等待状态**，严禁在同一回复中自问自答或直接调用分析工具。
 - **Stage 0C：协议快照生成与执行放行 (Protocol Snapshot & Execution Gate)**：
   - 支持 `按推荐`、`1A 2B 3C` 极速回复，确认后生成包含完整来源追溯（`[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）的 Protocol Snapshot，状态转为 `CONFIRMED` 后解锁 Step 1。
+  - **交付格式默认与覆盖**：`S12 交付格式` 维度（Tier 3）默认**三轨全套**（MD 底稿 + JSON/CSV 数据 + HTML 报告），写入快照 `[DEFAULTED]`；用户可在确认回复中一句话覆盖（如 `格式: xlsx`，xlsx 导出需可选 openpyxl）。
 
 ---
 

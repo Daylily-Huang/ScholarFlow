@@ -27,7 +27,8 @@ description: 通用学科科研文献证据可信抽取与事实核验专业技�
 - **执行序列**：
   1. **Stage 0A — Context Resolution**：自动读取任务附件/PDF、历史对话、上游 Discovery 检索产物与 Schema 快照，进行全文预检（无全文则熔断）；自动识别多队列/多数据集，输出《现有科研上下文确认简报》，已知约束与 Schema 自动确认，严禁对已知要素重复询问；
   2. **Stage 0B — Adaptive Grill-Me**：读取 [references/stage0_grill_me.md](./references/stage0_grill_me.md) 与 `shared/grill_me/`，仅从未决的 `CRITICAL`（目的、Schema、实验隔离）与关键 `HIGH_IMPACT` 维度中动态生成 3~5 个结构化提问，每题附带 Recommended 选项与依据，严格执行 STOP Rule 静默等待用户确认；
-  3. **Stage 0C — Protocol Snapshot**：用户确认后固化全字段来源审计快照（`[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`），解锁 Phase A 实质抽取。
+  3. **Stage 0C — Protocol Snapshot**：用户确认后固化全字段来源审计快照（`[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）
+  - **交付格式默认与覆盖**：`E10 交付格式` 维度（Tier 3）默认**三轨全套**（MD 底稿 + CSV/JSON 数据 + HTML 报告），写入快照 `[DEFAULTED]`；用户可在确认回复中一句话覆盖（如 `格式: xlsx`，xlsx 导出需可选 openpyxl）。，解锁 Phase A 实质抽取。
 - **禁止提前读取**：任何 Phase A+ 的规程、角色文件、模板或案例。
 
 ---

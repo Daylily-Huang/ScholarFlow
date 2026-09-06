@@ -19,6 +19,7 @@
 | `E7` | 表格与附录补充材料处理策略 | `DEFAULTABLE` | 优先深入挖掘附录与大表，正文与附录冲突以详细表格为准 | `[高置信度]` |
 | `E8` | 事实核验与解释边界 | `DEFAULTABLE` | 严格执行 Quote-before-Extract，客观 Findings 与主观 Interpretations 物理隔离 | `[高置信度]` |
 | `E9` | 批量一致性与抽检策略 | `DEFAULTABLE` | 完成批次后执行 10% 随机高危字段（CI、p值、样本量）对齐审计 | `[高置信度]` |
+| `E10` | **交付格式** | `DEFAULTABLE` | **三轨全套：MD 底稿 + JSON/CSV 数据 + HTML 报告**；可选 xlsx（openpyxl 存在时） | `[高置信度]` |
 
 ---
 

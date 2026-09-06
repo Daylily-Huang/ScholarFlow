@@ -23,8 +23,9 @@ description: >-
 ### 阶段 1：Stage 0 上下文感知科研决策门禁 (Context-Aware Research Gate)
 - **执行序列**：
   1. **Stage 0A — Context Resolution**：按五层优先级自动解析现有上下文（当前指令、历史对话、任务附件、上游产物及按需项目检索），输出《现有科研上下文确认简报》，已知要素自动确认为 `RESOLVED`，严禁对已知要素重复发问；
-  2. **Stage 0B — Adaptive Grill-Me**：读取 [references/stage0_grill_me.md](references/stage0_grill_me.md) 与 `shared/grill_me/`（注意：该引擎位于 `.agents/shared/grill_me/`，即 `skills/` 的**同级** `shared/` 目录；Stage 0B 仅需读其中 `core_protocol.md` 与 `state_model.md` 两个文档，Python 引擎为 Headless 预留）。仅从未决的 `CRITICAL` / `HIGH_IMPACT` 维度中动态生成 3~5 个结构化追问，每题附带 Recommended 选项与方法学依据，严格执行 STOP Rule 静默等待用户确认。**两条硬性规则**：① 交互工具单轮题位上限为 4 时必须分轮提问（每轮 ≤4 题），且 `CRITICAL` 维度不得与任何非 CRITICAL 维度捆绑成同一题；② 当学科透镜判定该领域硕博学位论文是重要文献产出（农业/草业/畜牧/林学等中国学科群为典型），`D9` 学位论文需求**必须独立成题**，不得并入时间范围等其他维度的选项；
-  3. **Stage 0C — Protocol Snapshot**：用户确认后固化全字段来源审计快照（`[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`），解锁 Stage 1 实质执行。
+  2. **Stage 0B — Adaptive Grill-Me**：读取 [references/stage0_grill_me.md](references/stage0_grill_me.md) 与 `shared/grill_me/`，仅从未决的 `CRITICAL` / `HIGH_IMPACT` 维度中动态生成 3~5 个结构化追问，每题附带 Recommended 选项与方法学依据，严格执行 STOP Rule 静默等待用户确认；
+  3. **Stage 0C — Protocol Snapshot**：用户确认后固化全字段来源审计快照（`[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）
+  - **交付格式默认与覆盖**：`D15 交付格式` 维度（Tier 3）默认**三轨全套**（MD 底稿 + CSV/JSON 数据 + HTML 报告），写入快照 `[DEFAULTED]`；用户可在确认回复中一句话覆盖（如 `格式: xlsx`，xlsx 导出需可选 openpyxl）。，解锁 Stage 1 实质执行。
 - **决策维度原则**：不预设固定问题（检索深度 Deep/Quick、学位论文需求等均由任务目标、上下文与学科透镜动态决定，已明确者绝不重复询问）。
 - **禁止提前读取**：任何 Stage 1+ 的 references、role 文件、案例或资产模板。
 
@@ -34,10 +35,6 @@ description: >-
 
 #### 🚀 分支 A：用户选择 `Quick Search`（快速探索模式，总加载量 < 15 KB，节约 >90% 上下文）
 - **适用**：组会讨论、热点速览、快速获取 10–30 篇顶刊代表作。
-- **第 0 步：优先复用自带脚本（先跑脚本，再读文档；防止重复造轮子）**：
-  1. 检索阶段首选：`python scripts/agent_search.py -q "<研究主题>" --mode quick --limit 40 -o logs/agent_quick.json`（可选 `--snowball <seed_doi>` 做种子文献双向引文追踪、`--no-theses` 排除学位论文）。**仅当**脚本运行失败、依赖缺失或输出无法满足需求时，才允许手写临时脚本，且必须在检索审计日志中记录 `degraded_to_custom: <原因>`；
-  2. 下载阶段首选：`python scripts/download_oa_papers.py -i <candidates.json|candidate_literature.csv> -o papers/downloads/`。输入契约：JSON `{"records":[...]}` / 顶层数组 / CSV，逐条字段 `id, title, authors（list 或 ";" 拼接字符串）, year, doi, screening_status（Include|Uncertain）, pdf_url, oa_status`；执行下载前**必须**读取 `references/stage8_oa_download.md`（Quick 模式不豁免，否则会漏用 EPMC `ptpmcrender` 直链等现成方案）；
-  3. 收尾自检（写入 progress 日志）：① 允许清单 3 篇参考文件逐条标记"已读 / 跳过（原因）"；② 实际执行的检索式相对 Stage 2 计划的任何增删替换，回写 `search_log.json` 的 `dropped_queries` / `added_queries` 字段并注明原因——防止词表在实现阶段被静默篡改。
 - **允许按需读取（仅 3 篇，随用随读）**：
   1. `references/concept_matrix.md`（仅参考核心概念展开规则）
   2. `references/databases_and_tools.md`（仅参考数据源调用逻辑）
@@ -57,7 +54,7 @@ description: >-
   - **进入 Stage 4-6 时**：仅在候选文献 $\ge 30$ 篇且确实启动子代理并发打分时，才读取 `references/subagent_screening.md`，否则使用主专家单流打分；
   - **进入 Stage 7 时**：读取 `references/saturation_and_qc.md`，质检时由审查员读取 `role/quality_gatekeeper.md` 与 `references/prisma_s_checklist.md` 执行 PRISMA-S 16 项打分；
   - **进入 Stage 8 时**：仅在需要下载全文且落盘时，才加载 `references/stage8_oa_download.md` 与 `references/zotero_watch_folder.md`；
-  - **进入 Stage 8B 时**：Stage 8 收尾**必须实读** `assets/site_registry.json` 与项目根目录 `site_registry.json`（后者覆盖前者）判定 enabled 站点——**禁止凭记忆或假设"无注册表"而跳过**。PAYWALLED ≥ 1 且存在 enabled 站点 → 加载 `references/stage8b_browser_fallback.md` 执行；不满足时**必须在台账中披露跳过原因代码**（`NO_ENABLED_SITE` / `CREDENTIAL_MISSING`，后者需提示用户"将凭据写入 `.env` 后可重跑"，绝不追问密码明文）。
+  - **进入 Stage 8B 时**（可选）：仅当 Stage 8 台账中 PAYWALLED ≥ 1 篇**且** `site_registry.json` 中存在 `enabled: true` 的站点时，才加载 `references/stage8b_browser_fallback.md`。
 
 #### 🤖 分支 C：若为 `Headless / Agent` 自动化模式（零对话加载，0 KB Markdown）
 - **直接执行脚本**：运行 `python scripts/agent_search.py -q "..." --mode <quick|deep>`；
@@ -171,8 +168,7 @@ flowchart TD
 3. **第三层：受限商业数据库声明与极速本地摄取**（中国知网 CNKI、Web of Science、Scopus、万方数据）：
    - 自动生成对应数据库专业布尔检索式；
    - 支持用户校园网内 30 秒导出后，运行 `scripts/ingest_external_records.py` 一键无缝解析并注入候选文献池；
-4. **提取标准题录元数据**：提取标题、作者、年份、期刊、DOI、URL、摘要、来源库、证据分级（`VERIFIED` / `INFERRED` / `UNVERIFIED`）；
-5. **检索式变更审计**：实际执行的检索式集合相对 Stage 2 计划发生任何增删、替换或语言策略变更（如放弃中文检索式）时，必须回写 `search_log.json` 的 `dropped_queries` / `added_queries` 字段并注明原因——严禁静默篡改检索计划。
+4. **提取标准题录元数据**：提取标题、作者、年份、期刊、DOI、URL、摘要、来源库、证据分级（`VERIFIED` / `INFERRED` / `UNVERIFIED`）。
 
 ---
 
@@ -226,8 +222,7 @@ flowchart TD
 对初筛为 `Include`（及可选 `Uncertain`）的文献，自动执行全文下载与入库闭环（详见 [stage8_oa_download.md](references/stage8_oa_download.md)、[zotero_watch_folder.md](references/zotero_watch_folder.md) 与执行脚本 `scripts/download_oa_papers.py`）：
 
 1. **多源合法 OA 解析**：
-   - 自动提取 OpenAlex `best_oa_location.pdf_url`、Europe PMC 官方全文直链（`https://europepmc.org/backend/ptpmcrender.fcgi?accid=<PMCID>&blobtype=pdf`）、bioRxiv/arXiv 预印本 PDF、Unpaywall 备用接口（`api.unpaywall.org/v2/<DOI>?email=...`，全量遍历 `oa_locations[].url_for_pdf`）与高校机构知识库直链；
-   - 遭遇出版商反爬（Cloudflare 403 / 伪装 HTML）时，允许以 `curl -sL --compressed` 携带完整浏览器请求头更换 TLS 指纹**重试 1 轮**（实测可突破部分 Springer 站点）；仍失败即标记 `OA_BOT_BLOCKED`，**严禁升级为对抗性绕过**（验证码破解、IP 轮换、封禁规避均属违规）；
+   - 自动提取 OpenAlex `best_oa_location.pdf_url`、Europe PMC 官方全文直链、bioRxiv/arXiv 预印本 PDF 与高校机构知识库直链；
 2. **流式安全下载至本地目录**：
    - 默认保存在 `papers/downloads/`（用户可配置为 Zotero 自动监听文件夹 Watch Folder）；
    - 标准化命名：普通论文 `<Year>_<FirstAuthor>_<TitleSlug>.pdf`，学位论文 `<Year>_<Degree>_<Author>_<TitleSlug>.pdf`；
@@ -259,9 +254,6 @@ flowchart TD
 | `PREPRINT_AVAILABLE` | `[预印本]` | Stage 8 |
 | `BROWSER_DOWNLOADED` | `[已下载-浏览器]` | Stage 8B |
 | `CAJ_ONLY` / `BROWSER_FAILED` | `[仅CAJ]` / `[浏览器失败]` | Stage 8B |
-| `OA_BOT_BLOCKED` | `[OA-反爬拦截]` | Stage 8 |
-
-> `OA_BOT_BLOCKED`：出版方实质开放获取（gold/hybrid/diamond OA）但反爬系统拦截自动化下载——**不得标为 PAYWALLED 误导用户付费**，必须随台账逐条给出官方 DOI 直链，浏览器人工打开即可免费获取。
 | `PAYWALLED` | `[需商业权限]` | 全部兜底均失败 |
 
 ---

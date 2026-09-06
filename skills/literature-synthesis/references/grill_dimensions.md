@@ -21,6 +21,7 @@
 | `S9` | 反方辩驳与异见证据策略 | `DEFAULTABLE` | 强制启动独立反方挑刺（Devil's Advocate 审计），挖掘潜在反例与局限 | `[高置信度]` |
 | `S10` | 知识空白与上游反馈机制 | `DEFAULTABLE` | 生成标准 Upstream Gap Request 结构化任务包反馈上游 | `[高置信度]` |
 | `S11` | 叙事综述产出深度 | `DEFAULTABLE` | 学术论文级别深度，段落围绕 Claims 组织并标注证据等级与争议点 | `[高置信度]` |
+| `S10` | **交付格式** | `DEFAULTABLE` | **三轨全套：MD 底稿 + JSON/CSV 数据 + HTML 报告**；可选 xlsx（openpyxl 存在时） | `[高置信度]` |
 
 ---
 
