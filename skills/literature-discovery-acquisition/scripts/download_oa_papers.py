@@ -329,9 +329,16 @@ def run_pipeline(input_path, output_dir, max_downloads=None):
                     json.dump(csl_item, f_csl, indent=2, ensure_ascii=False)
             else:
                 failed_count += 1
-                ledger_entry["status"] = "DOWNLOAD_FAILED"
-                ledger_entry["note"] = f"Download failed: {msg}"
-                print(f"    [-] Failed: {msg}")
+                # 三级状态分类（stage8_oa_download.md 五）：实质 OA 被反爬拦截时
+                # 必须标 OA_BOT_BLOCKED 并给免费 DOI 指引，严禁误导用户付费。
+                if str(oa_status).lower() in ("gold", "hybrid", "bronze", "diamond", "green"):
+                    ledger_entry["status"] = "OA_BOT_BLOCKED"
+                    ledger_entry["note"] = (f"实质开放获取({oa_status})但反爬/网络拦截: {msg}. "
+                                            "浏览器打开 DOI 直链即可免费下载")
+                else:
+                    ledger_entry["status"] = "DOWNLOAD_FAILED"
+                    ledger_entry["note"] = f"Download failed: {msg}"
+                print(f"    [-] Failed ({ledger_entry['status']}): {msg}")
         else:
             paywalled_count += 1
             ledger_entry["status"] = "PAYWALLED"
@@ -365,16 +372,44 @@ def run_pipeline(input_path, output_dir, max_downloads=None):
         f.write("|---|---|---|:---:|---|:---:|---|\n")
         for entry in ledger:
             st = entry["status"]
-            badge = "🟢 已下载" if st in ["OA_DOWNLOADED", "PREPRINT_AVAILABLE"] else ("🔒 付费墙" if st == "PAYWALLED" else "🔴 失败")
+            if st in ["OA_DOWNLOADED", "PREPRINT_AVAILABLE"]:
+                badge = "🟢 已下载"
+            elif st == "PAYWALLED":
+                badge = "🔒 付费墙"
+            elif st == "OA_BOT_BLOCKED":
+                badge = "🟠 OA-反爬拦截(免费)"
+            else:
+                badge = "🔴 失败"
             author = entry["authors"][0] if entry.get("authors") else "Unknown"
             doi_link = f"[{entry['doi']}](https://doi.org/{entry['doi']})" if entry.get("doi") and entry["doi"] != "NR" else "NR"
-            loc = entry["saved_file"] if entry["saved_file"] else entry["note"]
+            if entry["saved_file"]:
+                loc = entry["saved_file"]
+            elif st == "OA_BOT_BLOCKED":
+                loc = "浏览器打开上方 DOI 直链免费下载"
+            elif st == "PAYWALLED":
+                loc = "校园网 IP 内访问 DOI / 馆际互借(CALIS/NSTL)"
+            else:
+                loc = entry["note"]
             f.write(f"| {entry['id']} | {entry['title']} | {author} | {entry['year']} | {doi_link} | {badge} | {loc} |\n")
+
+    # 4. 台账覆盖度自检 (Ledger Coverage Guard)：每一条 Include/Uncertain 输入
+    #    记录必须出现在台账中并带三级状态之一；缺失即 FAIL（exit 2）。
+    #    2026-09-06 端到端测试发现：无直链文献被静默跳过会导致台账残缺。
+    eligible = [r for r in records if r.get("screening_status", "Include") in ["Include", "Uncertain"]]
+    covered = {e.get("id") for e in ledger}
+    missing = [r.get("id", "?") for r in eligible if r.get("id") not in covered]
+    if missing:
+        print(f"\n[!] LEDGER COVERAGE FAILURE: {len(missing)} 条 Include/Uncertain 记录未入台账: {missing[:10]}")
+        print("    stage8_oa_download.md 五: 所有初筛合格文献必须归入三级状态之一。")
+        coverage_ok = False
+    else:
+        coverage_ok = True
+        print(f"\n[+] Ledger coverage check PASSED: {len(covered)}/{len(eligible)} eligible records classified.")
 
     print(f"\n[+] Pipeline completed!")
     print(f"    Downloaded: {downloaded_count}, Paywalled: {paywalled_count}, Failed: {failed_count}")
     print(f"    Ledger saved to: {ledger_md_path}")
-    return 0
+    return 0 if coverage_ok else 2
 
 
 def main():

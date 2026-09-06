@@ -40,37 +40,53 @@ OPENALEX_MAILTO = "academic_support@openacademic.org"
 
 
 def parse_openalex_item(item, snowball_role=None, seed_id=None):
-    """Parse a raw OpenAlex work object into normalized record."""
+    """Parse a raw OpenAlex work object into normalized record.
+
+    Defensive against malformed entries: OpenAlex fields may be explicitly
+    null (e.g. "primary_location": null), in which case dict.get(key, {})
+    still returns None and chained .get() calls crash. Treat every nested
+    object as possibly-None and never let one bad item abort a whole batch.
+    """
+    if not isinstance(item, dict):
+        raise ValueError("non-dict work item")
+
+    def _dict(value):
+        return value if isinstance(value, dict) else {}
+
+    def _list(value):
+        return value if isinstance(value, list) else []
+
     authors = []
-    for authorship in item.get("authorships", []):
-        author_name = authorship.get("author", {}).get("display_name")
+    for authorship in _list(item.get("authorships")):
+        author_name = _dict(_dict(authorship).get("author")).get("display_name")
         if author_name:
             authors.append(author_name)
-            
+
     doi = item.get("doi") or "NR"
     if doi.startswith("https://doi.org/"):
         doi = doi.replace("https://doi.org/", "")
-        
-    journal = item.get("primary_location", {}).get("source", {}).get("display_name") or "Academic Source"
-    
+
+    journal = (_dict(_dict(item.get("primary_location")).get("source")).get("display_name")
+               or "Academic Source")
+
     # Reconstruct abstract from inverted index
     abstract = "Not available"
     abstract_inverted = item.get("abstract_inverted_index")
     if abstract_inverted:
         try:
             word_positions = []
-            for word, positions in abstract_inverted.items():
+            for word, positions in _dict(abstract_inverted).items():
                 for pos in positions:
                     word_positions.append((pos, word))
             word_positions.sort()
             abstract = " ".join([w[1] for w in word_positions])
         except Exception:
             pass
-            
-    best_oa = item.get("best_oa_location") or {}
+
+    best_oa = _dict(item.get("best_oa_location"))
     pdf_url = best_oa.get("pdf_url")
-    is_oa = item.get("open_access", {}).get("is_oa", False)
-    oa_status = item.get("open_access", {}).get("oa_status", "closed")
+    is_oa = _dict(item.get("open_access")).get("is_oa", False)
+    oa_status = _dict(item.get("open_access")).get("oa_status", "closed")
     
     rec = {
         "schema_version": "1.0",
@@ -143,9 +159,14 @@ def query_openalex_headless(query_str, limit=25, include_theses=True):
             if resp.status == 200:
                 data = json.loads(resp.read().decode('utf-8'))
                 for item in data.get("results", []):
-                    if not include_theses and is_thesis_work(item):
+                    if not isinstance(item, dict):
                         continue
-                    rec = parse_openalex_item(item)
+                    try:
+                        if not include_theses and is_thesis_work(item):
+                            continue
+                        rec = parse_openalex_item(item)
+                    except Exception:
+                        continue  # skip malformed entry, never abort the whole batch
                     rec["id"] = f"REC{len(records)+1:03d}"
                     rec["record_id"] = rec["id"]
                     records.append(rec)
@@ -223,9 +244,14 @@ def run_snowball_search(seed_identifier, limit=15, include_theses=True):
             with urllib.request.urlopen(r_req, timeout=20) as resp:
                 ref_data = json.loads(resp.read().decode('utf-8'))
                 for r_item in ref_data.get("results", []):
-                    if not include_theses and is_thesis_work(r_item):
+                    if not isinstance(r_item, dict):
                         continue
-                    rec = parse_openalex_item(r_item, snowball_role="BACKWARD_REFERENCE", seed_id=seed_doi)
+                    try:
+                        if not include_theses and is_thesis_work(r_item):
+                            continue
+                        rec = parse_openalex_item(r_item, snowball_role="BACKWARD_REFERENCE", seed_id=seed_doi)
+                    except Exception:
+                        continue
                     rec["id"] = f"REC{len(records)+1:03d}"
                     rec["record_id"] = rec["id"]
                     records.append(rec)
@@ -244,9 +270,14 @@ def run_snowball_search(seed_identifier, limit=15, include_theses=True):
             with urllib.request.urlopen(f_req, timeout=20) as resp:
                 f_data = json.loads(resp.read().decode('utf-8'))
                 for f_item in f_data.get("results", []):
-                    if not include_theses and is_thesis_work(f_item):
+                    if not isinstance(f_item, dict):
                         continue
-                    rec = parse_openalex_item(f_item, snowball_role="FORWARD_CITATION", seed_id=seed_doi)
+                    try:
+                        if not include_theses and is_thesis_work(f_item):
+                            continue
+                        rec = parse_openalex_item(f_item, snowball_role="FORWARD_CITATION", seed_id=seed_doi)
+                    except Exception:
+                        continue
                     rec["id"] = f"REC{len(records)+1:03d}"
                     rec["record_id"] = rec["id"]
                     records.append(rec)

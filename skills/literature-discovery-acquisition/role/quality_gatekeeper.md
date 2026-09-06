@@ -86,6 +86,8 @@ flowchart TD
   - 是否排除了被出版商反爬拦截重定向的 403 / 404 HTML 伪装文件？
   - 文件大小是否合理（$>10\text{ KB}$）？
   - 《全文获取台账》(Download Ledger) 是否对 `OA_DOWNLOADED`、`PREPRINT_AVAILABLE` 和 `PAYWALLED` 进行了清晰归类？
+  - **台账覆盖度自检**：全部 Include/Uncertain 记录是否均已按三级状态（OA_DOWNLOADED / OA_BOT_BLOCKED / PAYWALLED）归入台账？缺任何一条即 REJECT（脚本覆盖自检 exit 2 为硬信号）；
+  - **付费墙防误导**：实质开放获取却被反爬拦截的文献是否标注为 `OA_BOT_BLOCKED` 并附免费 DOI 直链，而非误导性的 `PAYWALLED`？
 
 ---
 
