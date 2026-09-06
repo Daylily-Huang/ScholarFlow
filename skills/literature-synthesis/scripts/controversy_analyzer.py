@@ -43,6 +43,7 @@ EVIDENCE_STRENGTH_WEIGHTS = {
     "SECONDARY_EVIDENCE": 0.2,    # Secondary review citations
     "EXPERT_OPINION": 0.1,        # Expert opinion / unsupported narrative
     "NOT_REPORTED": 0.0,          # Not reported in paper (strictly zero weight)
+    "AMBIGUOUS_LEGACY_TIER": 0.0, # Legacy bare E4 without explicit semantic qualifier (P0-08)
     "UNKNOWN": 0.3
 }
 
@@ -54,7 +55,7 @@ LEGACY_TIER_MAP = {
     "E2_DERIVED": "MODELED_EMPIRICAL",
     "E3": "AUTHOR_INTERPRETATION",
     "E3_REFERENCED": "SECONDARY_EVIDENCE",
-    "E4": "EXPERT_OPINION",
+    "E4": "AMBIGUOUS_LEGACY_TIER",
     "E4_NR": "NOT_REPORTED",
     "EXPLICIT": "DIRECT_EMPIRICAL",
     "DERIVED": "MODELED_EMPIRICAL",
@@ -164,7 +165,7 @@ def resolve_evidence_weight(raw: Dict[str, Any]) -> Tuple[float, str, List[str]]
         return 0.0, "NOT_REPORTED", ["not_reported(0.0)"]
 
     # Determine evidence strength: priority to evidence_strength, fallback to legacy evidence_tier / evidence_level
-    raw_strength = raw.get("evidence_strength") or raw.get("evidence_tier") or raw.get("evidence_level") or "MODELED_EMPIRICAL"
+    raw_strength = raw.get("evidence_strength") or raw.get("evidence_tier") or raw.get("evidence_level") or "UNKNOWN"
     raw_str = str(raw_strength).upper().strip()
     if raw_str in EVIDENCE_STRENGTH_WEIGHTS:
         strength = raw_str

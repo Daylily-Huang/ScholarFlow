@@ -7,8 +7,8 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
-  <img src="https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg" alt="Python Version">
-  <img src="https://img.shields.io/badge/Dependencies-Zero%20External%20Pip-orange.svg" alt="Zero Dependencies">
+  <img src="https://img.shields.io/badge/Python-3.9%2B-brightgreen.svg" alt="Python Version">
+  <img src="https://img.shields.io/badge/Dependencies-Zero%20Mandatory%20Pip-orange.svg" alt="Zero Mandatory Dependencies">
   <img src="https://img.shields.io/badge/Workflow-PRISMA--S%20Informed-purple.svg" alt="PRISMA-S Informed">
   <img src="https://img.shields.io/badge/Supported%20Agents-Claude%20Code%20%7C%20Antigravity%20%7C%20Codex-blueviolet.svg" alt="Agent Support">
 </p>
@@ -25,7 +25,7 @@
 2. **拒绝流水账（Controversy-Driven）**：综述绝非“张三做了 A、李四做了 B”，而是以科学冲突、方法论根因与适用边界为主线。
 3. **拒绝文献民主投票（Weighted Evidence）**：严禁简单比拼文献篇数多数决，单篇高精度独立复现研究可一票降权粗放旧成果。
 4. **全生命周期闭环（Upstream Gap Loop）**：综合分析发现文献断裂或数据模糊时，自动生成结构化任务载荷驱动上游补充检索与精准核验。
-5. **轻量与零外部依赖（Zero External Pip Dependencies）**：所有配套自动化脚本均基于 Python 3 标准库构建，跨平台零配置、毫秒级响应。
+5. **轻量与零强制第三方依赖（Zero Mandatory Third-Party Runtime Dependencies）**：所有核心业务逻辑与 CLI 脚本均基于 Python 3 标准库构建，可选依赖（如 `pypdf`）通过 `pip install "scholarflow[pdf]"` 按需启用。
 
 ### 🌟 核心设计信条 (Core Epistemic Principles)
 - **Principle 1: Domain-neutral core, domain-aware execution (核心学科中立，视角按需注入)**：核心协议与证据纪律保持全学科中立，领域特有概念与风险点通过按需加载的 Domain Lens 动态注入。
@@ -78,7 +78,7 @@ graph TD
    - **低摩擦快捷回复**：支持一键全盘采纳（`按推荐` / `全部按推荐`）、紧凑选项（`1A 2B 3C`）与自然语言局部覆盖；
    - **全量来源可信追溯**：确认通过后输出带来源追溯（`[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）的【Stage 0 Protocol Snapshot】，解锁下游实质执行。
 4. **九大学科透镜 (Multi-Domain Lenses)**：
-   - 内置 `generic`（通用实证）、`biomedical`（生物医药 PICO）、`clinical`（临床试验）、`ecology`（生态与种群）、`molecular_biology`（分子生物学）、`computer_science`（计算机与基准）、`physical_sciences`（物理与材料）、`social_sciences`（社会学因果推断）、`environmental`（环境科学）九大学科透镜。
+   - 系统支持加载 `shared/domain_lenses/` 下的 9 大规范学科透镜：`generic`（通用实证）、`biomedical`（生物医药 PICO）、`life_sciences`（生命科学与演化）、`ecology_environment`（生态与环境科学）、`computer_science`（计算机与基准复现）、`chemistry_materials`（化学与材料工程）、`physical_sciences`（物理与实验模拟）、`engineering`（工程与技术系统）、`social_sciences`（社会学因果推断）。
 
 ---
 
@@ -302,7 +302,7 @@ ScholarFlow/
 本仓库测试套件仅使用 Python 标准库（`unittest`），零第三方强制依赖：
 
 ```bash
-# 运行全部 61 个单元、契约与对抗测试
+# 运行全量单元、契约、跨学科中立性与对抗测试
 python -m unittest discover -s tests -v
 ```
 
@@ -311,10 +311,11 @@ python -m unittest discover -s tests -v
 - **外部题录硬解析**：知网 CNKI Refworks、RIS、EndNote `.enw` 与 CSV 四格式解析；
 - **机械审计门禁**：引句回查校验门（`quote_audit.py`）与 Claim ID 可溯源门禁（`claim_linter.py`）；
 - **数据契约防错**：`schemas/` 校验，确保 `support_type: NOT_REPORTED` 绝对赋予 0.0 权重；
-- **对抗压力测试**：同篇论文多实验隔离（参数防串值）、数字跨页错位拦截，以及低独立性研究下权防多数决；
+- **上下文决策门禁**：Context-Aware Grill-Me 9 大场景测试，验证上下文自动继承、同级冲突仲裁与正交隔离；
+- **跨学科中立性审查**：Domain Neutrality Linter 自动化扫描核心协议与门禁，严禁单一学科偏置；
 - **跨平台 CI**：GitHub Actions（`.github/workflows/ci.yml`）自动在 Python 3.9 / 3.11 / 3.13 上运行测试与基准。
 
-### 2. ScholarFlow 科学基准评测集 (v0.1)
+### 2. ScholarFlow 评测集与内部回归基准 (v0.1)
 
 运行独立的自动化科研评测基准：
 
@@ -324,7 +325,7 @@ python benchmarks/run_benchmarks.py
 
 | 评测维度 (Benchmark Dimension) | 核心科研质量指标 (Target Metric) | 目标阈值 | 实测表现 (Measured) | 门禁状态 |
 |:---|:---|:---:|:---:|:---:|
-| **抽取可信度 (Extraction)** | **NR Accuracy** (敢于报告未提及，严防无中生有) | 100.0% | `100.0%` | **[PASS]** |
+| **抽取契约基准 (Extraction)** | **NR Accuracy** (敢于报告未提及，严防无中生有) | 100.0% | `100.0%` | **[PASS]** |
 | | **Field Precision** (字段级精准抽取率) | ≥ 95.0% | `100.0%` | **[PASS]** |
 | **声明核验 (Claim Audit)** | **Accuracy** (局部上下文协同对齐率) | ≥ 90.0% | `100.0%` | **[PASS]** |
 | | **False-Support Rate** (错误断言误判支持率，科研最高危指标) | **0.00%** | `0.0%` | **[PASS]** |
@@ -332,14 +333,22 @@ python benchmarks/run_benchmarks.py
 
 ---
 
-## ✅ 验证状态 (Validation Status)
+## 📊 能力成熟度与验证分级 (Capability Maturity Matrix)
 
-ScholarFlow 的核心算法与机械门禁具备完善的测试覆盖：
-- **单元与契约测试**：61 个单元、集成与对抗测试全量通过（`61/61 passed`）；
-- **科学评测基准**：3 大核心基准全部达标，False-Support Rate 保持为 0.0%；
-- **数学统计验证**：Cohen's $\kappa$ 在完全一致（1.0）、随机对齐（0.0）及特定混淆矩阵下均通过闭式解断言；
-- **真实题录解析**：CNKI Refworks（含 `AD` 机构与导师提取）、RIS、EndNote `.enw` 及 CSV 均通过真实解析断言；
-- **数据契约防错**：通过 `tests/test_cross_skill_contract.py` 验证 `support_type: NOT_REPORTED` 绝对赋予 0.0 权重，避免无效信息污染下游综述。
+按照 ScholarFlow 证据分级哲学（Level 1 单元测试 → Level 2 合成回归验证 → Level 3 人工金标验证 → Level 4 外部跨学科验证），各核心能力当前成熟度界定如下：
+
+| 核心能力模块 (Capability) | 当前成熟度与验证级别 (Current Status) | 备注说明 |
+|:---|:---:|:---|
+| OpenAlex 元数据检索与解析 | `LEVEL 1 — UNIT-TESTED` | 标准库 HTTP 请求与 JSON 解析已全面覆盖 |
+| 双向引用滚雪球 (Snowballing) | `LEVEL 1 — UNIT-TESTED` | 前向与后向引文追踪算法闭环验证通过 |
+| 商业库人机协同导出清洗 | `LEVEL 1 — UNIT-TESTED` | CNKI、RIS、EndNote、CSV 硬解析闭式验证通过 |
+| 上下文感知决策门禁 (Context Resolution) | `LEVEL 2 — SYNTHETIC REGRESSION` | 5 层来源递进与 9 大典型上下文场景全覆盖 |
+| 自适应动态追问 (Adaptive Grill-Me) | `LEVEL 1 — UNIT-TESTED` | 优先级筛选、预算硬门禁与来源追溯快照全部通过 |
+| PDF 局部证据定位 (Evidence Locator) | `LEVEL 1 — OPTIONAL PDF PARSER` | 表层文字与数值协同定位（非语义事实裁决） |
+| 语义事实裁决 (Semantic Claim Audit) | `AGENT / HUMAN ADJUDICATION REQUIRED` | 定位器提供候选线索，必须由 Auditor 最终裁定 |
+| 证据共识度启发式分级 | `EXPERIMENTAL / HEURISTIC` | 启发式平衡打分，须经质检员定性复核 |
+| 学派聚类与争议诊断 | `EXPERIMENTAL / HEURISTIC` | 规则分桶与方法学关联，非无监督图聚类 |
+| 外部真实论文跨学科盲测 | `NOT YET VALIDATED (LEVEL 3-4 PLANNED)` | 正在建设大规模真实金标测试集 |
 
 ---
 

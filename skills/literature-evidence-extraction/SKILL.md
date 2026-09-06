@@ -23,10 +23,12 @@ description: 通用学科科研文献证据可信抽取与事实核验专业技�
 > [!CAUTION]
 > **严禁全量一次性预加载**：本 Skill 包含 20 个模块文件。在触发激活时，**绝对禁止**一次性通读 `references/`、`role/`、`examples/` 或 `assets/` 中的所有文件。Agent 必须严格遵守以下阶段化按需读取策略，严守上下文预算！
 
-### 阶段 1：启动与前置交互门禁（仅允许加载 1 个文件，~5 KB）
-- **唯一必须读取**：[references/stage0_grill_me.md](./references/stage0_grill_me.md)
-- **核心动作**：确认文献全文输入、运行模式（Extract vs Audit）以及目标提取字段列表（用户指定或动态建议 Schema）。
-- **禁止提前读取**：任何其他规程、角色文件、模板或案例。
+### 阶段 1：Stage 0 上下文感知科研决策门禁 (Context-Aware Research Gate)
+- **执行序列**：
+  1. **Stage 0A — Context Resolution**：自动读取任务附件/PDF、历史对话、上游 Discovery 检索产物与 Schema 快照，进行全文预检（无全文则熔断）；自动识别多队列/多数据集，输出《现有科研上下文确认简报》，已知约束与 Schema 自动确认，严禁对已知要素重复询问；
+  2. **Stage 0B — Adaptive Grill-Me**：读取 [references/stage0_grill_me.md](./references/stage0_grill_me.md) 与 `shared/grill_me/`，仅从未决的 `CRITICAL`（目的、Schema、实验隔离）与关键 `HIGH_IMPACT` 维度中动态生成 3~5 个结构化提问，每题附带 Recommended 选项与依据，严格执行 STOP Rule 静默等待用户确认；
+  3. **Stage 0C — Protocol Snapshot**：用户确认后固化全字段来源审计快照（`[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`），解锁 Phase A 实质抽取。
+- **禁止提前读取**：任何 Phase A+ 的规程、角色文件、模板或案例。
 
 ---
 
@@ -36,18 +38,18 @@ description: 通用学科科研文献证据可信抽取与事实核验专业技�
 - **执行流转**：
   1. 仅按需加载 [references/evidence_levels_and_status.md](./references/evidence_levels_and_status.md)（掌握 E1-E4 评级与状态标签）；
   2. 若抽取关键实验参数（引物、温度、浓度、样品量），按需加载 [references/table_and_supplement_priority.md](./references/table_and_supplement_priority.md)；
-  3. **仅当论文包含多个并行实验体系时**（如同时包含物种鉴定 16S PCR、微卫星分型 PCR、性别鉴定 PCR），才加载 [references/assay_context_isolation.md](./references/assay_context_isolation.md) 进行上下文隔离；
+  3. **仅当论文包含多个并行实验体系时**（如同时包含物种鉴定、分型、性别鉴定实验），才加载 [references/assay_context_isolation.md](./references/assay_context_isolation.md) 进行上下文隔离；
   4. 抽取完成进入质检前，由审查员加载 [role/evidence_auditor.md](./role/evidence_auditor.md) 进行独立红蓝核对。
 
 #### 🔍 分支 B：既有结论事实审计模式 (Audit Mode)
 - **执行流转**：
   1. 专门加载 [references/audit_mode_protocol.md](./references/audit_mode_protocol.md)；
-  2. 针对用户提交的既有 Claim 列表，调用 `scripts/audit_claims.py` 或结合全文执行逐条反查；
-  3. 仅输出三种核验裁决（SUPPORTED / UNSUPPORTED / CONTRADICTORY）。
+  2. 针对用户提交的既有 Claim 列表，调用 `scripts/audit_claims.py` 进行表层候选定位与数值协同校验（确定性定位器，输出线索与位置）；
+  3. 由 Evidence Auditor 审查员进行语义真伪判定，严禁将表层定位结果直接等同为最终事实裁决，给出标准判定标签（SUPPORTED / PARTIALLY_SUPPORTED / UNSUPPORTED / CONTRADICTORY / AMBIGUOUS / OCR_UNCERTAIN）。
 
 #### 🤖 分支 C：Headless / 自动化脚本管道模式
 - **直接执行辅助脚本**：使用 `scripts/pdf_evidence_locator.py` 或 `scripts/audit_claims.py`；
-- **硬性输出契约**：结构化 JSON 输出必须严格遵循 `assets/evidence_extraction_schema.json`。
+- **硬性输出契约**：结构化 JSON 输出必须严格遵循 canonical `schemas/extraction_result.schema.json`。
 
 ---
 

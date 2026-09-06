@@ -115,62 +115,86 @@ class ConversationContextProvider(ContextProvider):
         domain_hint: Optional[str] = None,
     ) -> List[ContextFact]:
         facts: List[ContextFact] = []
-        full_text = " ".join([turn.get("content", "") for turn in self.turns])
-        if not full_text:
+        if not self.turns:
             return facts
 
-        # Pattern: language constraint mentioned in prior turns
-        if re.search(r"(仅限英文|only english|english only|只查英文)", full_text, re.IGNORECASE):
-            facts.append(
-                ContextFact(
-                    dimension_id="D10",
-                    field_name="language_scope",
-                    value="en_only",
-                    source_layer="conversation",
-                    source_ref="conversation_history",
-                    fact_type=FactType.USER_PREFERENCE,
-                )
-            )
-        elif re.search(r"(中英双语|中英文|bilingual)", full_text, re.IGNORECASE):
-            facts.append(
-                ContextFact(
-                    dimension_id="D10",
-                    field_name="language_scope",
-                    value="en_and_zh",
-                    source_layer="conversation",
-                    source_ref="conversation_history",
-                    fact_type=FactType.USER_PREFERENCE,
-                )
-            )
+        resolved_dims: Set[str] = set()
 
-        # Pattern: time range mentioned in prior turns
-        m_time = re.search(r"(20\d{2})\s*(?:年)?\s*(?:至今|以后|起|–|-|~)\s*(20\d{2})?", full_text)
-        if m_time:
-            start_yr = m_time.group(1)
-            end_yr = m_time.group(2) or "present"
-            facts.append(
-                ContextFact(
-                    dimension_id="D8",
-                    field_name="time_scope",
-                    value=f"{start_yr}-{end_yr}",
-                    source_layer="conversation",
-                    source_ref="conversation_history",
-                    fact_type=FactType.TASK_DECISION,
-                )
-            )
+        # Scan from newest to oldest turn so latest confirmed decisions win (P1-02 / 42.C)
+        for turn_idx, turn in enumerate(reversed(self.turns)):
+            content = turn.get("content", "")
+            if not content:
+                continue
 
-        # Pattern: exclude theses mentioned in prior turns
-        if re.search(r"(不需要硕博|不要学位论文|排除学位论文|no theses|no dissertations)", full_text, re.IGNORECASE):
-            facts.append(
-                ContextFact(
-                    dimension_id="D9",
-                    field_name="document_types",
-                    value="peer_reviewed_articles",
-                    source_layer="conversation",
-                    source_ref="conversation_history",
-                    fact_type=FactType.USER_PREFERENCE,
-                )
-            )
+            timestamp = float(turn.get("timestamp", len(self.turns) - turn_idx))
+
+            # Pattern: language constraint mentioned in prior turns
+            if "D10" not in resolved_dims:
+                if re.search(r"(中英双语|中英文|bilingual|zh_and_en|en_and_zh)", content, re.IGNORECASE):
+                    facts.append(
+                        ContextFact(
+                            dimension_id="D10",
+                            field_name="language_scope",
+                            value="en_and_zh",
+                            source_layer="conversation",
+                            source_ref=f"conversation_turn_{len(self.turns)-turn_idx}",
+                            fact_type=FactType.USER_PREFERENCE,
+                            volatility=FactVolatility.VOLATILE,
+                            timestamp=timestamp,
+                        )
+                    )
+                    resolved_dims.add("D10")
+                elif re.search(r"(仅限英文|only english|english only|只查英文|en_only)", content, re.IGNORECASE):
+                    facts.append(
+                        ContextFact(
+                            dimension_id="D10",
+                            field_name="language_scope",
+                            value="en_only",
+                            source_layer="conversation",
+                            source_ref=f"conversation_turn_{len(self.turns)-turn_idx}",
+                            fact_type=FactType.USER_PREFERENCE,
+                            volatility=FactVolatility.VOLATILE,
+                            timestamp=timestamp,
+                        )
+                    )
+                    resolved_dims.add("D10")
+
+            # Pattern: time range mentioned in prior turns
+            if "D8" not in resolved_dims:
+                m_time = re.search(r"(20\d{2})\s*(?:年)?\s*(?:至今|以后|起|–|-|~)\s*(20\d{2})?", content)
+                if m_time:
+                    start_yr = m_time.group(1)
+                    end_yr = m_time.group(2) or "present"
+                    facts.append(
+                        ContextFact(
+                            dimension_id="D8",
+                            field_name="time_scope",
+                            value=f"{start_yr}-{end_yr}",
+                            source_layer="conversation",
+                            source_ref=f"conversation_turn_{len(self.turns)-turn_idx}",
+                            fact_type=FactType.TASK_DECISION,
+                            volatility=FactVolatility.VOLATILE,
+                            timestamp=timestamp,
+                        )
+                    )
+                    resolved_dims.add("D8")
+
+            # Pattern: exclude theses mentioned in prior turns
+            if "D9" not in resolved_dims:
+                if re.search(r"(不需要硕博|不要学位论文|排除学位论文|no theses|no dissertations)", content, re.IGNORECASE):
+                    facts.append(
+                        ContextFact(
+                            dimension_id="D9",
+                            field_name="document_types",
+                            value="peer_reviewed_articles",
+                            source_layer="conversation",
+                            source_ref=f"conversation_turn_{len(self.turns)-turn_idx}",
+                            fact_type=FactType.USER_PREFERENCE,
+                            volatility=FactVolatility.VOLATILE,
+                            timestamp=timestamp,
+                        )
+                    )
+                    resolved_dims.add("D9")
 
         return facts
 
@@ -197,12 +221,41 @@ class AttachmentContextProvider(ContextProvider):
             if not content and not name:
                 continue
 
-            # Check if full text document is available -> E2 fulltext_pdf
-            if (
-                name.endswith((".pdf", ".txt", ".md", ".docx", ".html"))
-                or any(k in name.lower() for k in ("fulltext", "paper", "trial", "study", "article"))
-                or len(content) > 50
+            name_lower = name.lower()
+            content_lower = content.lower()
+
+            # Determine document kind (P1-01 / 42.B)
+            if any(k in name_lower for k in ("protocol", "plan", "方案", "设计", "流程")):
+                doc_kind = "PROTOCOL"
+            elif any(k in name_lower for k in ("note", "meeting", "readme", "笔记", "会议", "说明")):
+                doc_kind = "NOTES"
+            elif name_lower.endswith((".csv", ".tsv", ".xlsx")) or any(k in name_lower for k in ("table", "data", "matrix", "数据", "表格")):
+                doc_kind = "DATA_TABLE"
+            elif any(k in name_lower for k in ("supplement", "appendix", "附录", "补充")):
+                doc_kind = "SUPPLEMENT"
+            elif (
+                name_lower.endswith(".pdf")
+                or any(k in name_lower for k in ("fulltext", "paper", "article", "manuscript", "journal", "thesis", "dissertation", "trial", "study", "clinical", "论文", "文献"))
+                or (len(content) > 200 and any(k in content_lower for k in ("abstract", "introduction", "references", "doi:", "methods", "results")))
             ):
+                doc_kind = "PAPER_FULLTEXT"
+            else:
+                doc_kind = "UNKNOWN"
+
+            facts.append(
+                ContextFact(
+                    dimension_id="DOC_KIND",
+                    field_name="document_kind",
+                    value=doc_kind,
+                    source_layer="current_attachments",
+                    source_ref=name or "uploaded_document",
+                    fact_type=FactType.FACT,
+                    volatility=FactVolatility.STATIC,
+                )
+            )
+
+            # Check if full text document is available -> E2 fulltext_pdf (Only PAPER_FULLTEXT unlocks E2)
+            if doc_kind == "PAPER_FULLTEXT":
                 facts.append(
                     ContextFact(
                         dimension_id="E2",
@@ -323,20 +376,43 @@ class ProjectSearchContextProvider(ContextProvider):
             return []
 
         facts: List[ContextFact] = []
-        task_lower = task_prompt.lower()
 
-        # Relevance scoring: filter out cross-domain orthogonal documents
-        task_is_cs = bool(re.search(r"(transformer|algorithm|llm|benchmark|neural|model|deep learning)", task_lower))
-        task_is_bio = bool(re.search(r"(cancer|patient|drug|clinical|trial|treatment|disease)", task_lower))
-        task_is_eco = bool(re.search(r"(wildlife|species|ecology|fecal|dna|cervid|population|pcr)", task_lower))
+        # Canonical domain detection and orthogonality filter (P1-03 / 42.E)
+        def _detect_domains(text: str) -> Set[str]:
+            t = text.lower()
+            domains = set()
+            if re.search(r"(transformer|algorithm|llm|benchmark|neural|model|deep learning|software|code|gpu|compute)", t):
+                domains.add("computer_science")
+            if re.search(r"(wildlife|species|ecology|biodiversity|habitat|zoology|fecal|cervid|population|dna|pcr|conservation)", t):
+                domains.add("ecology_environment")
+            if re.search(r"(patient|clinical|drug|disease|trial|therapy|treatment|cancer|hospital|medical|immunotherapy)", t):
+                domains.add("biomedical")
+            if re.search(r"(synthesis|catalyst|molecule|chemical|polymer|nanoparticle|reaction)", t):
+                domains.add("chemistry_materials")
+            if re.search(r"(physics|quantum|optics|mechanics|thermodynamic)", t):
+                domains.add("physical_sciences")
+            if re.search(r"(survey|interview|policy|economy|economic|social|sociology|education)", t):
+                domains.add("social_sciences")
+            return domains
+
+        DOMAIN_ALIASES = {
+            "clinical": "biomedical",
+            "medicine": "biomedical",
+            "molecular_biology": "life_sciences",
+            "ecology": "ecology_environment",
+            "environmental": "ecology_environment",
+        }
+        task_domains = _detect_domains(task_prompt)
+        if domain_hint:
+            hint_norm = DOMAIN_ALIASES.get(domain_hint.lower(), domain_hint.lower())
+            task_domains.add(hint_norm)
+            task_domains.update(_detect_domains(domain_hint))
 
         for filename, doc_text in self.project_docs.items():
-            doc_lower = doc_text.lower()
+            doc_domains = _detect_domains(doc_text + " " + filename)
 
-            # Orthogonality guard: skip irrelevant files
-            doc_is_eco = bool(re.search(r"(wildlife|species|ecology|biodiversity|habitat|zoology)", doc_lower))
-            if task_is_cs and doc_is_eco:
-                # Strictly ignore ecology files when task is computer science
+            # Orthogonality guard: skip irrelevant files with zero domain overlap
+            if task_domains and doc_domains and not task_domains.intersection(doc_domains):
                 continue
 
             # Query-driven entity / population detection
@@ -440,6 +516,25 @@ class ContextResolver:
 
             # Check for conflict at equal top layer
             distinct_values = {str(c.value).strip().lower(): c for c in candidates_at_top}
+            if len(distinct_values) > 1:
+                # P1-04: If facts are VOLATILE with valid timestamps, newest timestamp wins
+                volatile_candidates = [c for c in candidates_at_top if c.volatility == FactVolatility.VOLATILE and c.timestamp > 0]
+                if len(volatile_candidates) == len(candidates_at_top):
+                    candidates_at_top.sort(key=lambda c: (c.timestamp, c.confidence), reverse=True)
+                    winner = candidates_at_top[0]
+                    top_ts = winner.timestamp
+                    tied = [c for c in candidates_at_top if c.timestamp == top_ts and str(c.value).strip().lower() != str(winner.value).strip().lower()]
+                    if not tied:
+                        candidates_at_top = [winner]
+                        distinct_values = {str(winner.value).strip().lower(): winner}
+                else:
+                    # Compare confidence if one has strictly higher confidence
+                    candidates_at_top.sort(key=lambda c: c.confidence, reverse=True)
+                    if len(candidates_at_top) > 1 and candidates_at_top[0].confidence > candidates_at_top[1].confidence:
+                        winner = candidates_at_top[0]
+                        candidates_at_top = [winner]
+                        distinct_values = {str(winner.value).strip().lower(): winner}
+
             if len(distinct_values) > 1:
                 # Equal priority conflict!
                 resolved_var = ResolvedVariable(

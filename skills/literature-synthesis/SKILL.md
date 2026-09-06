@@ -21,10 +21,12 @@ description: 通用学科科研文献跨篇证据综合分析、学术争议发�
 > [!CAUTION]
 > **严禁全量一次性预加载**：本 Skill 包含 23 个系统模块。在触发激活时，**绝对禁止**一次性通读 `references/`、`role/`、`examples/` 或 `assets/` 中的所有文件。Agent 必须严格遵守以下阶段化按需读取策略，严守上下文预算！
 
-### 阶段 1：启动与前置交互门禁（仅允许加载 1 个文件，~5 KB）
-- **唯一必须读取**：[references/stage0_grill_me.md](./references/stage0_grill_me.md)
-- **核心动作**：解析用户提供的多篇文献输入、确认四种运行模式之一、锁定核心科学命题、确认是否生成最终叙述性综述。
-- **禁止提前读取**：任何其他规程、角色契约、模板或长案例。
+### 阶段 1：Stage 0 上下文感知科研决策门禁 (Context-Aware Research Gate)
+- **执行序列**：
+  1. **Stage 0A — Context Resolution**：优先直接消费上游 Extraction 产出的结构化 EvidenceRecord 与证据表，自动将 S3 证据边界确认为 `audited_extraction_table`，输出《现有科研上下文确认简报》，已知要素与结论自动继承，严禁对已知要素重复询问；
+  2. **Stage 0B — Adaptive Grill-Me**：读取 [references/stage0_grill_me.md](./references/stage0_grill_me.md) 与 `shared/grill_me/`，仅从未决的 `CRITICAL` / `HIGH_IMPACT` 维度中动态生成 3~5 个核心追问，每题提供 Recommended 选项与依据，严格执行 STOP Rule 静默等待用户确认；
+  3. **Stage 0C — Protocol Snapshot**：确认后固化全字段来源审计快照，解锁 Step 1 实质综合分析。
+- **禁止提前读取**：任何 Step 1+ 的规程、角色契约、模板或长案例。
 
 ---
 
@@ -42,7 +44,7 @@ description: 通用学科科研文献跨篇证据综合分析、学术争议发�
 - **严禁跨阶段提前预加载，严格按阶段流水推进（Just-In-Time Loading）**：
   - **进入 Claim 提取与对撞阶段**：加载 `references/controversy_taxonomy_9types.md` 与 `references/consensus_levels_and_boundaries.md`；
   - **进入学派与方法学演化阶段**：加载 `references/school_and_paradigm_mapping.md`；
-  - **进入学科偏倚核查阶段**：根据学科按需加载 `references/domain_profiles/ecology_profile.md` 或 `molecular_ecology_profile.md`；
+  - **进入学科偏倚核查阶段**：根据学科按需加载 `shared/domain_lenses/<domain>.md`（内置 9 大跨学科 Domain Lenses）；
   - **进入红队辩驳与质量把关阶段**：加载 `role/devils_advocate_gatekeeper.md` 执行 10 项终审；
   - **进入缺口闭环反馈阶段**：加载 `references/knowledge_gaps_and_upstream_loop.md` 生成补检与补抽任务包；
   - **进入最终综述正文撰写阶段**：加载 `references/narrative_review_guidelines.md`。
@@ -92,7 +94,7 @@ flowchart TD
     S0[Stage 0: 证据接入 + 模式选定 + 核心命题锁定 Grill-Me] --> S1[Step 1: 证据单元标准化与 Claim-Evidence 矩阵构建]
     S1 --> S2[Step 2: 主张归一化与聚类 Claim Clustering]
     S2 --> S3[Step 3: 9大类型学术争议发掘与方法学归因诊断]
-    S3 --> S4[Step 4: 领域 Profile 偏倚过滤 生态/分子生态]
+    S3 --> S4[Step 4: 跨学科 Domain Lens 偏倚过滤与共识标定]
     S4 --> S5[Step 5: 学派谱系与方法学技术路线全景图谱识别]
     S5 --> S6[Step 6: 6级共识度评级与空间/尺度适用边界标定]
     S6 --> S7[Step 7: 独创 Devil's Advocate 红队进攻: 抓反例/查伪因果]

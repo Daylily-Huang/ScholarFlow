@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ScholarFlowExtractionResult",
+  "description": "Standard envelope schema for extraction outputs containing evidence records and verification metadata.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "paper_metadata",
+    "extraction_metadata",
+    "evidence_records",
+    "auditor_verdict"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "paper_metadata": {
+      "type": "object",
+      "required": ["title", "authors", "year"],
+      "properties": {
+        "title": { "type": "string" },
+        "authors": { "type": "array", "items": { "type": "string" } },
+        "year": { "type": ["integer", "string"] },
+        "journal": { "type": ["string", "null"] },
+        "doi": { "type": ["string", "null"] },
+        "file_path": { "type": ["string", "null"] }
+      }
+    },
+    "extraction_metadata": {
+      "type": "object",
+      "required": ["mode", "timestamp"],
+      "properties": {
+        "mode": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "schema_type": { "type": "string" }
+      }
+    },
+    "relevance_assessment": {
+      "type": ["object", "null"],
+      "properties": {
+        "score": { "type": "integer" },
+        "decision": { "type": "string" },
+        "rationale": { "type": "string" }
+      }
+    },
+    "reviewer_quadrant_audit": { "type": ["object", "null"] },
+    "assays": { "type": ["array", "null"] },
+    "context_units": { "type": ["array", "null"] },
+    "evidence_records": {
+      "type": "array",
+      "items": {
+        "$ref": "./evidence_record.schema.json"
+      }
+    },
+    "auditor_verdict": {
+      "type": "object",
+      "required": ["verdict", "checklist_passed"],
+      "properties": {
+        "verdict": { "type": "string", "enum": ["PASS", "PASS_WITH_DOWNGRADES", "REJECT"] },
+        "checklist_passed": { "type": "boolean" },
+        "auditor_notes": { "type": ["string", "null"] }
+      }
+    },
+    "interpretation": { "type": ["object", "null"] }
+  }
+}

@@ -13,11 +13,20 @@
     "claim_status"
   ],
   "properties": {
-    "schema_version": { "type": "string", "const": "1.0" },
+    "schema_version": { "type": "string" },
     "evidence_id": { "type": "string" },
     "record_id": { "type": "string" },
+    "context_unit": {
+      "type": ["object", "null"],
+      "properties": {
+        "context_id": { "type": "string" },
+        "context_type": { "type": "string" }
+      }
+    },
     "assay_id": { "type": ["string", "null"] },
     "field": { "type": "string" },
+    "field_id": { "type": "string" },
+    "field_name": { "type": "string" },
     "extracted_value": { "type": ["string", "number", "null"] },
     "support_type": {
       "type": "string",
@@ -38,6 +47,17 @@
       "description": "Scientific strength of the claim itself in broader synthesis."
     },
     "claim_status": {
+      "type": "string",
+      "enum": [
+        "SUPPORTED",
+        "PARTIALLY_SUPPORTED",
+        "UNSUPPORTED",
+        "CONTRADICTORY",
+        "AMBIGUOUS",
+        "OCR_UNCERTAIN"
+      ]
+    },
+    "status": {
       "type": "string",
       "enum": [
         "SUPPORTED",

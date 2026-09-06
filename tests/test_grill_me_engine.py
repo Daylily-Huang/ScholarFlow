@@ -65,13 +65,16 @@ class TestGrillResponseParser(unittest.TestCase):
 
     def test_is_all_recommended(self):
         affirmative_replies = [
-            "按推荐", "全部按推荐", "全部推荐", "全选推荐", "全选A",
-            "all recommended", "accept all", "yes", "Y", "ok", "确认", "同意", "proceed",
+            "按推荐", "全部按推荐", "全部推荐", "全选推荐",
+            "all recommended", "accept all", "accept all recommended", "按建议", "全部按建议",
         ]
         for reply in affirmative_replies:
             self.assertTrue(GrillResponseParser.is_all_recommended(reply), f"Failed on: {reply}")
 
-        negative_replies = ["1A 2B", "我想要补充", "不确定", "随便"]
+        negative_replies = [
+            "1A 2B", "我想要补充", "不确定", "随便",
+            "yes", "Y", "ok", "确认", "同意", "proceed", "全选A", "全A"
+        ]
         for reply in negative_replies:
             self.assertFalse(GrillResponseParser.is_all_recommended(reply), f"Should not match: {reply}")
 

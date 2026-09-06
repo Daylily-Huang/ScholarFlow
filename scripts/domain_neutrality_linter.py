@@ -40,6 +40,10 @@ CORE_PATHS = [
     "skills/literature-evidence-extraction/references/assay_context_isolation.md",
     "skills/literature-synthesis/references/consensus_levels_and_boundaries.md",
     "skills/literature-synthesis/references/school_and_paradigm_mapping.md",
+    "skills/literature-discovery-acquisition/SKILL.md",
+    "skills/literature-evidence-extraction/SKILL.md",
+    "skills/literature-synthesis/SKILL.md",
+    "README.md",
 ]
 
 
@@ -57,23 +61,29 @@ def check_file_domain_neutrality(filepath: str) -> List[Tuple[int, str, str]]:
         lines = f.readlines()
 
     in_example_context = False
-    in_table_or_mapping = False
+    in_code_block = False
 
     for idx, line in enumerate(lines, start=1):
         stripped = line.strip()
 
+        if stripped.startswith("```"):
+            in_code_block = not in_code_block
+            continue
+
         # Track example or illustrative headers
-        if re.search(r"(示例|示范|example|跨学科|跨领域|mapping|对照|映射)", stripped, re.IGNORECASE):
+        if re.search(r"(示例|示范|example|跨学科|跨领域|mapping|对照|映射|为例|举例)", stripped, re.IGNORECASE):
             in_example_context = True
 
         # End of example block when returning to high-level numbered section
         if re.match(r"^#{1,3}\s+[一二三四五六七八九十0-9]+[、\.]", stripped):
-            if not re.search(r"(示例|示范|example|映射)", stripped, re.IGNORECASE):
+            if not re.search(r"(示例|示范|example|映射|为例)", stripped, re.IGNORECASE):
                 in_example_context = False
 
-        # Table rows or list bullets demonstrating cross-disciplinary mapping are allowed
+        # Table rows, list bullets, or blockquote prompts demonstrating cross-disciplinary mapping are allowed
         is_mapping_line = bool(
-            re.search(r"(生命科学|生物医药|计算机|材料|化学|社会科学|典型混淆|跨学科)", stripped)
+            in_code_block
+            or stripped.startswith(">")
+            or re.search(r"(生命科学|生物医药|计算机|材料|化学|社会科学|典型混淆|跨学科|为例|lens)", stripped, re.IGNORECASE)
             or stripped.startswith("|")
             or re.match(r"^-\s+\*(生命科学|生物医药|计算机|材料|社会科学|医学)\*", stripped)
         )

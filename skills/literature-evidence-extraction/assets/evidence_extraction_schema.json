@@ -69,16 +69,23 @@
       "items": {
         "type": "object",
         "required": [
-          "field_id",
-          "field_name",
           "extracted_value",
           "support_type",
-          "verbatim_quote",
-          "status"
+          "verbatim_quote"
         ],
         "properties": {
+          "evidence_id": { "type": "string" },
+          "record_id": { "type": "string" },
+          "field": { "type": "string" },
           "field_id": { "type": "string" },
           "field_name": { "type": "string" },
+          "context_unit": {
+            "type": ["object", "null"],
+            "properties": {
+              "context_id": { "type": "string" },
+              "context_type": { "type": "string" }
+            }
+          },
           "module": {
             "type": "string",
             "enum": ["metadata", "methods", "parameters", "results", "analysis"]
@@ -114,6 +121,17 @@
             }
           },
           "status": {
+            "type": "string",
+            "enum": [
+              "SUPPORTED",
+              "PARTIALLY_SUPPORTED",
+              "UNSUPPORTED",
+              "CONTRADICTORY",
+              "AMBIGUOUS",
+              "OCR_UNCERTAIN"
+            ]
+          },
+          "claim_status": {
             "type": "string",
             "enum": [
               "SUPPORTED",

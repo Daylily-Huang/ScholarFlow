@@ -88,9 +88,17 @@ class TestExtractionSynthesisDecoupling(unittest.TestCase):
         w1, _, _ = resolve_evidence_weight(claim_e1)
         self.assertEqual(w1, 1.0)
 
+        # Bare E4 is rejected as AMBIGUOUS_LEGACY_TIER with 0.0 weight (P0-08 / 42.A)
         claim_e4 = {"claim_id": "C", "evidence_tier": "E4"}
-        w4, _, _ = resolve_evidence_weight(claim_e4)
-        self.assertEqual(w4, 0.1)
+        w4, str4, _ = resolve_evidence_weight(claim_e4)
+        self.assertEqual(str4, "AMBIGUOUS_LEGACY_TIER")
+        self.assertEqual(w4, 0.0)
+
+        # Explicit EXPERT_OPINION keeps 0.1 weight
+        claim_exp = {"claim_id": "C", "evidence_strength": "EXPERT_OPINION"}
+        w_exp, str_exp, _ = resolve_evidence_weight(claim_exp)
+        self.assertEqual(str_exp, "EXPERT_OPINION")
+        self.assertEqual(w_exp, 0.1)
 
     def test_appraisal_adjustments(self):
         """Test that multi-dimensional appraisal modifies the base weight appropriately."""

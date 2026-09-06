@@ -44,10 +44,53 @@ for p in [
 
 from controversy_analyzer import compute_topic_consensus, normalize_claim
 from audit_claims import audit_single_claim
+from agent_search import deduplicate_records
+
+
+def evaluate_discovery_benchmark() -> dict:
+    """Evaluate Discovery Benchmark focusing on Known-Seed Recovery and Deduplication Accuracy (P1-12)."""
+    gold_file = DATA_DIR / "discovery_gold_set.json"
+    with open(gold_file, "r", encoding="utf-8") as f:
+        gold = json.load(f)
+
+    total_test_cases = 0
+    passed_cases = 0
+
+    for tc in gold.get("test_cases", []):
+        total_test_cases += 1
+        target_dois = [d.lower() for d in tc.get("target_dois", [])]
+        min_recall = tc.get("min_expected_recall", 0.6)
+
+        sample_pool = [
+            {"doi": d, "title": f"Paper for {d}", "year": 2020}
+            for d in target_dois
+        ] + [
+            # Add duplicate of first DOI
+            {"doi": target_dois[0], "title": f"Duplicate paper for {target_dois[0]}", "year": 2020},
+            # Add noise paper
+            {"doi": "10.9999/noise.123", "title": "Noise paper", "year": 2021}
+        ]
+
+        deduped = deduplicate_records(sample_pool)
+        recovered = [r for r in deduped if (r.get("doi") or "").lower() in target_dois]
+        recall = len(recovered) / max(1, len(target_dois))
+        dedup_accurate = (len(deduped) == len(sample_pool) - 1)
+
+        if recall >= min_recall and dedup_accurate:
+            passed_cases += 1
+
+    pass_rate = passed_cases / max(1, total_test_cases)
+    return {
+        "benchmark": "Discovery Benchmark (Synthetic)",
+        "total_cases": total_test_cases,
+        "passed_cases": passed_cases,
+        "recovery_rate": round(pass_rate, 4),
+        "status": "PASS" if pass_rate == 1.0 else "FAIL"
+    }
 
 
 def evaluate_extraction_benchmark() -> dict:
-    """Evaluate Extraction Benchmark focusing on Field Accuracy and NR Accuracy."""
+    """Evaluate Extraction Fixture Integrity focusing on Field Accuracy and NR Accuracy (P1-13)."""
     gold_file = DATA_DIR / "extraction_gold_set.json"
     with open(gold_file, "r", encoding="utf-8") as f:
         gold = json.load(f)
@@ -75,7 +118,7 @@ def evaluate_extraction_benchmark() -> dict:
     field_precision = exact_matches / max(1, (total_fields - total_nr))
 
     return {
-        "benchmark": "Extraction Benchmark",
+        "benchmark": "Extraction Fixture Integrity Check (Synthetic)",
         "total_fields": total_fields,
         "exact_matches": exact_matches,
         "total_nr_cases": total_nr,
@@ -160,6 +203,7 @@ def evaluate_synthesis_benchmark() -> dict:
 
 def run_all_benchmarks(output_format="markdown", output_file=None):
     results = [
+        evaluate_discovery_benchmark(),
         evaluate_extraction_benchmark(),
         evaluate_claim_verification_benchmark(),
         evaluate_synthesis_benchmark(),
@@ -177,7 +221,9 @@ def run_all_benchmarks(output_format="markdown", output_file=None):
         ]
         for r in results:
             name = r["benchmark"]
-            if "nr_accuracy" in r:
+            if "recovery_rate" in r:
+                lines.append(f"| **{name}** | Known-Seed Recovery & Dedup Rate | 1.00 | `{r['recovery_rate'] * 100:.1f}%` | **[{r['status']}]** |")
+            elif "nr_accuracy" in r:
                 lines.append(f"| **{name}** | NR Accuracy (Strict Hallucination Rejection) | 1.00 | `{r['nr_accuracy'] * 100:.1f}%` | **[{r['status']}]** |")
                 lines.append(f"| | Field Precision (Exact String Match) | ≥ 95% | `{r['field_precision'] * 100:.1f}%` | **[{r['status']}]** |")
             elif "false_support_rate" in r:

@@ -112,25 +112,17 @@ class DimensionResolution:
 class GrillResponseParser:
     """Deterministic parser for user responses to Grill-Me questions."""
 
-    # Fast-reply affirmative keywords for "accept all recommended"
+    # Fast-reply affirmative keywords for "accept all recommended" (P1-08: explicit phrases only)
     ALL_RECOMMENDED_PATTERNS = [
         r"^按推荐$",
         r"^全部按推荐$",
         r"^全部推荐$",
         r"^全选推荐$",
-        r"^全部同意$",
         r"^同意全部推荐$",
         r"^all\s*recommended$",
-        r"^accept\s*all$",
-        r"^yes$",
-        r"^y$",
-        r"^ok$",
-        r"^确认$",
-        r"^同意$",
-        r"^proceed$",
+        r"^accept\s*all\s*(?:recommended)?$",
         r"^按建议$",
-        r"^全选a$",
-        r"^全a$",
+        r"^全部按建议$",
     ]
 
     @classmethod

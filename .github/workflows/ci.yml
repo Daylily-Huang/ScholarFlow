@@ -21,3 +21,22 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Run scientific benchmark suite
         run: python benchmarks/run_benchmarks.py
+      - name: Run domain neutrality linter
+        run: python scripts/domain_neutrality_linter.py
+
+  packaging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Upgrade pip and install package
+        run: |
+          python -m pip install -U pip
+          pip install -e .
+      - name: Verify package imports after install
+        run: |
+          python -c "import shared.version; print('ScholarFlow Version:', shared.version.__version__)"
+          python -c "import shared.grill_me"
+          python -c "import shared.context_resolution"

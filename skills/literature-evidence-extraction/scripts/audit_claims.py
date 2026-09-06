@@ -43,8 +43,12 @@ except ImportError:
     PYPDF_AVAILABLE = False
 
 
-def load_full_text(file_path: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
-    """Load text and page numbers from PDF or text file, and audit parse quality."""
+def load_full_text(file_path: str, allow_degraded_pdf: bool = False) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    """Load text and page numbers from PDF or text file, and audit parse quality.
+
+    Fails closed (PARSER_REQUIRED) if a PDF document is audited without a reliable
+    PDF parser, unless allow_degraded_pdf is explicitly passed (P1-17).
+    """
     if not os.path.isfile(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
 
@@ -61,10 +65,14 @@ def load_full_text(file_path: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]
                 for idx, p in enumerate(reader.pages):
                     pages.append({"page": idx + 1, "text": p.extract_text() or ""})
             except Exception as e:
+                if not allow_degraded_pdf:
+                    raise RuntimeError(f"PARSER_REQUIRED: pypdf error reading PDF: {e}. Pass --allow-degraded-pdf for best-effort fallback.")
                 parser_used = "plain_text_fallback"
                 warning = f"[WARN] PyPDF error: {e}, fell back to raw text reading."
                 sys.stderr.write(f"{warning}\n")
         else:
+            if not allow_degraded_pdf:
+                raise RuntimeError("PARSER_REQUIRED: pypdf is not installed. Evidence-grade verification on PDF documents requires a reliable PDF parser (pip install 'scholarflow[pdf]' or pip install pypdf). Pass --allow-degraded-pdf for best-effort fallback.")
             parser_used = "plain_text_fallback"
             warning = "[WARN] pypdf is not installed. PDF text extraction is degraded."
             sys.stderr.write(f"{warning}\n")
@@ -255,12 +263,17 @@ but does NOT perform causal or semantic truth verification.
     parser.add_argument("-c", "--claims", default="", help="Path to JSON file containing list of claims")
     parser.add_argument("--claim", default="", help="A single claim string to audit")
     parser.add_argument("-r", "--relevance-topic", default="", help="Topic string to compute 0-10 relevance gatekeeper score")
+    parser.add_argument("--allow-degraded-pdf", action="store_true", help="Allow degraded plain-text fallback if PDF parser is missing or fails (bypasses fail-closed gate)")
     parser.add_argument("-o", "--output", default="", help="Path to write output markdown or JSON")
 
     args = parser.parse_args()
 
     input_path = os.path.abspath(args.input)
-    pages, parse_status = load_full_text(input_path)
+    try:
+        pages, parse_status = load_full_text(input_path, allow_degraded_pdf=args.allow_degraded_pdf)
+    except RuntimeError as e:
+        sys.stderr.write(f"Error: {e}\n")
+        sys.exit(2)
 
     md_lines = [
         f"# Candidate Evidence Locator & Surface Consistency Report: {os.path.basename(input_path)}\n",

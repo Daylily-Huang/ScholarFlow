@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ScholarFlowDiscoveryResult",
+  "description": "Canonical envelope schema for discovery search outputs.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "status",
+    "search_protocol",
+    "candidates"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "status": { "type": "string", "enum": ["SUCCESS", "PARTIAL", "FAILED"] },
+    "search_target": { "type": "string" },
+    "search_protocol": {
+      "type": "object",
+      "required": ["mode"],
+      "properties": {
+        "mode": { "type": "string", "enum": ["quick", "deep"] },
+        "is_snowball": { "type": "boolean" },
+        "seed_identifier": { "type": ["string", "null"] },
+        "query": { "type": ["string", "null"] },
+        "limit": { "type": "integer" },
+        "include_theses": { "type": "boolean" },
+        "thesis_preference": {
+          "type": "object",
+          "properties": {
+            "requested": { "type": "string", "enum": ["include", "exclude"] },
+            "enforcement": { "type": "string" }
+          }
+        }
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "$ref": "./literature_record.schema.json"
+      }
+    },
+    "prisma_s_audit": {
+      "type": "object",
+      "properties": {
+        "framework": { "type": "string" },
+        "applicable_items": { "type": "integer" },
+        "overall_status": { "type": "string" },
+        "items": { "type": "array" }
+      }
+    },
+    "saturation_tracking": { "type": ["object", "null"] },
+    "grounding_controls": { "type": ["object", "null"] },
+    "metadata": { "type": ["object", "null"] }
+  }
+}

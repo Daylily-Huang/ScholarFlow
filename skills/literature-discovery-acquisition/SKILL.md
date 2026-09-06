@@ -20,10 +20,13 @@ description: >-
 > [!CAUTION]
 > **严禁全量一次性预加载**：本 Skill 完整知识库（28 个文件）总文本量约 158 KB。在初次触发激活时，**绝对禁止**一次性读取 `references/`、`role/`、`examples/` 或 `assets/` 中的所有文件。Agent 必须严格遵守以下阶段化与模式分支的渐进式按需读取策略，严守上下文预算！
 
-### 阶段 1：启动与前置交互门禁（仅允许加载 1 个文件，~5 KB）
-- **唯一必须读取**：[references/stage0_grill_me.md](references/stage0_grill_me.md)
-- **禁止提前读取**：任何其他 references、role 文件、案例或资产模板。
-- **核心动作**：解析用户输入，在对话中输出初步范围/概念词/推荐期刊草案，并**必须向用户发起核心第 1 题（Q1 检索模式选择：Deep Search vs Quick Search）与第 2 题（Q2 硕博学位论文需求）的 Grill-Me 决策询问**。
+### 阶段 1：Stage 0 上下文感知科研决策门禁 (Context-Aware Research Gate)
+- **执行序列**：
+  1. **Stage 0A — Context Resolution**：按五层优先级自动解析现有上下文（当前指令、历史对话、任务附件、上游产物及按需项目检索），输出《现有科研上下文确认简报》，已知要素自动确认为 `RESOLVED`，严禁对已知要素重复发问；
+  2. **Stage 0B — Adaptive Grill-Me**：读取 [references/stage0_grill_me.md](references/stage0_grill_me.md) 与 `shared/grill_me/`，仅从未决的 `CRITICAL` / `HIGH_IMPACT` 维度中动态生成 3~5 个结构化追问，每题附带 Recommended 选项与方法学依据，严格执行 STOP Rule 静默等待用户确认；
+  3. **Stage 0C — Protocol Snapshot**：用户确认后固化全字段来源审计快照（`[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`），解锁 Stage 1 实质执行。
+- **决策维度原则**：不预设固定问题（检索深度 Deep/Quick、学位论文需求等均由任务目标、上下文与学科透镜动态决定，已明确者绝不重复询问）。
+- **禁止提前读取**：任何 Stage 1+ 的 references、role 文件、案例或资产模板。
 
 ---
 
@@ -259,7 +262,7 @@ flowchart TD
 - [ ] 2. **概念矩阵查全度**：已发掘 7 维变体与拉丁学名，无单一检索式偷懒；
 - [ ] 3. **重点期刊与来源过滤**：已生成四层级期刊及 WoS/PubMed 过滤代码；
 - [ ] 4. **初筛一致性**：无主观随意排除，所有 `Uncertain` 文献均完整保留；
-- [ ] 5. **零伪造红线**：无法核验 DOI 均标记 `DOI = NR`，无任何由摘要推断 PCR 反应参数等实验数值的违规；
+- [ ] 5. **零伪造红线**：无法核验 DOI 均标记 `DOI = NR`，无任何由摘要凭空推断具体实验参数或数值的违规；
 - [ ] 6. **数据源披露透明度**：诚实标明实际检索与受限商业库，提供人工补检式；
 - [ ] 7. **开源下载真实性**：若执行 Stage 8，本地 PDF 均通过 `%PDF-` 魔数与文件体量校验，无 HTML 伪装损坏文件；
 - [ ] 8. **硕博士学位论文履约核验**：严格按照 Grill-Me 确认的学位论文需求，落实专属检索式生成、高校知识库直链探测与台账标识；
@@ -277,7 +280,7 @@ flowchart TD
   - [domain_advisor.md](role/domain_advisor.md)：通用词矩阵与重点期刊助手（动态探索机制与学位论文策略）
   - [quality_gatekeeper.md](role/quality_gatekeeper.md)：最终质量审查员独立审计规范与 PRISMA-S 评分放行令
 - **阶段详细规程 (`references/`)**：
-  - [stage0_grill_me.md](references/stage0_grill_me.md)：Stage 0 问题拆解与前置 Grill-Me 交互规程（含硕博必问项）
+  - [stage0_grill_me.md](references/stage0_grill_me.md)：Stage 0 自适应决策门禁与动态维度收敛规程
   - [theses_retrieval.md](references/theses_retrieval.md)：中英文硕博士学位论文专项检索与下载规程（CNKI博硕/PQDT/OATD/高校IR）
   - [subagent_screening.md](references/subagent_screening.md)：多 SubAgent 并发初筛分片与打分规程 (Map-Reduce)
   - [prisma_s_checklist.md](references/prisma_s_checklist.md)：PRISMA-S 16 项系统评价文献检索扩展标准机审规程
