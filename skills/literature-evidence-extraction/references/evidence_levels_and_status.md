@@ -85,6 +85,7 @@ flowchart TD
 | **`CONTRADICTORY`** | 内部矛盾 | 原文正文与表格、或正文不同段落对同一参数给出冲突数值 | 同时列出两处原句，保留矛盾 |
 | **`AMBIGUOUS`** | 语意歧义 | 原文用词模棱两可（如“退火温度约为 55°C 上下”、“加入数微升”） | 原文摘抄，注明模糊性 |
 | **`OCR_UNCERTAIN`** | 识别存疑 | 扫描件模糊、微升 `μL` 错显为乱码、`±` 符号缺失、引物序列断损 | 强制标记存疑，严禁自作主张修复 |
+> **NR 语义防护（NOT_REPORTED ≠ UNSUPPORTED）**：未报告记录的 claim_status 一律记 `AMBIGUOUS`（notes 注明「NR 非论断」），严禁记 `UNSUPPORTED`——「论文没写」不等于「论文说错了」。
 
 ---
 

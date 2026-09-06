@@ -121,6 +121,7 @@ flowchart TD
   - **E3 (REFERENCED)**：引述外文（如“following Smith 2012”），本篇值记为 `NR`，引文单列；
   - **E4 (NR)**：Not Reported，全文未提及，绝不常识补缺。
 - 标记状态标签（`SUPPORTED`, `UNSUPPORTED`, `CONTRADICTORY`, `AMBIGUOUS`, `OCR_UNCERTAIN`）。
+- **NR 语义防护（NOT_REPORTED ≠ UNSUPPORTED）**：未报告记录的 `claim_status` 一律记 `AMBIGUOUS` 并在 notes 注明「NR 非论断」，严禁记 `UNSUPPORTED`——"论文没写"不等于"论文说错了"。
 
 ### 3. Phase C — Interpretation（科学解释，仅在用户明确要求时启用）
 - **严格与证据表物理隔离**，以独立章节 `### 科学解释与分析推论 (Scientific Interpretation)` 呈现；
@@ -128,21 +129,26 @@ flowchart TD
 
 ---
 
-## 四、双轨输出契约 (Output Contract)
+## 四、三轨输出契约 (Output Contract: Markdown 底稿 + JSON 合同 + HTML 报告)
 
 ### 1. 标准 Markdown 证据矩阵
 必须遵循统一表头与最小充分引用格式：
 ```markdown
-| Field | Extracted Value | Evidence Level | Verbatim Quote | Source Type | Location | Status | Notes |
+| 字段 | 抽取值 | 支撑类型 | 证据强度 | 逐字引句（最小充分） | 位置 | 状态 | 备注 |
 |---|---|---|---|---|---|---|---|
-| PCR volume | 20 μL | E1 (EXPLICIT) | “PCR was performed in a total volume of 20 μL containing...” | Text | Page 4, Section 2.3 | SUPPORTED | — |
-| Annealing Temp | 55°C (正文) / 53°C (表2) | E1 (EXPLICIT) | Methods: “annealed at 55°C”; Table 2: “Ta = 53°C” | Text & Table | Page 4 & Table 2 | CONTRADICTORY | 存在矛盾，需人工复核 |
-| DNA Extraction | following Waits et al. 2001 | E3 (REFERENCED) | “Fecal DNA was extracted following Waits et al. (2001).” | Text | Page 3, Section 2.2 | SUPPORTED | 本文未列提取细节，仅引用 Waits 2001 |
-| BSA concentration | NR | E4 (NR) | — | — | — | NOT_REPORTED | 全文中未报告 BSA 参数 |
+| PCR volume | 20 μL | EXPLICIT（明示/E1） | 直接实证 | “PCR was performed in a total volume of 20 μL containing...” | Page 4, §2.3 | SUPPORTED | — |
+| Annealing Temp | 55°C (正文) / 53°C (表2) | EXPLICIT（明示/E1） | 直接实证 | Methods: “annealed at 55°C”; Table 2: “Ta = 53°C” | Page 4 & Table 2 | CONTRADICTORY | 正文与表格矛盾，需人工复核 |
+| DNA Extraction | following Waits et al. 2001 | REFERENCED（引自他文/E3） | 二手证据 | “Fecal DNA was extracted following Waits et al. (2001).” | Page 3, §2.2 | SUPPORTED | 本文未列细节，仅引用；本篇值记 NR |
+| BSA concentration | NR | NOT_REPORTED（未报告/E4） | 未知 | — | — | AMBIGUOUS | NR 语义防护：未报告≠不支持，严禁记 UNSUPPORTED |
 ```
 
 ### 2. 伴生落盘结构化 JSON 文件
 每篇提取结果必须在工作区生成同名伴生 JSON（如 `<Paper_Slug>_evidence.json`），严格通过 `schemas/extraction_result.schema.json`（及其引用的 `schemas/evidence_record.schema.json`）结构验证。
+
+### 3. HTML 可视化报告（全中文，便于直接阅读与归档）
+由 `scripts/evidence_matrix_html.py -i <evidence.json> -o <report.html>` 自动渲染：全中文表头与色标徽章、统计面板、审计裁决框、
+派生计算与未报告记录的特殊视觉标记。自包含单文件（内联 CSS、无 CDN、无 JS），离线双击即可阅读。HTML 是 Markdown 底稿的呈现层，
+内容以 JSON 合同为单一真源，两者必须同批生成、同批交付。
 
 ---
 
@@ -170,6 +176,7 @@ flowchart TD
   - `scripts/pdf_evidence_locator.py`：PDF 页面与精准原句定位器（含特殊符号与 OCR 噪声检测）
   - `scripts/audit_claims.py`：既有 Claim 事实核查反查比对工具
   - `scripts/quote_audit.py`：引句回查硬校验门——证据 JSON 每条 verbatim_quote 必须回查源文献定位（EXACT/HYPHEN_JOIN/FUZZY），NOT_FOUND 即门禁失败，零模型判断
+  - `scripts/evidence_matrix_html.py`：证据 JSON → 全中文自包含 HTML 报告渲染器（色标徽章/统计面板/NR 视觉防护/派生公式高亮，零依赖离线可读）
 - **资产与模板 (`assets/`)**：
   - **Canonical Schemas**：提取与证据产物遵循 [`schemas/extraction_result.schema.json`](../../schemas/extraction_result.schema.json) 与 [`schemas/evidence_record.schema.json`](../../schemas/evidence_record.schema.json)（统一单一真源，Skill assets 内不保留重复 executable schema）
   - [evidence_table_template.md](./assets/evidence_table_template.md)：标准 Markdown 证据矩阵模板
