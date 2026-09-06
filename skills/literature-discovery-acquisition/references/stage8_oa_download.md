@@ -73,6 +73,8 @@ flowchart TD
 ### 3. 安全请求配置
 - **User-Agent 伪装**：设置合规学术检索 User-Agent，避免触发出版商反爬 403 拦截；
 - **超时与重试**：单文件连接超时设置为 15 秒，读取超时设置为 30 秒，遇到网络抖动自动指数退避重试 2 次。
+- **TLS 指纹回退（一次性）**：同一 URL 在常规请求被 403 / 伪装 HTML 拦截时，允许改用 `curl -sL --compressed` 携带完整浏览器请求头重试 **1 轮**（实测可突破部分 Springer / 学术站点拦截）；仍失败立即停止并标记 `OA_BOT_BLOCKED`。**严禁升级为对抗性绕过**——验证码破解、IP 池轮换、封禁规避均属违规操作。
+- **CJK 命名补充**：中文题名文件的标题短串可保留常用汉字（建议 ≤24 字），避免 slug 退化为无区分度的 `paper.pdf`（例：`2025_陈彩锦_紫花苜蓿抗旱育种研究现状及展望.pdf`）。
 
 ---
 
@@ -99,6 +101,7 @@ flowchart TD
 |---|:---:|---|
 | **OA_DOWNLOADED** | `[已下载]` | 官方期刊同行评议正式版本已成功下载至本地，且通过了 `%PDF-` 完整性校验。 |
 | **PREPRINT_AVAILABLE** | `[预印本]` | 期刊正式见刊版受商业数据库付费墙限制，但已成功从 bioRxiv/arXiv 获取到作者自存档预印本全文。 |
+| **OA_BOT_BLOCKED** | `[OA-反爬拦截]` | 出版方**实质开放获取**（gold/hybrid/diamond OA），但反爬系统（Cloudflare 等）拦截自动化下载。**不得标为 PAYWALLED 误导用户付费**；报告中逐条给出官方 DOI 直链，浏览器人工打开即可免费获取。 |
 | **PAYWALLED** | `[需商业权限]` | 全球合法开放渠道均未找到免费公开全文（通常为 Elsevier/Springer/Wiley 等需付费订阅文献）。**报告中自动生成该论文的官方 DOI 直达链接与校外机构代理访问建议**，提醒用户在学校/机构 IP 内一键补充下载。 |
 
 ---
@@ -107,9 +110,14 @@ flowchart TD
 
 Stage 8 完成并生成本地 PDF 文件与《全文获取台账》后：
 
-1. **若台账中存在 `PAYWALLED` 文献且 `site_registry.json` 中有已启用站点**：
-   自动进入 **Stage 8B（浏览器辅助兜底下载）**，通过浏览器自动化进入知网/万方/学校代理等站点尝试补充下载。详见 [stage8b_browser_fallback.md](stage8b_browser_fallback.md)。
+1. **Stage 8 收尾硬性检查（不可跳过）**：
+   - **实读**两处 `site_registry.json`——技能自带 `assets/site_registry.json` 与项目根目录同名文件（后者覆盖前者）——核实是否存在 `enabled: true` 站点；
+   - **禁止凭记忆或假设判定"无注册表"而跳过**（端到端实测曾因该假设漏触发 8B，导致中文库兜底通道整段未启用）；
+   - 核验结论（`8B_TRIGGERED` / `NO_ENABLED_SITE` / `CREDENTIAL_MISSING`）必须写入台账。
 
-2. **若台账中无 `PAYWALLED`，或无已启用站点**：
-   直接进入 Quality Gatekeeper 独立审查，输出标准指引：
+2. **若台账中存在 `PAYWALLED` 且核实存在已启用站点**：
+   自动进入 **Stage 8B（浏览器辅助兜底下载）**，通过浏览器自动化进入知网/万方/学校代理等站点尝试补充下载。详见 [stage8b_browser_fallback.md](stage8b_browser_fallback.md)。站点所需凭据缺失时按 `CREDENTIAL_MISSING` 跳过该站点，并在台账提示用户"将凭据写入 `.env` 后可重跑 Stage 8B"（绝不追问密码明文）。
+
+3. **若台账中无 `PAYWALLED`，或核实确无已启用站点**：
+   在台账披露 `NO_ENABLED_SITE` 跳过原因后，直接进入 Quality Gatekeeper 独立审查，输出标准指引：
    > **"已下载的文献 PDF 文件位于 `papers/downloads/`。下一步如需提取文献的实验方法、核心参数或进行事实核验，请调用 `literature-evidence-extraction` 证据抽取技能处理上述本地文件。"**

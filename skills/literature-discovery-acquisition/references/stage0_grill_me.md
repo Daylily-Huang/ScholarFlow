@@ -2,7 +2,7 @@
 
 > **Status**: Production Standard  
 > **Skill**: `literature-discovery-acquisition`  
-> **Core Architecture**: Powered by [ScholarFlow Adaptive Research Grill Engine](../../../shared/grill_me/core_protocol.md)  
+> **Core Architecture**: Powered by [ScholarFlow Adaptive Research Grill Engine](../../../shared/grill_me/core_protocol.md)（位置：`.agents/shared/grill_me/`，即 `skills/` 的同级 `shared/` 目录；从本文件出发的相对路径正确）  
 > **Dimension Reference**: [grill_dimensions.md](./grill_dimensions.md) (D1 ~ D14)
 
 ---
@@ -38,6 +38,12 @@ Agent 接收到用户请求后：
 1. 自动提取初始 Prompt 中已明确声明的参数，直接赋予 `[INFERRED]` 标签；
 2. 从未决的 `CRITICAL` 维度中提取核心问题，并在 `HIGH_IMPACT` 维度中挑选高影响项，组合生成 **3 ~ 5 个** 聚焦的结构化问题；
 3. **Agent 输出问题后立即停止输出（STOP），等待用户回复！**
+
+**交互实施硬约束（针对结构化问答工具的题位限制）**：
+- 当所用交互工具单轮题位上限为 4 时，**必须分轮提问**（每轮 ≤4 题，总预算仍为 3~5 题），不得为塞进单轮而压缩必要维度；
+- **捆绑禁令**：一个提问槽位只承载一个维度；`CRITICAL` 维度（D1-D5）**严禁与任何非 CRITICAL 维度捆绑成同一题的选项**——捆绑会让高影响决策变成"搭车选项"，用户极易误选；
+- **学科条件化必问**：当学科透镜判定该领域硕博学位论文是重要文献产出（农业/草业/畜牧/林学等中国学科群为典型，CNKI 博硕库密度高），`D9` 中的学位论文需求**必须独立成题**，不得并入时间跨度等其他维度的选项；
+- **词表确认窗口**：Stage 2 生成的概念词表与四层级期刊表属于"替用户做的选择"，至少须以非阻塞方式在开工消息中展示（Quick 模式），或作为一轮轻确认（Deep 模式）——确保用户在检索执行前有机会补充自有种子词/种子文献与重点期刊。
 
 ### Step 2：用户快捷回复与解析 (Response Parsing)
 用户可通过以下任意方式快捷回复：

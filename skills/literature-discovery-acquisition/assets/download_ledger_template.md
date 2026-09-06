@@ -5,8 +5,10 @@
 - **检索课题**：[填写研究主题]
 - **初筛合格候选总数**：[N] 篇
 - **已成功下载开源全文 (OA / 预印本)**：[N_oa] 篇
+- **开放获取但反爬拦截 (OA_BOT_BLOCKED，浏览器可免费获取)**：[N_bot] 篇
 - **受限商业数据库付费墙 (Paywalled)**：[N_pay] 篇
 - **下载受阻/网络失败**：[N_fail] 篇
+- **Stage 8B 核验结论**：[8B_TRIGGERED / NO_ENABLED_SITE / CREDENTIAL_MISSING]
 - **存储目录**：`papers/downloads/`
 
 ---
@@ -17,7 +19,8 @@
 |---|---|---|:---:|---|:---:|---|
 | **REC001** | [Paper Title 1] | [Author 1] | [Year] | [10.xxxx/xxxx](https://doi.org/10.xxxx/xxxx) | 🟢 **OA_DOWNLOADED** | `2024_Author_Title_Slug.pdf` |
 | **REC002** | [Paper Title 2] | [Author 2] | [Year] | [10.xxxx/xxxx](https://doi.org/10.xxxx/xxxx) | 🟢 **PREPRINT_AVAILABLE** | `2023_Author_Preprint_Slug.pdf` |
-| **REC003** | [Paper Title 3] | [Author 3] | [Year] | [10.xxxx/xxxx](https://doi.org/10.xxxx/xxxx) | 🔒 **PAYWALLED** | 商业数据库需订阅，请通过机构/校园网访问 |
+| **REC003** | [Paper Title 3] | [Author 3] | [Year] | [10.xxxx/xxxx](https://doi.org/10.xxxx/xxxx) | 🟡 **OA_BOT_BLOCKED** | 出版方 OA，浏览器打开 DOI 即可免费获取 |
+| **REC004** | [Paper Title 4] | [Author 4] | [Year] | [10.xxxx/xxxx](https://doi.org/10.xxxx/xxxx) | 🔒 **PAYWALLED** | 商业数据库需订阅，请通过机构/校园网访问 |
 
 ---
 
