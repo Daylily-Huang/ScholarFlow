@@ -441,6 +441,18 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
     refute_ratio = weights_by_stance["REFUTE"] / total_weight
     cond_ratio = weights_by_stance["CONDITIONAL"] / total_weight
     
+    # Independent evidence groups and empirical support check (P1 17.1 & 17.2)
+    support_claims = [c for c in eligible_claims if c.get("stance") == "SUPPORT"]
+    support_groups = {
+        c.get("independence_group_id") or c.get("paper_id", "Unknown")
+        for c in support_claims
+    }
+    has_empirical_support = any(
+        c.get("evidence_strength") in ("DIRECT_EMPIRICAL", "MODELED_EMPIRICAL")
+        or c.get("evidence_tier") in ("E1", "E2")
+        for c in support_claims
+    )
+
     # Qualitative Consensus Classification (replacing mechanical majority voting)
     # Never claim "Universal Consensus"
     if total_weight < 1.0 or total_eligible_claims < 2:
@@ -452,7 +464,7 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
     elif cond_ratio >= 0.45:
         consensus_classification = "CONDITIONAL_CONSENSUS"
         consensus_level = "Level 3 (Context-Bounded Consensus / Conditional Agreement)"
-    elif support_ratio >= 0.80 and len(papers_by_stance["SUPPORT"]) >= 2:
+    elif support_ratio >= 0.80 and len(support_groups) >= 2 and has_empirical_support:
         consensus_classification = "STRONG_CONSENSUS"
         consensus_level = "Level 1 (Strong Prevailing Consensus - Replicated Evidence)"
     elif support_ratio >= 0.65:
@@ -511,6 +523,40 @@ def analyze(claims: List[Dict[str, Any]], topic_filter: Optional[str] = None) ->
 
 # Alias for backward/contract compatibility
 analyze_controversy = analyze
+
+
+def to_canonical_synthesis_records(results: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """
+    Transform analyze() results into a list of canonical SynthesisRecords validating
+    against `schemas/synthesis_record.schema.json`.
+    """
+    records = []
+    for topic, data in results.items():
+        hbs = data.get("heuristic_balance_score", {})
+        canonical_hbs = {
+            "support_pct": float(hbs.get("SUPPORT", hbs.get("support_pct", 0.0))),
+            "refute_pct": float(hbs.get("REFUTE", hbs.get("refute_pct", 0.0))),
+            "conditional_pct": float(hbs.get("CONDITIONAL", hbs.get("conditional_pct", 0.0))),
+            "neutral_pct": float(hbs.get("NEUTRAL", hbs.get("neutral_pct", 0.0))),
+        }
+
+        diag = data.get("controversy_diagnosis", {})
+        canonical_diag = {
+            "type": str(diag.get("type", "No Active Disagreement")),
+            "confidence": str(diag.get("confidence", "Medium")),
+            "reason": str(diag.get("reason", "No detailed rationale provided")),
+        }
+
+        rec = {
+            "schema_version": "1.0",
+            "topic": topic,
+            "total_claims": int(data.get("total_claims", 0)),
+            "consensus_classification": data.get("consensus_classification", "INSUFFICIENT_EVIDENCE"),
+            "heuristic_balance_score": canonical_hbs,
+            "controversy_diagnosis": canonical_diag,
+        }
+        records.append(rec)
+    return records
 
 
 def generate_mermaid_argument_graph(topic: str, claims: List[Dict[str, Any]]) -> str:
@@ -635,7 +681,8 @@ def main():
     results = analyze(raw_claims, topic_filter=args.topic)
     
     if args.format == "json":
-        output_content = json.dumps(results, indent=2, ensure_ascii=False)
+        canonical_records = to_canonical_synthesis_records(results)
+        output_content = json.dumps(canonical_records, indent=2, ensure_ascii=False)
     elif args.format == "summary":
         output_content = format_summary_report(results)
     else:

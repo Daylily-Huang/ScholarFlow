@@ -90,7 +90,7 @@ def evaluate_coverage_status(
     execution_status: str,
     reported_total_hits: Optional[int],
     metadata_records_retrieved: int,
-    pagination_status: str = PaginationStatus.COMPLETE
+    pagination_status: str = PaginationStatus.UNKNOWN
 ) -> str:
     """Evaluate database coverage status with strict truth-in-search rules.
 
@@ -122,10 +122,10 @@ def evaluate_coverage_status(
                 return CoverageStatus.PARTIAL
             return CoverageStatus.COMPLETE
 
-        # When total hits not reported by DB but pagination completed
+        # When total hits not reported by DB but pagination explicitly completed
         if pagination_status == PaginationStatus.COMPLETE:
             return CoverageStatus.COMPLETE
-        return CoverageStatus.PARTIAL
+        return CoverageStatus.UNKNOWN if metadata_records_retrieved == 0 else CoverageStatus.PARTIAL
 
     return CoverageStatus.UNKNOWN
 
@@ -139,12 +139,19 @@ def build_retrieval_ledger_entry(
     reported_total_hits: Optional[int] = None,
     metadata_records_retrieved: int = 0,
     unique_records_after_source_dedup: Optional[int] = None,
-    pagination_status: str = PaginationStatus.COMPLETE,
+    pagination_status: str = PaginationStatus.UNKNOWN,
     coverage_status: Optional[str] = None,
     failure_reason: Optional[str] = None,
-    notes: str = ""
+    notes: str = "",
+    completion_evidence: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """Construct an auditable Ledger A entry with automatic truth validation."""
+    # Check completion evidence (e.g. user confirmed export)
+    eff_pagination = pagination_status
+    if completion_evidence:
+        if completion_evidence.get("type") == "USER_CONFIRMED_FULL_EXPORT":
+            eff_pagination = PaginationStatus.COMPLETE
+
     # Enforce Rule 10: Access Failure != 0 hits
     if execution_status in RetrievalStatus.ACCESS_FAILURE_STATUSES:
         if reported_total_hits == 0:
@@ -157,7 +164,7 @@ def build_retrieval_ledger_entry(
             execution_status=execution_status,
             reported_total_hits=reported_total_hits,
             metadata_records_retrieved=metadata_records_retrieved,
-            pagination_status=pagination_status
+            pagination_status=eff_pagination
         )
 
     retrieval_rate = None
@@ -166,7 +173,7 @@ def build_retrieval_ledger_entry(
     elif reported_total_hits == 0:
         retrieval_rate = 1.0
 
-    return {
+    entry: Dict[str, Any] = {
         "source_id": source_id,
         "query_id": query_id,
         "query_text": query_text,
@@ -179,12 +186,15 @@ def build_retrieval_ledger_entry(
             if unique_records_after_source_dedup is not None
             else metadata_records_retrieved
         ),
-        "pagination_status": pagination_status,
+        "pagination_status": eff_pagination,
         "coverage_status": computed_coverage,
         "metadata_retrieval_rate": retrieval_rate,
         "failure_reason": failure_reason,
         "notes": notes,
     }
+    if completion_evidence:
+        entry["completion_evidence"] = completion_evidence
+    return entry
 
 
 def reconcile_retrieval_coverage_ledger(
@@ -194,11 +204,35 @@ def reconcile_retrieval_coverage_ledger(
     """Reconcile planned search sources and queries into the comprehensive Ledger A.
 
     Identifies retrieval gaps (sources not searched, truncated, or failed).
+    Reconciles at the (source_id, query_id) execution key level.
     """
-    entries_by_source: Dict[str, List[Dict[str, Any]]] = {}
+    planned_keys = set()
+    queries_by_source: Dict[str, List[Dict[str, Any]]] = {}
+    source_modes: Dict[str, str] = {}
+
+    for plan in planned_sources:
+        s_id = plan.get("source_id", "Unknown")
+        s_mode = plan.get("search_mode", "DIRECT_API")
+        source_modes[s_id] = s_mode
+        plan_queries = plan.get("planned_queries", [])
+        if plan_queries:
+            for q in plan_queries:
+                q_id = q.get("query_id", "Q01")
+                planned_keys.add((s_id, q_id))
+                queries_by_source.setdefault(s_id, []).append(q)
+        else:
+            q_id = "Q01"
+            planned_keys.add((s_id, q_id))
+            queries_by_source.setdefault(s_id, []).append({"query_id": q_id, "query_text": ""})
+
+    executed_entries_by_key: Dict[Tuple[str, str], Dict[str, Any]] = {}
+    executed_keys = set()
     for entry in executed_entries:
         s_id = entry["source_id"]
-        entries_by_source.setdefault(s_id, []).append(entry)
+        q_id = entry.get("query_id", "Q01")
+        key = (s_id, q_id)
+        executed_keys.add(key)
+        executed_entries_by_key[key] = entry
 
     reconciled_entries: List[Dict[str, Any]] = []
     source_coverage_summary: List[Dict[str, Any]] = []
@@ -206,83 +240,89 @@ def reconcile_retrieval_coverage_ledger(
 
     for plan in planned_sources:
         s_id = plan.get("source_id", "Unknown")
-        s_mode = plan.get("search_mode", "DIRECT_API")
-        plan_queries = plan.get("planned_queries", [])
+        s_mode = source_modes.get(s_id, "DIRECT_API")
+        p_queries = queries_by_source.get(s_id, [])
 
-        if s_id in entries_by_source:
-            actual_entries = entries_by_source[s_id]
-            reconciled_entries.extend(actual_entries)
-
-            # Reconcile source-level totals
-            src_reported = sum((e.get("reported_total_hits") or 0) for e in actual_entries)
-            src_retrieved = sum(e.get("metadata_records_retrieved", 0) for e in actual_entries)
-            src_unique = sum(e.get("unique_records_after_source_dedup", 0) for e in actual_entries)
-
-            all_complete = all(e.get("coverage_status") == CoverageStatus.COMPLETE for e in actual_entries)
-            any_unknown = any(e.get("coverage_status") == CoverageStatus.UNKNOWN for e in actual_entries)
-
-            if all_complete:
-                src_cov = CoverageStatus.COMPLETE
-            elif any_unknown:
-                src_cov = CoverageStatus.UNKNOWN
+        src_actual_entries: List[Dict[str, Any]] = []
+        for q in p_queries:
+            q_id = q.get("query_id", "Q01")
+            key = (s_id, q_id)
+            if key in executed_entries_by_key:
+                src_actual_entries.append(executed_entries_by_key[key])
             else:
-                src_cov = CoverageStatus.PARTIAL
-
-            source_summary = {
-                "source_id": s_id,
-                "search_mode": s_mode,
-                "executed": True,
-                "query_count": len(actual_entries),
-                "total_reported_hits": src_reported if any(e.get("reported_total_hits") is not None for e in actual_entries) else None,
-                "metadata_records_retrieved": src_retrieved,
-                "unique_records": src_unique,
-                "coverage_status": src_cov
-            }
-            source_coverage_summary.append(source_summary)
-
-            if src_cov != CoverageStatus.COMPLETE:
+                unexec = build_retrieval_ledger_entry(
+                    source_id=s_id,
+                    query_id=q_id,
+                    query_text=q.get("query_text", ""),
+                    search_mode=s_mode,
+                    execution_status=RetrievalStatus.NOT_SEARCHED,
+                    failure_reason=f"Query {q_id} for source {s_id} was planned but never executed.",
+                    notes="Unexecuted query"
+                )
+                src_actual_entries.append(unexec)
                 retrieval_gaps.append({
                     "source_id": s_id,
-                    "gap_type": "PARTIAL_OR_UNRESOLVED_COVERAGE",
+                    "query_id": q_id,
+                    "gap_type": "QUERY_NOT_SEARCHED",
                     "risk_level": "HIGH_SCIENTIFIC_RISK",
-                    "description": f"Source {s_id} achieved {src_cov} coverage ({src_retrieved} records retrieved vs {src_reported} reported hits)."
+                    "description": f"Planned query {q_id} for {s_id} was not executed."
                 })
+
+        reconciled_entries.extend(src_actual_entries)
+
+        has_any_exec = any(e.get("execution_status") != RetrievalStatus.NOT_SEARCHED for e in src_actual_entries)
+        src_reported = sum((e.get("reported_total_hits") or 0) for e in src_actual_entries if e.get("execution_status") != RetrievalStatus.NOT_SEARCHED)
+        src_retrieved = sum(e.get("metadata_records_retrieved", 0) for e in src_actual_entries)
+        src_unique = sum(e.get("unique_records_after_source_dedup", 0) for e in src_actual_entries)
+
+        all_complete = has_any_exec and all(e.get("coverage_status") == CoverageStatus.COMPLETE for e in src_actual_entries)
+        any_unknown = any(e.get("coverage_status") == CoverageStatus.UNKNOWN for e in src_actual_entries)
+
+        if all_complete:
+            src_cov = CoverageStatus.COMPLETE
+        elif any_unknown or not has_any_exec:
+            src_cov = CoverageStatus.UNKNOWN
         else:
-            # Source was planned but not executed
-            unexecuted_entry = build_retrieval_ledger_entry(
-                source_id=s_id,
-                query_id=plan_queries[0]["query_id"] if plan_queries else "Q_UNEXECUTED",
-                query_text=plan_queries[0]["query_text"] if plan_queries else "",
-                search_mode=s_mode,
-                execution_status=RetrievalStatus.NOT_SEARCHED,
-                failure_reason="Source was planned but never queried in execution run.",
-                notes="Unexecuted database"
-            )
-            reconciled_entries.append(unexecuted_entry)
-            source_coverage_summary.append({
-                "source_id": s_id,
-                "search_mode": s_mode,
-                "executed": False,
-                "query_count": 0,
-                "total_reported_hits": None,
-                "metadata_records_retrieved": 0,
-                "unique_records": 0,
-                "coverage_status": CoverageStatus.UNKNOWN
-            })
+            src_cov = CoverageStatus.PARTIAL
+
+        source_summary = {
+            "source_id": s_id,
+            "search_mode": s_mode,
+            "executed": has_any_exec,
+            "query_count": len(src_actual_entries),
+            "total_reported_hits": src_reported if any(e.get("reported_total_hits") is not None for e in src_actual_entries) else None,
+            "metadata_records_retrieved": src_retrieved,
+            "unique_records": src_unique,
+            "coverage_status": src_cov
+        }
+        source_coverage_summary.append(source_summary)
+
+        if not has_any_exec:
             retrieval_gaps.append({
                 "source_id": s_id,
                 "gap_type": "DATABASE_NOT_SEARCHED",
                 "risk_level": "HIGH_SCIENTIFIC_RISK",
                 "description": f"Planned source {s_id} was not executed; coverage unknown."
             })
+        elif src_cov != CoverageStatus.COMPLETE:
+            retrieval_gaps.append({
+                "source_id": s_id,
+                "gap_type": "PARTIAL_OR_UNRESOLVED_COVERAGE",
+                "risk_level": "HIGH_SCIENTIFIC_RISK",
+                "description": f"Source {s_id} achieved {src_cov} coverage ({src_retrieved} records retrieved vs {src_reported} reported hits)."
+            })
 
     total_planned_sources = len(planned_sources)
     complete_sources = sum(1 for s in source_coverage_summary if s["coverage_status"] == CoverageStatus.COMPLETE)
     db_coverage_rate = round(complete_sources / max(1, total_planned_sources), 4)
 
-    total_planned_queries = sum(len(p.get("planned_queries", [])) for p in planned_sources)
-    executed_queries = len(executed_entries)
-    query_exec_rate = round(executed_queries / max(1, total_planned_queries), 4) if total_planned_queries > 0 else 1.0
+    total_planned_queries = len(planned_keys)
+    unique_executed_planned_keys = planned_keys.intersection(executed_keys)
+    query_exec_rate = round(len(unique_executed_planned_keys) / max(1, total_planned_queries), 4) if total_planned_queries > 0 else 1.0
+
+    sum_query_reported = sum((e.get("reported_total_hits") or 0) for e in reconciled_entries if e.get("reported_total_hits") is not None)
+    sum_query_retrieved = sum(e.get("metadata_records_retrieved", 0) for e in reconciled_entries)
+    sum_unique_records = sum(s.get("unique_records", 0) for s in source_coverage_summary)
 
     return {
         "ledger_type": "RETRIEVAL_COVERAGE_LEDGER_A",
@@ -291,6 +331,9 @@ def reconcile_retrieval_coverage_ledger(
         "complete_sources": complete_sources,
         "database_coverage_rate": db_coverage_rate,
         "query_execution_rate": query_exec_rate,
+        "sum_query_reported_hits": sum_query_reported,
+        "sum_query_retrieved_records": sum_query_retrieved,
+        "unique_records_after_cross_query_dedup": sum_unique_records,
         "has_retrieval_gaps": len(retrieval_gaps) > 0,
         "retrieval_gaps": retrieval_gaps,
         "source_coverage_summary": source_coverage_summary,

@@ -9,9 +9,20 @@ import ingest_external_records as ing  # type: ignore
 
 FIXTURES = helpers.FIXTURES
 
-REQUIRED_KEYS = {"title", "authors", "year", "journal", "doi", "document_type",
-                 "source_databases", "evidence_tier", "screening_status",
-                 "ingestion_method"}
+REQUIRED_KEYS = {
+    "schema_version",
+    "record_id",
+    "title",
+    "authors",
+    "year",
+    "journal",
+    "doi",
+    "document_type",
+    "source_databases",
+    "metadata_verification_status",
+    "screening_status",
+    "ingestion_method",
+}
 
 
 class TestParseCnkiRefworks(unittest.TestCase):
@@ -21,7 +32,9 @@ class TestParseCnkiRefworks(unittest.TestCase):
         self.assertEqual(len(recs), 2)
         for r in recs:
             self.assertTrue(REQUIRED_KEYS.issubset(r.keys()))
-            self.assertEqual(r["evidence_tier"], "UNVERIFIED")
+            self.assertEqual(r["schema_version"], "1.0")
+            self.assertTrue(r["record_id"].startswith("REC-"))
+            self.assertEqual(r["metadata_verification_status"], "IMPORTED_USER_SOURCE")
             self.assertEqual(r["screening_status"], "Uncertain")
 
         journal = next(r for r in recs if r["document_type"] == "Journal Article")

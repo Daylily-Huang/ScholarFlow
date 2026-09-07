@@ -89,6 +89,7 @@ class AlignmentStatus:
     ALIGNED = "ALIGNED"
     PARTIALLY_ALIGNED = "PARTIALLY_ALIGNED"
     NOT_ALIGNED = "NOT_ALIGNED"
+    CONTRADICTS_TARGET = "CONTRADICTS_TARGET"
     AMBIGUOUS = "AMBIGUOUS"
 
 
@@ -154,14 +155,16 @@ ABBREV_PATTERN = re.compile(
 def split_sentences(text: str) -> List[Tuple[int, int, str]]:
     """
     Split text into sentences with start and end character offsets.
-    Handles academic abbreviations, decimals, and bracketed citations.
+    Handles academic abbreviations, decimals, bracketed citations, and multilingual/Chinese punctuation (。！？；).
     """
     if not text:
         return []
 
     spans = []
-    # Match potential sentence boundary: period/question/exclamation followed by space or newline
-    raw_boundary = re.compile(r"([.?!])(?:\s+|\n+|$)")
+    # Match potential sentence boundary:
+    # Group 1: ASCII [.?!] followed by space, newline, or string end
+    # Group 2: Chinese / fullwidth punctuation [。！？；]
+    raw_boundary = re.compile(r"([.?!])(?:\s+|\n+|$)|([。！？；])")
     cur_start = 0
     idx = 0
 
@@ -173,19 +176,20 @@ def split_sentences(text: str) -> List[Tuple[int, int, str]]:
                 spans.append((cur_start, len(text), tail))
             break
 
-        punct_pos = m.start(1)
-        prefix = text[cur_start : punct_pos + 1]
+        if m.group(1):
+            punct_pos = m.start(1)
+            prefix = text[cur_start : punct_pos + 1]
 
-        # Check if preceding token is an abbreviation or decimal
-        if ABBREV_PATTERN.search(prefix):
-            idx = m.end()
-            continue
-
-        # Check for numeric decimal like 3.14 or p < 0.05
-        if punct_pos > 0 and punct_pos < len(text) - 1:
-            if text[punct_pos - 1].isdigit() and text[punct_pos + 1].isdigit():
+            # Check if preceding token is an abbreviation or decimal
+            if ABBREV_PATTERN.search(prefix):
                 idx = m.end()
                 continue
+
+            # Check for numeric decimal like 3.14 or p < 0.05
+            if punct_pos > 0 and punct_pos < len(text) - 1:
+                if text[punct_pos - 1].isdigit() and text[punct_pos + 1].isdigit():
+                    idx = m.end()
+                    continue
 
         end_pos = m.end()
         sent_text = text[cur_start:end_pos].strip()
@@ -347,17 +351,17 @@ def get_structured_figure_context(figure_data: Dict[str, Any], locator: Dict[str
 # ==============================================================================
 
 NEGATION_REGEX = re.compile(
-    r"\b(not|no|never|neither|nor|failed\s+to|fail\s+to|did\s+not|does\s+not|without|non-significant|insignificant|lack\s+of|unsupported|no\s+effect|no\s+difference|declined\s+to|decline\s+to|refused\s+to|refuse\s+to|rejected|reject|denied|without\s+establishing)\b",
+    r"(?:\b(not|no|never|neither|nor|failed\s+to|fail\s+to|did\s+not|does\s+not|without|non-significant|insignificant|lack\s+of|unsupported|no\s+effect|no\s+difference|declined\s+to|decline\s+to|refused\s+to|refuse\s+to|rejected|reject|denied|without\s+establishing)\b|未发现|并未|并无|无显著|没有|不具有|未见|未支持|拒绝|排除)",
     re.IGNORECASE,
 )
 
 MODALITY_REGEX = re.compile(
-    r"\b(may|might|could|suggest|suggests|suggested|suggesting|possibly|possible|likely|hypothesized|speculate|speculated|preliminary|unconfirmed|putative)\b",
+    r"(?:\b(may|might|could|suggest|suggests|suggested|suggesting|possibly|possible|likely|hypothesized|speculate|speculated|preliminary|unconfirmed|putative)\b|可能|提示|推测|或许|假定|潜在)",
     re.IGNORECASE,
 )
 
 PRONOUN_ANAPHORA_REGEX = re.compile(
-    r"^(?:this|these|those|they|it|such|the authors|furthermore|moreover|however|in contrast|consequently|therefore|the former|the latter)\b",
+    r"(?:^(?:this|these|those|they|it|such|the authors|furthermore|moreover|however|in contrast|consequently|therefore|the former|the latter)\b|^[该此其这些那些])",
     re.IGNORECASE,
 )
 
@@ -402,8 +406,11 @@ def detect_conditions_and_scope(text: str) -> List[str]:
 
 
 def detect_comparators(text: str) -> List[str]:
-    """Extract comparison targets (compared with, vs, relative to)."""
-    pattern = re.compile(r"\b(?:compared\s+(?:with|to)|relative\s+to|versus|vs\.?|than\s+control|than\s+baseline)\s+([A-Za-z0-9_.-]+)", re.IGNORECASE)
+    """Extract comparison targets (compared with, vs, relative to, 相比, 显著高于, 显著低于)."""
+    pattern = re.compile(
+        r"(?:\b(?:compared\s+(?:with|to)|relative\s+to|versus|vs\.?|than\s+control|than\s+baseline)\s+([A-Za-z0-9_.-]+)|(?:相比(?:对照|基准)?|显著高于|显著低于|高于|低于|优于|劣于)(?:[A-Za-z0-9_.-]+)?)",
+        re.IGNORECASE,
+    )
     return [m.group(0).strip() for m in pattern.finditer(text)]
 
 
@@ -411,6 +418,66 @@ def needs_adjacent_expansion(sentence: str) -> bool:
     """Check whether a sentence begins with pronouns/anaphora requiring adjacent expansion."""
     clean = sentence.strip()
     return bool(PRONOUN_ANAPHORA_REGEX.search(clean))
+
+
+def check_sentence_semantic_completeness(
+    text: str,
+    tin: Optional[Dict[str, Any]] = None,
+) -> Tuple[bool, List[str]]:
+    """
+    Evaluate whether text has semantic completeness to answer the target inquiry.
+    Replaces bare word-count heuristics with structural slot and anaphora resolution.
+    Returns (is_complete, missing_slots).
+    """
+    missing = []
+    clean = text.strip()
+    if not clean:
+        return False, ["EMPTY_TEXT"]
+
+    # Check 1: Anaphora / dangling pronouns (needs adjacent context)
+    if needs_adjacent_expansion(clean):
+        missing.append("UNRESOLVED_ANAPHORA")
+
+    # Check 2: If TIN specified, check TIN-required slots
+    if tin:
+        target_entity = (tin.get("target_entity") or tin.get("subject") or "").strip().lower()
+        if target_entity and target_entity not in clean.lower():
+            ent_tokens = [t for t in re.split(r"\W+", target_entity) if len(t) > 2]
+            if not ent_tokens or not any(t in clean.lower() for t in ent_tokens):
+                missing.append("TARGET_ENTITY")
+
+        task_type = tin.get("task_type", TINTaskType.ATTRIBUTE)
+        if task_type == TINTaskType.ATTRIBUTE:
+            target_field = (tin.get("target_field") or "").strip().lower()
+            if target_field:
+                field_tokens = [t for t in re.split(r"[\s_]+", target_field) if len(t) > 2]
+                if field_tokens and not any(t in clean.lower() for t in field_tokens):
+                    missing.append("TARGET_FIELD")
+            exp_type = tin.get("expected_value_type", "NUMERIC")
+            if exp_type == "NUMERIC":
+                if not re.search(r"\b\d+(?:\.\d+)?\b", clean):
+                    missing.append("NUMERIC_VALUE")
+        elif task_type in (TINTaskType.CLAIM, TINTaskType.RELATION):
+            target_claim = (tin.get("target_claim") or "").strip().lower()
+            if target_claim:
+                claim_tokens = [t for t in re.split(r"\W+", target_claim) if len(t) > 2]
+                matched = [t for t in claim_tokens if t in clean.lower()]
+                if len(matched) / max(1, len(claim_tokens)) < 0.4:
+                    missing.append("RELATION_PREDICATE")
+        elif task_type == TINTaskType.COMPARISON:
+            comparator = (tin.get("comparator") or "").strip().lower()
+            if comparator and comparator not in clean.lower():
+                comps = detect_comparators(clean)
+                if not comps:
+                    missing.append("COMPARATOR")
+    else:
+        # Generic semantic completeness: a sentence under 6 words lacks sufficient context unless Chinese
+        if (len(clean.split()) < 6 and not re.search(r"[\u4e00-\u9fa5]{6,}", clean)) or len(clean) < 15:
+            missing.append("INSUFFICIENT_CONTEXT_LENGTH")
+        if re.search(r"[,;:\-–]\s*$", clean):
+            missing.append("TRAILING_PUNCTUATION_CLAUSE")
+
+    return len(missing) == 0, missing
 
 
 def verify_context_coherence(spans: List[Dict[str, Any]], max_character_distance: int = 1500) -> Tuple[bool, Optional[str]]:
@@ -458,6 +525,7 @@ def expand_candidate_context(
     doc_text: str,
     candidate: Dict[str, Any],
     max_level: str = ExpansionLevel.PARAGRAPH,
+    tin: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Execute Adaptive Evidence Context Expansion (AECE) starting from Level 0/1.
@@ -476,8 +544,17 @@ def expand_candidate_context(
             "level_reached": ExpansionLevel.STRUCTURED_CONTEXT,
             "stop_condition": stop_cond,
             "context_text": ctx["context_text"],
+            "raw_text": ctx["context_text"],
             "structured_info": ctx,
             "spans": [ctx["context_text"]],
+            "structured_spans": [
+                {
+                    "text": ctx["context_text"],
+                    "page": candidate.get("page"),
+                    "offset": offset,
+                    "section": candidate.get("section"),
+                }
+            ],
             "context_sufficiency": ContextSufficiency.SUFFICIENT if ctx["is_sufficient"] else ContextSufficiency.INSUFFICIENT,
             "isolated_cell_failure": ctx.get("isolated_cell_failure", False),
         }
@@ -490,8 +567,17 @@ def expand_candidate_context(
             "level_reached": ExpansionLevel.STRUCTURED_CONTEXT,
             "stop_condition": stop_cond,
             "context_text": ctx["context_text"],
+            "raw_text": ctx["context_text"],
             "structured_info": ctx,
             "spans": [ctx["context_text"]],
+            "structured_spans": [
+                {
+                    "text": ctx["context_text"],
+                    "page": candidate.get("page"),
+                    "offset": offset,
+                    "section": candidate.get("section"),
+                }
+            ],
             "context_sufficiency": ContextSufficiency.SUFFICIENT if ctx["is_sufficient"] else ContextSufficiency.INSUFFICIENT,
         }
 
@@ -503,12 +589,12 @@ def expand_candidate_context(
     spans_accum = [cur_text]
     stop_cond = None
 
-    # Check if sentence has unresolved anaphora or pronoun start
     needs_adj = needs_adjacent_expansion(cur_text)
     section_hdr = get_section_heading(doc_text, offset)
 
-    if not needs_adj and len(cur_text.split()) >= 6:
-        # Sentence is self-contained
+    is_complete, missing_slots = check_sentence_semantic_completeness(cur_text, tin=tin)
+
+    if is_complete and not needs_adj:
         stop_cond = StopCondition.STOP_A_MEANING_RESOLVED
     else:
         # Step to Level 2: Adjacent Sentences
@@ -517,15 +603,17 @@ def expand_candidate_context(
         cur_text = adj_span["text"]
         spans_accum.append(cur_text)
 
-        # If still very brief or explicitly requested paragraph
-        if max_level in (ExpansionLevel.PARAGRAPH, ExpansionLevel.SECTION_CONTEXT) and len(cur_text.split()) < 15:
+        is_complete_adj, missing_slots = check_sentence_semantic_completeness(cur_text, tin=tin)
+
+        if (not is_complete_adj or max_level in (ExpansionLevel.PARAGRAPH, ExpansionLevel.SECTION_CONTEXT)) and len(cur_text.split()) < 15 and max_level != ExpansionLevel.ADJACENT_SENTENCES:
             para_span = get_paragraph_span(doc_text, offset)
             cur_level = ExpansionLevel.PARAGRAPH
             cur_text = para_span["text"]
             spans_accum.append(cur_text)
-            stop_cond = StopCondition.STOP_A_MEANING_RESOLVED
+            is_complete_para, missing_slots = check_sentence_semantic_completeness(cur_text, tin=tin)
+            stop_cond = StopCondition.STOP_A_MEANING_RESOLVED if is_complete_para else StopCondition.STOP_C_CONTEXT_EXHAUSTED
         else:
-            stop_cond = StopCondition.STOP_A_MEANING_RESOLVED
+            stop_cond = StopCondition.STOP_A_MEANING_RESOLVED if is_complete_adj else StopCondition.STOP_A_MEANING_RESOLVED
 
     # Level 4 addition: Section Heading
     if section_hdr:
@@ -538,10 +626,29 @@ def expand_candidate_context(
         "stop_condition": stop_cond or StopCondition.STOP_A_MEANING_RESOLVED,
         "context_text": cur_text_with_heading,
         "raw_text": cur_text,
+        "interpretation_context": {
+            "text": cur_text_with_heading,
+            "level": cur_level,
+        },
+        "evidence_span": {
+            "text": sent_span["text"],
+            "start": sent_span.get("start"),
+            "end": sent_span.get("end"),
+        },
         "section_heading": section_hdr,
         "spans": spans_accum,
+        "structured_spans": [
+            {
+                "text": s,
+                "page": candidate.get("page"),
+                "offset": offset,
+                "section": section_hdr,
+            }
+            for s in spans_accum
+        ],
         "context_sufficiency": ContextSufficiency.SUFFICIENT,
         "has_anaphora_resolved": needs_adj,
+        "missing_elements": missing_slots if not is_complete else [],
     }
 
 
@@ -567,6 +674,7 @@ def classify_semantic_role(
     """
     Classify the semantic role of the evidence candidate within the document.
     Section names are priors, not shortcuts (Section != Semantic Role).
+    Defaults to SemanticRole.UNKNOWN (fail-closed).
     """
     text_lower = context_text.lower()
     sec_lower = (section_heading or "").lower()
@@ -602,15 +710,19 @@ def classify_semantic_role(
         return SemanticRole.DEFINITION, "Candidate provides a formal conceptual definition"
 
     # 6. Current Study Result / Observation
-    if "result" in sec_lower or "finding" in sec_lower or re.search(r"\b(we\s+observed|we\s+found|showed|demonstrated|increased|decreased|table|figure)\b", text_lower):
+    empirical_result_pattern = re.compile(
+        r"\b(we\s+observed|we\s+found|showed|demonstrated|increased|decreased|reduced|reduces|increases|decreases|yielded|yields|measured|detected|identified|completed|achieved|attained|reached|obtained|scored|reported|table|figure)\b|显著|降低|提高|增加|减少|发现|达到",
+        re.IGNORECASE,
+    )
+    if "result" in sec_lower or "finding" in sec_lower or empirical_result_pattern.search(text_lower):
         return SemanticRole.CURRENT_STUDY_RESULT, "Candidate reports direct empirical findings of the study"
 
     # 7. Background
     if "intro" in sec_lower or "background" in sec_lower:
         return SemanticRole.BACKGROUND, "Candidate is located in introductory/background text"
 
-    # Default conservative
-    return SemanticRole.CURRENT_STUDY_OBSERVATION, "Candidate text provides empirical observation"
+    # Default fail-closed: UNKNOWN (requires explicit agent verification to upgrade)
+    return SemanticRole.UNKNOWN, "Semantic role cannot be deterministically inferred from cues (fail-closed default UNKNOWN)"
 
 
 def evaluate_target_alignment(
@@ -619,7 +731,7 @@ def evaluate_target_alignment(
 ) -> Dict[str, Any]:
     """
     Determine whether candidate context actually answers the Target Information Need (TIN).
-    Status: ALIGNED, PARTIALLY_ALIGNED, NOT_ALIGNED, AMBIGUOUS.
+    Status: ALIGNED, PARTIALLY_ALIGNED, NOT_ALIGNED, CONTRADICTS_TARGET, AMBIGUOUS.
     """
     task_type = tin.get("task_type", TINTaskType.ATTRIBUTE)
     target_entity = (tin.get("target_entity") or "").strip().lower()
@@ -632,11 +744,11 @@ def evaluate_target_alignment(
     # 1. Check Negation Trap
     neg = detect_negation(context_text)
     if neg["has_negation"]:
-        # If user asked for positive claim but context states negation
+        # If user asked for claim/relation and context explicitly negates
         if task_type in (TINTaskType.CLAIM, TINTaskType.RELATION):
             return {
-                "status": AlignmentStatus.NOT_ALIGNED,
-                "rationale": f"Candidate explicitly negates relationship: {neg['negation_tokens']}",
+                "status": AlignmentStatus.CONTRADICTS_TARGET,
+                "rationale": f"Candidate explicitly negates target relationship: {neg['negation_tokens']}",
                 "has_negation": True,
             }
 
@@ -658,6 +770,13 @@ def evaluate_target_alignment(
                     "status": AlignmentStatus.NOT_ALIGNED,
                     "rationale": f"Target field '{target_field}' not matched in context",
                 }
+
+        exp_type = tin.get("expected_value_type", "NUMERIC")
+        if exp_type in ("TEXT", "CATEGORY", "IDENTIFIER", "STRUCTURED", "DATE"):
+            return {
+                "status": AlignmentStatus.ALIGNED,
+                "rationale": f"Attribute field '{target_field}' ({exp_type}) verified in context",
+            }
 
         # Check if value exists
         has_number = bool(re.search(r"\b\d+(?:\.\d+)?\b", context_text))
@@ -720,11 +839,62 @@ def evaluate_target_alignment(
                 "rationale": f"Context does not support target claim '{target_claim}'",
             }
 
+    elif task_type == TINTaskType.COMPARISON:
+        comparator_b = (tin.get("comparator") or "").strip().lower()
+        has_comp = bool(comparator_b and comparator_b in context_lower) or bool(detect_comparators(context_text))
+        has_metric = bool(target_field and target_field in context_lower) or bool(re.search(r"\b\d+(?:\.\d+)?%?\b", context_text))
+        if has_comp and has_metric:
+            return {
+                "status": AlignmentStatus.ALIGNED,
+                "rationale": "Comparison between target and comparator verified with metric in context",
+            }
+        elif has_comp or has_metric:
+            return {
+                "status": AlignmentStatus.PARTIALLY_ALIGNED,
+                "rationale": "Partial comparison elements present in context",
+            }
+        else:
+            return {
+                "status": AlignmentStatus.NOT_ALIGNED,
+                "rationale": "Comparison targets or metrics missing from context",
+            }
+
+    elif task_type == TINTaskType.PROCEDURE:
+        action_verbs = [
+            "perform", "measure", "treat", "synthesize", "apply", "run", "use",
+            "extract", "wash", "incubate", "evaluate", "conduct", "prepare",
+            "administer", "assay", "sequence", "protocol", "step", "method",
+            "操作", "处理", "提取", "反应", "实验", "步骤", "测定"
+        ]
+        has_action = any(v in context_lower for v in action_verbs)
+        if has_action:
+            return {
+                "status": AlignmentStatus.ALIGNED,
+                "rationale": "Procedural action and steps verified in context",
+            }
+        else:
+            return {
+                "status": AlignmentStatus.PARTIALLY_ALIGNED,
+                "rationale": "Procedure mentioned without explicit operational action in span",
+            }
+
     elif task_type == TINTaskType.INTERPRETATION:
-        return {
-            "status": AlignmentStatus.ALIGNED,
-            "rationale": "Contextual interpretation matched",
-        }
+        has_interpret = bool(
+            re.search(r"\b(we\s+hypothesize|we\s+speculate|suggests?|may\s+indicate|interpretation|plausible|believe|argue|posits?)\b", context_lower)
+            or "讨论" in context_text or "推测" in context_text or "假定" in context_text
+        )
+        mod = detect_modality(context_text)
+        if has_interpret or mod["has_modality"]:
+            return {
+                "status": AlignmentStatus.PARTIALLY_ALIGNED,
+                "rationale": "Author interpretive speculation / hypothesis verified in context",
+                "is_interpretation": True,
+            }
+        else:
+            return {
+                "status": AlignmentStatus.NOT_ALIGNED,
+                "rationale": "No interpretive or speculative stance verified in context",
+            }
 
     return {
         "status": AlignmentStatus.AMBIGUOUS,
@@ -748,21 +918,35 @@ def build_candidate_context_record(
     page: Optional[int] = None,
     offset: Optional[int] = None,
     section: Optional[str] = None,
+    task_type: Optional[str] = None,
+    requires_claim_alignment: Optional[bool] = None,
+    claim_alignment: Optional[Dict[str, Any]] = None,
+    allow_contradiction: bool = False,
 ) -> Dict[str, Any]:
     """Construct a canonical ScholarFlowCandidateContextRecord."""
     align_status = alignment.get("status", AlignmentStatus.AMBIGUOUS)
     ctx_suff = expanded_ctx.get("context_sufficiency", ContextSufficiency.SUFFICIENT)
 
+    if requires_claim_alignment is None:
+        requires_claim_alignment = bool(task_type in (TINTaskType.CLAIM, TINTaskType.RELATION, TINTaskType.COMPARISON))
+
     # Fail closed on isolated cells or insufficient context
     if expanded_ctx.get("isolated_cell_failure"):
         ctx_suff = ContextSufficiency.INSUFFICIENT
 
+    eligible_statuses = {AlignmentStatus.ALIGNED, AlignmentStatus.PARTIALLY_ALIGNED}
+    if allow_contradiction:
+        eligible_statuses.add(AlignmentStatus.CONTRADICTS_TARGET)
+
     # Decision logic
     eligible = (
-        align_status in (AlignmentStatus.ALIGNED, AlignmentStatus.PARTIALLY_ALIGNED)
+        align_status in eligible_statuses
         and ctx_suff in (ContextSufficiency.SUFFICIENT, ContextSufficiency.PARTIALLY_SUFFICIENT)
         and semantic_role != SemanticRole.UNKNOWN
     )
+    if requires_claim_alignment and claim_alignment:
+        if not claim_alignment.get("is_confirmed_eligible") and not (allow_contradiction and align_status == AlignmentStatus.CONTRADICTS_TARGET):
+            eligible = False
 
     rejection = None
     if not eligible:
@@ -770,12 +954,16 @@ def build_candidate_context_record(
             rejection = "Context sufficiency failed (insufficient context or isolated table cell)"
         elif align_status == AlignmentStatus.NOT_ALIGNED:
             rejection = f"Candidate does not align with target information need: {alignment.get('rationale')}"
+        elif align_status == AlignmentStatus.CONTRADICTS_TARGET and not allow_contradiction:
+            rejection = f"Candidate explicitly negates target claim (rejected from positive extraction): {alignment.get('rationale')}"
         elif semantic_role == SemanticRole.UNKNOWN:
             rejection = "Semantic role is UNKNOWN (unverified provenance)"
+        elif requires_claim_alignment and claim_alignment and not claim_alignment.get("is_confirmed_eligible"):
+            rejection = f"Claim alignment gate failed: {claim_alignment.get('violations')}"
         else:
             rejection = "Candidate is ambiguous and context is exhausted"
 
-    return {
+    rec = {
         "schema_version": "1.0.0",
         "candidate_id": candidate_id,
         "target_information_need_id": tin_id,
@@ -808,11 +996,14 @@ def build_candidate_context_record(
         },
         "decision": {
             "eligible_for_extraction": eligible,
-            "requires_claim_alignment": False,
-            "uncertainty_tag": "PARTIALLY_ALIGNED" if align_status == AlignmentStatus.PARTIALLY_ALIGNED else None,
+            "requires_claim_alignment": requires_claim_alignment,
+            "uncertainty_tag": "CONTRADICTS_TARGET" if align_status == AlignmentStatus.CONTRADICTS_TARGET else ("PARTIALLY_ALIGNED" if align_status == AlignmentStatus.PARTIALLY_ALIGNED else None),
             "rejection_reason": rejection,
         },
     }
+    if claim_alignment is not None:
+        rec["claim_alignment"] = claim_alignment
+    return rec
 
 
 def verify_candidate_lifecycle_transition(cur_state: str, next_state: str) -> Tuple[bool, Optional[str]]:
@@ -852,11 +1043,21 @@ def promote_candidate_to_evidence(
     - Candidate must have eligible_for_extraction == True
     - Context sufficiency must NOT be INSUFFICIENT
     - Semantic role must NOT be UNKNOWN
+    - A2 hard gate: If requires_claim_alignment == True, claim_alignment must be present and eligible
     """
     decision = ccr.get("decision", {})
     if not decision.get("eligible_for_extraction"):
         reason = decision.get("rejection_reason", "Candidate not eligible for extraction")
         return None, f"Promotion blocked: {reason}"
+
+    # A2 Hard Gate
+    if decision.get("requires_claim_alignment"):
+        claim_align = ccr.get("claim_alignment")
+        if not claim_align:
+            return None, "Promotion blocked: Claim alignment required but missing (A2 hard gate)"
+        if not claim_align.get("is_confirmed_eligible"):
+            verdict = claim_align.get("audit_verdict", "REJECTED")
+            return None, f"Promotion blocked: Claim alignment verdict ineligible ({verdict})"
 
     ctx_suff = ccr.get("context_sufficiency", {}).get("status")
     if ctx_suff == ContextSufficiency.INSUFFICIENT:
@@ -868,19 +1069,41 @@ def promote_candidate_to_evidence(
 
     # Assemble EvidenceRecord
     evidence_id = f"EV_{ccr.get('candidate_id', '001')}"
-    verbatim_quote = ccr.get("context_expansion", {}).get("context_text", ccr.get("hit", {}).get("text", ""))
+    verbatim_quote = ccr.get("context_expansion", {}).get("evidence_span", {}).get("text") or ccr.get("context_expansion", {}).get("context_text", ccr.get("hit", {}).get("text", ""))
+
+    align_status = ccr.get("alignment", {}).get("status")
+    if align_status == AlignmentStatus.ALIGNED:
+        claim_status = "SUPPORTED"
+    elif align_status == AlignmentStatus.CONTRADICTS_TARGET:
+        claim_status = "CONTRADICTORY"
+    elif align_status == AlignmentStatus.PARTIALLY_ALIGNED:
+        claim_status = "PARTIALLY_SUPPORTED"
+    elif align_status == AlignmentStatus.NOT_ALIGNED:
+        claim_status = "UNSUPPORTED"
+    else:
+        claim_status = "AMBIGUOUS"
+
+    loc_type = ccr.get("locator", {}).get("type", "")
+    if loc_type in (CandidateType.TABLE_ROW, CandidateType.TABLE_CELL):
+        source_type = "Table"
+    elif loc_type in (CandidateType.FIGURE_CAPTION, CandidateType.FIGURE_VALUE):
+        source_type = "Figure"
+    elif loc_type == CandidateType.SUPPLEMENT_ENTRY:
+        source_type = "Supplement"
+    else:
+        source_type = "Text"
 
     evidence_record = {
-        "schema_version": "1.0.0",
+        "schema_version": "1.0",
         "evidence_id": evidence_id,
         "record_id": record_id,
         "field": field,
         "extracted_value": extracted_value,
         "support_type": "EXPLICIT",
-        "claim_status": "SUPPORTED" if ccr.get("alignment", {}).get("status") == AlignmentStatus.ALIGNED else "PARTIALLY_SUPPORTED",
-        "status": "SUPPORTED" if ccr.get("alignment", {}).get("status") == AlignmentStatus.ALIGNED else "PARTIALLY_SUPPORTED",
+        "claim_status": claim_status,
+        "status": claim_status,
         "verbatim_quote": verbatim_quote,
-        "source_type": "Text" if ccr.get("locator", {}).get("type") == CandidateType.TEXT_SENTENCE else "Table",
+        "source_type": source_type,
         "location": {
             "page": ccr.get("locator", {}).get("page"),
             "section": ccr.get("locator", {}).get("section"),

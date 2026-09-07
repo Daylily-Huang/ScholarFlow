@@ -195,7 +195,7 @@ class TestAdaptiveContextExpansion(unittest.TestCase):
         ctx = expand_candidate_context(doc, cand)
         tin = {"task_type": TINTaskType.CLAIM, "target_claim": "Compound Z affects tumor volume"}
         align = evaluate_target_alignment(tin, ctx)
-        self.assertEqual(align["status"], AlignmentStatus.NOT_ALIGNED)
+        self.assertIn(align["status"], (AlignmentStatus.NOT_ALIGNED, AlignmentStatus.CONTRADICTS_TARGET))
         self.assertTrue(align.get("has_negation"))
 
     def test_11_modal_language_downgrades_claim(self):
@@ -319,7 +319,42 @@ class TestCrossDisciplinaryMatrix(unittest.TestCase):
         ctx = expand_candidate_context(doc, cand)
         tin = {"task_type": TINTaskType.CLAIM, "target_claim": "court applied Principle A as precedent"}
         align = evaluate_target_alignment(tin, ctx)
-        self.assertEqual(align["status"], AlignmentStatus.NOT_ALIGNED)
+        self.assertIn(align["status"], (AlignmentStatus.NOT_ALIGNED, AlignmentStatus.CONTRADICTS_TARGET))
+
+    def test_discipline_09_chinese_linguistic_guards(self):
+        """Multilingual/Chinese guards: Punctuation, negation, and modality."""
+        chinese_doc = "第一组实验表明该催化剂具有高活性。然而，对照组实验未发现显著影响；进一步分析提示潜在副反应。"
+        sents = split_sentences(chinese_doc)
+        self.assertEqual(len(sents), 3)
+
+        cand = {"type": CandidateType.TEXT_SENTENCE, "hit_text": "未发现", "offset": chinese_doc.find("未发现")}
+        ctx = expand_candidate_context(chinese_doc, cand)
+        neg = detect_negation(ctx["context_text"])
+        self.assertTrue(neg["has_negation"])
+
+        mod_cand = {"type": CandidateType.TEXT_SENTENCE, "hit_text": "提示", "offset": chinese_doc.find("提示")}
+        mod_ctx = expand_candidate_context(chinese_doc, mod_cand)
+        mod = detect_modality(mod_ctx["context_text"])
+        self.assertTrue(mod["has_modality"])
+
+    def test_discipline_10_contradicts_target_promotion(self):
+        """CONTRADICTS_TARGET maps to CONTRADICTORY claim_status in EvidenceRecord."""
+        doc = "Compound X did not increase cell viability."
+        cand = {"type": CandidateType.TEXT_SENTENCE, "hit_text": "viability", "offset": doc.find("viability")}
+        ctx = expand_candidate_context(doc, cand)
+        tin = {"task_type": TINTaskType.CLAIM, "target_claim": "Compound X increases cell viability"}
+        align = evaluate_target_alignment(tin, ctx)
+        self.assertEqual(align["status"], AlignmentStatus.CONTRADICTS_TARGET)
+
+        ccr = build_candidate_context_record(
+            "C_NEG", "TIN_NEG", CandidateType.TEXT_SENTENCE, "viability", ctx,
+            SemanticRole.CURRENT_STUDY_RESULT, align, allow_contradiction=True,
+        )
+        self.assertTrue(ccr["decision"]["eligible_for_extraction"])
+        ev, err = promote_candidate_to_evidence(ccr, "REC_NEG", "cell_viability", "no increase")
+        self.assertIsNotNone(ev)
+        self.assertEqual(ev["claim_status"], "CONTRADICTORY")
+        self.assertEqual(ev["status"], "CONTRADICTORY")
 
 
 if __name__ == "__main__":

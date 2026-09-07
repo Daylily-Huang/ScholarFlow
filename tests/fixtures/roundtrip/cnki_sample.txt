@@ -1,0 +1,9 @@
+RT - Journal Article
+T1 - Temperature effects on enzyme kinetics in alpine soil
+A1 - Li, Ming;Zhang, Wei
+JF - Journal of Environmental Biology
+YR - 2023
+AB - This study evaluates the catalytic efficiency of soil enzymes under variable temperatures.
+K1 - soil enzyme;temperature;kinetics
+DOI - 10.1016/j.envbio.2023.01.002
+LK - https://kns.cnki.net/kcms/detail/test001

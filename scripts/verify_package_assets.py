@@ -29,6 +29,7 @@ REQUIRED_SCHEMAS = [
     "evidence_record.schema.json",
     "candidate_context_record.schema.json",
     "claim_record.schema.json",
+    "claim_evidence_matrix.schema.json",
     "synthesis_record.schema.json",
 ]
 
@@ -61,7 +62,7 @@ def verify_installed_wheel() -> bool:
 
 def verify_repo_assets(repo_root: Path) -> bool:
     print("==================================================")
-    print("  ScholarFlow Package Assets Verification (v0.6.3)")
+    print("  ScholarFlow Package Assets Verification (v0.6.4)")
     print("==================================================")
     
     missing = []

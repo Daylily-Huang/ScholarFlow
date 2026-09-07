@@ -13,7 +13,7 @@
 2. **Level-2 确定性程序级硬审计 (Deterministic Programmatic Audit)**：
    - 依赖确定性分析脚本 `scripts/controversy_analyzer.py` 实施数学验算：
      - 计算证据加权共识指数，严禁“文献篇数民主投票”；
-     - 自动检测并合并同一课题组多篇论文的共享数据集伪重复；
+     - 当输入提供 independence_group_id / shared dataset metadata 时，程序执行确定性去重或降权；
 3. **Level-3 隔离子智能体红蓝对抗 (Isolated SubAgent Red-Teaming)**：
    - 在多智能体运行环境中，Devil's Advocate 必须以独立的 SubAgent 实例运行，仅输入既有结论与抽取表，背对背独立发起攻击。
 
@@ -27,9 +27,9 @@
    - 质问：是否有研究明确未检测出显著效应，却被正文轻描淡写地略过了？
    - 铁律：必须主动向读者呈现那些“未能复现主流结论”的阴性结果。
 2. **相关性与因果性伪装审查 (Correlation ≠ Causation Audit)**：
-   - 质问：文献中只是观测到“修路与种群数量下降在时间上伴随出现”，报告是否将其擅自升格为“修路直接导致了种群灭绝”？
+   - 质问：文献中只是观测到“变量 A 与变量 B 在时间上伴随出现”，报告是否将其擅自升格为“A 直接导致了 B”？
 3. **同质数据集伪独立排查 (Shared-Dataset Pseudoreplication)**：
-   - 质问：引用的 5 篇高相关文献，是否实际上源于同一个科研团队在 2012–2014 年间于同一片野外实验林采集的同一批粪便数据？
+   - 质问：引用的多篇高相关文献，是否实际上源于同一个科研团队在相同时段基于同一批共享观测数据开展的衍生发表？
    - 铁律：若是同一批样本的多次衍生发表，只能记为 1 个独立证据源！
 4. **发表偏倚风险提示 (Publication Bias / File-Drawer Risk)**：
    - 质问：当前一致的正效应结论，是否源于学术界倾向于不发表“未发现基因阻隔”的阴性研究？
@@ -65,7 +65,7 @@
 - **分析主题**：[Research Question]
 - **审计执行层级 (Audit Tier)**：
   - [x] Level-1 启发式红队对抗自检 (In-Context Devil's Advocate & 10-Point Checklist)
-  - [x] Level-2 确定性程序级硬审计 (controversy_analyzer.py 权重拟合与伪重复消除)
+  - [x] Level-2 确定性程序级硬审计 (controversy_analyzer.py 权重拟合与独立证据组核验)
   - [ ] Level-3 隔离子智能体红蓝对抗 (Isolated SubAgent Red-Teaming)
 - **纳入文献总数**：[N] 篇 (独立数据集 [M] 个)
 - **争议识别数**：[X] 项 (Type A: [x1], Type B: [x2], Type I: [x3])

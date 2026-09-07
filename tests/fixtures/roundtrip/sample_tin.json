@@ -1,0 +1,12 @@
+{
+  "tin_id": "TIN-EXP-001",
+  "task_type": "COMPARISON",
+  "target_entity": "nitrogen addition",
+  "expected_field": "microbial respiration",
+  "comparator": "control group",
+  "predicate": "increased",
+  "direction": "INCREASE",
+  "expected_value_type": "NUMERIC",
+  "context_keywords": ["nitrogen", "respiration", "control", "increased"],
+  "allow_contradiction": false
+}

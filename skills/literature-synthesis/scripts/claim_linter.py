@@ -62,7 +62,15 @@ FACTUAL_CUE_RE = re.compile(
 
 VALID_STANCES = {"SUPPORT", "REFUTE", "CONDITIONAL", "NEUTRAL"}
 VALID_TIERS = {"E1", "E2", "E3", "E4"}
-REQUIRED_CLAIM_KEYS = ["claim_id", "paper_id", "stance", "evidence_tier", "claim_text"]
+VALID_STRENGTHS = {
+    "DIRECT_EMPIRICAL",
+    "MODELED_EMPIRICAL",
+    "AUTHOR_INTERPRETATION",
+    "SECONDARY_EVIDENCE",
+    "EXPERT_OPINION",
+    "UNKNOWN",
+}
+REQUIRED_CLAIM_KEYS = ["claim_id", "paper_id", "stance", "claim"]
 
 
 def extract_claim_refs(narrative: str) -> List[str]:
@@ -98,8 +106,9 @@ def lint_narrative(narrative: str, matrix: Dict[str, Any]) -> Dict[str, Any]:
 
     refs = extract_claim_refs(narrative)
     unresolved = [r for r in refs if r not in matrix_ids]
-    uncited = sorted(matrix_ids - set(refs))
+    uncited = [c["claim_id"] for c in claims if c.get("claim_id", "").upper() not in refs]
 
+    # Paragraph-level heuristic checks: look for factual cues without any Claim ID.
     flagged_paragraphs = []
     for para in re.split(r"\n\s*\n", narrative):
         if not _is_prose_paragraph(para):
@@ -108,11 +117,13 @@ def lint_narrative(narrative: str, matrix: Dict[str, Any]) -> Dict[str, Any]:
             snippet = re.sub(r"\s+", " ", para.strip())[:120]
             flagged_paragraphs.append(snippet)
 
-    total_claims = len(matrix_ids)
-    cited = total_claims - len(uncited)
-    coverage = round(cited / total_claims, 4) if total_claims else 0.0
+    total_claims = len(claims)
+    coverage = round(
+        (total_claims - len(uncited)) / total_claims, 4
+    ) if total_claims else 1.0
 
     return {
+        "status": "FAIL" if unresolved else ("WARN" if (uncited or flagged_paragraphs) else "PASS"),
         "referenced_claim_ids": refs,
         "unresolved_refs": unresolved,
         "uncited_claims": uncited,
@@ -140,7 +151,11 @@ def validate_matrix(matrix: Dict[str, Any]) -> List[str]:
     seen_ids = set()
     for i, c in enumerate(claims):
         tag = f"claims[{i}]"
-        for key in REQUIRED_CLAIM_KEYS:
+        # Allow either canonical 'claim' or legacy 'claim_text'
+        claim_val = c.get("claim") or c.get("claim_text")
+        if not claim_val:
+            issues.append(f"{tag}: missing required key `claim`.")
+        for key in ["claim_id", "paper_id", "stance"]:
             if key not in c or c.get(key) in (None, ""):
                 issues.append(f"{tag}: missing required key `{key}`.")
         cid = str(c.get("claim_id", "")).upper()
@@ -152,6 +167,8 @@ def validate_matrix(matrix: Dict[str, Any]) -> List[str]:
             issues.append(f"{tag}: invalid stance `{c['stance']}` (allowed: {sorted(VALID_STANCES)}).")
         if c.get("evidence_tier") and str(c["evidence_tier"]).upper() not in VALID_TIERS:
             issues.append(f"{tag}: invalid evidence_tier `{c['evidence_tier']}` (allowed: {sorted(VALID_TIERS)}).")
+        if c.get("evidence_strength") and str(c["evidence_strength"]).upper() not in VALID_STRENGTHS:
+            issues.append(f"{tag}: invalid evidence_strength `{c['evidence_strength']}` (allowed: {sorted(VALID_STRENGTHS)}).")
     return issues
 
 

@@ -122,11 +122,16 @@ def cluster_by_paradigm(studies: List[Dict[str, Any]]) -> Dict[str, Any]:
         methods = list(set(p.get("method") for p in papers if p.get("method")))
         assumptions = list(set(p.get("core_assumption") for p in papers if p.get("core_assumption")))
         
-        # Check school status
-        established_votes = [p.get("is_established_school", False) for p in papers]
-        is_established = any(established_votes)
+        # Check school status with provenance (Section 17.5)
+        has_explicit_provenance = any(
+            p.get("is_established_school", False) and (
+                p.get("school_status_source") in ("LITERATURE_EXPLICIT", "USER_CONFIRMED")
+                or "school_status_source" not in p  # Backward compatibility
+            )
+            for p in papers
+        )
         
-        status_label = "ESTABLISHED SCHOOL" if is_established else "ANALYTICAL GROUPING"
+        status_label = "ESTABLISHED SCHOOL" if has_explicit_provenance else "ANALYTICAL GROUPING"
         
         results[paradigm] = {
             "paradigm_name": paradigm,
@@ -145,7 +150,7 @@ def cluster_by_paradigm(studies: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 
 def detect_paradigm_shifts(clustered: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """Detect chronological progression across paradigms."""
+    """Detect chronological progression across paradigms (defaults to TEMPORAL_ORDERING)."""
     timeline = []
     for name, c in clustered.items():
         if isinstance(c["earliest_year"], int):
@@ -165,7 +170,8 @@ def detect_paradigm_shifts(clustered: Dict[str, Any]) -> List[Dict[str, Any]]:
         if prev_p["start"] < next_p["start"]:
             shifts.append({
                 "transition": f"{prev_p['paradigm']} ({prev_p['start']}-{prev_p['end']}) → {next_p['paradigm']} ({next_p['start']}-{next_p['end']})",
-                "description": f"Methodological evolution from earlier paradigm [{prev_p['paradigm']}] to contemporary paradigm [{next_p['paradigm']}]."
+                "shift_type": "TEMPORAL_ORDERING",
+                "description": f"Chronological ordering from earlier paradigm [{prev_p['paradigm']}] to later paradigm [{next_p['paradigm']}] (Temporal Ordering != Methodological Evolution)."
             })
             
     return shifts

@@ -43,9 +43,7 @@
         "required": [
           "claim_id",
           "paper_id",
-          "stance",
-          "evidence_tier",
-          "claim_text"
+          "stance"
         ],
         "properties": {
           "claim_id": {
@@ -61,7 +59,7 @@
             "description": "Digital Object Identifier"
           },
           "year": {
-            "type": "integer",
+            "type": ["integer", "string"],
             "description": "Publication year"
           },
           "authors": {
@@ -72,19 +70,43 @@
             "type": "string",
             "description": "Scientific question addressed by this claim"
           },
+          "claim": {
+            "type": "string",
+            "description": "Canonical claim assertion statement"
+          },
           "claim_text": {
             "type": "string",
-            "description": "Normalized assertion statement"
+            "description": "Legacy alias for claim assertion statement"
           },
           "stance": {
             "type": "string",
             "enum": ["SUPPORT", "REFUTE", "CONDITIONAL", "NEUTRAL"],
             "description": "Stance relative to the primary scientific hypothesis"
           },
+          "evidence_ids": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Cross-references to evidence_record.evidence_id"
+          },
+          "evidence_strength": {
+            "type": "string",
+            "enum": [
+              "DIRECT_EMPIRICAL",
+              "MODELED_EMPIRICAL",
+              "AUTHOR_INTERPRETATION",
+              "SECONDARY_EVIDENCE",
+              "EXPERT_OPINION",
+              "UNKNOWN"
+            ]
+          },
           "evidence_tier": {
             "type": "string",
             "enum": ["E1", "E2", "E3", "E4"],
-            "description": "Evidence hierarchy level: E1=Raw experimental/sequencing data, E2=Model output/peer-reviewed metrics, E3=Discussion deduction, E4=Expert opinion"
+            "description": "Legacy alias for E1-E4 hierarchy"
+          },
+          "independence_group_id": {
+            "type": "string",
+            "description": "Shared dataset or trial group identifier"
           },
           "method": {
             "type": "string",

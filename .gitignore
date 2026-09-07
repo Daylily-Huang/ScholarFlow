@@ -42,3 +42,4 @@ output/
 scratch/
 test_output/
 *.tmp
+.planning/

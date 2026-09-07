@@ -1,0 +1,15 @@
+Title: Environmental Drivers of Microbial Respiration in Forest Soils
+Authors: Wang Qiang, Zhao Lei
+Year: 2022
+
+1. Introduction
+Soil microbial activity is sensitive to environmental shifts. Earlier work suggested contrasting responses.
+
+2. Methods
+We conducted a three-year nitrogen addition experiment in temperate broadleaf forests with four treatment levels.
+
+3. Results
+Under experimental conditions, nitrogen addition significantly increased microbial respiration by 28.5% compared to the control group (p < 0.01). Furthermore, temperature elevation enhanced enzyme activity across all sampled plots. However, elevated carbon dioxide did not increase fungal biomass in the topsoil layer.
+
+4. Discussion
+These results demonstrate that nutrient availability strongly governs soil metabolic output.

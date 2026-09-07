@@ -247,15 +247,15 @@ class TestMetadataCoverageFirst(unittest.TestCase):
         self.assertEqual(types, {"Journal Article", "Thesis"})
 
     def test_12_wanfang_ris_records_preserve_source(self):
-        """Section 40: Wanfang exports preserve Wanfang as source_database."""
+        """Section 40: Wanfang exports preserve Wanfang as source_database and use canonical RIS_Import."""
         recs = ing.detect_and_parse_file(FIXTURES / "sample.ris", source_override="Wanfang")
         self.assertEqual(len(recs), 2)
         for r in recs:
             self.assertEqual(r["source_databases"], ["Wanfang"])
-            self.assertEqual(r["ingestion_method"], "Wanfang_Import")
+            self.assertEqual(r["ingestion_method"], "RIS_Import")
 
     def test_13_vip_import_profile(self):
-        """Section 41: VIP export format is correctly parsed into candidate literature schema."""
+        """Section 41: VIP export format is correctly parsed into candidate literature schema with canonical Table_Import."""
         vip_content = """
 【题名】高原鼠兔种群生态学研究
 【作者】李强；王伟
@@ -285,7 +285,7 @@ class TestMetadataCoverageFirst(unittest.TestCase):
         self.assertIn("高原鼠兔", first["keywords"])
         self.assertIn("青藏高原", first["abstract"])
         self.assertEqual(first["source_databases"], ["VIP"])
-        self.assertEqual(first["ingestion_method"], "VIP_Import")
+        self.assertEqual(first["ingestion_method"], "Table_Import")
 
     def test_14_chinese_title_only_record_is_retained(self):
         """Section 49: Title-only Chinese records must NEVER be dropped."""

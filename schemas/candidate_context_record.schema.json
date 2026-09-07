@@ -119,6 +119,7 @@
             "ALIGNED",
             "PARTIALLY_ALIGNED",
             "NOT_ALIGNED",
+            "CONTRADICTS_TARGET",
             "AMBIGUOUS"
           ]
         },
@@ -141,6 +142,16 @@
           "type": "array",
           "items": { "type": "string" }
         }
+      }
+    },
+    "claim_alignment": {
+      "type": ["object", "null"],
+      "properties": {
+        "status": { "type": "string" },
+        "is_confirmed_eligible": { "type": "boolean" },
+        "audit_verdict": { "type": "string" },
+        "violations": { "type": "array", "items": { "type": "string" } },
+        "notes": { "type": ["string", "null"] }
       }
     },
     "decision": {

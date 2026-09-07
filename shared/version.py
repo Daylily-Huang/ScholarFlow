@@ -1,7 +1,7 @@
 """ScholarFlow Version and Canonical Specification Constants."""
 
-__version__ = "0.6.3"
-PROJECT_VERSION = "0.6.3"
+__version__ = "0.6.4"
+PROJECT_VERSION = "0.6.4"
 
 CONTRACT_SPEC_VERSION = "1.1"
 SCHEMA_VERSION = "1.1"  # For backward compatibility

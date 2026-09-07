@@ -26,9 +26,10 @@ import sys
 import re
 import csv
 import json
+import hashlib
 import argparse
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Union
 
 # Ensure UTF-8 output on Windows consoles
 if sys.platform == "win32":
@@ -39,11 +40,106 @@ if sys.platform == "win32":
         pass
 
 
+CANONICAL_INGESTION_METHODS = {
+    "API_Automated",
+    "Snowballing",
+    "Refworks_Import",
+    "RIS_Import",
+    "EndNote_Import",
+    "Table_Import",
+    "Web_Search",
+}
+
+
 def clean_str(val: Optional[str]) -> str:
     """Strip whitespace and normalize spacing."""
     if not val:
         return ""
     return re.sub(r"\s+", " ", str(val)).strip()
+
+
+def generate_record_id(raw_record: Dict[str, Any]) -> str:
+    """Generate deterministic, collision-resistant record_id."""
+    doi = raw_record.get("doi")
+    if doi and str(doi).strip().lower() not in ("", "none", "nr"):
+        norm_doi = str(doi).strip().lower()
+        key = f"doi:{norm_doi}"
+    else:
+        title = str(raw_record.get("title") or "").strip().lower()
+        norm_title = re.sub(r"[^\w\s]", "", title)
+        year = str(raw_record.get("year") or "NR")
+        authors = raw_record.get("authors") or []
+        first_author = str(authors[0]).strip().lower() if authors else "unknown"
+        key = f"title:{norm_title}|year:{year}|author:{first_author}"
+    return "REC-" + hashlib.sha256(key.encode("utf-8")).hexdigest()[:12]
+
+
+def finalize_literature_record(
+    raw_record: Dict[str, Any],
+    source_database: Optional[str] = None,
+    ingestion_method: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Finalize candidate record to strictly adhere to schemas/literature_record.schema.json."""
+    record = dict(raw_record)
+
+    # 1. Schema version
+    record["schema_version"] = "1.0"
+
+    # 2. Year: must be int or 'NR'
+    year_val = record.get("year")
+    if year_val is None or str(year_val).strip().lower() in ("", "none", "nr", "null"):
+        record["year"] = "NR"
+    else:
+        try:
+            record["year"] = int(year_val)
+        except (ValueError, TypeError):
+            record["year"] = str(year_val)
+
+    # 3. Record ID (stable hash)
+    if not record.get("record_id"):
+        record["record_id"] = generate_record_id(record)
+
+    # 4. Ingestion method canonicalization
+    method = ingestion_method or record.get("ingestion_method") or "Refworks_Import"
+    if method not in CANONICAL_INGESTION_METHODS:
+        m_lower = method.lower()
+        if "refworks" in m_lower:
+            method = "Refworks_Import"
+        elif "ris" in m_lower:
+            method = "RIS_Import"
+        elif "endnote" in m_lower or "enw" in m_lower:
+            method = "EndNote_Import"
+        elif any(k in m_lower for k in ["table", "csv", "tsv", "vip", "excel"]):
+            method = "Table_Import"
+        elif "api" in m_lower:
+            method = "API_Automated"
+        elif "snowball" in m_lower:
+            method = "Snowballing"
+        else:
+            method = "Refworks_Import"
+    record["ingestion_method"] = method
+
+    # 5. Source database orthogonal preservation
+    if source_database and source_database not in {"auto", "RIS", "EndNote", "Table"}:
+        record["source_databases"] = [source_database]
+    elif record.get("source_databases"):
+        cleaned_sources = [
+            s for s in record["source_databases"]
+            if s and not str(s).endswith("_Import") and s not in {"auto", "RIS", "EndNote"}
+        ]
+        record["source_databases"] = cleaned_sources if cleaned_sources else ["UNKNOWN_EXTERNAL_SOURCE"]
+    else:
+        record["source_databases"] = ["UNKNOWN_EXTERNAL_SOURCE"]
+
+    # 6. Standard verification and status tags
+    record.setdefault("screening_status", "Uncertain")
+    record.setdefault("metadata_verification_status", "IMPORTED_USER_SOURCE")
+    record.setdefault("fulltext_verification_status", "NOT_CHECKED")
+
+    # 7. Remove discovery-phase evidence_tier
+    record.pop("evidence_tier", None)
+
+    return record
 
 
 def parse_cnki_refworks(content: str) -> List[Dict[str, Any]]:
@@ -138,7 +234,7 @@ def parse_cnki_refworks(content: str) -> List[Dict[str, Any]]:
                 "document_type": "Thesis"
             }
             
-        record = {
+        raw_rec = {
             "title": title,
             "authors": authors,
             "year": year,
@@ -148,14 +244,11 @@ def parse_cnki_refworks(content: str) -> List[Dict[str, Any]]:
             "abstract": abstract if abstract else None,
             "keywords": keywords,
             "document_type": doc_type,
-            "source_databases": ["CNKI"],
-            "evidence_tier": "UNVERIFIED",
-            "screening_status": "Uncertain",
-            "ingestion_method": "CNKI_Refworks_Import"
         }
         if thesis_info:
-            record["thesis_metadata"] = thesis_info
-            
+            raw_rec["thesis_metadata"] = thesis_info
+        
+        record = finalize_literature_record(raw_rec, source_database="CNKI", ingestion_method="Refworks_Import")
         records.append(record)
         
     return records
@@ -244,7 +337,7 @@ def parse_ris(content: str) -> List[Dict[str, Any]]:
         elif ty in {"CONF", "CPAPER"}:
             doc_type = "Conference Proceeding"
             
-        record = {
+        raw_rec = {
             "title": title,
             "authors": authors,
             "year": year,
@@ -254,14 +347,11 @@ def parse_ris(content: str) -> List[Dict[str, Any]]:
             "abstract": abstract if abstract else None,
             "keywords": keywords,
             "document_type": doc_type,
-            "source_databases": ["RIS_Import"],
-            "evidence_tier": "UNVERIFIED",
-            "screening_status": "Uncertain",
-            "ingestion_method": "RIS_Import"
         }
         if thesis_info:
-            record["thesis_metadata"] = thesis_info
+            raw_rec["thesis_metadata"] = thesis_info
             
+        record = finalize_literature_record(raw_rec, source_database="UNKNOWN_EXTERNAL_SOURCE", ingestion_method="RIS_Import")
         records.append(record)
         
     return records
@@ -345,7 +435,7 @@ def parse_endnote_enw(content: str) -> List[Dict[str, Any]]:
                 "document_type": "Thesis"
             }
             
-        record = {
+        raw_rec = {
             "title": title,
             "authors": authors,
             "year": year,
@@ -355,14 +445,11 @@ def parse_endnote_enw(content: str) -> List[Dict[str, Any]]:
             "abstract": abstract if abstract else None,
             "keywords": keywords,
             "document_type": doc_type,
-            "source_databases": ["EndNote_Import"],
-            "evidence_tier": "UNVERIFIED",
-            "screening_status": "Uncertain",
-            "ingestion_method": "EndNote_Import"
         }
         if thesis_info:
-            record["thesis_metadata"] = thesis_info
+            raw_rec["thesis_metadata"] = thesis_info
             
+        record = finalize_literature_record(raw_rec, source_database="UNKNOWN_EXTERNAL_SOURCE", ingestion_method="EndNote_Import")
         records.append(record)
         
     return records
@@ -425,7 +512,7 @@ def parse_csv_tsv(file_path: Path) -> List[Dict[str, Any]]:
             
             url = clean_str(row.get(header_map.get("url", "")))
             
-            records.append({
+            raw_rec = {
                 "title": title,
                 "authors": authors,
                 "year": year,
@@ -435,11 +522,9 @@ def parse_csv_tsv(file_path: Path) -> List[Dict[str, Any]]:
                 "abstract": abstract if abstract else None,
                 "keywords": keywords,
                 "document_type": "Journal Article",
-                "source_databases": ["Table_Import"],
-                "evidence_tier": "UNVERIFIED",
-                "screening_status": "Uncertain",
-                "ingestion_method": "Table_Import"
-            })
+            }
+            record = finalize_literature_record(raw_rec, source_database="UNKNOWN_EXTERNAL_SOURCE", ingestion_method="Table_Import")
+            records.append(record)
             
     return records
 
@@ -561,7 +646,7 @@ def parse_vip_format(content: str, source_name: str = "VIP") -> List[Dict[str, A
                 "document_type": "Thesis"
             }
 
-        record = {
+        raw_rec = {
             "title": title,
             "authors": authors,
             "year": year,
@@ -571,14 +656,11 @@ def parse_vip_format(content: str, source_name: str = "VIP") -> List[Dict[str, A
             "abstract": abstract if abstract else None,
             "keywords": keywords,
             "document_type": doc_type,
-            "source_databases": [source_name],
-            "evidence_tier": "UNVERIFIED",
-            "screening_status": "Uncertain",
-            "ingestion_method": f"{source_name}_Import"
         }
         if thesis_info:
-            record["thesis_metadata"] = thesis_info
+            raw_rec["thesis_metadata"] = thesis_info
 
+        record = finalize_literature_record(raw_rec, source_database=source_name, ingestion_method="Table_Import")
         records.append(record)
 
     return records
@@ -591,9 +673,7 @@ def detect_and_parse_file(file_path: Path, source_override: Optional[str] = None
     if ext in {".csv", ".tsv"}:
         records = parse_csv_tsv(file_path)
         if source_override and source_override != "auto":
-            for r in records:
-                r["source_databases"] = [source_override]
-                r["ingestion_method"] = f"{source_override}_Import"
+            return [finalize_literature_record(r, source_database=source_override, ingestion_method="Table_Import") for r in records]
         return records
 
     try:
@@ -605,33 +685,31 @@ def detect_and_parse_file(file_path: Path, source_override: Optional[str] = None
 
     # Direct source overrides
     if source_override == "CNKI":
-        return parse_cnki_refworks(content)
+        recs = parse_cnki_refworks(content)
+        return [finalize_literature_record(r, source_database="CNKI", ingestion_method="Refworks_Import") for r in recs]
     elif source_override == "VIP":
         recs = parse_vip_format(content, source_name="VIP")
         if not recs:
             recs = parse_cnki_refworks(content)
-            for r in recs:
-                r["source_databases"] = ["VIP"]
-                r["ingestion_method"] = "VIP_Import"
-        return recs
+        return [finalize_literature_record(r, source_database="VIP", ingestion_method="Table_Import" if ext in {".csv", ".tsv"} else "Refworks_Import") for r in recs]
     elif source_override == "Wanfang":
         if ext == ".ris" or re.search(r"^TY\s*-\s*", content, re.M):
             recs = parse_ris(content)
+            method = "RIS_Import"
         elif ext == ".enw" or re.search(r"^%0\s+", content, re.M):
             recs = parse_endnote_enw(content)
+            method = "EndNote_Import"
         else:
             recs = parse_cnki_refworks(content) or parse_ris(content)
-        for r in recs:
-            r["source_databases"] = ["Wanfang"]
-            r["ingestion_method"] = "Wanfang_Import"
-        return recs
+            method = "Refworks_Import"
+        return [finalize_literature_record(r, source_database="Wanfang", ingestion_method=method) for r in recs]
 
     # Auto-detection based on file markers
     # 1. VIP signature
     if re.search(r"^【(?:题名|文章题目|题\s*名|文摘|机构|分类号)】", content, re.M) or re.search(r"^U:\s+", content, re.M):
         recs = parse_vip_format(content, source_name="VIP")
         if recs:
-            return recs
+            return [finalize_literature_record(r, source_database="VIP", ingestion_method="Table_Import") for r in recs]
 
     # 2. Refworks signature
     if re.search(r"\b(RT\s+Journal|RT\s+Thesis|Reference Type:|SR\s+1|K1\s+)", content):
@@ -640,21 +718,20 @@ def detect_and_parse_file(file_path: Path, source_override: Optional[str] = None
     # 3. RIS signature
     if ext == ".ris" or source_override in {"RIS", "WoS", "Scopus"} or re.search(r"^TY\s*-\s*", content, re.M):
         recs = parse_ris(content)
-        if source_override and source_override not in {"auto", "RIS"}:
-            for r in recs:
-                r["source_databases"] = [source_override]
-                r["ingestion_method"] = f"{source_override}_Import"
-        return recs
+        db = source_override if source_override and source_override not in {"auto", "RIS"} else "UNKNOWN_EXTERNAL_SOURCE"
+        return [finalize_literature_record(r, source_database=db, ingestion_method="RIS_Import") for r in recs]
 
     # 4. EndNote signature
     if ext == ".enw" or source_override == "EndNote" or re.search(r"^%0\s+", content, re.M):
-        return parse_endnote_enw(content)
+        recs = parse_endnote_enw(content)
+        db = source_override if source_override and source_override not in {"auto", "EndNote"} else "UNKNOWN_EXTERNAL_SOURCE"
+        return [finalize_literature_record(r, source_database=db, ingestion_method="EndNote_Import") for r in recs]
 
     # 5. Chinese keywords fallback
     if "【关键词】" in content or "【作者】" in content or "【摘要】" in content:
         vip_recs = parse_vip_format(content)
         if vip_recs:
-            return vip_recs
+            return [finalize_literature_record(r, source_database="VIP", ingestion_method="Table_Import") for r in vip_recs]
         return parse_cnki_refworks(content)
 
     # Default fallback
@@ -662,6 +739,24 @@ def detect_and_parse_file(file_path: Path, source_override: Optional[str] = None
     if records:
         return records
     return parse_ris(content)
+
+
+def ingest_file(
+    file_path: Union[str, Path],
+    source_database: Optional[str] = None,
+    ingestion_method: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    """Convenience entrypoint to ingest any external reference file and return canonical records."""
+    path = Path(file_path)
+    records = detect_and_parse_file(path, source_override=source_database)
+    if ingestion_method or source_database:
+        finalized = []
+        for r in records:
+            src = source_database or (r.get("source_databases", ["UNKNOWN_EXTERNAL_SOURCE"])[0])
+            mth = ingestion_method or r.get("ingestion_method", "Table_Import" if path.suffix in {".csv", ".tsv"} else "Refworks_Import")
+            finalized.append(finalize_literature_record(r, source_database=src, ingestion_method=mth))
+        return finalized
+    return records
 
 
 def merge_candidate_records(
@@ -699,12 +794,18 @@ def merge_candidate_records(
         if nt:
             title_index[nt] = idx
 
+    dedup_lineage_map: Dict[str, str] = {}
+    for idx, r in enumerate(merged):
+        r_id = r.get("record_id") or r.get("id") or f"REC_{idx}"
+        dedup_lineage_map[r_id] = r_id
+
     conflicts: List[Dict[str, Any]] = []
 
     for new_r in new_records:
         rec_copy = dict(new_r)
         new_doi = _norm_doi(rec_copy.get("doi"))
         new_nt = _norm_t(rec_copy.get("title"))
+        raw_id = new_r.get("record_id") or new_r.get("id") or f"RAW_{clean_str(new_r.get('title'))[:20]}"
 
         matched_idx = None
         if new_doi and new_doi in doi_index:
@@ -714,6 +815,8 @@ def merge_candidate_records(
 
         if matched_idx is not None:
             target = merged[matched_idx]
+            canon_id = target.get("record_id") or target.get("id") or f"REC_{matched_idx}"
+            dedup_lineage_map[raw_id] = canon_id
             # 1. Preserve and union source databases
             existing_sources = target.get("source_databases", [])
             incoming_sources = rec_copy.get("source_databases", [])
@@ -788,6 +891,8 @@ def merge_candidate_records(
 
             new_idx = len(merged)
             merged.append(rec_copy)
+            canon_id = rec_copy.get("record_id") or rec_copy.get("id") or f"REC_{new_idx}"
+            dedup_lineage_map[raw_id] = canon_id
             if new_doi:
                 doi_index[new_doi] = new_idx
             if new_nt:
@@ -814,7 +919,8 @@ def merge_candidate_records(
         "unique_count": len(merged),
         "source_distribution": source_dist,
         "source_unique_contributions": unique_contribs,
-        "conflicts": conflicts
+        "conflicts": conflicts,
+        "dedup_lineage_map": dedup_lineage_map
     }
 
 
