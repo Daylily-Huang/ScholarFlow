@@ -57,9 +57,6 @@ LEGACY_TIER_MAP = {
     "E3_REFERENCED": "SECONDARY_EVIDENCE",
     "E4": "AMBIGUOUS_LEGACY_TIER",
     "E4_NR": "NOT_REPORTED",
-    "EXPLICIT": "DIRECT_EMPIRICAL",
-    "DERIVED": "MODELED_EMPIRICAL",
-    "REFERENCED": "SECONDARY_EVIDENCE",
     "NOT_REPORTED": "NOT_REPORTED",
     "NR": "NOT_REPORTED"
 }
@@ -179,36 +176,53 @@ def resolve_evidence_weight(raw: Dict[str, Any]) -> Tuple[float, str, List[str]]
     appraisal = raw.get("appraisal", {})
     mult = 1.0
     if isinstance(appraisal, dict) and appraisal:
-        dir_val = str(appraisal.get("directness", "HIGH")).upper()
+        has_incomplete = False
+
+        raw_dir = appraisal.get("directness")
+        dir_val = str(raw_dir).upper() if raw_dir else "UNKNOWN"
         if dir_val == "LOW":
             mult *= 0.6
             factors.append("indirect(-0.2)")
         elif dir_val == "MEDIUM":
             mult *= 0.85
             factors.append("indirect_medium(-0.1)")
+        elif dir_val == "UNKNOWN":
+            has_incomplete = True
 
-        ind_val = str(appraisal.get("independence", "HIGH")).upper()
+        raw_ind = appraisal.get("independence")
+        ind_val = str(raw_ind).upper() if raw_ind else "UNKNOWN"
         if ind_val == "LOW":
             mult *= 0.6
             factors.append("dependent(-0.2)")
         elif ind_val == "MEDIUM":
             mult *= 0.85
+        elif ind_val == "UNKNOWN":
+            has_incomplete = True
 
-        rob_val = str(appraisal.get("risk_of_bias", "LOW")).upper()
+        raw_rob = appraisal.get("risk_of_bias")
+        rob_val = str(raw_rob).upper() if raw_rob else "UNKNOWN"
         if rob_val == "HIGH":
             mult *= 0.6
             factors.append("bias_high(-0.3)")
         elif rob_val == "MEDIUM":
             mult *= 0.85
             factors.append("bias_medium(-0.1)")
+        elif rob_val == "UNKNOWN":
+            has_incomplete = True
 
-        rep_val = str(appraisal.get("replication", "MEDIUM")).upper()
+        raw_rep = appraisal.get("replication")
+        rep_val = str(raw_rep).upper() if raw_rep else "UNKNOWN"
         if rep_val == "HIGH":
             mult *= 1.1
             factors.append("replicated(+0.1)")
         elif rep_val == "LOW":
             mult *= 0.9
             factors.append("unreplicated(-0.1)")
+        elif rep_val == "UNKNOWN":
+            has_incomplete = True
+
+        if has_incomplete:
+            factors.append("appraisal_incomplete")
 
     final_weight = round(base_weight * mult, 3)
     return final_weight, strength, factors
@@ -246,7 +260,11 @@ def normalize_claim(raw: Dict[str, Any]) -> Dict[str, Any]:
         "appraisal": appraisal if isinstance(appraisal, dict) and appraisal else None,
         "weight": final_weight,
         "consensus_eligible": is_eligible,
-        "boundary": raw.get("boundary") or "Unspecified Boundary"
+        "boundary": raw.get("boundary") or "Unspecified Boundary",
+        "independence_group_id": raw.get("independence_group_id"),
+        "independence_status": raw.get("independence_status"),
+        "claim_id": raw.get("claim_id"),
+        "evidence_ids": raw.get("evidence_ids", []),
     }
 
 
@@ -447,6 +465,11 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         c.get("independence_group_id") or c.get("paper_id", "Unknown")
         for c in support_claims
     }
+    verified_support_groups = {
+        c["independence_group_id"]
+        for c in support_claims
+        if c.get("independence_group_id") and c.get("independence_status") != "UNKNOWN"
+    }
     has_empirical_support = any(
         c.get("evidence_strength") in ("DIRECT_EMPIRICAL", "MODELED_EMPIRICAL")
         or c.get("evidence_tier") in ("E1", "E2")
@@ -464,10 +487,10 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
     elif cond_ratio >= 0.45:
         consensus_classification = "CONDITIONAL_CONSENSUS"
         consensus_level = "Level 3 (Context-Bounded Consensus / Conditional Agreement)"
-    elif support_ratio >= 0.80 and len(support_groups) >= 2 and has_empirical_support:
+    elif support_ratio >= 0.80 and len(verified_support_groups) >= 2 and has_empirical_support:
         consensus_classification = "STRONG_CONSENSUS"
         consensus_level = "Level 1 (Strong Prevailing Consensus - Replicated Evidence)"
-    elif support_ratio >= 0.65:
+    elif support_ratio >= 0.65 or (support_ratio >= 0.80 and len(support_groups) >= 2 and has_empirical_support):
         consensus_classification = "MODERATE_CONSENSUS"
         consensus_level = "Level 2 (Moderate Consensus with Minor Dissent)"
     else:
@@ -649,7 +672,7 @@ def format_markdown_report(results: Dict[str, Any]) -> str:
         sup = data['stance_percentages']['SUPPORT']
         ref = data['stance_percentages']['REFUTE']
         if 35.0 <= sup <= 65.0 and 35.0 <= ref <= 65.0:
-            lines.append("> ⚠️ **Red-Team 警示**：当前议题存在高烈度学术对决，绝不可采信简单文献篇数多数决！请结合方法范式（如样线法 vs SECR、单管 PCR vs 多管 PCR）进行方法论溯源。")
+            lines.append("> ⚠️ **Red-Team 警示**：当前议题存在高烈度学术对决，绝不可采信简单文献篇数多数决！请进一步检查测量定义、研究对象、采样设计、比较边界、分析模型、数据独立性及时间/空间尺度是否可比。")
             lines.append("")
             
         lines.append("---")

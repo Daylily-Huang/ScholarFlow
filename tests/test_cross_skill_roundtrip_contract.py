@@ -376,7 +376,7 @@ class TestCrossSkillRoundtripContract(unittest.TestCase):
         if JSONSCHEMA_AVAILABLE:
             validate_payload(envelope, "extraction_result.schema.json")
 
-        self.assertEqual(envelope["schema_version"], "1.0")
+        self.assertEqual(envelope["schema_version"], "1.1")
         self.assertEqual(len(envelope["evidence_records"]), 1)
         self.assertEqual(envelope["auditor_verdict"]["verdict"], "PASS")
 

@@ -11,7 +11,7 @@
     "auditor_verdict"
   ],
   "properties": {
-    "schema_version": { "type": "string" },
+    "schema_version": { "type": "string", "const": "1.1" },
     "paper_metadata": {
       "type": "object",
       "required": ["title", "authors", "year"],

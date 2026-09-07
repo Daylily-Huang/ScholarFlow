@@ -8,7 +8,7 @@ ScholarFlow mechanical traceability linter for narrative reviews (literature-syn
 Enforces the "Claims first, narrative later" contract at the prose level:
 every factual statement in a narrative review must carry a Claim ID reference
 (e.g. [CLM-001]) that resolves to a claim in the Claim-Evidence Matrix
-(assets/claim_evidence_matrix_schema.json). An assertion that cannot be traced
+(schemas/claim_evidence_matrix.schema.json). An assertion that cannot be traced
 to any matrix claim is an "orphan claim" — the highest-risk hallucination
 surface of the synthesis stage.
 
@@ -50,7 +50,7 @@ if sys.platform == "win32":
     except Exception:
         pass
 
-CLAIM_REF_RE = re.compile(r"\bCLM-\d{3,}\b", re.IGNORECASE)
+CLAIM_REF_RE = re.compile(r"\bCLM-(?:\d{3,}|[A-Za-z_][A-Za-z0-9_.:-]*)\b", re.IGNORECASE)
 
 # Heuristic cues for "this sentence asserts a fact": reporting verbs or quantities.
 FACTUAL_CUE_RE = re.compile(
@@ -193,7 +193,7 @@ Exit codes: 0 clean | 1 gate failed | 2 input error
         """)
     parser.add_argument("-i", "--input", required=True, help="Narrative review Markdown file")
     parser.add_argument("-m", "--matrix", required=True,
-                        help="Claim-Evidence Matrix JSON (assets/claim_evidence_matrix_schema.json)")
+                        help="Claim-Evidence Matrix JSON (schemas/claim_evidence_matrix.schema.json)")
     parser.add_argument("-o", "--output", help="Optional path to write the JSON lint report")
     parser.add_argument("--strict", action="store_true",
                         help="Also fail on paragraphs with factual cues but no Claim ID")

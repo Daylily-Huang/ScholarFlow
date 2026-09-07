@@ -124,10 +124,8 @@ def cluster_by_paradigm(studies: List[Dict[str, Any]]) -> Dict[str, Any]:
         
         # Check school status with provenance (Section 17.5)
         has_explicit_provenance = any(
-            p.get("is_established_school", False) and (
-                p.get("school_status_source") in ("LITERATURE_EXPLICIT", "USER_CONFIRMED")
-                or "school_status_source" not in p  # Backward compatibility
-            )
+            p.get("is_established_school", False)
+            and p.get("school_status_source") in ("LITERATURE_EXPLICIT", "USER_CONFIRMED")
             for p in papers
         )
         
@@ -179,7 +177,7 @@ def detect_paradigm_shifts(clustered: Dict[str, Any]) -> List[Dict[str, Any]]:
 
 def format_markdown_report(clustered: Dict[str, Any], shifts: List[Dict[str, Any]]) -> str:
     lines = []
-    lines.append("# 方法学范式与学派演进总览报告 (Methodological & Paradigm Landscape Summary)")
+    lines.append("# 方法学范式时间格局总览报告 (Methodological Paradigm Temporal Landscape Summary)")
     lines.append("")
     lines.append(f"> **工具定位**：确定性结构化归纳汇总 (Deterministic Paradigm Aggregator) | **识别范式数**：{len(clustered)}")
     lines.append("> **数据说明**：基于结构化抽取输入中的 `paradigm`、`method` 及 `core_assumption` 字段进行确定性统计，非无监督网络聚类。")
@@ -198,7 +196,7 @@ def format_markdown_report(clustered: Dict[str, Any], shifts: List[Dict[str, Any
     lines.append("")
     
     if shifts:
-        lines.append("## 2. 范式更迭与时间演进轴 (Chronological Paradigm Shifts)")
+        lines.append("## 2. 范式出现时间排序轴 (Paradigm Temporal Ordering)")
         lines.append("")
         for s in shifts:
             lines.append(f"- 🔄 **{s['transition']}**")

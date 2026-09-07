@@ -207,7 +207,7 @@ class TestMetadataCoverageFirst(unittest.TestCase):
         """Section 5: Discovery status and acquisition status must be completely decoupled."""
         record = {
             "record_id": "REC001",
-            "title": "Conservation Genetics of Muntjac",
+            "title": "Conservation Genetics of Endangered Ungulates",
             "metadata_verification_status": "VERIFIED_API",
             "fulltext_acquisition_status": FulltextAcquisitionStatus.PAYWALLED
         }

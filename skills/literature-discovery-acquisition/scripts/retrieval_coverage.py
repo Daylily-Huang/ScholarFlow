@@ -322,7 +322,14 @@ def reconcile_retrieval_coverage_ledger(
 
     sum_query_reported = sum((e.get("reported_total_hits") or 0) for e in reconciled_entries if e.get("reported_total_hits") is not None)
     sum_query_retrieved = sum(e.get("metadata_records_retrieved", 0) for e in reconciled_entries)
-    sum_unique_records = sum(s.get("unique_records", 0) for s in source_coverage_summary)
+    all_record_ids = []
+    for query_entry in reconciled_entries:
+        all_record_ids.extend(query_entry.get("record_ids", []))
+
+    if all_record_ids:
+        cross_query_unique = len(set(all_record_ids))
+    else:
+        cross_query_unique = sum(s.get("unique_records", 0) for s in source_coverage_summary)
 
     return {
         "ledger_type": "RETRIEVAL_COVERAGE_LEDGER_A",
@@ -333,7 +340,7 @@ def reconcile_retrieval_coverage_ledger(
         "query_execution_rate": query_exec_rate,
         "sum_query_reported_hits": sum_query_reported,
         "sum_query_retrieved_records": sum_query_retrieved,
-        "unique_records_after_cross_query_dedup": sum_unique_records,
+        "unique_records_after_cross_query_dedup": cross_query_unique,
         "has_retrieval_gaps": len(retrieval_gaps) > 0,
         "retrieval_gaps": retrieval_gaps,
         "source_coverage_summary": source_coverage_summary,

@@ -361,7 +361,7 @@ MODALITY_REGEX = re.compile(
 )
 
 PRONOUN_ANAPHORA_REGEX = re.compile(
-    r"(?:^(?:this|these|those|they|it|such|the authors|furthermore|moreover|however|in contrast|consequently|therefore|the former|the latter)\b|^[该此其这些那些])",
+    r"(?:^(?:this|these|those|they|it|such|the authors|furthermore|moreover|however|in contrast|consequently|therefore|the former|the latter|case\s+\d+|step\s+\d+)\b|^[该此其这些那些])",
     re.IGNORECASE,
 )
 
@@ -594,8 +594,14 @@ def expand_candidate_context(
 
     is_complete, missing_slots = check_sentence_semantic_completeness(cur_text, tin=tin)
 
+    final_complete = False
+    final_missing_slots = []
+    final_stop_condition = None
+
     if is_complete and not needs_adj:
-        stop_cond = StopCondition.STOP_A_MEANING_RESOLVED
+        final_complete = True
+        final_missing_slots = []
+        final_stop_condition = StopCondition.STOP_A_MEANING_RESOLVED
     else:
         # Step to Level 2: Adjacent Sentences
         adj_span = get_adjacent_sentences_span(doc_text, offset)
@@ -603,17 +609,30 @@ def expand_candidate_context(
         cur_text = adj_span["text"]
         spans_accum.append(cur_text)
 
-        is_complete_adj, missing_slots = check_sentence_semantic_completeness(cur_text, tin=tin)
+        is_complete_adj, missing_adj = check_sentence_semantic_completeness(cur_text, tin=tin)
 
-        if (not is_complete_adj or max_level in (ExpansionLevel.PARAGRAPH, ExpansionLevel.SECTION_CONTEXT)) and len(cur_text.split()) < 15 and max_level != ExpansionLevel.ADJACENT_SENTENCES:
+        if is_complete_adj:
+            final_complete = True
+            final_missing_slots = []
+            final_stop_condition = StopCondition.STOP_A_MEANING_RESOLVED
+        elif max_level not in (ExpansionLevel.SENTENCE, ExpansionLevel.ADJACENT_SENTENCES):
             para_span = get_paragraph_span(doc_text, offset)
             cur_level = ExpansionLevel.PARAGRAPH
             cur_text = para_span["text"]
             spans_accum.append(cur_text)
-            is_complete_para, missing_slots = check_sentence_semantic_completeness(cur_text, tin=tin)
-            stop_cond = StopCondition.STOP_A_MEANING_RESOLVED if is_complete_para else StopCondition.STOP_C_CONTEXT_EXHAUSTED
+
+            is_complete_para, missing_para = check_sentence_semantic_completeness(cur_text, tin=tin)
+            final_complete = is_complete_para
+            final_missing_slots = missing_para
+            final_stop_condition = (
+                StopCondition.STOP_A_MEANING_RESOLVED
+                if is_complete_para
+                else StopCondition.STOP_C_CONTEXT_EXHAUSTED
+            )
         else:
-            stop_cond = StopCondition.STOP_A_MEANING_RESOLVED if is_complete_adj else StopCondition.STOP_A_MEANING_RESOLVED
+            final_complete = False
+            final_missing_slots = missing_adj
+            final_stop_condition = StopCondition.STOP_C_CONTEXT_EXHAUSTED
 
     # Level 4 addition: Section Heading
     if section_hdr:
@@ -621,9 +640,17 @@ def expand_candidate_context(
     else:
         cur_text_with_heading = cur_text
 
+    # Determine context sufficiency (P0-02)
+    if final_complete:
+        final_context_sufficiency = ContextSufficiency.SUFFICIENT
+    elif final_stop_condition == StopCondition.STOP_C_CONTEXT_EXHAUSTED:
+        final_context_sufficiency = ContextSufficiency.INSUFFICIENT
+    else:
+        final_context_sufficiency = ContextSufficiency.PARTIALLY_SUFFICIENT
+
     return {
         "level_reached": cur_level,
-        "stop_condition": stop_cond or StopCondition.STOP_A_MEANING_RESOLVED,
+        "stop_condition": final_stop_condition or StopCondition.STOP_A_MEANING_RESOLVED,
         "context_text": cur_text_with_heading,
         "raw_text": cur_text,
         "interpretation_context": {
@@ -646,9 +673,9 @@ def expand_candidate_context(
             }
             for s in spans_accum
         ],
-        "context_sufficiency": ContextSufficiency.SUFFICIENT,
+        "context_sufficiency": final_context_sufficiency,
         "has_anaphora_resolved": needs_adj,
-        "missing_elements": missing_slots if not is_complete else [],
+        "missing_elements": final_missing_slots,
     }
 
 
@@ -744,8 +771,8 @@ def evaluate_target_alignment(
     # 1. Check Negation Trap
     neg = detect_negation(context_text)
     if neg["has_negation"]:
-        # If user asked for claim/relation and context explicitly negates
-        if task_type in (TINTaskType.CLAIM, TINTaskType.RELATION):
+        # If user asked for claim/relation/comparison and context explicitly negates
+        if task_type in (TINTaskType.CLAIM, TINTaskType.RELATION, TINTaskType.COMPARISON):
             return {
                 "status": AlignmentStatus.CONTRADICTS_TARGET,
                 "rationale": f"Candidate explicitly negates target relationship: {neg['negation_tokens']}",
@@ -981,6 +1008,10 @@ def build_candidate_context_record(
             "stop_condition": expanded_ctx.get("stop_condition", StopCondition.STOP_A_MEANING_RESOLVED),
             "context_text": expanded_ctx.get("context_text", ""),
             "spans": expanded_ctx.get("spans", []),
+            "interpretation_context": expanded_ctx.get("interpretation_context"),
+            "evidence_span": expanded_ctx.get("evidence_span"),
+            "structured_spans": expanded_ctx.get("structured_spans", []),
+            "missing_elements": expanded_ctx.get("missing_elements", []),
         },
         "semantic_role": {
             "value": semantic_role,
@@ -992,7 +1023,7 @@ def build_candidate_context_record(
         },
         "context_sufficiency": {
             "status": ctx_suff,
-            "missing_elements": [],
+            "missing_elements": expanded_ctx.get("missing_elements", []),
         },
         "decision": {
             "eligible_for_extraction": eligible,
@@ -1093,6 +1124,25 @@ def promote_candidate_to_evidence(
     else:
         source_type = "Text"
 
+    if sem_role in (SemanticRole.CURRENT_STUDY_RESULT, SemanticRole.CURRENT_STUDY_OBSERVATION):
+        ev_strength = "DIRECT_EMPIRICAL"
+    elif sem_role == SemanticRole.DISCUSSION_INTERPRETATION:
+        ev_strength = "AUTHOR_INTERPRETATION"
+    elif sem_role == SemanticRole.REFERENCED_WORK:
+        ev_strength = "SECONDARY_EVIDENCE"
+    else:
+        ev_strength = "UNKNOWN"
+
+    source_target_claim = None
+    if isinstance(ccr.get("claim_alignment"), dict):
+        tgt = ccr["claim_alignment"].get("target_claim")
+        if isinstance(tgt, dict):
+            source_target_claim = tgt.get("text")
+        elif isinstance(tgt, str):
+            source_target_claim = tgt
+    if not source_target_claim:
+        source_target_claim = ccr.get("target_claim") or ccr.get("source_target_claim")
+
     evidence_record = {
         "schema_version": "1.0",
         "evidence_id": evidence_id,
@@ -1100,10 +1150,13 @@ def promote_candidate_to_evidence(
         "field": field,
         "extracted_value": extracted_value,
         "support_type": "EXPLICIT",
+        "evidence_strength": ev_strength,
         "claim_status": claim_status,
         "status": claim_status,
         "verbatim_quote": verbatim_quote,
         "source_type": source_type,
+        "source_tin_id": ccr.get("target_information_need_id"),
+        "source_target_claim": source_target_claim,
         "location": {
             "page": ccr.get("locator", {}).get("page"),
             "section": ccr.get("locator", {}).get("section"),
@@ -1200,12 +1253,21 @@ def audit_context_sufficiency(
 
     # 8. Check long-distance stitching if spans provided
     if candidate_context:
-        spans = candidate_context.get("context_expansion", {}).get("spans", [])
-        if len(spans) > 1:
-            cohere, err = verify_context_coherence([{"text": s} for s in spans])
+        ctx_exp = candidate_context.get("context_expansion", {})
+        structured_spans = ctx_exp.get("structured_spans", [])
+        string_spans = ctx_exp.get("spans", [])
+
+        if len(structured_spans) > 1:
+            cohere, err = verify_context_coherence(structured_spans)
             if not cohere:
                 checks["no_long_distance_stitching"] = False
                 failures.append(err)
+        elif len(string_spans) > 1:
+            checks["no_long_distance_stitching"] = False
+            failures.append(
+                "Multiple evidence spans exist but page/offset/section provenance "
+                "is unavailable; coherence cannot be verified."
+            )
 
     passed = len(failures) == 0
     return {

@@ -197,7 +197,8 @@ class TestSchoolClustering(unittest.TestCase):
                 "year": 2020,
                 "paradigm": "Molecular Ecology",
                 "method": "Metabarcoding",
-                "is_established_school": True
+                "is_established_school": True,
+                "school_status_source": "LITERATURE_EXPLICIT"
             }
         ]
         clustered = cluster_by_paradigm(studies)

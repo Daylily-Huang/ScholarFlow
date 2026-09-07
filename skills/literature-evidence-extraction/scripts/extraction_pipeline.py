@@ -13,7 +13,13 @@ Pure Python standard library (zero external runtime dependencies).
 
 import os
 import sys
+from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional, Tuple
+
+try:
+    from shared.version import EXTRACTION_RESULT_SCHEMA_VERSION
+except ImportError:
+    EXTRACTION_RESULT_SCHEMA_VERSION = "1.1"
 
 try:
     from .context_expansion import (
@@ -141,27 +147,46 @@ def process_candidate(
     )
 
     # 6. Evidence Promotion Gate
-    evidence_record, promotion_error = promote_candidate_to_evidence(
+    provisional_record, promotion_error = promote_candidate_to_evidence(
         ccr=ccr,
         record_id=record_id,
         field=field,
         extracted_value=extracted_value,
     )
 
-    audit_result = None
-    if evidence_record:
-        audit_result = audit_context_sufficiency(
-            evidence_record=evidence_record,
-            candidate_context=ccr,
-            doc_text=doc_text,
-        )
+    if provisional_record is None:
+        return {
+            "candidate_context_record": ccr,
+            "provisional_evidence_record": None,
+            "evidence_record": None,
+            "audit_result": None,
+            "error": promotion_error,
+            "promoted": False,
+        }
+
+    audit_result = audit_context_sufficiency(
+        evidence_record=provisional_record,
+        candidate_context=ccr,
+        doc_text=doc_text,
+    )
+
+    if not audit_result.get("passed", False):
+        return {
+            "candidate_context_record": ccr,
+            "provisional_evidence_record": provisional_record,
+            "evidence_record": None,
+            "audit_result": audit_result,
+            "error": "AUDIT_REJECTED",
+            "promoted": False,
+        }
 
     return {
         "candidate_context_record": ccr,
-        "evidence_record": evidence_record,
+        "provisional_evidence_record": provisional_record,
+        "evidence_record": provisional_record,
         "audit_result": audit_result,
-        "error": promotion_error,
-        "promoted": evidence_record is not None,
+        "error": None,
+        "promoted": True,
     }
 
 
@@ -171,16 +196,45 @@ def build_extraction_result_envelope(
     mode: str = "deep_evidence_extraction",
     schema_type: str = "universal",
     auditor_notes: Optional[str] = None,
+    audit_results: Optional[List[Dict[str, Any]]] = None,
+    rejected_candidates: Optional[List[Dict[str, Any]]] = None,
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """
     Construct a canonical ScholarFlowExtractionResult envelope validating
     against `schemas/extraction_result.schema.json`.
     """
-    all_passed = len(evidence_records) > 0
-    verdict = "PASS" if all_passed else "PASS_WITH_DOWNGRADES"
+    if isinstance(mode, list) and audit_results is None:
+        audit_results = mode
+        mode = "deep_evidence_extraction"
+
+    timestamp = datetime.now(timezone.utc).isoformat()
+
+    if audit_results is not None:
+        required_failures = [
+            a for a in audit_results
+            if not a.get("passed", False)
+        ]
+        if required_failures:
+            verdict = "REJECT"
+            checklist_passed = False
+        elif any(a.get("downgraded", False) for a in audit_results):
+            verdict = "PASS_WITH_DOWNGRADES"
+            checklist_passed = True
+        else:
+            verdict = "PASS" if len(evidence_records) > 0 else "PASS_WITH_DOWNGRADES"
+            checklist_passed = True
+    else:
+        if rejected_candidates and len(evidence_records) == 0:
+            verdict = "REJECT"
+            checklist_passed = False
+        else:
+            all_passed = len(evidence_records) > 0
+            verdict = "PASS" if all_passed else "PASS_WITH_DOWNGRADES"
+            checklist_passed = len(evidence_records) > 0
 
     return {
-        "schema_version": "1.0",
+        "schema_version": EXTRACTION_RESULT_SCHEMA_VERSION,
         "paper_metadata": {
             "title": paper_metadata.get("title", "Untitled Document"),
             "authors": paper_metadata.get("authors", ["Unknown"]),
@@ -191,13 +245,13 @@ def build_extraction_result_envelope(
         },
         "extraction_metadata": {
             "mode": mode,
-            "timestamp": "2026-09-07T00:00:00Z",
+            "timestamp": timestamp,
             "schema_type": schema_type,
         },
         "evidence_records": evidence_records,
         "auditor_verdict": {
             "verdict": verdict,
-            "checklist_passed": True,
-            "auditor_notes": auditor_notes or "Context and claim alignment verification passed",
+            "checklist_passed": checklist_passed,
+            "auditor_notes": auditor_notes or ("Context and claim alignment verification passed" if checklist_passed else "Auditor checks rejected candidate evidence"),
         },
     }

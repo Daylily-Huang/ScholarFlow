@@ -968,33 +968,36 @@ Examples:
         print(f"[INGEST] Parsed {len(records)} records from {tf.name}")
         all_records.extend(records)
         
-    # Deduplicate within this imported batch by Title
-    deduped_records = []
-    seen_titles = set()
-    for r in all_records:
-        norm_title = re.sub(r"[^a-zA-Z0-9\u4e00-\u9fa5]", "", r["title"].lower())
-        if norm_title in seen_titles:
-            continue
-        seen_titles.add(norm_title)
-        deduped_records.append(r)
-        
+    # Deduplicate within this imported batch using canonical merge
+    merge_result = merge_candidate_records(
+        existing_records=[],
+        new_records=all_records,
+    )
+    deduped_records = merge_result["merged_records"]
+    dedup_lineage = merge_result["dedup_lineage_map"]
+    conflicts = merge_result["conflicts"]
+
     # Compute summary stats
     theses_count = sum(1 for r in deduped_records if r.get("document_type") == "Thesis")
     journal_count = sum(1 for r in deduped_records if r.get("document_type") == "Journal Article")
     with_doi_count = sum(1 for r in deduped_records if r.get("doi") and r.get("doi") != "NR")
     with_abs_count = sum(1 for r in deduped_records if r.get("abstract"))
-    
+
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(deduped_records, f, ensure_ascii=False, indent=2)
-        
+
     print("\n========================================================")
     print(" ScholarFlow External Records Ingestion Summary")
     print("========================================================")
     print(f" Total files processed : {len(target_files)}")
     print(f" Raw records extracted : {len(all_records)}")
     print(f" Deduplicated records  : {len(deduped_records)}")
+    print(f" Duplicates merged     : {len(all_records) - len(deduped_records)}")
+    print(f" Metadata conflicts    : {len(conflicts)}")
+    print(f" Lineage entries       : {len(dedup_lineage)}")
+    print(f" Source distribution   : {merge_result.get('source_distribution', {})}")
     print(f" - Theses (博硕士学位) : {theses_count}")
     print(f" - Journal Articles    : {journal_count}")
     print(f" - With Valid DOI      : {with_doi_count} ({with_doi_count/len(deduped_records)*100:.1f}%)" if deduped_records else "0")

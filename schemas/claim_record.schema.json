@@ -12,8 +12,8 @@
     "stance"
   ],
   "properties": {
-    "schema_version": { "type": "string", "const": "1.0" },
-    "claim_id": { "type": "string" },
+    "schema_version": { "type": "string", "enum": ["1.0", "1.1"] },
+    "claim_id": { "type": "string", "pattern": "^CLM-[A-Za-z0-9_.:-]+$" },
     "topic": { "type": "string" },
     "paper_id": { "type": "string" },
     "year": { "type": ["integer", "string", "null"] },
@@ -22,6 +22,18 @@
       "type": "string",
       "enum": ["SUPPORT", "REFUTE", "CONDITIONAL", "NEUTRAL"]
     },
+    "stance_mapping_status": {
+      "type": ["string", "null"],
+      "enum": [
+        "VERIFIED_SAME_PROPOSITION",
+        "AGENT_MAPPED",
+        "DIFFERENT_PROPOSITION",
+        "UNRESOLVED",
+        null
+      ]
+    },
+    "source_tin_id": { "type": ["string", "null"] },
+    "source_target_claim": { "type": ["string", "null"] },
     "evidence_ids": {
       "type": "array",
       "items": { "type": "string" },
@@ -47,6 +59,11 @@
     "evidence_tier": {
       "type": "string",
       "description": "Backward-compatible alias for E1-E4."
+    },
+    "independence_group_id": { "type": ["string", "null"] },
+    "independence_status": {
+      "type": ["string", "null"],
+      "enum": ["VERIFIED", "ASSUMED", "UNKNOWN", null]
     },
     "appraisal": {
       "type": "object",

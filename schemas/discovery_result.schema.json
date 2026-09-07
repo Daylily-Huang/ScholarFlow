@@ -10,7 +10,7 @@
     "candidates"
   ],
   "properties": {
-    "schema_version": { "type": "string" },
+    "schema_version": { "type": "string", "const": "1.1" },
     "errors": { "type": "array", "items": { "type": "string" }, "description": "Non-fatal query failures; empty on clean SUCCESS. A FAILED status with zero candidates must never be emitted as SUCCESS." },
     "status": {
       "type": "string",

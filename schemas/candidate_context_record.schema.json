@@ -81,6 +81,37 @@
         "spans": {
           "type": "array",
           "items": { "type": "string" }
+        },
+        "interpretation_context": {
+          "type": ["object", "null"]
+        },
+        "evidence_span": {
+          "type": ["object", "null"],
+          "properties": {
+            "text": { "type": "string" },
+            "start": { "type": ["integer", "null"] },
+            "end": { "type": ["integer", "null"] },
+            "page": { "type": ["integer", "null"] },
+            "section": { "type": ["string", "null"] }
+          }
+        },
+        "structured_spans": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "text": { "type": "string" },
+              "page": { "type": ["integer", "null"] },
+              "start": { "type": ["integer", "null"] },
+              "end": { "type": ["integer", "null"] },
+              "offset": { "type": ["integer", "null"] },
+              "section": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "missing_elements": {
+          "type": "array",
+          "items": { "type": "string" }
         }
       }
     },
