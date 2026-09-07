@@ -35,6 +35,16 @@ if sys.platform == "win32":
     except Exception:
         pass
 
+try:
+    from comparability import stratify_claims_by_comparability, ComparabilityStatus
+except ImportError:
+    import sys
+    from pathlib import Path
+    _cur_dir = str(Path(__file__).parent)
+    if _cur_dir not in sys.path:
+        sys.path.insert(0, _cur_dir)
+    from comparability import stratify_claims_by_comparability, ComparabilityStatus
+
 # Decoupled evidence strength weights (Synthesis Dimension)
 EVIDENCE_STRENGTH_WEIGHTS = {
     "DIRECT_EMPIRICAL": 1.0,      # Direct experiment / raw sequencing / first-hand measurement
@@ -271,11 +281,11 @@ def normalize_claim(raw: Dict[str, Any]) -> Dict[str, Any]:
 
 def diagnose_controversy_type(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Diagnose controversy type (Taxonomy Type A-I) based on heuristics."""
-    stances = [c["stance"] for c in claims]
+    stances = [c.get("stance", "NEUTRAL") for c in claims]
     has_support = "SUPPORT" in stances
     has_refute = "REFUTE" in stances
-    methods = set(c["method"].lower() for c in claims if c.get("method"))
-    boundaries = set(c["boundary"].lower() for c in claims if c.get("boundary"))
+    methods = set((c.get("method") or "").lower() for c in claims if c.get("method"))
+    boundaries = set((c.get("boundary") or "").lower() for c in claims if c.get("boundary"))
     
     # Numeric analysis
     numeric_claims = [c for c in claims if c.get("metric_value") is not None]
@@ -295,8 +305,8 @@ def diagnose_controversy_type(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         }
         
     # Check if methods completely bifurcate with stances
-    support_methods = set(c["method"].lower() for c in claims if c["stance"] == "SUPPORT")
-    refute_methods = set(c["method"].lower() for c in claims if c["stance"] == "REFUTE")
+    support_methods = set((c.get("method") or "").lower() for c in claims if c.get("stance") == "SUPPORT" and c.get("method"))
+    refute_methods = set((c.get("method") or "").lower() for c in claims if c.get("stance") == "REFUTE" and c.get("method"))
     
     if support_methods and refute_methods and not (support_methods & refute_methods):
         return {
@@ -320,8 +330,9 @@ def diagnose_controversy_type(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         
     # Check numeric CI overlap
     if len(numeric_claims) >= 2:
-        support_nums = [c["metric_value"] for c in numeric_claims if c["stance"] == "SUPPORT"]
-        refute_nums = [c["metric_value"] for c in numeric_claims if c["stance"] == "REFUTE"]
+        support_nums = [c.get("metric_value") for c in numeric_claims if c.get("stance") == "SUPPORT" and c.get("metric_value") is not None]
+        refute_nums = [c.get("metric_value") for c in numeric_claims if c.get("stance") == "REFUTE" and c.get("metric_value") is not None]
+
         if support_nums and refute_nums:
             sup_mean = sum(support_nums) / len(support_nums)
             ref_mean = sum(refute_nums) / len(refute_nums)
@@ -415,11 +426,23 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
     weights_by_stance = defaultdict(float)
     papers_by_stance = defaultdict(list)
     
+    # Group claims by independence group / study / paper to prevent multi-claim inflation
+    group_claims = defaultdict(list)
     for c in eligible_claims:
-        w = float(c.get("weight", 0.0))
-        s = c.get("stance", "NEUTRAL")
-        weights_by_stance[s] += w
-        papers_by_stance[s].append(c.get("paper_id", "Unknown"))
+        grp_key = c.get("independence_group_id") or c.get("study_id") or c.get("paper_id", "Unknown")
+        group_claims[grp_key].append(c)
+
+    # Calculate stance weights with independence group weight capping (max 1.0 per group)
+    for grp_key, grp_items in group_claims.items():
+        grp_raw_weights = defaultdict(float)
+        for item in grp_items:
+            grp_raw_weights[item.get("stance", "NEUTRAL")] += float(item.get("weight", 0.0))
+        grp_sum = sum(grp_raw_weights.values())
+        scaling = (min(1.0, grp_sum) / grp_sum) if grp_sum > 1.0 else 1.0
+        for s, w in grp_raw_weights.items():
+            weights_by_stance[s] += w * scaling
+        for item in grp_items:
+            papers_by_stance[item.get("stance", "NEUTRAL")].append(item.get("paper_id", "Unknown"))
         
     total_weight = sum(weights_by_stance.values())
     
@@ -524,7 +547,7 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 
 
-def analyze(claims: List[Dict[str, Any]], topic_filter: Optional[str] = None) -> Dict[str, Any]:
+def analyze(claims: List[Dict[str, Any]], topic_filter: Optional[str] = None, target: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     normalized = [normalize_claim(c) for c in claims]
     
     # Group by topic
@@ -537,9 +560,32 @@ def analyze(claims: List[Dict[str, Any]], topic_filter: Optional[str] = None) ->
         
     results = {}
     for t, t_claims in topics.items():
-        analysis = compute_topic_consensus(t_claims)
-        analysis["claims"] = t_claims
-        results[t] = analysis
+        # Pre-synthesis stratification (M3)
+        strat_res = stratify_claims_by_comparability(t_claims, target=target)
+        strata = strat_res.get("strata", {})
+        uncomp = strat_res.get("uncomparable_claims", [])
+
+        # Analyze each stratum independently
+        strata_analysis = {}
+        for s_key, s_claims in strata.items():
+            s_res = compute_topic_consensus(s_claims)
+            s_res["claims"] = s_claims
+            strata_analysis[s_key] = s_res
+
+        # Select primary stratum for headline consensus
+        if "core_stratum" in strata_analysis and len(strata_analysis["core_stratum"]["claims"]) > 0:
+            primary_analysis = dict(strata_analysis["core_stratum"])
+        elif strata_analysis:
+            best_k = max(strata_analysis.keys(), key=lambda k: len(strata_analysis[k].get("claims", [])))
+            primary_analysis = dict(strata_analysis[best_k])
+        else:
+            primary_analysis = compute_topic_consensus(t_claims)
+
+        primary_analysis["claims"] = t_claims
+        primary_analysis["strata"] = strata_analysis
+        primary_analysis["uncomparable_claims"] = uncomp
+        primary_analysis["comparability_records"] = strat_res.get("pairwise_comparisons", [])
+        results[t] = primary_analysis
         
     return results
 

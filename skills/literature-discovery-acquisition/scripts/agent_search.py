@@ -24,6 +24,7 @@ import argparse
 import urllib.request
 import urllib.parse
 import re
+from typing import Optional, Dict, Any, List, Tuple, Set
 
 try:
     from retrieval_coverage import (
@@ -57,10 +58,57 @@ if sys.platform == "win32":
     except Exception:
         pass
 
+try:
+    from ingest_external_records import merge_candidate_records
+except ImportError:
+    import sys
+    from pathlib import Path
+    _cur = str(Path(__file__).parent)
+    if _cur not in sys.path:
+        sys.path.insert(0, _cur)
+    from ingest_external_records import merge_candidate_records
+
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 # OpenAlex politeness pool: declare contact in URL; custom agent-style UA suffixes
 # (e.g. "(Headless Agent Search Pipeline)") trigger instant HTTP 429 throttling.
 OPENALEX_MAILTO = "academic_support@openacademic.org"
+
+
+class QueryExecutionResult(tuple):
+    """
+    Tuple-compatible container for (records, error) that carries rich execution
+    and coverage metadata for truthful Ledger A accounting.
+    """
+    def __new__(cls, records, error, meta=None):
+        return super().__new__(cls, (records, error))
+
+    def __init__(self, records, error, meta=None):
+        self.records = records
+        self.error = error
+        self.meta = meta or {}
+
+    @property
+    def reported_total_hits(self) -> Optional[int]:
+        return self.meta.get("reported_total_hits")
+
+    @property
+    def pages_fetched(self) -> int:
+        return self.meta.get("pages_fetched", 1)
+
+    @property
+    def coverage_status(self) -> str:
+        return self.meta.get("coverage_status", "UNKNOWN")
+
+    @property
+    def pagination_status(self) -> str:
+        return self.meta.get("pagination_status", "UNKNOWN")
+
+    @property
+    def execution_status(self) -> str:
+        return self.meta.get("execution_status", "SEARCHED_COMPLETE")
+
+    def get(self, key, default=None):
+        return self.meta.get(key, default)
 
 
 def parse_openalex_item(item, snowball_role=None, seed_id=None):
@@ -164,43 +212,109 @@ def is_thesis_work(item: dict) -> bool:
     return False
 
 
-def query_openalex_headless(query_str, limit=25, include_theses=True):
-    """通过 OpenAlex API 关键词获取候选文献。
+def query_openalex_headless(query_str, limit=25, include_theses=True, per_page=None):
+    """通过 OpenAlex API 关键词获取候选文献，支持基于 cursor 的深度分页检索与真实元数据统计。
 
     Returns:
-        (records, error): error is None on success, otherwise a human-readable
-        failure string. Callers MUST surface error in the output contract —
-        a failed query with 0 records must never be reported as a plain
-        empty SUCCESS (downstream would misread it as "no literature exists").
+        QueryExecutionResult: (records, error) 兼容 tuple，同时携带 .meta / .reported_total_hits / .pages_fetched / .coverage_status。
     """
-    url = f"https://api.openalex.org/works?search={urllib.parse.quote(query_str)}&per-page={limit}&mailto={OPENALEX_MAILTO}"
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     records = []
-
     error = None
+    reported_total_hits = None
+    pages_fetched = 0
+    openalex_meta = {}
+
+    batch_size = per_page or min(limit, 50)
+    batch_size = max(1, min(batch_size, 100))
+    cursor = "*"
+
     try:
-        with urllib.request.urlopen(req, timeout=20) as resp:
-            if resp.status == 200:
-                data = json.loads(resp.read().decode('utf-8'))
-                for item in data.get("results", []):
-                    if not isinstance(item, dict):
-                        continue
-                    try:
-                        if not include_theses and is_thesis_work(item):
-                            continue
-                        rec = parse_openalex_item(item)
-                    except Exception:
-                        continue  # skip malformed entry, never abort the whole batch
-                    rec["id"] = f"REC{len(records)+1:03d}"
-                    rec["record_id"] = rec["id"]
-                    records.append(rec)
-                    if len(records) >= limit:
+        while len(records) < limit and cursor:
+            fetch_size = min(limit - len(records), batch_size)
+            url = f"https://api.openalex.org/works?search={urllib.parse.quote(query_str)}&per-page={fetch_size}&cursor={urllib.parse.quote(str(cursor))}&mailto={OPENALEX_MAILTO}"
+            req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+
+            with urllib.request.urlopen(req, timeout=20) as resp:
+                if resp.status == 200:
+                    data = json.loads(resp.read().decode('utf-8'))
+                    pages_fetched += 1
+                    meta = data.get("meta") or {}
+                    openalex_meta = meta
+                    if reported_total_hits is None and "count" in meta:
+                        try:
+                            reported_total_hits = int(meta["count"])
+                        except (ValueError, TypeError):
+                            reported_total_hits = None
+
+                    results = data.get("results") or []
+                    if not results:
                         break
+
+                    for item in results:
+                        if not isinstance(item, dict):
+                            continue
+                        try:
+                            if not include_theses and is_thesis_work(item):
+                                continue
+                            rec = parse_openalex_item(item)
+                        except Exception:
+                            continue  # skip malformed entry, never abort the whole batch
+                        rec["id"] = f"REC{len(records)+1:03d}"
+                        rec["record_id"] = rec["id"]
+                        records.append(rec)
+                        if len(records) >= limit:
+                            break
+
+                    next_cursor = meta.get("next_cursor")
+                    if not next_cursor or next_cursor == cursor:
+                        break
+                    cursor = next_cursor
+                else:
+                    error = f"OpenAlex HTTP {resp.status} for '{query_str[:60]}'"
+                    break
+
+            if pages_fetched >= 20:
+                break
+
     except Exception as e:
         error = f"OpenAlex query failed for '{query_str[:60]}': {str(e)}"
         sys.stderr.write(f"[-] {error}\n")
 
-    return records, error
+    if reported_total_hits is not None:
+        if len(records) >= reported_total_hits:
+            cov_status = CoverageStatus.COMPLETE
+            pag_status = PaginationStatus.COMPLETE
+        elif error:
+            cov_status = CoverageStatus.PARTIAL
+            pag_status = PaginationStatus.FAILED_MIDWAY
+        elif len(records) >= limit:
+            cov_status = CoverageStatus.PARTIAL
+            pag_status = PaginationStatus.TRUNCATED_BY_LIMIT
+        else:
+            cov_status = CoverageStatus.PARTIAL
+            pag_status = PaginationStatus.PARTIAL
+    else:
+        cov_status = CoverageStatus.UNKNOWN if (error and not records) else CoverageStatus.PARTIAL
+        pag_status = PaginationStatus.UNKNOWN
+
+    exec_status = (
+        RetrievalStatus.TEMPORARILY_UNAVAILABLE if (error and not records)
+        else (RetrievalStatus.SEARCHED_WITH_ERRORS if error
+        else RetrievalStatus.SEARCHED_COMPLETE)
+    )
+
+    meta_dict = {
+        "reported_total_hits": reported_total_hits,
+        "metadata_records_retrieved": len(records),
+        "pages_fetched": pages_fetched,
+        "coverage_status": cov_status,
+        "pagination_status": pag_status,
+        "execution_status": exec_status,
+        "openalex_meta": openalex_meta,
+    }
+
+    return QueryExecutionResult(records, error, meta=meta_dict)
+
 
 
 def run_snowball_search(seed_identifier, limit=15, include_theses=True):
@@ -319,22 +433,9 @@ def normalize_title(title):
 
 
 def deduplicate_records(records):
-    seen_dois = set()
-    seen_titles = set()
-    unique = []
-    for r in records:
-        doi = (r.get("doi") or "").lower().strip()
-        norm_title = normalize_title(r.get("title"))
-        if doi and doi != "nr" and doi in seen_dois:
-            continue
-        if norm_title and norm_title in seen_titles:
-            continue
-        if doi and doi != "nr":
-            seen_dois.add(doi)
-        if norm_title:
-            seen_titles.add(norm_title)
-        unique.append(r)
-    return unique
+    """Canonical deduplication delegating to merge_candidate_records with cross-source enrichment."""
+    res = merge_candidate_records([], records)
+    return res.get("merged_records", [])
 
 
 def run_deep_search(query_str, limit=30, include_theses=True):
@@ -344,23 +445,26 @@ def run_deep_search(query_str, limit=30, include_theses=True):
     """
     sys.stderr.write(f"[*] Deep Search Phase 1: Primary query '{query_str}' (target: {limit})\n")
     errors = []
-    round1_records, r1_err = query_openalex_headless(query_str, limit=limit, include_theses=include_theses)
+    r1_res = query_openalex_headless(query_str, limit=limit, include_theses=include_theses)
+    round1_records, r1_err = r1_res[0], r1_res[1]
     if r1_err:
         errors.append(r1_err)
-    
+    reported_total_hits = getattr(r1_res, "reported_total_hits", None)
+
     # Phase 2: Formulate concept expansion / sub-query variants
     words = [w for w in query_str.split() if len(w) > 3]
     round2_records = []
     if len(words) >= 2:
         variant_query = f"{words[0]} {words[-1]}"
         sys.stderr.write(f"[*] Deep Search Phase 2: Concept expansion query '{variant_query}'\n")
-        round2_records, r2_err = query_openalex_headless(variant_query, limit=max(5, limit // 2), include_theses=include_theses)
+        r2_res = query_openalex_headless(variant_query, limit=max(5, limit // 2), include_theses=include_theses)
+        round2_records, r2_err = r2_res[0], r2_res[1]
         if r2_err:
             errors.append(r2_err)
-        
+
     combined = round1_records + round2_records
     deduped = deduplicate_records(combined)
-    
+
     # Phase 3: Citation Snowballing on the highest-cited candidate discovered
     snowballed_records = []
     eligible_seeds = [r for r in deduped if r.get("doi") and r.get("doi") != "NR" and r.get("citation_count", 0) > 0]
@@ -373,15 +477,15 @@ def run_deep_search(query_str, limit=30, include_theses=True):
         snowballed_records = [s for s in snowballed if s.get("snowball_role") != "SEED_PAPER"]
 
     all_candidates = deduplicate_records(deduped + snowballed_records)
-    
+
     for idx, r in enumerate(all_candidates):
         r["id"] = f"REC{idx+1:03d}"
         r["record_id"] = r["id"]
-        
+
     total_retrieved = len(combined) + len(snowballed_records)
     unique_count = len(all_candidates)
     marginal_gain = (unique_count - len(round1_records)) / max(1, len(round1_records))
-    
+
     expansion_status = "HIGH_EXPANSION_GAIN" if marginal_gain >= 0.3 else "MODERATE_EXPANSION_GAIN"
     saturation_tracking = {
         "mode": "deep",
@@ -394,10 +498,12 @@ def run_deep_search(query_str, limit=30, include_theses=True):
         "marginal_gain_ratio": round(marginal_gain, 3),
         "expansion_gain_status": expansion_status,
         "saturation_status": expansion_status,
+        "reported_total_hits": reported_total_hits,
         "errors": errors
     }
-    
+
     return all_candidates, saturation_tracking
+
 
 
 def build_prisma_s_audit(mode: str, snowball_seed: str = None) -> dict:
@@ -433,19 +539,24 @@ def run_headless_search(query=None, snowball_seed=None, mode="deep", include_the
     """运行完整的 Headless 数据检索与滚雪球管道"""
     errors = []
     saturation_info = None
+    reported_hits = None
     if snowball_seed:
         candidates, sb_errors = run_snowball_search(snowball_seed, limit=limit, include_theses=include_theses)
         errors = sb_errors
         search_target = f"Snowball seed: {snowball_seed}"
+        reported_hits = len(candidates)
     elif mode == "deep":
         sys.stderr.write(f"[*] Running Headless Deep Search: '{query}' (Limit: {limit}, Theses: {include_theses})\n")
         candidates, saturation_info = run_deep_search(query, limit=limit, include_theses=include_theses)
         errors = saturation_info.get("errors", [])
         search_target = query
+        reported_hits = saturation_info.get("reported_total_hits")
     else:
         sys.stderr.write(f"[*] Running Headless Quick Search: '{query}' (Limit: {limit}, Theses: {include_theses})\n")
-        candidates, q_err = query_openalex_headless(query, limit=limit, include_theses=include_theses)
+        q_res = query_openalex_headless(query, limit=limit, include_theses=include_theses)
+        candidates, q_err = q_res[0], q_res[1]
         errors = [q_err] if q_err else []
+        reported_hits = getattr(q_res, "reported_total_hits", None)
         saturation_info = {
             "mode": "quick",
             "rounds_executed": 1,
@@ -454,6 +565,7 @@ def run_headless_search(query=None, snowball_seed=None, mode="deep", include_the
             "marginal_gain_ratio": 0.0,
             "expansion_gain_status": "NOT_TRACKED",
             "saturation_status": "NOT_TRACKED",
+            "reported_total_hits": reported_hits,
             "errors": errors
         }
         search_target = query
@@ -507,16 +619,18 @@ def run_headless_search(query=None, snowball_seed=None, mode="deep", include_the
             pag_status = PaginationStatus.FAILED_MIDWAY
         elif errors:
             exec_status = RetrievalStatus.SEARCHED_WITH_ERRORS
-            total_hits = len(candidates)
+            total_hits = reported_hits if reported_hits is not None else len(candidates)
             cov_status = CoverageStatus.PARTIAL
             pag_status = PaginationStatus.PARTIAL
         else:
             exec_status = RetrievalStatus.SEARCHED_COMPLETE
-            total_hits = len(candidates)
-            cov_status = CoverageStatus.COMPLETE
-            pag_status = PaginationStatus.COMPLETE if len(candidates) < limit else PaginationStatus.TRUNCATED_BY_LIMIT
-            if pag_status == PaginationStatus.TRUNCATED_BY_LIMIT and len(candidates) >= limit:
+            total_hits = reported_hits if reported_hits is not None else len(candidates)
+            if total_hits is not None and total_hits > len(candidates):
                 cov_status = CoverageStatus.PARTIAL
+                pag_status = PaginationStatus.TRUNCATED_BY_LIMIT
+            else:
+                cov_status = CoverageStatus.COMPLETE
+                pag_status = PaginationStatus.COMPLETE
 
         entry = build_retrieval_ledger_entry(
             source_id="OpenAlex",
@@ -533,16 +647,26 @@ def run_headless_search(query=None, snowball_seed=None, mode="deep", include_the
             notes=f"Headless {mode} search"
         )
 
+
     retrieval_ledger = [entry]
     metadata_corpus_summary = freeze_metadata_corpus(candidates)
     gate_a_audit = audit_discovery_coverage_gate(retrieval_ledger, metadata_corpus_summary)
     retrieval_gaps = [e for e in retrieval_ledger if e.get("coverage_status") in {CoverageStatus.PARTIAL, CoverageStatus.UNKNOWN}]
     acquisition_gaps = []
 
+    if status == "FAILED" or (not candidates and retrieval_gaps):
+        overall_discovery_status = OverallDiscoveryStatus.FAILED
+    elif retrieval_gaps:
+        overall_discovery_status = OverallDiscoveryStatus.SUCCESS_WITH_RETRIEVAL_GAPS
+    elif errors:
+        overall_discovery_status = "SUCCESS_WITH_ERRORS"
+    else:
+        overall_discovery_status = OverallDiscoveryStatus.SUCCESS
+
     payload = {
         "schema_version": "1.1",
         "status": status,
-        "overall_discovery_status": "SUCCESS" if status == "SUCCESS" else ("FAILED" if status == "FAILED" else "SUCCESS_WITH_RETRIEVAL_GAPS"),
+        "overall_discovery_status": overall_discovery_status,
         "retrieval_coverage_ledger": retrieval_ledger,
         "metadata_corpus_summary": metadata_corpus_summary,
         "retrieval_gaps": retrieval_gaps,
@@ -572,7 +696,7 @@ def run_headless_search(query=None, snowball_seed=None, mode="deep", include_the
         },
         "metadata": {
             "agent_pipeline": "literature-discovery-acquisition",
-            "version": "0.6.2",
+            "version": "0.6.5",
             "schema_version": "1.1",
             "features": ["OpenAlex Headless", "Dual-Direction Snowballing", "PRISMA-S Itemized Audit"]
         }

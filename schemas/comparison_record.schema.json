@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ScholarFlowComparisonRecord",
+  "description": "Standard schema for pairwise and multi-claim comparability evaluation and stratification decisions.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "comparison_id",
+    "claim_id_a",
+    "claim_id_b",
+    "status",
+    "dimension_evaluations",
+    "rationale"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "enum": ["1.0"] },
+    "comparison_id": {
+      "type": "string",
+      "pattern": "^CMP-[A-Za-z0-9_.:-]+$"
+    },
+    "claim_id_a": { "type": "string" },
+    "claim_id_b": { "type": "string" },
+    "target_id": { "type": ["string", "null"] },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DIRECTLY_COMPARABLE",
+        "COMPARABLE_AFTER_TRANSFORM",
+        "STRATIFY_REQUIRED",
+        "NOT_COMPARABLE",
+        "UNKNOWN"
+      ]
+    },
+    "dimension_evaluations": {
+      "type": "object",
+      "required": ["subject", "outcome_metric"],
+      "properties": {
+        "subject": {
+          "type": "string",
+          "enum": ["MATCH", "HIERARCHICAL_SUBSET", "DISCREPANT", "UNKNOWN"]
+        },
+        "intervention_or_method": {
+          "type": "string",
+          "enum": ["MATCH", "COMPATIBLE", "INCOMPATIBLE", "UNKNOWN"]
+        },
+        "comparator": {
+          "type": "string",
+          "enum": ["MATCH", "COMPATIBLE", "INCOMPATIBLE", "NOT_APPLICABLE", "UNKNOWN"]
+        },
+        "outcome_metric": {
+          "type": "string",
+          "enum": ["MATCH", "CONVERTIBLE", "INCOMPATIBLE", "UNKNOWN"]
+        },
+        "time_scale": {
+          "type": "string",
+          "enum": ["MATCH", "COMPATIBLE", "DISCREPANT", "UNKNOWN"]
+        },
+        "environment_or_setting": {
+          "type": "string",
+          "enum": ["MATCH", "DIFFERENT_STRATUM", "DISCREPANT", "UNKNOWN"]
+        }
+      }
+    },
+    "stratification_key": {
+      "type": ["string", "null"],
+      "description": "Stratum identifier when status is STRATIFY_REQUIRED"
+    },
+    "transform_rule": {
+      "type": ["object", "string", "null"],
+      "description": "Transformation formula or conversion parameters when status is COMPARABLE_AFTER_TRANSFORM"
+    },
+    "rationale": { "type": "string" },
+    "evaluated_by": {
+      "type": "string",
+      "enum": ["RULE_BASED", "AGENT_HEURISTIC", "USER_OVERRIDE"],
+      "default": "RULE_BASED"
+    }
+  }
+}
