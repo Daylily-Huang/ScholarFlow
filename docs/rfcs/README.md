@@ -13,4 +13,5 @@ This directory archives historical Request for Comments (RFCs) and design specif
 | **RFC-007** | [Hardening 修复操作手册](./archive/ScholarFlow_v0.6.3_Hardening_修复操作手册.md) | v0.6.3 | `IMPLEMENTED` |
 | **RFC-008** | [Universal Claim–Evidence Alignment 实施操作文档](./archive/ScholarFlow_Universal_Claim_Evidence_Alignment_实施操作文档.md) | v0.6.4 | `IMPLEMENTED` |
 | **RFC-009** | [Skill 1 Metadata Coverage First 强化实施操作文档](./archive/ScholarFlow_Skill1_Metadata_Coverage_First_强化实施操作文档.md) | v0.6.5 | `IMPLEMENTED` |
+| **RFC-010** | [Skill 2 Adaptive Evidence Context Expansion 强化实施操作文档](./archive/ScholarFlow_Skill2_Adaptive_Evidence_Context_Expansion_强化实施操作文档.md) | v0.6.6 | `IMPLEMENTED` |
 

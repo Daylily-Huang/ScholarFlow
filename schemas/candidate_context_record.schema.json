@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ScholarFlowCandidateContextRecord",
+  "description": "Intermediate gating record for candidate evidence context expansion and semantic verification before extraction.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "candidate_id",
+    "target_information_need_id",
+    "locator",
+    "hit",
+    "context_expansion",
+    "semantic_role",
+    "alignment",
+    "context_sufficiency",
+    "decision"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "candidate_id": { "type": "string" },
+    "target_information_need_id": { "type": "string" },
+    "locator": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "TEXT_SENTENCE",
+            "PARAGRAPH",
+            "TABLE_ROW",
+            "TABLE_CELL",
+            "FIGURE_CAPTION",
+            "FIGURE_VALUE",
+            "SUPPLEMENT_ENTRY",
+            "EQUATION",
+            "FOOTNOTE",
+            "REFERENCE_CONTEXT"
+          ]
+        },
+        "page": { "type": ["integer", "null"] },
+        "offset": { "type": ["integer", "null"] },
+        "section": { "type": ["string", "null"] },
+        "table_or_figure_id": { "type": ["string", "null"] }
+      }
+    },
+    "hit": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string" },
+        "matched_clue": { "type": ["string", "null"] }
+      }
+    },
+    "context_expansion": {
+      "type": "object",
+      "required": ["level_reached", "context_text"],
+      "properties": {
+        "level_reached": {
+          "type": "string",
+          "enum": [
+            "EXACT_HIT",
+            "SENTENCE",
+            "ADJACENT_SENTENCES",
+            "PARAGRAPH",
+            "SECTION_CONTEXT",
+            "STRUCTURED_CONTEXT",
+            "CONTEXT_UNIT"
+          ]
+        },
+        "stop_condition": {
+          "type": ["string", "null"],
+          "enum": [
+            "STOP_A_MEANING_RESOLVED",
+            "STOP_B_STRUCTURED_RESOLVED",
+            "STOP_C_CONTEXT_EXHAUSTED",
+            null
+          ]
+        },
+        "context_text": { "type": "string" },
+        "spans": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "semantic_role": {
+      "type": "object",
+      "required": ["value"],
+      "properties": {
+        "value": {
+          "type": "string",
+          "enum": [
+            "CURRENT_STUDY_METHOD",
+            "CURRENT_STUDY_RESULT",
+            "CURRENT_STUDY_OBSERVATION",
+            "BACKGROUND",
+            "REFERENCED_WORK",
+            "DISCUSSION_INTERPRETATION",
+            "LIMITATION",
+            "CONTEXT_DESCRIPTION",
+            "COMPARATOR_CONTEXT",
+            "OTHER_ENTITY_CONTEXT",
+            "DEFINITION",
+            "THEORETICAL_ARGUMENT",
+            "UNKNOWN"
+          ]
+        },
+        "rationale": { "type": ["string", "null"] }
+      }
+    },
+    "alignment": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "ALIGNED",
+            "PARTIALLY_ALIGNED",
+            "NOT_ALIGNED",
+            "AMBIGUOUS"
+          ]
+        },
+        "rationale": { "type": ["string", "null"] }
+      }
+    },
+    "context_sufficiency": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "SUFFICIENT",
+            "PARTIALLY_SUFFICIENT",
+            "INSUFFICIENT"
+          ]
+        },
+        "missing_elements": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "required": ["eligible_for_extraction"],
+      "properties": {
+        "eligible_for_extraction": { "type": "boolean" },
+        "requires_claim_alignment": { "type": "boolean" },
+        "uncertainty_tag": { "type": ["string", "null"] },
+        "rejection_reason": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

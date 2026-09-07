@@ -37,7 +37,7 @@
 
 ---
 
-## 二、六大通用证据原则 (The Six Invariant Principles)
+## 二、通用证据铁律原则 (The Universal Invariant Principles)
 
 ### 原则 1：零常识脑补与严格明示 (No Unsupported Completion)
 - 提取或综述时，若文献中未明确提供某参数、条件或数值，必须将其记录为 `NOT_REPORTED`（或代码 `E4`）；
@@ -68,6 +68,14 @@
 - **认识论红线**：**Mention ≠ Relation**（提及 ≠ 关系），**Co-occurrence ≠ Relation**（共现 ≠ 关系），**Contextual proximity ≠ Relation**（上下文邻近 ≠ 目标关系），**Entity evidence ≠ Claim evidence**（实体证据 ≠ 主张证据）；
 - 提取科学关系、机制、因果、优劣对比、调控或命题型事实时，必须验证目标主张本身；实体在同一上下文中的共现、共测或邻近，绝不能作为该关系成立的充分证据；
 - 仅当证据在正确的同质上下文内直接、结构化支持目标主张本身时，才允许进入确认输出（Confirmed Output）；严禁模型擅自添加关系谓词，严禁跨不兼容上下文拼凑断言。
+
+### 原则 8：候选命中绝不等于合格证据 (Candidate Hit ≠ Evidence / Adaptive Evidence Context Expansion Principle)
+- **认识论红线**：**Candidate Hit ≠ Evidence**（候选命中 ≠ 合格证据）；
+- 关键词、实体、数值、表格单元格、图注或句子的命中，仅仅是定位线索（Retrieval Clue），绝不等于已经能够回答用户的问题；
+- 必须严格遵循“**Locate → Context → Interpret → Align → Extract**”时序：先定位候选线索，再自适应扩展至语义充分的上下文（Sentence → Adjacent Sentences → Paragraph → Section Context → Structured Table/Figure/Unit Context），确定其语义角色（Semantic Role）与约束（否定、情态、量词、边界、比较对象），核实是否对齐目标信息需求（Target Information Need, TIN），最后才执行结构化抽取与反向审计；
+- **定位寻找候选，上下文建立含义，目标对齐决定证据相关性**（Localization finds candidates; context establishes meaning; alignment determines evidential relevance）；
+- 上下文范围由语义充分性决定，而非机械的固定字符窗口；
+- 绝对禁止远距离跨上下文拼凑证据（Evidence fragments from distant or incompatible contexts MUST NOT be silently assembled into a single claim）。
 
 ---
 

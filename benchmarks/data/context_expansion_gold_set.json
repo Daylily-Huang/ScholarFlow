@@ -1,0 +1,153 @@
+{
+  "benchmark_name": "Context Expansion & Sufficiency Benchmark",
+  "version": "1.0.0",
+  "description": "Adversarial benchmark evaluating Candidate-to-Evidence False Promotion Rate and Context Sufficiency Failure Rate across disciplines.",
+  "target_metrics": {
+    "candidate_to_evidence_false_promotion_rate": 0.0,
+    "context_sufficiency_failure_rate": 0.0
+  },
+  "test_cases": [
+    {
+      "case_id": "TC_CE_01",
+      "discipline": "Medicine",
+      "doc_text": "In the control subgroup without treatment, 30-day mortality reached 12.5%.",
+      "candidate": {
+        "type": "TEXT_SENTENCE",
+        "hit_text": "12.5%",
+        "offset": 58
+      },
+      "tin": {
+        "task_type": "ATTRIBUTE",
+        "target_field": "mortality",
+        "target_entity": "treated cohort"
+      },
+      "is_false_promotion_trap": true,
+      "expected_eligible": false,
+      "expected_status": "NOT_ALIGNED"
+    },
+    {
+      "case_id": "TC_CE_02",
+      "discipline": "Life Sciences",
+      "doc_text": "Gene Alpha and Gene Beta were simultaneously identified in leaf tissue under normal growth.",
+      "candidate": {
+        "type": "TEXT_SENTENCE",
+        "hit_text": "identified",
+        "offset": 45
+      },
+      "tin": {
+        "task_type": "RELATION",
+        "target_claim": "Gene Alpha regulates Gene Beta"
+      },
+      "is_false_promotion_trap": true,
+      "expected_eligible": false,
+      "expected_status": "NOT_ALIGNED"
+    },
+    {
+      "case_id": "TC_CE_03",
+      "discipline": "Computer Science",
+      "doc_text": "On the benchmark validation split, Transformer-X attained an exact match score of 88.7%.",
+      "candidate": {
+        "type": "TEXT_SENTENCE",
+        "hit_text": "88.7%",
+        "offset": 82
+      },
+      "tin": {
+        "task_type": "ATTRIBUTE",
+        "target_field": "exact match",
+        "target_entity": "Transformer-X"
+      },
+      "is_false_promotion_trap": false,
+      "expected_eligible": true,
+      "expected_status": "ALIGNED"
+    },
+    {
+      "case_id": "TC_CE_04",
+      "discipline": "Materials Science",
+      "doc_text": "",
+      "candidate": {
+        "type": "TABLE_CELL",
+        "table_data": {
+          "title": "Table 2. Summary of properties"
+        },
+        "value": "3.45 GPa",
+        "row_header": "",
+        "col_header": ""
+      },
+      "tin": {
+        "task_type": "ATTRIBUTE",
+        "target_field": "youngs_modulus"
+      },
+      "is_false_promotion_trap": true,
+      "expected_eligible": false,
+      "expected_status": "INSUFFICIENT"
+    },
+    {
+      "case_id": "TC_CE_05",
+      "discipline": "Engineering",
+      "doc_text": "The cooling system did not prevent thermal throttling under sustained 400W load.",
+      "candidate": {
+        "type": "TEXT_SENTENCE",
+        "hit_text": "prevent",
+        "offset": 27
+      },
+      "tin": {
+        "task_type": "CLAIM",
+        "target_claim": "cooling system prevents thermal throttling"
+      },
+      "is_false_promotion_trap": true,
+      "expected_eligible": false,
+      "expected_status": "NOT_ALIGNED"
+    },
+    {
+      "case_id": "TC_CE_06",
+      "discipline": "Social Sciences",
+      "doc_text": "Across the 12 survey regions, program participation increased local enterprise revenues by 14% on average.",
+      "candidate": {
+        "type": "TEXT_SENTENCE",
+        "hit_text": "14%",
+        "offset": 91
+      },
+      "tin": {
+        "task_type": "ATTRIBUTE",
+        "target_field": "enterprise revenues"
+      },
+      "is_false_promotion_trap": false,
+      "expected_eligible": true,
+      "expected_status": "ALIGNED"
+    },
+    {
+      "case_id": "TC_CE_07",
+      "discipline": "Humanities",
+      "doc_text": "While citing the functionalist interpretation of Durkheim, the critique rejected its teleological assumption.",
+      "candidate": {
+        "type": "TEXT_SENTENCE",
+        "hit_text": "functionalist",
+        "offset": 17
+      },
+      "tin": {
+        "task_type": "CLAIM",
+        "target_claim": "critique adopts functionalism"
+      },
+      "is_false_promotion_trap": true,
+      "expected_eligible": false,
+      "expected_status": "NOT_ALIGNED"
+    },
+    {
+      "case_id": "TC_CE_08",
+      "discipline": "Law",
+      "doc_text": "The appellate panel examined Rule 42 but expressly refused to apply it to cross-border transactions.",
+      "candidate": {
+        "type": "TEXT_SENTENCE",
+        "hit_text": "Rule 42",
+        "offset": 29
+      },
+      "tin": {
+        "task_type": "CLAIM",
+        "target_claim": "panel applied Rule 42 to cross-border transactions"
+      },
+      "is_false_promotion_trap": true,
+      "expected_eligible": false,
+      "expected_status": "NOT_ALIGNED"
+    }
+  ]
+}

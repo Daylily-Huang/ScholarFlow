@@ -23,9 +23,11 @@ REQUIRED_LENSES = [
 
 REQUIRED_SCHEMAS = [
     "discovery_result.schema.json",
+    "retrieval_coverage_ledger.schema.json",
     "literature_record.schema.json",
     "extraction_result.schema.json",
     "evidence_record.schema.json",
+    "candidate_context_record.schema.json",
     "claim_record.schema.json",
     "synthesis_record.schema.json",
 ]

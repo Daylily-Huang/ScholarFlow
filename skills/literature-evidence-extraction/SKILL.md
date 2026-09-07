@@ -20,6 +20,11 @@ description: 通用学科科研文献证据可信抽取与事实核验专业技�
 > **Mention ≠ Relation. Co-occurrence ≠ Relation. Contextual proximity ≠ Relation. Entity evidence ≠ claim evidence.**  
 > **提及 ≠ 关系。共现 ≠ 关系。上下文邻近 ≠ 目标关系。实体证据 ≠ 主张证据。**  
 > 当用户请求输出科学关系、因果、关联、比较、机制、调控、支持/反驳判定或命题型事实时，ScholarFlow 必须验证**目标主张（Target Claim）本身**。相关实体、变量或关键词的单纯出现、共同出现、上下文邻近或共同测量，绝不能作为该关系或主张成立的充分证据。只有当证据在正确的证据上下文（Evidence Context）中显式或结构化地支持该主张本身时，才允许进入 Confirmed Output。绝对禁止将实体级证据（Entity Evidence）静默升级为关系级证据（Relation Evidence）。
+>
+> ### 🧭 候选命中与自适应上下文扩展底层原则 (Candidate Hit ≠ Evidence & AECE Principle)
+> **Candidate Hit ≠ Evidence. Localization finds candidates; context establishes meaning; alignment determines evidential relevance.**  
+> **候选命中 ≠ 证据。定位寻找候选，上下文建立含义，目标对齐决定证据相关性。**  
+> 关键词、实体、数值、表格单元格、图注或句子的命中，仅仅是定位线索（Retrieval Clue），绝不能直接推断为能够回答用户目标问题的合格证据。系统必须严格遵循“**Locate → Context → Interpret → Align → Extract**”时序：先定位候选线索，再自适应扩展至语义充分上下文（AECE：单句 → 相邻句 → 段落 → 章节/表格行列头/实验单元），明确其语义角色（Semantic Role）与约束（否定、情态、量词、边界、比较对象），核实是否对齐目标信息需求（TIN），方可升格并执行结构化抽取与审计。详见 [adaptive_evidence_context_expansion.md](./references/adaptive_evidence_context_expansion.md)。
 
 ---
 
@@ -68,15 +73,15 @@ description: 通用学科科研文献证据可信抽取与事实核验专业技�
 技能执行中由三个专门角色协同运作（详见 `role/` 目录）：
 
 1. **主导抽取专员 ([specialist_role.md](./role/specialist_role.md))**：
-   - 统筹执行全流程抽取，严格遵循 9 大硬铁律；
-   - 负责正文/表格/附录拆解、截取最小充分原文引句并提取候选值；
+   - 统筹执行全流程抽取，严格遵循 10 大硬铁律（含“候选命中绝不等于合格证据”）；
+   - 负责正文/表格/附录拆解、截取最小充分原文引句（MSES）并提取候选值；
    - 严禁凭空脑补、严禁把引用别人研究当成本文结果、严禁将 Discussion 推测记为结论、严禁将实体共现升级为关系结论。
 2. **实验上下文与动态 Schema 建模助手 ([context_modeler.md](./role/context_modeler.md))**：
    - 动态解析目标论文结构并构建针对性抽取 Schema；
    - 负责复杂实验体系（Assay Context）严格隔离，防止不同实验参数交叉污染；
    - 建立正文、主表与补充材料的数据映射层级。
 3. **证据链独立核验审查员 ([evidence_auditor.md](./role/evidence_auditor.md))**：
-   - **独立一票降级与否决权**：在交付最终报告前对每个字段进行 15 项硬指标反向对账核验；
+   - **独立一票降级与否决权**：在交付最终报告前对每个字段进行 16 项硬指标反向对账核验（新增第 16 项：Context Sufficiency Audit）；
    - 审查候选值是否能由引文直接推导；对无法证实者一律强制降级为 `DERIVED`、`REFERENCED`、`AMBIGUOUS` 或 `NR`；
    - 检查 OCR 风险标记，签署核验通告令。
 
@@ -96,10 +101,13 @@ description: 通用学科科研文献证据可信抽取与事实核验专业技�
 
 ```mermaid
 flowchart TD
-    S0[Stage 0: 论文全文接入 + 模式确认 + 动态定制 Schema] --> P1A[Phase A1: 候选事实定位与证据截取 Candidate Detection]
-    P1A --> P1B[Phase A2: 主张—证据对齐判定 Claim-Evidence Alignment Gate]
-    P1B --> P2[Phase B: 证据链逐条反向核验与降级 Verification]
-    P2 --> QG[证据审查员 Evidence Auditor 签署通告 (含 15 项清单)]
+    S0[Stage 0: 论文全文接入 + 模式确认 + 动态定制 Schema / TIN] --> P1A[Phase A1: 候选事实定位 Candidate Detection]
+    P1A --> P1AECE[Phase A1.5: 自适应证据上下文扩展 AECE]
+    P1AECE --> P1SCV[Phase A1.6: 语义上下文角色与目标对齐核验]
+    P1SCV -->|关系/主张任务| P1B[Phase A2: 主张—证据对齐判定 Claim-Evidence Alignment Gate]
+    P1SCV -->|纯属性任务| P2[Phase B: 结构化抽取与证据链反向核验 Verification]
+    P1B --> P2
+    P2 --> QG[证据审查员 Evidence Auditor 签署通告 (含 16 项清单)]
     QG -->|用户未要求解释| P3_Skip[输出双轨交付物: Markdown 证据矩阵 + JSON]
     QG -->|用户明确要求解释| P3[Phase C: 科学解释与推论 Interpretation 严格隔离]
     P3 --> P3_Skip
@@ -119,12 +127,14 @@ flowchart TD
 - **Stage 0C：协议快照生成与执行放行 (Protocol Snapshot & Execution Gate)**：
   - 支持 `按推荐`、`1A 2B 3C` 极速回复，确认后生成包含完整来源追溯（`[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）的 Protocol Snapshot，状态转为 `CONFIRMED` 后解锁 Phase A。
 
-### 1. Phase A — Candidate Detection & Alignment（候选定位与主张对齐）
-- **Phase A1 — Candidate Evidence Detection（候选定位）**：定位原文句子、表格行、附录，截取“最小充分原句（Verbatim Quote）”，允许高召回；
-- **Phase A2 — Claim–Evidence Alignment Gate（主张对齐硬门禁）**：当涉及关系或命题型事实时，严格核对“证据是否真正支持用户要求的完整科学主张”，坚决阻断“共现冒充关系”；属性值抽取直接进入 Phase B。
+### 1. Phase A — Candidate Detection, Context Expansion & Alignment（定位、上下文扩展与主张对齐）
+- **Phase A1 — Candidate Detection（候选定位）**：基于 Target Information Need (TIN) 检索线索定位句子、表格行、图注或附录，状态标为 `LOCATED`（严禁直接跳到抽取）；
+- **Phase A1.5 — Adaptive Evidence Context Expansion (AECE，自适应证据上下文扩展)**：依据语义充分性原则，从命中点自适应向外扩展（单句 → 相邻句 → 段落 → 章节/表格行列头/实验单元），直到达到 `STOP_A_MEANING_RESOLVED` 或 `STOP_B_STRUCTURED_RESOLVED`；
+- **Phase A1.6 — Semantic Context Verification（语义上下文核验）**：分类 `semantic_role`，核查否定（Negation）、情态（Modality）、量词（Quantifier）、条件与比较基准，判定是否真正回答 TIN（`ALIGNED` / `PARTIALLY_ALIGNED` / `NOT_ALIGNED` / `AMBIGUOUS`），构建中间门禁 `CandidateContextRecord`；
+- **Phase A2 — Claim–Evidence Alignment Gate（主张对齐硬门禁）**：当涉及关系或命题型事实时，加载 `claim_alignment.py` 严格核对“证据是否真正支持用户要求的完整科学主张”，坚决阻断“共现冒充关系”；纯属性值抽取经 A1.5/A1.6 充分核验后直接进入 Phase B。
 
-### 2. Phase B — Verification（证据核验）
-- 逐条审查：**当前候选值/主张是否能由原句直接、完全支持？**
+### 2. Phase B — Verification（证据抽取与核验）
+- 逐条审查：**当前候选值/主张是否能由原句及扩展上下文直接、完全支持？**
 - 严格评定四级证据体系代码：
   - **E1 (EXPLICIT)**：原文明示，直接匹配；
   - **E2 (DERIVED)**：原文提供数据计算得出，必附推导公式；

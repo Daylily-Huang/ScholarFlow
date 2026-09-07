@@ -22,6 +22,7 @@ from run_benchmarks import (
     evaluate_extraction_benchmark,
     evaluate_claim_verification_benchmark,
     evaluate_claim_relation_alignment_benchmark,
+    evaluate_context_expansion_benchmark,
     evaluate_synthesis_benchmark,
 )
 
@@ -46,6 +47,11 @@ class TestScholarFlowBenchmarks(unittest.TestCase):
         self.assertEqual(res["status"], "PASS")
         self.assertEqual(res["false_relation_rate"], 0.0, "False-relation rate must be 0.0%")
         self.assertEqual(res["unsupported_predicate_insertion_rate"], 0.0, "Predicate insertion rate must be 0.0%")
+
+    def test_context_expansion_benchmark(self):
+        res = evaluate_context_expansion_benchmark()
+        self.assertEqual(res["status"], "PASS")
+        self.assertEqual(res["false_promotion_rate"], 0.0, "Candidate-to-evidence false promotion rate must be 0.0%")
 
     def test_synthesis_benchmark(self):
         res = evaluate_synthesis_benchmark()

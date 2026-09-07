@@ -18,9 +18,9 @@
 
 ---
 
-## 二、终审必须机械式执行的 15 项质量审计清单 (15-Point Audit Checklist)
+## 二、终审必须机械式执行的 16 项质量审计清单 (16-Point Audit Checklist / 15-Point Audit Checklist 强化扩展)
 
-在签署任何放行令前，必须逐一核对以下 15 项硬指标：
+在签署任何放行令前，必须逐一核对以下 16 项硬指标：
 
 | 序号 | 审查项目 | 违规判定红线 | 处置手段 |
 |:---:|---|---|---|
@@ -39,6 +39,7 @@
 | **13** | **外部知识隔离审查** | 出现模型固有常识中的试剂配比（如“常规 BSA 浓度”） | 强制移出证据表，严禁混入事实栏 |
 | **14** | **“未报告”语意严谨性** | 将“全文未提及”主观臆断为“本文未使用” | 修正表述为 `Not Reported`，严禁越界断言 |
 | **15** | **主张—证据对齐审计 (Claim–Evidence Alignment)** | 证据仅支持相关实体/变量出现或共现，却被专员输出为目标科学关系或命题（共现冒充关系、串入环境/前人结论、擅加谓词） | **致命违规！** 强制降级为 `AMBIGUOUS` / `CONTEXT_ONLY` / `REFERENCED_ONLY`，或直接 `REJECT` 驳回 |
+| **16** | **上下文充分性审计 (Context Sufficiency Audit)** | 仅凭关键词命中抽取（Keyword-only）、脱离表头孤立抽取表格单元格、未解析代词/转折承接、未核查否定/情态/量词、或跨远距离跨页面拼凑证据 | **致命违规！** 强制驳回（REJECT）或标记 `AMBIGUOUS`，责令自适应扩展上下文（AECE）后再行评估 |
 
 #### 关系型主张专项核查清单 (Claim-Evidence Specific Checklist)
 在针对关系型命题（`CLAIM_RELATION`）执行第 15 项审查时，审查员必须确认以下 6 项无遗漏：
@@ -48,6 +49,17 @@
 - [ ] No cross-context assembly (不存在从互不兼容的上下文中拼凑关系的违规)
 - [ ] No referenced-to-current leakage (引用前人研究 REFERENCED_ONLY 未被升级为本文实证结论)
 - [ ] No unsupported predicate insertion (模型未擅自向原文引文添加不存在的关系谓词)
+
+#### 上下文充分性专项核查清单 (Context Sufficiency Specific Checklist)
+在针对所有候选执行第 16 项审查时，审查员必须确认以下 8 项无遗漏：
+- [ ] Not keyword-only extraction (证据具有实质语义篇幅，严禁词组级孤立命中直接升级为证据)
+- [ ] Full semantic unit read (至少读取完整单句及其逻辑从句)
+- [ ] Adjacent context expanded for anaphora (出现代词/转折承接时必须自适应扩展至相邻句以消解指代)
+- [ ] Structured context fully anchored (表格必须包含完整表名与行列头；图表必须包含图注与轴坐标)
+- [ ] Semantic role explicitly classified (语义角色明确，未出现 UNKNOWN 悬空归属)
+- [ ] Context unit & cohort anchored (归属于特定实验/队列/数据集上下文单元)
+- [ ] Confirmed to answer Target Information Need (确实回答用户目标信息需求，无张冠李戴)
+- [ ] No long-distance cross-context stitching (无跨页面、跨章节、跨不兼容上下文的静默拼凑断言)
 
 ---
 
@@ -60,8 +72,8 @@
 ### 🔍 证据链独立审查决议 (Evidence Auditor Verdict)
 - **审查文档**：[Paper Title / Filename]
 - **审计执行层级 (Audit Tier)**：
-  - [x] Level-1 启发式角色自检 (In-Context 15-Point Checklist)
-  - [x] Level-2 确定性脚本硬检 (audit_claims.py 原文字面级对齐率: 100%)
+  - [x] Level-1 启发式角色自检 (In-Context 16-Point Checklist)
+  - [x] Level-2 确定性脚本硬检 (audit_claims.py / context_expansion.py 对齐率: 100%)
   - [ ] Level-3 独立子智能体盲审 (Isolated SubAgent Review)
 - **核验字段总数**：[N] 项
   - E1 (EXPLICIT 明示)：[N1] 项
@@ -71,18 +83,20 @@
 - **异常标注**：
   - CONTRADICTORY (矛盾项)：[M1] 项
   - OCR_UNCERTAIN (噪声存疑项)：[M2] 项
-- **15 项硬指标核查结论**：[15/15 全数合规 / 发现 X 项违规已就地降级修正]
+- **16 项硬指标核查结论**：[16/16 全数合规 / 发现 X 项违规已就地降级修正]
   - [x] Target claim explicitly identified
   - [x] Evidence supports the claim itself
   - [x] Correct evidence context
   - [x] No cross-context assembly
   - [x] No referenced-to-current leakage
   - [x] No unsupported predicate insertion
+  - [x] Context sufficiency verified (no keyword-only / isolated cell / long-distance stitching)
 - **终审裁决**：
-  - [x] **PASS (放行)**：证据链完整，引用真实最小充分，无常识捏造，双轨格式对齐。
-  - [ ] **REJECT (驳回)**：存在严重引文伪造或未解常识推测，责令重修。
-- **独立性透明声明**：本审核决议通过程序硬校验确保引文真实性，结合角色自检规避逻辑疏漏，不可替代人类作者的学术责任。
+  - [x] **PASS (放行)**：证据链完整，引用真实最小充分，无常识捏造，上下文语义充分，双轨格式对齐。
+  - [ ] **REJECT (驳回)**：存在严重引文伪造、上下文残缺或未解常识推测，责令重修。
+- **独立性透明声明**：本审核决议通过程序硬校验确保引文真实性与上下文充分性，结合角色自检规避逻辑疏漏，不可替代人类作者的学术责任。
 - **审查员签署**：Evidence Auditor
 ---
 ```
+
 

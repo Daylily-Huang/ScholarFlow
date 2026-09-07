@@ -81,6 +81,30 @@
         "table_or_figure_id": { "type": ["string", "null"] }
       }
     },
-    "notes": { "type": ["string", "null"] }
+    "notes": { "type": ["string", "null"] },
+    "candidate_context_id": { "type": ["string", "null"] },
+    "context_sufficiency": {
+      "type": ["string", "null"],
+      "enum": ["SUFFICIENT", "PARTIALLY_SUFFICIENT", "INSUFFICIENT", null]
+    },
+    "semantic_role": {
+      "type": ["string", "null"],
+      "enum": [
+        "CURRENT_STUDY_METHOD",
+        "CURRENT_STUDY_RESULT",
+        "CURRENT_STUDY_OBSERVATION",
+        "BACKGROUND",
+        "REFERENCED_WORK",
+        "DISCUSSION_INTERPRETATION",
+        "LIMITATION",
+        "CONTEXT_DESCRIPTION",
+        "COMPARATOR_CONTEXT",
+        "OTHER_ENTITY_CONTEXT",
+        "DEFINITION",
+        "THEORETICAL_ARGUMENT",
+        "UNKNOWN",
+        null
+      ]
+    }
   }
 }

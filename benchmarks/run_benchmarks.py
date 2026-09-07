@@ -47,6 +47,13 @@ from audit_claims import audit_single_claim
 from agent_search import deduplicate_records
 from claim_alignment import verify_claim_alignment, calculate_alignment_metrics
 from retrieval_coverage import evaluate_coverage_status, RetrievalStatus, CoverageStatus, PaginationStatus
+from context_expansion import (
+    expand_candidate_context,
+    classify_semantic_role,
+    evaluate_target_alignment,
+    build_candidate_context_record,
+    CandidateType,
+)
 
 
 def evaluate_discovery_benchmark() -> dict:
@@ -259,12 +266,62 @@ def evaluate_claim_relation_alignment_benchmark() -> dict:
     }
 
 
+def evaluate_context_expansion_benchmark() -> dict:
+    """Evaluate Context Expansion & Sufficiency Benchmark (0% False Promotion Rate)."""
+    gold_file = DATA_DIR / "context_expansion_gold_set.json"
+    with open(gold_file, "r", encoding="utf-8") as f:
+        gold = json.load(f)
+
+    total_cases = 0
+    passed_cases = 0
+    false_promotions = 0
+    trap_cases = 0
+
+    for tc in gold["test_cases"]:
+        total_cases += 1
+        is_trap = tc.get("is_false_promotion_trap", False)
+        if is_trap:
+            trap_cases += 1
+
+        cand = tc["candidate"]
+        doc = tc["doc_text"]
+        tin = tc["tin"]
+
+        ctx = expand_candidate_context(doc, cand)
+        role, _ = classify_semantic_role(ctx["context_text"], section_heading=ctx.get("section_heading"))
+        align = evaluate_target_alignment(tin, ctx)
+        ccr = build_candidate_context_record(
+            tc["case_id"], f"TIN_{tc['case_id']}", cand.get("type", CandidateType.TEXT_SENTENCE),
+            cand.get("hit_text", ""), ctx, role, align
+        )
+
+        actual_eligible = ccr["decision"]["eligible_for_extraction"]
+        if is_trap and actual_eligible:
+            false_promotions += 1
+
+        expected_eligible = tc["expected_eligible"]
+        if actual_eligible == expected_eligible:
+            passed_cases += 1
+
+    false_promotion_rate = false_promotions / max(1, trap_cases)
+    meets_targets = (false_promotion_rate == 0.0 and passed_cases == total_cases)
+
+    return {
+        "benchmark": "Context Expansion & Sufficiency Benchmark",
+        "total_cases": total_cases,
+        "passed_cases": passed_cases,
+        "false_promotion_rate": round(false_promotion_rate, 4),
+        "status": "PASS" if meets_targets else "FAIL",
+    }
+
+
 def run_all_benchmarks(output_format="markdown", output_file=None):
     results = [
         evaluate_discovery_benchmark(),
         evaluate_extraction_benchmark(),
         evaluate_claim_verification_benchmark(),
         evaluate_claim_relation_alignment_benchmark(),
+        evaluate_context_expansion_benchmark(),
         evaluate_synthesis_benchmark(),
     ]
 
@@ -291,6 +348,8 @@ def run_all_benchmarks(output_format="markdown", output_file=None):
             elif "false_relation_rate" in r:
                 lines.append(f"| **{name}** | False-Relation Rate (Strict Non-Relation Rejection) | 0.00% | `{r['false_relation_rate'] * 100:.1f}%` | **[{r['status']}]** |")
                 lines.append(f"| | Unsupported Predicate Insertion Rate | 0.00% | `{r['unsupported_predicate_insertion_rate'] * 100:.1f}%` | **[{r['status']}]** |")
+            elif "false_promotion_rate" in r:
+                lines.append(f"| **{name}** | False Promotion Rate (Candidate Hit ≠ Evidence) | 0.00% | `{r['false_promotion_rate'] * 100:.1f}%` | **[{r['status']}]** |")
             elif "calibration_rate" in r:
                 lines.append(f"| **{name}** | Consensus Calibration Rate | 1.00 | `{r['calibration_rate'] * 100:.1f}%` | **[{r['status']}]** |")
 

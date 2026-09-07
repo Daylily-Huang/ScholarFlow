@@ -72,16 +72,29 @@
   - 实体 A 与实体 B 在同一段落、同一实验或同一表格中出现，只能证明 A 与 B 被共同提及或测量；**绝对禁止**自动推出 A 导致 B、A 影响 B、A 优于 B、A 调控 B 或 A 与 B 存在用户请求的科学关系。
   - 若只能证实实体存在而无法证实目标主张成立，该项必须标记为 `AMBIGUOUS`、`CONTEXT_ONLY` 或 `REFERENCED_ONLY`，绝对不得进入 Confirmed Output！
 
+### 铁律 10：候选命中绝不等于合格证据 (Candidate Hit ≠ Evidence)
+- **核心原则**：
+  - **候选命中 ≠ 证据 (Candidate Hit ≠ Evidence)**
+  - **定位只能找到候选，上下文决定真实含义，目标对齐决定证据相关性 (Localization finds candidates; context establishes meaning; alignment determines evidential relevance)**
+- **硬性动作**：
+  1. 关键词、实体、数值、句子或表格单元格的命中只用于候选定位（状态：`LOCATED`）；
+  2. 在执行抽取前，主导抽取专员必须自适应扩展读取足够的局部上下文（AECE：单句 → 相邻句 → 段落 → 章节/表格行列头/实验单元）；
+  3. 明确该候选的语义角色（Semantic Role）、所属对象、Context Unit、来源角色、条件约束、否定/情态与比较边界；
+  4. 确认其确实回答用户的 Target Information Need (TIN)；
+  5. 严禁脱离充分上下文直接抽取孤立单元格（Anti-pattern 4），严禁跨远距离拼凑证据片段（Anti-pattern 5）。
+- **红线**：未经上下文核验的 Candidate Hit 绝不得直接创建 EvidenceRecord！
+
 ---
 
 ## 三、主导专员执行流程卡
 
 ```mermaid
 flowchart LR
-    Step1[1. 接收目标 Schema] --> Step2[2. 语义识别: 属性 vs 主张]
-    Step2 --> Step3[3. 全文检索与上下文定位]
-    Step3 --> Step4[4. 截取最小充分证据]
-    Step4 --> Step5[5. 主张对齐与谓词校验]
-    Step5 --> Step6[6. 判定 E1-E4 级别与状态]
-    Step6 --> Step7[7. 提交独立审查员核验]
+    Step1[1. 接收目标 Schema / 构建 TIN] --> Step2[2. 语义识别: 属性 vs 主张]
+    Step2 --> Step3[3. 全文检索与候选定位 A1]
+    Step3 --> Step4[4. 自适应上下文扩展 AECE A1.5]
+    Step4 --> Step5[5. 语义角色与目标对齐 A1.6]
+    Step5 --> Step6[6. 主张对齐与谓词校验 A2]
+    Step6 --> Step7[7. 判定 E1-E4 级别与状态]
+    Step7 --> Step8[8. 提交独立审查员 16 项核验]
 ```
