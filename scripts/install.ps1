@@ -44,8 +44,12 @@ foreach ($dest in $Destinations) {
     foreach ($skill in $Skills) {
         $skillDest = Join-Path $dest $skill.Name
         Write-Host "  -> Installing $($skill.Name)..." -ForegroundColor Green
+        if (Test-Path $skillDest) {
+            Remove-Item -LiteralPath $skillDest -Recurse -Force
+        }
         Copy-Item -Path $skill.FullName -Destination $skillDest -Recurse -Force
     }
+
 }
 
 Write-Host ""
