@@ -120,3 +120,37 @@
   "priority": "CRITICAL"
 }
 ```
+
+---
+
+## 4. 运行级执行深度与预算契约 (Execution Profile Contract)
+
+跨技能全流水线执行中，首个技能完成 Stage 0 确认后生成统一运行级配置，固化于 `runs/<run_id>/execution_profile.json`，遵循 `schemas/execution_profile.schema.json`。
+
+```json
+{
+  "schema_version": "1.0",
+  "profile_version": "depth-v1",
+  "run_id": "sf-run-20260908-001",
+  "execution_depth": "standard",
+  "interaction_mode": "interactive",
+  "selection": {
+    "status": "confirmed",
+    "source": "current_user",
+    "scope": "pipeline",
+    "selected_value": "standard"
+  },
+  "budget": {
+    "token_limit": 90000,
+    "active_seconds_limit": 1800,
+    "finalization_reserve_fraction": 0.1,
+    "enforcement": "best_effort"
+  }
+}
+```
+
+### 跨技能继承守卫规则：
+1. **同流水线继承**：下游技能（Extraction / Synthesis）接收到上游产物及关联的 `run_id` 时，优先自动加载并继承 `execution_profile.json`，明确提示“沿用本次流水线标准档”，严禁重复向用户发起深度追问；
+2. **异任务隔离**：若下游独立启动且未携带有效运行配置，或历史配置属于不同研究任务，严禁隐式继承，必须重新进入 Stage 0 独立确认 `EXECUTION_DEPTH`；
+3. **总预算唯一性**：跨阶段流转共享同一份总预算实例，阶段切换不重置总额度；预算耗尽时各阶段统一切换至收尾保护并输出 `partial` 回执与待办清单。
+

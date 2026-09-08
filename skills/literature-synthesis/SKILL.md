@@ -19,13 +19,18 @@ description: 通用学科科研文献跨篇证据综合分析、学术争议发�
 ## ⚡ 上下文预算与按需渐进加载准则 (Progressive Context Loading Protocol)
 
 > [!CAUTION]
+> **统一执行深度底线规则 (Execution Depth Core Rule)**：
+> 执行前独立确认 `execution_depth`；研究目标不能替代深度选择。未指定且无有效配置时必须展示快速／标准／深度的工作范围与资源差异。未确认不得启动研究执行。下游沿用同一运行的已确认配置。所有档位保留证据和审计底线；预算不足时输出部分结果及待办，不自动扩额。
+
+> [!CAUTION]
 > **严禁全量一次性预加载**：本 Skill 包含 23 个系统模块。在触发激活时，**绝对禁止**一次性通读 `references/`、`role/`、`examples/` 或 `assets/` 中的所有文件。Agent 必须严格遵守以下阶段化按需读取策略，严守上下文预算！
 
 ### 阶段 1：Stage 0 上下文感知科研决策门禁 (Context-Aware Research Gate)
 - **执行序列**：
-  1. **Stage 0A — Context Resolution**：优先直接消费上游 Extraction 产出的结构化 EvidenceRecord 与证据表，自动将 S3 证据边界确认为 `audited_extraction_table`，输出《现有科研上下文确认简报》，已知要素与结论自动继承，严禁对已知要素重复询问；
-  2. **Stage 0B — Adaptive Grill-Me**：读取 [references/stage0_grill_me.md](./references/stage0_grill_me.md) 与 `shared/grill_me/`，仅从未决的 `CRITICAL` / `HIGH_IMPACT` 维度中动态生成 3~5 个核心追问，每题提供 Recommended 选项与依据，严格执行 STOP Rule 静默等待用户确认；
+  1. **Stage 0A — Context Resolution**：优先直接消费上游 Extraction 产出的结构化 EvidenceRecord 与证据表，自动将 S3 证据边界确认为 `audited_extraction_table`，输出《现有科研上下文确认简报》，已知要素与结论自动继承，严禁对已知要素重复询问；若上游已确认执行深度则直接继承，否则必须提供快速/标准/深度三档确认；
+  2. **Stage 0B — Adaptive Grill-Me**：读取 [references/stage0_grill_me.md](./references/stage0_grill_me.md) 与 `shared/grill_me/`，首轮确保包含 `EXECUTION_DEPTH` 及未决的 `CRITICAL` / `HIGH_IMPACT` 维度中动态生成 3~5 个核心追问，每题提供 Recommended 选项与依据，严格执行 STOP Rule 静默等待用户确认；未确认执行深度绝不开工；
   3. **Stage 0C — Protocol Snapshot**：确认后固化全字段来源审计快照，解锁 Step 1 实质综合分析。
+- **决策维度原则**：执行深度（`execution_depth`：快速首批 3 个主张/标准 10 个主张/深度 20 个主张且含敏感性分析）与综合任务类型（`S1`：争议扫描/学派演化/主张审计）正交组合使用。
 - **禁止提前读取**：任何 Step 1+ 的规程、角色契约、模板或长案例。
 
 ---

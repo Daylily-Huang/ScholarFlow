@@ -32,6 +32,7 @@ REQUIRED_SCHEMAS = [
     "comparison_record.schema.json",
     "claim_evidence_matrix.schema.json",
     "synthesis_record.schema.json",
+    "execution_profile.schema.json",
 ]
 
 REQUIRED_SKILLS = [
@@ -48,6 +49,7 @@ def verify_installed_wheel() -> bool:
         import shared.version
         import shared.grill_me
         import shared.context_resolution
+        import shared.execution
         from importlib.resources import files
 
         lens = files("shared").joinpath("domain_lenses/generic.md")
@@ -79,6 +81,7 @@ def verify_repo_assets(repo_root: Path) -> bool:
         import shared.version
         import shared.context_resolution
         import shared.grill_me
+        import shared.execution
         print(f"[PASS] Python engine packages importable (version: {shared.version.__version__})")
     except Exception as e:
         print(f"[FAIL] Engine import failed: {e}")

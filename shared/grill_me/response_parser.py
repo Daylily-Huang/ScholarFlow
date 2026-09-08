@@ -36,6 +36,7 @@ class GrillState(str, Enum):
     STAGE0_ROUND2 = "STAGE0_ROUND2"              # Follow-up round (max 2 questions)
     STAGE0_CONFIRMED = "STAGE0_CONFIRMED"        # Parameters locked, execution allowed
     STAGE0_BYPASSED = "STAGE0_BYPASSED"          # Headless/expert mode with all parameters provided
+    STAGE0_INPUT_REQUIRED = "STAGE0_INPUT_REQUIRED"  # Blocked: explicit user input required (e.g. depth missing)
 
 
 @dataclass
@@ -58,6 +59,7 @@ class GrillDimension:
     default_key: str = "A"
     default_value: Any = None
     category: str = "general"
+    requires_explicit_selection: bool = False
 
     def get_recommended_option(self) -> Optional[DimensionOption]:
         for opt in self.options:
@@ -139,6 +141,7 @@ class GrillResponseParser:
         user_text: str,
         questions: List[GrillQuestion],
         inferred_resolutions: Optional[Dict[str, DimensionResolution]] = None,
+        all_critical_dimensions: Optional[List[GrillDimension]] = None,
     ) -> Tuple[Dict[str, DimensionResolution], List[str]]:
         """Parse user response against a list of GrillQuestion objects.
 
@@ -170,7 +173,7 @@ class GrillResponseParser:
                     priority=q.dimension.priority,
                     rationale=f"User accepted recommended option: {rationale}",
                 )
-            unresolved = cls._check_unresolved_critical(questions, resolutions)
+            unresolved = cls._check_unresolved_critical(questions, resolutions, all_critical_dimensions)
             return resolutions, unresolved
 
         # Case 2: Indexed selection (e.g., "1A 2B 3C", "1.A 2.B", "1-B, 2-A", "1:A 2:C", "1选A 2选B")
@@ -212,7 +215,7 @@ class GrillResponseParser:
                         rationale="Defaulted because not specified in user response",
                     )
 
-        unresolved = cls._check_unresolved_critical(questions, resolutions)
+        unresolved = cls._check_unresolved_critical(questions, resolutions, all_critical_dimensions)
         return resolutions, unresolved
 
     @classmethod
@@ -303,6 +306,26 @@ class GrillResponseParser:
             )
             return
 
+        # Special alias matching for EXECUTION_DEPTH (e.g. "快速", "标准", "深度", "中等", "quick", etc.)
+        if q.dimension.id == "EXECUTION_DEPTH":
+            from shared.execution.selection import normalize_depth
+            norm = normalize_depth(choice_clean)
+            if norm:
+                for o in q.dimension.options:
+                    o_val = o.value.value if isinstance(o.value, Enum) else str(o.value)
+                    if o_val == norm.value:
+                        resolutions[q.dimension.id] = DimensionResolution(
+                            dimension_id=q.dimension.id,
+                            dimension_name=q.dimension.name,
+                            selected_key=o.key,
+                            selected_value=norm.value,
+                            selected_label=o.label,
+                            provenance=Provenance.USER,
+                            priority=q.dimension.priority,
+                            rationale=o.rationale or f"User explicitly selected {norm.value} execution depth",
+                        )
+                        return
+
         resolutions[q.dimension.id] = DimensionResolution(
             dimension_id=q.dimension.id,
             dimension_name=q.dimension.name,
@@ -320,6 +343,7 @@ class GrillResponseParser:
         cls,
         questions: List[GrillQuestion],
         resolutions: Dict[str, DimensionResolution],
+        all_critical_dimensions: Optional[List[GrillDimension]] = None,
     ) -> List[str]:
         unresolved: List[str] = []
         for q in questions:
@@ -330,6 +354,15 @@ class GrillResponseParser:
                     res = resolutions[q.dimension.id]
                     if not res.selected_label or res.selected_key == "":
                         unresolved.append(q.dimension.id)
+
+        if all_critical_dimensions:
+            for dim in all_critical_dimensions:
+                if dim.id not in resolutions and dim.id not in unresolved:
+                    unresolved.append(dim.id)
+                elif dim.id in resolutions and dim.id not in unresolved:
+                    res = resolutions[dim.id]
+                    if not res.selected_label or res.selected_key == "":
+                        unresolved.append(dim.id)
         return unresolved
 
 
@@ -404,10 +437,11 @@ class GrillEngine:
         selected_dims: List[GrillDimension] = []
 
         # Tier 1: CRITICAL dimensions not yet inferred
+        critical_dims: List[GrillDimension] = []
         for dim in self.all_dimensions.values():
             if dim.priority == PriorityTier.CRITICAL:
                 if dim.id not in inferred:
-                    selected_dims.append(dim)
+                    critical_dims.append(dim)
                 elif dim.id not in self.resolutions:
                     self.resolutions[dim.id] = DimensionResolution(
                         dimension_id=dim.id,
@@ -419,6 +453,13 @@ class GrillEngine:
                         priority=dim.priority,
                         rationale="Inferred from clear task prompt",
                     )
+
+        # Prioritize dimensions requiring explicit selection (e.g. EXECUTION_DEPTH)
+        # so they are never pushed out of round 1 when CRITICAL dimensions exceed MAX_QUESTIONS_PER_ROUND (T04)
+        critical_dims.sort(
+            key=lambda d: 0 if getattr(d, "requires_explicit_selection", False) or d.id == "EXECUTION_DEPTH" else 1
+        )
+        selected_dims.extend(critical_dims[: self.MAX_QUESTIONS_PER_ROUND])
 
         # Tier 2: HIGH_IMPACT dimensions not yet inferred, until budget reached
         if len(selected_dims) < self.MAX_QUESTIONS_PER_ROUND:
@@ -501,8 +542,12 @@ class GrillEngine:
         if self.state not in (GrillState.STAGE0_UNRESOLVED, GrillState.STAGE0_ROUND2):
             raise ValueError(f"Cannot submit response in state {self.state}")
 
+        all_critical = [d for d in self.all_dimensions.values() if d.priority == PriorityTier.CRITICAL]
         new_res, unresolved = GrillResponseParser.parse(
-            user_response, self.active_questions, self.resolutions
+            user_response,
+            self.active_questions,
+            self.resolutions,
+            all_critical_dimensions=all_critical,
         )
         self.resolutions.update(new_res)
 
@@ -532,6 +577,27 @@ class GrillEngine:
                 "unresolved": unresolved,
             }
         else:
+            # Check if any unresolved dimension requires explicit selection (T05)
+            explicit_unresolved = [
+                uid
+                for uid in unresolved
+                if (
+                    self.all_dimensions.get(uid)
+                    and getattr(self.all_dimensions[uid], "requires_explicit_selection", False)
+                )
+                or uid == "EXECUTION_DEPTH"
+            ]
+            if explicit_unresolved:
+                self.state = GrillState.STAGE0_INPUT_REQUIRED
+                return self.state, {
+                    "status": "INPUT_REQUIRED",
+                    "round": self.round,
+                    "unresolved": explicit_unresolved,
+                    "message": f"Critical dimension(s) {explicit_unresolved} require explicit selection. Stage 1 execution is blocked.",
+                    "snapshot": self.generate_snapshot_markdown(),
+                }
+
+            # Normal safe conservative default upon budget exhaustion for standard critical dimensions
             for uid in unresolved:
                 d = self.all_dimensions[uid]
                 rec = d.get_recommended_option()
@@ -559,6 +625,20 @@ class GrillEngine:
 
     def bypass_headless(self, parameters: Dict[str, Any]) -> Tuple[GrillState, str]:
         """Bypass interactive gate when all parameters are explicitly supplied."""
+        # Check if any registered dimension requires explicit selection but is missing (T08)
+        missing_explicit = []
+        for dim in self.all_dimensions.values():
+            if getattr(dim, "requires_explicit_selection", False) or dim.id == "EXECUTION_DEPTH":
+                val = parameters.get(dim.id)
+                if val is None or str(val).strip() == "":
+                    if dim.id not in self.resolutions:
+                        missing_explicit.append(dim.id)
+
+        if missing_explicit:
+            self.state = GrillState.STAGE0_INPUT_REQUIRED
+            msg = f"INPUT_REQUIRED: Headless execution blocked. Explicit parameter(s) required: {missing_explicit}"
+            return self.state, msg
+
         for k, v in parameters.items():
             dim = self.all_dimensions.get(k)
             dim_name = dim.name if dim else k
@@ -594,9 +674,12 @@ class GrillEngine:
         return self.state, self.generate_snapshot_markdown()
 
     def generate_snapshot_markdown(self) -> str:
-        """Render auditable Markdown Protocol Snapshot with provenance annotations."""
+        """Render auditable Markdown Protocol Snapshot with provenance annotations (T19)."""
+        is_confirmed = self.state in (GrillState.STAGE0_CONFIRMED, GrillState.STAGE0_BYPASSED)
+        header_tag = "(Research Gate Confirmed)" if is_confirmed else "(Research Gate Pending / Blocked)"
+
         lines = [
-            "# Stage 0 Protocol Snapshot (Research Gate Confirmed)",
+            f"# Stage 0 Protocol Snapshot {header_tag}",
             f"- **Skill**: `{self.skill_name}`",
             f"- **Domain Lens**: `{self.domain}`",
             f"- **State**: `{self.state.value}`",
@@ -618,5 +701,8 @@ class GrillEngine:
             )
         lines.append("")
         lines.append("> [!NOTE]")
-        lines.append("> **Research Gate Status**: `CONFIRMED`. Substantive execution for Stage 1+ is unblocked.")
+        if is_confirmed:
+            lines.append("> **Research Gate Status**: `CONFIRMED`. Substantive execution for Stage 1+ is unblocked.")
+        else:
+            lines.append(f"> **Research Gate Status**: `{self.state.value}`. Substantive execution is BLOCKED pending explicit confirmation.")
         return "\n".join(lines)

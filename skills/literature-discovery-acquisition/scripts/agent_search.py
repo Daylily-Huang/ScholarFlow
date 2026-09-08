@@ -68,6 +68,27 @@ except ImportError:
         sys.path.insert(0, _cur)
     from ingest_external_records import merge_candidate_records
 
+try:
+    from shared.execution import (
+        ExecutionDepth,
+        ExecutionProfile,
+        get_profile,
+        normalize_depth,
+        validate_depth_conflict,
+    )
+except ImportError:
+    from pathlib import Path
+    _repo_root = str(Path(__file__).resolve().parents[3])
+    if _repo_root not in sys.path:
+        sys.path.insert(0, _repo_root)
+    from shared.execution import (
+        ExecutionDepth,
+        ExecutionProfile,
+        get_profile,
+        normalize_depth,
+        validate_depth_conflict,
+    )
+
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 # OpenAlex politeness pool: declare contact in URL; custom agent-style UA suffixes
 # (e.g. "(Headless Agent Search Pipeline)") trigger instant HTTP 429 throttling.
@@ -505,6 +526,71 @@ def run_deep_search(query_str, limit=30, include_theses=True):
     return all_candidates, saturation_tracking
 
 
+def run_standard_search(query_str, limit=50, include_theses=True):
+    """
+    Two-phase standard search balancing recall and efficiency (RFC-014 / P2-02):
+    Phase 1: Primary query
+    Phase 2: Single concept expansion query
+    Phase 3: Targeted snowballing on top seed paper (limit 5)
+    """
+    sys.stderr.write(f"[*] Standard Search Phase 1: Primary query '{query_str}' (target: {limit})\n")
+    errors = []
+    r1_res = query_openalex_headless(query_str, limit=limit, include_theses=include_theses)
+    round1_records, r1_err = r1_res[0], r1_res[1]
+    if r1_err:
+        errors.append(r1_err)
+    reported_total_hits = getattr(r1_res, "reported_total_hits", None)
+
+    # Phase 2: Formulate 1-round concept expansion query variant
+    words = [w for w in query_str.split() if len(w) > 3]
+    round2_records = []
+    if len(words) >= 2:
+        variant_query = f"{words[0]} {words[-1]}"
+        sys.stderr.write(f"[*] Standard Search Phase 2: Concept expansion query '{variant_query}'\n")
+        r2_res = query_openalex_headless(variant_query, limit=max(3, limit // 3), include_theses=include_theses)
+        round2_records, r2_err = r2_res[0], r2_res[1]
+        if r2_err:
+            errors.append(r2_err)
+
+    combined = round1_records + round2_records
+    deduped = deduplicate_records(combined)
+
+    # Phase 3: Targeted lightweight snowballing on top 1 seed
+    snowballed_records = []
+    eligible_seeds = [r for r in deduped if r.get("doi") and r.get("doi") != "NR" and r.get("citation_count", 0) > 0]
+    if eligible_seeds:
+        eligible_seeds.sort(key=lambda x: x.get("citation_count", 0), reverse=True)
+        top_seed = eligible_seeds[0]
+        sys.stderr.write(f"[*] Standard Search Phase 3: Targeted snowballing on top seed: {top_seed.get('title')} ({top_seed.get('doi')})\n")
+        snowballed, sb_errs = run_snowball_search(top_seed["doi"], limit=5, include_theses=include_theses)
+        errors.extend(sb_errs)
+        snowballed_records = [s for s in snowballed if s.get("snowball_role") != "SEED_PAPER"]
+
+    all_candidates = deduplicate_records(deduped + snowballed_records)
+    for idx, r in enumerate(all_candidates):
+        r["id"] = f"REC{idx+1:03d}"
+        r["record_id"] = r["id"]
+
+    total_retrieved = len(combined) + len(snowballed_records)
+    unique_count = len(all_candidates)
+    marginal_gain = (unique_count - len(round1_records)) / max(1, len(round1_records))
+
+    saturation_tracking = {
+        "mode": "standard",
+        "rounds_executed": 2,
+        "total_raw_retrieved": total_retrieved,
+        "unique_deduplicated": unique_count,
+        "round1_baseline": len(round1_records),
+        "expansion_added": len(round2_records),
+        "snowball_added": len(snowballed_records),
+        "marginal_gain_ratio": round(marginal_gain, 3),
+        "expansion_gain_status": "MODERATE_EXPANSION_GAIN" if marginal_gain >= 0.15 else "LOW_EXPANSION_GAIN",
+        "saturation_status": "MODERATE_EXPANSION_GAIN" if marginal_gain >= 0.15 else "LOW_EXPANSION_GAIN",
+        "reported_total_hits": reported_total_hits,
+        "errors": errors
+    }
+    return all_candidates, saturation_tracking
+
 
 def build_prisma_s_audit(mode: str, snowball_seed: str = None) -> dict:
     """Itemized PRISMA-S 16-item audit structure (P1-11)."""
@@ -535,8 +621,67 @@ def build_prisma_s_audit(mode: str, snowball_seed: str = None) -> dict:
     }
 
 
-def run_headless_search(query=None, snowball_seed=None, mode="deep", include_theses=True, limit=30, output_file=None):
-    """运行完整的 Headless 数据检索与滚雪球管道"""
+def run_headless_search(
+    query=None,
+    snowball_seed=None,
+    mode=None,
+    execution_depth=None,
+    include_theses=True,
+    limit=None,
+    output_file=None,
+):
+    """运行完整的 Headless 数据检索与滚雪球管道 (支持 quick / standard / deep)"""
+    # 1. Check for missing execution depth in headless run (T08)
+    if not snowball_seed and not mode and not execution_depth:
+        payload = {
+            "schema_version": "1.1",
+            "status": "INPUT_REQUIRED",
+            "error": "Execution depth is required for headless runs. Please specify --execution-depth quick|standard|deep.",
+            "candidates": [],
+            "metadata": {
+                "agent_pipeline": "literature-discovery-acquisition",
+                "version": "0.6.5",
+            },
+        }
+        output_json = json.dumps(payload, indent=2, ensure_ascii=False)
+        if output_file:
+            with open(output_file, "w", encoding="utf-8") as f:
+                f.write(output_json)
+            sys.stderr.write(f"[-] Headless results saved to: {output_file} (status: INPUT_REQUIRED)\n")
+        else:
+            print(output_json)
+        sys.stderr.write("[-] INPUT_REQUIRED: Execution depth must be explicitly specified (--execution-depth).\n")
+        return 2
+
+    # 2. Check for conflicting legacy mode and depth (T10)
+    try:
+        resolved_depth = validate_depth_conflict(mode, execution_depth)
+    except ValueError as ve:
+        err_msg = str(ve)
+        payload = {
+            "schema_version": "1.1",
+            "status": "FAILED",
+            "error": err_msg,
+            "errors": [err_msg],
+            "candidates": [],
+        }
+        output_json = json.dumps(payload, indent=2, ensure_ascii=False)
+        if output_file:
+            with open(output_file, "w", encoding="utf-8") as f:
+                f.write(output_json)
+            sys.stderr.write(f"[-] Headless results saved to: {output_file} (status: FAILED)\n")
+        else:
+            print(output_json)
+        sys.stderr.write(f"[-] {err_msg}\n")
+        return 1
+
+    if resolved_depth is None:
+        resolved_depth = ExecutionDepth.STANDARD
+
+    prof = get_profile(resolved_depth)
+    if limit is None:
+        limit = prof.max_search_candidates
+
     errors = []
     saturation_info = None
     reported_hits = None
@@ -545,9 +690,15 @@ def run_headless_search(query=None, snowball_seed=None, mode="deep", include_the
         errors = sb_errors
         search_target = f"Snowball seed: {snowball_seed}"
         reported_hits = len(candidates)
-    elif mode == "deep":
+    elif resolved_depth == ExecutionDepth.DEEP:
         sys.stderr.write(f"[*] Running Headless Deep Search: '{query}' (Limit: {limit}, Theses: {include_theses})\n")
         candidates, saturation_info = run_deep_search(query, limit=limit, include_theses=include_theses)
+        errors = saturation_info.get("errors", [])
+        search_target = query
+        reported_hits = saturation_info.get("reported_total_hits")
+    elif resolved_depth == ExecutionDepth.STANDARD:
+        sys.stderr.write(f"[*] Running Headless Standard Search: '{query}' (Limit: {limit}, Theses: {include_theses})\n")
+        candidates, saturation_info = run_standard_search(query, limit=limit, include_theses=include_theses)
         errors = saturation_info.get("errors", [])
         search_target = query
         reported_hits = saturation_info.get("reported_total_hits")
@@ -566,7 +717,7 @@ def run_headless_search(query=None, snowball_seed=None, mode="deep", include_the
             "expansion_gain_status": "NOT_TRACKED",
             "saturation_status": "NOT_TRACKED",
             "reported_total_hits": reported_hits,
-            "errors": errors
+            "errors": errors,
         }
         search_target = query
 
@@ -675,7 +826,9 @@ def run_headless_search(query=None, snowball_seed=None, mode="deep", include_the
         "errors": errors,
         "search_target": search_target,
         "search_protocol": {
-            "mode": mode,
+            "mode": resolved_depth.value,
+            "execution_depth": resolved_depth.value,
+            "depth_profile": prof.to_dict(),
             "is_snowball": bool(snowball_seed),
             "seed_identifier": snowball_seed,
             "query": query,
@@ -683,29 +836,34 @@ def run_headless_search(query=None, snowball_seed=None, mode="deep", include_the
             "include_theses": include_theses,
             "thesis_preference": {
                 "requested": "include" if include_theses else "exclude",
-                "enforcement": "FILTERED_BY_WORK_TYPE" if not include_theses else "PERMITTED"
-            }
+                "enforcement": "FILTERED_BY_WORK_TYPE" if not include_theses else "PERMITTED",
+            },
         },
         "candidates": candidates,
-        "prisma_s_audit": build_prisma_s_audit(mode, snowball_seed),
+        "prisma_s_audit": build_prisma_s_audit(resolved_depth.value, snowball_seed),
         "saturation_tracking": saturation_info,
         "grounding_controls": {
             "audit_method": "API response structured anchoring",
             "source_provenance": "OpenAlex Works API",
-            "hallucination_mitigation": "Direct JSON parsing without generative interpolation"
+            "hallucination_mitigation": "Direct JSON parsing without generative interpolation",
         },
         "metadata": {
             "agent_pipeline": "literature-discovery-acquisition",
             "version": "0.6.5",
             "schema_version": "1.1",
-            "features": ["OpenAlex Headless", "Dual-Direction Snowballing", "PRISMA-S Itemized Audit"]
-        }
+            "features": [
+                "OpenAlex Headless",
+                "Dual-Direction Snowballing",
+                "PRISMA-S Itemized Audit",
+                "Unified Execution Depth",
+            ],
+        },
     }
-    
+
     output_json = json.dumps(payload, indent=2, ensure_ascii=False)
-    
+
     if output_file:
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             f.write(output_json)
         sys.stderr.write(f"[+] Headless results saved to: {output_file} (status: {status})\n")
     else:
@@ -720,22 +878,36 @@ def main():
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-q", "--query", help="Research query or topic string")
     group.add_argument("-s", "--snowball", help="Seed DOI or OpenAlex ID for dual-direction citation snowballing")
-    
-    parser.add_argument("--mode", choices=["quick", "deep"], default="deep", help="Search intensity mode")
+
+    parser.add_argument(
+        "--execution-depth",
+        "-d",
+        default=None,
+        help="Unified execution depth tier (quick, standard, deep; supports Chinese aliases: 快速, 标准, 深度, 中等)",
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["quick", "deep"],
+        default=None,
+        help="Legacy intensity mode (deprecated; use --execution-depth)",
+    )
     parser.add_argument("--no-theses", action="store_true", help="Exclude master and doctoral theses")
-    parser.add_argument("--limit", type=int, default=20, help="Max candidates or snowball breadth to retrieve")
+    parser.add_argument("--limit", type=int, default=None, help="Max candidates or snowball breadth to retrieve")
     parser.add_argument("-o", "--output", default=None, help="Path to write output JSON (default: stdout)")
-    
+
     args = parser.parse_args()
     include_theses = not args.no_theses
-    sys.exit(run_headless_search(
-        query=args.query,
-        snowball_seed=args.snowball,
-        mode=args.mode,
-        include_theses=include_theses,
-        limit=args.limit,
-        output_file=args.output
-    ))
+    sys.exit(
+        run_headless_search(
+            query=args.query,
+            snowball_seed=args.snowball,
+            mode=args.mode,
+            execution_depth=args.execution_depth,
+            include_theses=include_theses,
+            limit=args.limit,
+            output_file=args.output,
+        )
+    )
 
 
 if __name__ == "__main__":

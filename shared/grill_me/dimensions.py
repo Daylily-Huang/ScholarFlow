@@ -504,3 +504,44 @@ def get_synthesis_dimensions() -> list[GrillDimension]:
             default_value="claims_first_narrative",
         ),
     ]
+
+
+def get_execution_depth_dimension() -> GrillDimension:
+    """Universal execution depth dimension (RFC-014 / P2-02).
+
+    Orthogonal to research goals (D1/E1/S1) and interaction modes (interactive/headless).
+    Must be explicitly selected and cannot be silently defaulted on timeout.
+    """
+    return GrillDimension(
+        id="EXECUTION_DEPTH",
+        name="执行深度与资源策略",
+        priority=PriorityTier.CRITICAL,
+        description="选择本次科研任务的执行深度、核验严格度与资源配额上限（约5/20/60分钟投入）。",
+        options=[
+            DimensionOption(
+                "A",
+                "标准档 (Standard) — 均衡查全率与论证严密性，覆盖核心文献、表格核验与双向追溯",
+                is_recommended=True,
+                rationale="兼顾时间成本与严密性，绝大多数科研探索的标准配置",
+                confidence="high",
+                value="standard",
+            ),
+            DimensionOption(
+                "B",
+                "快速档 (Quick) — 极速探测核心代表性文献，聚焦主干事实与快速验证",
+                rationale="时间紧迫或初步摸底时推荐",
+                confidence="moderate",
+                value="quick",
+            ),
+            DimensionOption(
+                "C",
+                "深度档 (Deep) — 系统综述/学位论文级深度投入，饱和度滚雪球追踪、全图文OCR与对抗式异见审计",
+                rationale="高标准严谨学术出版与开题调研必备",
+                confidence="high",
+                value="deep",
+            ),
+        ],
+        default_key="A",
+        default_value="standard",
+        requires_explicit_selection=True,
+    )

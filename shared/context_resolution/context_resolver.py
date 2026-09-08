@@ -99,6 +99,48 @@ class ContextProvider:
         raise NotImplementedError
 
 
+def extract_execution_depth_from_text(text: str) -> Optional[str]:
+    """Extract explicit execution depth intent while rejecting false-positive triggers (T06, T07)."""
+    # 1. Mask false-positive domain phrases before searching for depth intent
+    masked = text
+    masked = re.sub(r"(深度学习|deep\s+learning)", "___MASKED___", masked, flags=re.IGNORECASE)
+    masked = re.sub(
+        r"(快速检测|快速测定|快速筛查|快速方法|rapid\s+detection|rapid\s+test)",
+        "___MASKED___",
+        masked,
+        flags=re.IGNORECASE,
+    )
+    masked = re.sub(
+        r"(标准差|standard\s+deviation|国家标准|行业标准|金标准|gold\s+standard)",
+        "___MASKED___",
+        masked,
+        flags=re.IGNORECASE,
+    )
+
+    # 2. Match depth keywords with command context or prefixes/suffixes
+    pat = re.compile(
+        r"(?:(?:这次用|使用|用|按|以|选|设置为|切换到|采用)\s*)?"
+        r"(快速|标准|深度|中等|quick|standard|deep)"
+        r"(?:\s*(?:模式|深度|档位|档|档次|运行|执行|level|tier|mode|depth))?",
+        re.IGNORECASE,
+    )
+    for m in pat.finditer(masked):
+        full_match = m.group(0).strip()
+        matched_word = m.group(1).strip()
+        has_prefix = any(p in full_match for p in ("这次用", "使用", "用", "按", "以", "选", "设置为", "切换到", "采用"))
+        has_suffix = any(
+            s in full_match
+            for s in ("模式", "深度", "档位", "档", "档次", "运行", "执行", "level", "tier", "mode", "depth")
+        )
+        if has_prefix or has_suffix or len(masked.strip()) <= 15:
+            from shared.execution.selection import normalize_depth
+
+            norm = normalize_depth(matched_word)
+            if norm:
+                return norm.value
+    return None
+
+
 class ConversationContextProvider(ContextProvider):
     """Parses historical statements and user confirmations in ongoing conversation."""
 
@@ -127,6 +169,24 @@ class ConversationContextProvider(ContextProvider):
                 continue
 
             timestamp = float(turn.get("timestamp", len(self.turns) - turn_idx))
+
+            # Pattern: execution depth mentioned in prior turns (T06, T07)
+            if "EXECUTION_DEPTH" not in resolved_dims:
+                depth_val = extract_execution_depth_from_text(content)
+                if depth_val:
+                    facts.append(
+                        ContextFact(
+                            dimension_id="EXECUTION_DEPTH",
+                            field_name="execution_depth",
+                            value=depth_val,
+                            source_layer="conversation",
+                            source_ref=f"conversation_turn_{len(self.turns)-turn_idx}",
+                            fact_type=FactType.TASK_DECISION,
+                            volatility=FactVolatility.VOLATILE,
+                            timestamp=timestamp,
+                        )
+                    )
+                    resolved_dims.add("EXECUTION_DEPTH")
 
             # Pattern: language constraint mentioned in prior turns
             if "D10" not in resolved_dims:
@@ -349,6 +409,34 @@ class UpstreamArtifactContextProvider(ContextProvider):
                         fact_type=FactType.TASK_DECISION,
                     )
                 )
+
+        # If upstream has execution profile or depth -> inherit EXECUTION_DEPTH (T11)
+        if "execution_profile" in self.upstream_data:
+            prof = self.upstream_data["execution_profile"]
+            depth_val = prof.get("depth") if isinstance(prof, dict) else getattr(prof, "depth", None)
+            if depth_val:
+                facts.append(
+                    ContextFact(
+                        dimension_id="EXECUTION_DEPTH",
+                        field_name="execution_depth",
+                        value=depth_val.value if hasattr(depth_val, "value") else str(depth_val),
+                        source_layer="upstream_outputs",
+                        source_ref="upstream_execution_profile",
+                        fact_type=FactType.TASK_DECISION,
+                    )
+                )
+        elif "execution_depth" in self.upstream_data:
+            depth_val = self.upstream_data["execution_depth"]
+            facts.append(
+                ContextFact(
+                    dimension_id="EXECUTION_DEPTH",
+                    field_name="execution_depth",
+                    value=depth_val.value if hasattr(depth_val, "value") else str(depth_val),
+                    source_layer="upstream_outputs",
+                    source_ref="upstream_execution_depth",
+                    fact_type=FactType.TASK_DECISION,
+                )
+            )
 
         return facts
 
@@ -669,6 +757,20 @@ class ContextResolver:
                     dimension_id="E3",
                     field_name="schema_selection",
                     value="reuse_upstream_schema",
+                    source_layer="current_user",
+                    source_ref="current_user_message",
+                    fact_type=FactType.TASK_DECISION,
+                )
+            )
+
+        # Execution depth intent from current prompt (T06, T07)
+        depth_val = extract_execution_depth_from_text(cleaned)
+        if depth_val:
+            facts.append(
+                ContextFact(
+                    dimension_id="EXECUTION_DEPTH",
+                    field_name="execution_depth",
+                    value=depth_val,
                     source_layer="current_user",
                     source_ref="current_user_message",
                     fact_type=FactType.TASK_DECISION,

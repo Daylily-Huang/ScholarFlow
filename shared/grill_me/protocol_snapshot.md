@@ -7,18 +7,20 @@
 
 ```markdown
 # Stage 0 Protocol Snapshot (Research Gate Confirmed)
+<!-- 注：未决或阻断时标题分别为 [PENDING CONFIRMATION] / [BLOCKED] -->
 
 - **Skill Name**: `{skill_name}`
 - **Domain Lens**: `{domain_lens}`
-- **Gate Status**: `CONFIRMED`
+- **Gate Status**: `CONFIRMED` <!-- 或 UNRESOLVED / INPUT_REQUIRED -->
 - **Confirmation Timestamp**: `{iso_timestamp}`
 - **Interaction Rounds**: `{round_count}` (Target: <= 2)
-- **Gate Engine**: `ScholarFlow Adaptive Research Grill Engine v0.4`
+- **Gate Engine**: `ScholarFlow Adaptive Research Grill Engine v0.6.5`
 
 ## 1. 核心研究边界与参数配置清单
 
 | 维度编号 | 决策要素名称 | 优先级层级 | 最终确立参数 / 边界范围 | 来源追溯 (Provenance) | 决策理由与方法学依据 |
 |---|---|---|---|---|---|
+| `EXECUTION_DEPTH` | 执行深度与资源投入 | `CRITICAL` | `standard` (标准档：概念矩阵+1轮引文扩展) | `[USER]` / `[UPSTREAM]` | 用户明确确认或继承流水线配置 |
 | `D1` / `E1` / `S1` | 研究目标与产出定位 | `CRITICAL` | 系统综述 / 事实核验 / 机制辨析 | `[USER]` | 用户首轮明确指定 |
 | `D2` / `E2` / `S2` | 核心研究对象与命题 | `CRITICAL` | [明确具体实体/化学物/算法/物种/变量] | `[USER]` | 用户显式输入覆盖 |
 | `D4` / `E3` / `S3` | 纳入边界与标准 Schema | `CRITICAL` | [纳入标准 / 对应 Schema 版本] | `[INFERRED]` | 根据提示词研究场景自动解析 |

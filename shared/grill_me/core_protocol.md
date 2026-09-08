@@ -23,7 +23,7 @@ Stage 0 不再是机械的静态问卷，而是**自适应科研决策门禁（A
 |---|---|---|
 | **首轮问题数** | 3 ~ 5 题 | 避免认知过载，聚焦关键方法学分歧 |
 | **最大追问轮次** | 2 轮 | 严格防止无限循环质问；第 2 轮仅允许追问残留的未决 `CRITICAL` 要素（最多 2 题） |
-| **全会话问题上限** | <= 7 题 | 超过 2 轮仍未达成共识时，强制应用系统安全默认值并标示警告 |
+| **全会话问题上限** | <= 7 题 | 超过 2 轮仍未达成共识时：若缺失显式确认项（如 `EXECUTION_DEPTH`）转为 `STAGE0_INPUT_REQUIRED` 阻断；普通项应用系统安全默认值 |
 | **默认值静默应用** | `DEFAULTABLE` 维度 | 对已有成熟科学共识的次要维度自动应用默认值，列入快照供事后核实，不浪费提问槽位 |
 
 ---
@@ -50,7 +50,7 @@ Stage 0 不再是机械的静态问卷，而是**自适应科研决策门禁（A
 
 1. **一键全盘采纳**：
    - 输入：`按推荐` / `全部按推荐` / `全部推荐` / `全选A` / `yes` / `ok`
-   - 动作：系统将所有处于提问中的问题全部解析为 `(Recommended)` 对应的参数，来源标记为 `[USER]`。
+   - 动作：系统将所有处于提问中的问题全部解析为 `(Recommended)` 对应的参数，来源标记为 `[USER]`。若本轮展示了执行深度，则确认推荐的标准档（`standard`）。
 2. **紧凑代号回复**：
    - 输入：`1A 2B 3C` / `1.A 2.B 3.C` / `1-A, 2-B` / `A B C`
    - 动作：系统按序号精确对应各维度选项。
@@ -65,18 +65,19 @@ Stage 0 不再是机械的静态问卷，而是**自适应科研决策门禁（A
 ```mermaid
 stateDiagram-v2
     [*] --> STAGE0_NOT_STARTED
-    STAGE0_NOT_STARTED --> STAGE0_UNRESOLVED: 分析任务 & 输出 3~5 题
+    STAGE0_NOT_STARTED --> STAGE0_UNRESOLVED: 分析任务 & 输出 3~5 题 (含 EXECUTION_DEPTH)
     STAGE0_UNRESOLVED --> STAGE0_UNRESOLVED: [WAITING USER INPUT] 严禁调用执行工具
     STAGE0_UNRESOLVED --> STAGE0_CONFIRMED: 用户回复已解决全部 CRITICAL 维度
     STAGE0_UNRESOLVED --> STAGE0_ROUND2: 仍有 CRITICAL 维度模糊 (Round 1)
-    STAGE0_ROUND2 --> STAGE0_CONFIRMED: 用户补充澄清 / 强制安全默认
+    STAGE0_ROUND2 --> STAGE0_CONFIRMED: 用户补充澄清 / 普通维度强制安全默认
+    STAGE0_ROUND2 --> STAGE0_INPUT_REQUIRED: 显式确认维度未决 (杜绝静默采纳)
     STAGE0_NOT_STARTED --> STAGE0_BYPASSED: 显式指定全量配置 (Headless)
     STAGE0_CONFIRMED --> STAGE1_EXECUTION: 生成 Protocol Snapshot & 解锁实质工作
     STAGE0_BYPASSED --> STAGE1_EXECUTION: 生成 Protocol Snapshot & 解锁实质工作
 ```
 
 > [!CAUTION]
-> **红线警示**：当系统处于 `STAGE0_UNRESOLVED` 或 `STAGE0_ROUND2` 时，属于未确认状态。任何智能体或自动化脚本均不得调用文献下载、正文提取、争议合成或网络检索等下游重度工具。必须等待用户输入！
+> **红线警示**：当系统处于 `STAGE0_UNRESOLVED`、`STAGE0_ROUND2` 或 `STAGE0_INPUT_REQUIRED` 时，属于未确认状态。任何智能体或自动化脚本均不得调用文献下载、正文提取、争议合成或网络检索等下游重度工具。必须等待用户输入！
 
 ---
 

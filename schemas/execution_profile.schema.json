@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ScholarFlowExecutionProfile",
+  "description": "Canonical schema for run-level execution profile and depth budgets (RFC-014 / P2-02).",
+  "type": "object",
+  "required": [
+    "run_id",
+    "depth",
+    "selection_source",
+    "budgets"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "default": "1.0" },
+    "run_id": { "type": "string" },
+    "depth": {
+      "type": "string",
+      "enum": ["quick", "standard", "deep"]
+    },
+    "name_zh": { "type": "string" },
+    "selection_source": {
+      "type": "string",
+      "enum": [
+        "EXPLICIT_ARG",
+        "INTERACTIVE_CONFIRMED",
+        "RUN_PROFILE_INHERITED",
+        "CONTEXT_RESOLVED"
+      ]
+    },
+    "budgets": {
+      "type": "object",
+      "required": [
+        "max_search_candidates",
+        "snowball_rounds",
+        "extraction_unit_limit",
+        "max_active_seconds",
+        "max_model_requests"
+      ],
+      "properties": {
+        "max_search_candidates": { "type": "integer", "minimum": 1 },
+        "snowball_rounds": { "type": "integer", "minimum": 0 },
+        "concept_expansion_rounds": { "type": "integer", "minimum": 0 },
+        "extraction_unit_limit": { "type": "integer", "minimum": 1 },
+        "max_active_seconds": { "type": "integer", "minimum": 1 },
+        "max_model_requests": { "type": "integer", "minimum": 1 },
+        "max_token_ceiling": { "type": ["integer", "null"] }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "properties": {
+        "ocr_scan_policy": { "type": "string" },
+        "figure_table_verification": { "type": "string" },
+        "cross_validation_budget": { "type": "integer", "minimum": 0 },
+        "spot_check_rate": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "devils_advocate_mode": { "type": "string" }
+      }
+    },
+    "enforcement": {
+      "type": "string",
+      "enum": ["best_effort", "hard"],
+      "default": "best_effort"
+    },
+    "created_at": { "type": "string" }
+  },
+  "additionalProperties": false
+}

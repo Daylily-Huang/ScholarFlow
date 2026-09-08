@@ -18,6 +18,7 @@
 > | EvidenceRecord | 1.0 | Atomic extracted evidence schema (`evidence_record.schema.json`) |
 > | ClaimRecord | 1.0 | Atomic claim argument schema (`claim_record.schema.json`) |
 > | SynthesisRecord | 1.0 | Topic synthesis argument matrix schema (`synthesis_record.schema.json`) |
+> | ExecutionProfile | 1.0 | Unified execution depth & budget envelope schema (`execution_profile.schema.json`) |
 
 ---
 

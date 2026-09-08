@@ -19,6 +19,7 @@
    - **Priority 5: 保守静态备选 (Static Fallback)**：当以上信息均未提供时，回退至维度预设的 `default_key`。
 3. **单句精炼论证 (1-Sentence Rationale)**：必须在选项后附带 1 句话的方法学 Rationale，直击该选项在当前研究场景下的优势与防御性。
 4. **三级置信度标签 (Confidence Tagging)**：每个推荐项显式附带置信度评级，帮助用户判断是否需要深入干预。
+5. **推荐绝不等于选定（Recommendation ≠ Agreement）**：系统推荐某选项（例如执行深度推荐 `standard` 标准档）仅作为决策参考。对于标记为 `requires_explicit_selection=True` 的关键维度，必须由用户通过回复（如“按推荐”、“全部按推荐”或显式代码选定）明确确认；未经用户确认时，系统严禁在轮数耗尽或后台流转中将其静默采纳为已确认选择。
 
 ---
 

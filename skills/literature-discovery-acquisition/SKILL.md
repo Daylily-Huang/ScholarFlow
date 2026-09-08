@@ -38,15 +38,19 @@ description: >-
 ## ⚡ 上下文预算与按需渐进加载准则 (Progressive Context Loading Protocol)
 
 > [!CAUTION]
+> **统一执行深度底线规则 (Execution Depth Core Rule)**：
+> 执行前独立确认 `execution_depth`；研究目标不能替代深度选择。未指定且无有效配置时必须展示快速／标准／深度的工作范围与资源差异。未确认不得启动研究执行。下游沿用同一运行的已确认配置。所有档位保留证据和审计底线；预算不足时输出部分结果及待办，不自动扩额。
+
+> [!CAUTION]
 > **严禁全量一次性预加载**：本 Skill 完整知识库（28 个文件）总文本量约 158 KB。在初次触发激活时，**绝对禁止**一次性读取 `references/`、`role/`、`examples/` 或 `assets/` 中的所有文件。Agent 必须严格遵守以下阶段化与模式分支的渐进式按需读取策略，严守上下文预算！
 
 ### 阶段 1：Stage 0 上下文感知科研决策门禁 (Context-Aware Research Gate)
 - **执行序列**：
   1. **Stage 0A — Context Resolution**：按五层优先级自动解析现有上下文（当前指令、历史对话、任务附件、上游产物及按需项目检索），输出《现有科研上下文确认简报》，已知要素自动确认为 `RESOLVED`，严禁对已知要素重复发问；
-  2. **Stage 0B — Adaptive Grill-Me**：读取 [references/stage0_grill_me.md](references/stage0_grill_me.md) 与 `shared/grill_me/`，仅从未决的 `CRITICAL` / `HIGH_IMPACT` 维度中动态生成 3~5 个结构化追问，每题附带 Recommended 选项与方法学依据，严格执行 STOP Rule 静默等待用户确认；
-  3. **Stage 0C — Protocol Snapshot**：用户确认后固化全字段来源审计快照（`[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）
-  - **交付格式默认与覆盖**：`D15 交付格式` 维度（Tier 3）默认**三轨全套**（MD 底稿 + CSV/JSON 数据 + HTML 报告），写入快照 `[DEFAULTED]`；用户可在确认回复中一句话覆盖（如 `格式: xlsx`，xlsx 导出需可选 openpyxl）。，解锁 Stage 1 实质执行。
-- **决策维度原则**：不预设固定问题（检索深度 Deep/Quick、学位论文需求等均由任务目标、上下文与学科透镜动态决定，已明确者绝不重复询问）。
+  2. **Stage 0B — Adaptive Grill-Me**：读取 [references/stage0_grill_me.md](references/stage0_grill_me.md) 与 `shared/grill_me/`，首轮确保包含 `EXECUTION_DEPTH`（快速/标准/深度，推荐标准档）及未决的 `CRITICAL` / `HIGH_IMPACT` 维度，动态生成 3~5 个结构化追问，每题附带 Recommended 选项与方法学依据，严格执行 STOP Rule 静默等待用户确认；未确认执行深度绝不开工；
+  3. **Stage 0C — Protocol Snapshot**：用户确认后固化全字段来源审计快照（`[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）；
+  - **交付格式默认与覆盖**：`D15 交付格式` 维度（Tier 3）默认**三轨全套**（MD 底稿 + CSV/JSON 数据 + HTML 报告），写入快照 `[DEFAULTED]`；用户可在确认回复中一句话覆盖（如 `格式: xlsx`，xlsx 导出需可选 openpyxl），解锁 Stage 1 实质执行。
+- **决策维度原则**：执行深度（`execution_depth`）与研究目标（`D1`）正交解耦，已在会话明确指定或上游已确认者不重复询问。
 - **禁止提前读取**：任何 Stage 1+ 的 references、role 文件、案例或资产模板。
 
 ---
@@ -54,7 +58,7 @@ description: >-
 ### 阶段 2：用户确认模式后的分支加载策略
 
 #### 🚀 分支 A：用户选择 `Quick Search`（快速探索模式，总加载量 < 15 KB，节约 >90% 上下文）
-- **适用**：组会讨论、热点速览、快速获取 10–30 篇顶刊代表作。
+- **适用**：组会讨论、热点速览、快速获取 10–30 篇顶刊代表作（候选上限 50 篇，全文上限 5 篇）。
 - **允许按需读取（仅 3 篇，随用随读）**：
   1. `references/concept_matrix.md`（仅参考核心概念展开规则）
   2. `references/databases_and_tools.md`（仅参考数据源调用逻辑）
@@ -66,8 +70,15 @@ description: >-
   - `role/` 目录下全部文件（主代理依照当前上下文精简执行并声明“非系统性完整检索”）
   - `examples/` 目录下除快速案例外的长篇案例
 
-#### 🔬 分支 B：用户选择 `Deep Search`（深度系统检索模式，严格按工作流阶段流水推进）
-- **适用**：学位论文开题、基金立项申报、PRISMA 系统评价、期刊文献综述。
+#### ⚖️ 分支 B：用户选择 `Standard Search`（标准检索模式，推荐基准，适度展开）
+- **适用**：常规文献调研、技术方案比选、概念矩阵展开与 1 轮引文扩展（候选上限 200 篇，全文上限 20 篇）。
+- **按需渐进读取**：
+  - `references/concept_matrix.md` 与 `references/databases_and_tools.md`（概念展开与跨源多库调用）；
+  - `references/saturation_and_qc.md`（双台账覆盖核实与轻量质控）；
+  - 若需要全文下载且落盘时，加载 `references/stage8_oa_download.md`。
+
+#### 🔬 分支 C：用户选择 `Deep Search`（深度系统检索模式，严格按工作流阶段流水推进）
+- **适用**：学位论文开题、基金立项申报、PRISMA 系统评价、期刊文献综述（候选上限 600 篇，全文上限 50 篇，多轮引文滚雪球）。
 - **严禁跨阶段提前预加载**，推进到特定 Stage 时方可加载对应文件（Just-In-Time Loading）：
   - **进入 Stage 1-2 时**：读取 `references/concept_matrix.md` 与 `references/journal_mapping.md`；
   - **进入 Stage 3 时**：读取 `references/databases_and_tools.md`（若确认需学位论文，才加载 `references/theses_retrieval.md`）；
@@ -76,8 +87,8 @@ description: >-
   - **进入 Stage 8 时**：仅在需要下载全文且落盘时，才加载 `references/stage8_oa_download.md` 与 `references/zotero_watch_folder.md`；
   - **进入 Stage 8B 时**（可选）：仅当 Stage 8 台账中 PAYWALLED ≥ 1 篇**且** `site_registry.json` 中存在 `enabled: true` 的站点时，才加载 `references/stage8b_browser_fallback.md`。
 
-#### 🤖 分支 C：若为 `Headless / Agent` 自动化模式（零对话加载，0 KB Markdown）
-- **直接执行脚本**：运行 `python scripts/agent_search.py -q "..." --mode <quick|deep>`；
+#### 🤖 分支 D：若为 `Headless / Agent` 自动化模式（零对话加载，0 KB Markdown）
+- **直接执行脚本**：运行 `python skills/literature-discovery-acquisition/scripts/agent_search.py -q "..." --execution-depth <quick|standard|deep>`（缺失 `--execution-depth` 时退出码 2，返回 `INPUT_REQUIRED`）；
 - **硬性输出契约**：
   1. Headless 顶层 JSON 输出必须遵循 canonical envelope 规范：`schemas/discovery_result.schema.json`；
   2. 其中 `candidates[]` 数组中的每一条文献记录必须遵循：`schemas/literature_record.schema.json`；

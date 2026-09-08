@@ -12,6 +12,7 @@
 | `STAGE0_NOT_STARTED` | 初始状态 | **禁止** | 任务刚接收，尚未解析需求与提问维度 |
 | `STAGE0_UNRESOLVED` | 待决中 (首轮) | **禁止** | 已完成维度分析并向用户抛出 3~5 个高影响度问题，Agent 处于挂起等待输入状态 |
 | `STAGE0_ROUND2` | 待决中 (第二轮) | **禁止** | 用户首轮反馈后仍有 `CRITICAL` 级别维度未闭环，抛出最多 2 个聚焦追问 |
+| `STAGE0_INPUT_REQUIRED`| 阻断待输入 | **禁止** | 轮数耗尽或无头调用下，存在需显式确认的关键维度（如 `EXECUTION_DEPTH`）未决，系统杜绝静默回退默认值，挂起阻断并等待用户补充 |
 | `STAGE0_CONFIRMED` | 已确认锁定 | **允许** | 全部关键维度已达成共识，生成审计快照，解锁 Stage 1 及后续计算与检索工作 |
 | `STAGE0_BYPASSED` | 无头/专家绕过 | **允许** | 外部传入完整参数字典或显式 `--headless` 声明，验证关键维度无冲突后直接放行 |
 
@@ -39,21 +40,24 @@
        |                                                    [再次解析 Critical 状态]
        |                                                                |
        |                                                                +---> 全部闭环 -> [STAGE0_CONFIRMED]
-       |                                                                +---> 仍未闭环 -> 强制安全默认 -> [STAGE0_CONFIRMED] (附警告)
+       |                                                                +---> 仍有 explicit 维度未决 -> [STAGE0_INPUT_REQUIRED] (阻断)
+       |                                                                +---> 仅普通维度未决 -> 保守安全默认 -> [STAGE0_CONFIRMED] (附警告)
 ```
 
 ### 转移守卫规则：
 1. **未决守卫 (Unresolved Guard)**：
-   - 当状态为 `STAGE0_UNRESOLVED` 或 `STAGE0_ROUND2` 时，Agent 环境必须拦截任何对真实学术数据库检索、论文批量下载、大模型密集抽取的工具调用。
+   - 当状态为 `STAGE0_UNRESOLVED`、`STAGE0_ROUND2` 或 `STAGE0_INPUT_REQUIRED` 时，Agent 环境必须拦截任何对真实学术数据库检索、论文批量下载、大模型密集抽取的工具调用。
    - 违规调用应被系统层直接阻断并抛出 `GatekeeperPolicyViolationError: Cannot execute substantive research actions before Stage 0 confirmation`。
 
 2. **确认守卫 (Confirmation Guard)**：
-   - 仅当且仅当所有标记为 `CRITICAL` 级别的维度均在 `resolutions` 字典中有明确的取值时，状态方可转入 `STAGE0_CONFIRMED`。
+   - 仅当且仅当所有标记为 `CRITICAL` 级别的维度均在 `resolutions` 字典中有明确的合法取值时，状态方可转入 `STAGE0_CONFIRMED`。
    - 转入 `STAGE0_CONFIRMED` 时必须同步落盘 `Protocol Snapshot`。
 
-3. **预算硬截断守卫 (Budget Exhaustion Guard)**：
-   - 最大轮次限制为 2 轮。
-   - 若在第二轮结束后仍有 `CRITICAL` 维度未明确，系统禁止进入第三轮质问，必须采用对应学科透镜的“最保守安全默认值”（Conservative Safe Default）并记录在审计日志中，将状态置为 `STAGE0_CONFIRMED`，同时在输出开头打印显式警示。
+3. **预算截断与显式确认排除守卫 (Explicit Selection & Budget Exhaustion Guard)**：
+   - 最大追问轮次限制为 2 轮。
+   - 若在第二轮结束后仍有 `CRITICAL` 维度未明确：
+     - 若未决维度标记为 `requires_explicit_selection=True`（如 `EXECUTION_DEPTH` 执行深度）：**系统严禁自动回退或静默采纳默认值**，必须将状态置为 `STAGE0_INPUT_REQUIRED`，输出结构化缺失项清单并挂起等待用户显式输入，绝不启动下游研究。
+     - 若未决维度仅属于普通可回退维度：采用对应学科透镜的“最保守安全默认值”（Conservative Safe Default）并记录在审计日志中，将状态置为 `STAGE0_CONFIRMED`，同时在输出开头打印显式警示。
 
 ---
 
