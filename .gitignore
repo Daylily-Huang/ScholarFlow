@@ -49,3 +49,4 @@ test_output/
 
 # Local credential file (never commit)
 pathtoken.txt
+.git-askpass
