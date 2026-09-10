@@ -10,8 +10,17 @@
     "candidates"
   ],
   "properties": {
-    "schema_version": { "type": "string", "const": "1.1" },
-    "errors": { "type": "array", "items": { "type": "string" }, "description": "Non-fatal query failures; empty on clean SUCCESS. A FAILED status with zero candidates must never be emitted as SUCCESS." },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1"
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Non-fatal query failures; empty on clean SUCCESS. A FAILED status with zero candidates must never be emitted as SUCCESS."
+    },
     "status": {
       "type": "string",
       "enum": [
@@ -20,26 +29,90 @@
         "SUCCESS_WITH_RETRIEVAL_GAPS",
         "SUCCESS_WITH_ACQUISITION_GAPS",
         "SUCCESS_WITH_RETRIEVAL_AND_ACQUISITION_GAPS",
+        "INPUT_REQUIRED",
+        "INVALID_PARAMETER",
         "FAILED"
       ]
     },
-    "search_target": { "type": "string" },
+    "search_target": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Human-readable description of the executed search; null when the run was blocked before execution."
+    },
     "search_protocol": {
       "type": "object",
-      "required": ["mode"],
+      "required": [
+        "mode"
+      ],
       "properties": {
-        "mode": { "type": "string", "enum": ["quick", "deep"] },
-        "is_snowball": { "type": "boolean" },
-        "seed_identifier": { "type": ["string", "null"] },
-        "query": { "type": ["string", "null"] },
-        "limit": { "type": "integer" },
-        "include_theses": { "type": "boolean" },
+        "mode": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "quick",
+            "standard",
+            "deep",
+            null
+          ],
+          "description": "Execution depth actually applied to this run."
+        },
+        "is_snowball": {
+          "type": "boolean"
+        },
+        "seed_identifier": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "query": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "include_theses": {
+          "type": "boolean"
+        },
         "thesis_preference": {
           "type": "object",
           "properties": {
-            "requested": { "type": "string", "enum": ["include", "exclude"] },
-            "enforcement": { "type": "string" }
+            "requested": {
+              "type": "string",
+              "enum": [
+                "include",
+                "exclude"
+              ]
+            },
+            "enforcement": {
+              "type": "string"
+            }
           }
+        },
+        "execution_depth": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "quick",
+            "standard",
+            "deep",
+            null
+          ]
+        },
+        "depth_profile": {
+          "type": [
+            "object",
+            "null"
+          ]
         }
       }
     },
@@ -52,18 +125,97 @@
     "prisma_s_audit": {
       "type": "object",
       "properties": {
-        "framework": { "type": "string" },
-        "applicable_items": { "type": "integer" },
-        "overall_status": { "type": "string" },
-        "items": { "type": "array" }
+        "framework": {
+          "type": "string"
+        },
+        "applicable_items": {
+          "type": "integer"
+        },
+        "overall_status": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array"
+        }
       }
     },
-    "saturation_tracking": { "type": ["object", "null"] },
-    "grounding_controls": { "type": ["object", "null"] },
-    "retrieval_coverage_ledger": { "type": ["object", "null"], "description": "Ledger A: comprehensive database and query coverage audit." },
-    "metadata_corpus_summary": { "type": ["object", "null"], "description": "Frozen metadata corpus statistics prior to full-text acquisition." },
-    "retrieval_gaps": { "type": ["array", "null"], "items": { "type": "object" }, "description": "Unsearched or partially truncated databases (HIGH SCIENTIFIC RISK)." },
-    "acquisition_gaps": { "type": ["array", "null"], "items": { "type": "object" }, "description": "Known discovered literature lacking full text (OPERATIONAL LIMITATION)." },
-    "metadata": { "type": ["object", "null"] }
+    "saturation_tracking": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "grounding_controls": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "retrieval_coverage_ledger": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Ledger A: comprehensive database and query coverage audit.",
+      "properties": {
+        "ledger_id": {
+          "type": "string"
+        },
+        "generated_at": {
+          "type": "string"
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "retrieval_gaps": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "has_retrieval_gaps": {
+          "type": "boolean"
+        },
+        "frozen_corpus_summary": {
+          "type": "object"
+        }
+      }
+    },
+    "metadata_corpus_summary": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Frozen metadata corpus statistics prior to full-text acquisition."
+    },
+    "retrieval_gaps": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "object"
+      },
+      "description": "Unsearched or partially truncated databases (HIGH SCIENTIFIC RISK)."
+    },
+    "acquisition_gaps": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "object"
+      },
+      "description": "Known discovered literature lacking full text (OPERATIONAL LIMITATION)."
+    },
+    "metadata": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
   }
 }

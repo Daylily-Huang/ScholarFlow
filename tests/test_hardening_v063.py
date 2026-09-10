@@ -235,8 +235,11 @@ class TestHardeningV063(unittest.TestCase):
 
     # 10. test_contract_version_table_matches_constants
     def test_contract_version_table_matches_constants(self):
-        self.assertIn(PROJECT_VERSION, ["0.6.3", "0.6.4", "0.6.5"])
-        self.assertIn(__version__, ["0.6.3", "0.6.4", "0.6.5"])
+        # The declared release must be a well-formed semantic version and must
+        # agree across every declaration site.
+        for value in (PROJECT_VERSION, __version__):
+            self.assertRegex(value, r"^\d+\.\d+\.\d+$")
+        self.assertEqual(PROJECT_VERSION, __version__)
         self.assertEqual(CONTRACT_SPEC_VERSION, "1.1")
         self.assertEqual(DISCOVERY_RESULT_SCHEMA_VERSION, "1.1")
         self.assertEqual(EXTRACTION_RESULT_SCHEMA_VERSION, "1.1")

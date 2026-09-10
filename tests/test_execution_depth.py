@@ -27,6 +27,7 @@ from shared.execution.profiles import (
     DEEP_PROFILE,
     get_profile,
 )
+from shared.execution.config import RunExecutionConfig
 from shared.execution.selection import (
     DepthSelectionSource,
     normalize_depth,
@@ -246,19 +247,27 @@ class TestExecutionDepthAcceptance(unittest.TestCase):
             )
             self.assertEqual(rc, 1)
             data = json.loads(out_file.read_text(encoding="utf-8"))
-            self.assertEqual(data["status"], "FAILED")
+            # A parameter conflict is a distinct, machine-readable gate state (R03).
+            self.assertEqual(data["status"], "INVALID_PARAMETER")
 
     # -------------------------------------------------------------------------
     # T11: 同流水线进入抽取和综合 -> 沿用同一配置，不重复询问
     # -------------------------------------------------------------------------
     def test_T11_downstream_inherits_run_profile(self):
-        upstream_profile = STANDARD_PROFILE.to_dict()
+        # A confirmed configuration from the SAME run is inherited (R07).
+        upstream_profile = RunExecutionConfig.confirmed(
+            "standard", run_id="run-2026-001", source="INTERACTIVE_CONFIRMED"
+        ).to_dict()
         upstream_data = {
             "run_id": "run-2026-001",
             "execution_profile": upstream_profile,
         }
         resolver = ContextResolver(scope=ContextScope.CURRENT_PLUS_UPSTREAM)
-        resolver.add_provider(UpstreamArtifactContextProvider(upstream_data=upstream_data))
+        resolver.add_provider(
+            UpstreamArtifactContextProvider(
+                upstream_data=upstream_data, current_run_id="run-2026-001"
+            )
+        )
 
         inferred, unresolved = resolver.resolve("开始证据抽取", ["EXECUTION_DEPTH", "E1"])
         self.assertIn("EXECUTION_DEPTH", inferred)
@@ -277,17 +286,70 @@ class TestExecutionDepthAcceptance(unittest.TestCase):
     # T12: 另一任务的旧配置 -> 不自动继承
     # -------------------------------------------------------------------------
     def test_T12_old_task_profile_not_inherited(self):
+        # CURRENT_ONLY scope never reaches upstream artifacts at all.
         resolver = ContextResolver(scope=ContextScope.CURRENT_ONLY)
-        # Even if Upstream provider has old data, CURRENT_ONLY scope ignores it
         resolver.add_provider(UpstreamArtifactContextProvider(upstream_data={"execution_depth": "deep"}))
         inferred, unresolved = resolver.resolve("新会话文献发现", ["EXECUTION_DEPTH"])
         self.assertNotIn("EXECUTION_DEPTH", inferred)
         self.assertIn("EXECUTION_DEPTH", unresolved)
 
+    def test_T12b_wrong_run_id_is_rejected_in_normal_upstream_mode(self):
+        """R07/T12: a *different* run's configuration is refused, not inherited."""
+        upstream_profile = RunExecutionConfig.confirmed("deep", run_id="run-old-task").to_dict()
+        provider = UpstreamArtifactContextProvider(
+            upstream_data={"run_id": "run-old-task", "execution_profile": upstream_profile},
+            current_run_id="run-new-task",
+        )
+        resolver = ContextResolver(scope=ContextScope.CURRENT_PLUS_UPSTREAM)
+        resolver.add_provider(provider)
+
+        inferred, unresolved = resolver.resolve("新任务文献抽取", ["EXECUTION_DEPTH", "E1"])
+        self.assertNotIn("EXECUTION_DEPTH", inferred)
+        self.assertIn("EXECUTION_DEPTH", unresolved)
+        self.assertTrue(provider.rejected_inheritance)
+        self.assertEqual(provider.rejected_inheritance[0]["reason"], "run_id_mismatch")
+
+    def test_T12c_unconfirmed_upstream_profile_is_rejected(self):
+        """R07: a tier preset is not an authorisation and cannot be inherited."""
+        preset = get_profile("deep")
+        provider = UpstreamArtifactContextProvider(
+            upstream_data={
+                "run_id": "run-2026-001",
+                "execution_profile": RunExecutionConfig.from_profile(
+                    preset, run_id="run-2026-001"
+                ).to_dict(),
+            },
+            current_run_id="run-2026-001",
+        )
+        resolver = ContextResolver(scope=ContextScope.CURRENT_PLUS_UPSTREAM)
+        resolver.add_provider(provider)
+
+        inferred, unresolved = resolver.resolve("继续抽取", ["EXECUTION_DEPTH", "E1"])
+        self.assertNotIn("EXECUTION_DEPTH", inferred)
+        self.assertIn("EXECUTION_DEPTH", unresolved)
+        self.assertEqual(provider.rejected_inheritance[0]["reason"], "unconfirmed_selection")
+
+    def test_T12d_upstream_evidence_survives_rejected_authorisation(self):
+        """R07: refusing resource authorisation must not discard research evidence."""
+        provider = UpstreamArtifactContextProvider(
+            upstream_data={
+                "run_id": "run-old",
+                "execution_depth": "deep",
+                "evidence_records": [{"evidence_id": "EV-1", "finding": {"reported_value": 1}}],
+            },
+            current_run_id="run-new",
+        )
+        resolver = ContextResolver(scope=ContextScope.CURRENT_PLUS_UPSTREAM)
+        resolver.add_provider(provider)
+        inferred, _unresolved = resolver.resolve("继续综合", ["EXECUTION_DEPTH", "S3"])
+        self.assertNotIn("EXECUTION_DEPTH", inferred)
+        self.assertEqual(inferred.get("S3"), "audited_extraction_table")
+
     # -------------------------------------------------------------------------
-    # T16: 快速升级深度 -> 有效缓存复用，只补缺口，总账连续
+    # T16 (config half): tier presets differ as declared; the behavioural
+    # half lives in TestExecutionDepthBehaviour.test_T16_upgrade_reuses_work_and_keeps_ledger_continuous
     # -------------------------------------------------------------------------
-    def test_T16_quick_upgrade_to_deep_incremental(self):
+    def test_T16_config_tier_presets_differ_as_declared(self):
         quick_prof = get_profile("quick")
         deep_prof = get_profile("deep")
         self.assertLess(quick_prof.max_search_candidates, deep_prof.max_search_candidates)
@@ -295,9 +357,10 @@ class TestExecutionDepthAcceptance(unittest.TestCase):
         self.assertEqual(deep_prof.snowball_rounds, 2)
 
     # -------------------------------------------------------------------------
-    # T17: 工具不支持图表核验 -> 明确能力缺口，不标记已核验
+    # T17 (config half): tiers declare figure/table verification levels; the
+    # behavioural half lives in TestExecutionDepthBehaviour.test_T17_unsupported_tool_reports_gap
     # -------------------------------------------------------------------------
-    def test_T17_unsupported_chart_audit_reports_gap(self):
+    def test_T17_config_tiers_declare_figure_table_levels(self):
         quick_prof = get_profile("quick")
         std_prof = get_profile("standard")
         deep_prof = get_profile("deep")
@@ -306,9 +369,10 @@ class TestExecutionDepthAcceptance(unittest.TestCase):
         self.assertEqual(deep_prof.figure_table_verification, "exhaustive_audit")
 
     # -------------------------------------------------------------------------
-    # T18: 不可比的效应量 -> 三档均不违规合并
+    # T18 (config half): tiers declare a valid devils-advocate mode; the
+    # behavioural half lives in TestExecutionDepthBehaviour.test_T18_non_comparable_never_pooled
     # -------------------------------------------------------------------------
-    def test_T18_non_comparable_effect_sizes_never_pooled(self):
+    def test_T18_config_tiers_declare_devils_advocate_mode(self):
         for depth in ("quick", "standard", "deep"):
             prof = get_profile(depth)
             self.assertIn(prof.devils_advocate_mode, ("disabled", "standard", "adversarial_exhaustive"))
@@ -330,9 +394,10 @@ class TestExecutionDepthAcceptance(unittest.TestCase):
         self.assertIn("is unblocked", snap_confirmed)
 
     # -------------------------------------------------------------------------
-    # T20: 干净安装后首次运行 -> 使用新资源，完整复现模式选择
+    # T20 (config half): preflight accepts a standard depth; the install half
+    # lives in tests/test_execution_depth_hardening_r01_r12.TestR06InstalledRuntime
     # -------------------------------------------------------------------------
-    def test_T20_package_assets_intact_and_loadable(self):
+    def test_T20_config_preflight_accepts_a_standard_depth(self):
         from shared.execution import (
             ExecutionDepth,
             QUICK_PROFILE,
@@ -377,6 +442,122 @@ class TestExecutionDepthAcceptance(unittest.TestCase):
 
             loaded_profile = load_run_profile(run_dir)
             self.assertEqual(loaded_profile["execution_depth"], "standard")
+
+
+class TestExecutionDepthBehaviour(unittest.TestCase):
+    """R12: real behavioural acceptance for the items that only had config assertions.
+
+    Each test here fails when the corresponding capability is removed or
+    bypassed; the config-only checks that used to masquerade as acceptance
+    criteria were renamed instead of deleted.
+    """
+
+    # --- T16: quick -> deep upgrade reuses work and keeps the ledger continuous
+    def test_T16_upgrade_reuses_work_and_keeps_ledger_continuous(self):
+        from shared.execution import RunContext, StageKind
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            ctx = RunContext.create("quick", run_dir=tmp_dir, stages=["discovery"])
+            ctx.begin_stage(StageKind.DISCOVERY)
+            ctx.consume_candidates(12)
+            ctx.complete_stage(StageKind.DISCOVERY, ["quick-batch"])
+            quick_receipt = ctx.finalize()
+            already_spent = ctx.candidates_processed
+
+            # Upgrading the tier must not hand back the candidates already spent.
+            ctx.config = RunExecutionConfig.confirmed(
+                "deep", run_id=ctx.config.run_id, source="INTERACTIVE_CONFIRMED"
+            )
+            ctx.config.save(tmp_dir)
+            resumed = RunContext.resume(tmp_dir)
+            self.assertEqual(resumed.candidates_processed, already_spent)
+            self.assertEqual(
+                resumed.remaining_candidates,
+                get_profile("deep").max_search_candidates - already_spent,
+            )
+            self.assertEqual(quick_receipt.status, "completed")
+            self.assertIn("quick-batch", quick_receipt.completed_scope)
+
+    # --- T17: an unavailable tool becomes an explicit gap, never "verified"
+    def test_T17_unsupported_tool_reports_gap(self):
+        from shared.execution import RunContext, StageKind
+
+        ctx = RunContext.create("deep")
+        plan = ctx.plan_for(StageKind.SYNTHESIS)
+        # Figure/table and devils-advocate verification are host-dependent here.
+        self.assertIn("devils_advocate_mode", plan.unsupported)
+        self.assertIn("figure_table_verification", ctx.plan_for(StageKind.EXTRACTION).unsupported)
+
+        ctx.defer_stage_work(StageKind.EXTRACTION, ["figure-3-verification"])
+        receipt = ctx.finalize(stop_reason="host_tool_unavailable")
+        self.assertEqual(receipt.status, "partial")
+        self.assertTrue(any("figure-3-verification" in item for item in receipt.pending_scope))
+        # The receipt must not claim the gap was audited.
+        self.assertFalse(
+            any("已核验" in limitation or "audited" in limitation.lower() for limitation in receipt.limitations)
+        )
+
+    # --- T18: non-comparable effect sizes are never pooled, at any tier
+    def test_T18_non_comparable_never_pooled(self):
+        """R12: exercise the real comparability engine, not a config string."""
+        from comparability import (
+            ComparabilityStatus,
+            evaluate_claim_comparability,
+            stratify_claims_by_comparability,
+        )
+
+        transect = {
+            "claim_id": "CLM-1",
+            "claim_text": "Roads reduce genetic connectivity",
+            "method": "line transect survey",
+            "metric": "individuals per km2",
+            "stance": "SUPPORT",
+        }
+        camera = {
+            "claim_id": "CLM-2",
+            "claim_text": "Roads reduce genetic connectivity",
+            "method": "camera trap SECR",
+            "metric": "individuals per km2",
+            "stance": "REFUTE",
+        }
+
+        verdict = evaluate_claim_comparability(transect, camera)
+        self.assertNotEqual(
+            verdict["status"],
+            ComparabilityStatus.DIRECTLY_COMPARABLE,
+            "methodologically incompatible studies must not be called directly comparable",
+        )
+
+        stratified = stratify_claims_by_comparability([transect, camera])
+        pooled = stratified["strata"].get("core_stratum", [])
+        self.assertEqual(
+            len(pooled),
+            1,
+            "a non-comparable claim must not be pooled into the reference stratum",
+        )
+        self.assertTrue(
+            stratified["uncomparable_claims"] or len(stratified["strata"]) > 1,
+            "non-comparable evidence must be segregated, not silently merged",
+        )
+        # And the tier must not change this scientific boundary.
+        for depth in ("quick", "standard", "deep"):
+            self.assertEqual(get_profile(depth).depth.value, depth)
+
+    # --- T19 already behavioural; keep the ledger/receipt honesty alongside it
+    def test_T15_budget_exhaustion_is_visible_in_the_run_context(self):
+        from shared.execution import BudgetLimitError, RunContext
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            ctx = RunContext.create("quick", run_dir=tmp_dir)
+            ctx.budget.requests_bucket.limit = 2
+            ctx.budget.requests_bucket.closing_reserve = 1
+            first = ctx.begin_model_request()
+            ctx.end_model_request(first, actual_tokens=None)
+            with self.assertRaises(BudgetLimitError):
+                ctx.begin_model_request()
+            receipt = ctx.finalize()
+            self.assertEqual(receipt.status, "partial")
+            self.assertEqual(receipt.usage["token_measurement"], "unavailable")
 
 
 if __name__ == "__main__":

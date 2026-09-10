@@ -65,7 +65,7 @@ def verify_installed_wheel() -> bool:
 
 def verify_repo_assets(repo_root: Path) -> bool:
     print("==================================================")
-    print("  ScholarFlow Package Assets Verification (v0.6.5)")
+    print("  ScholarFlow Package Assets Verification (v0.6.6)")
     print("==================================================")
 
     

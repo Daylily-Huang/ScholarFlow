@@ -24,6 +24,7 @@ import argparse
 import urllib.request
 import urllib.parse
 import re
+from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List, Tuple, Set
 
 try:
@@ -76,11 +77,32 @@ try:
         normalize_depth,
         validate_depth_conflict,
     )
+    from shared.version import PROJECT_VERSION
+    from shared.execution.context import RunContext, StageKind
+    from shared.execution.preflight import PreflightError
 except ImportError:
     from pathlib import Path
-    _repo_root = str(Path(__file__).resolve().parents[3])
-    if _repo_root not in sys.path:
-        sys.path.insert(0, _repo_root)
+
+    def _locate_runtime_root():
+        """Find the directory that *contains* the ``shared`` package.
+
+        Two layouts are supported, so an installed skill tree can resolve the
+        engine without a repository checkout (R06):
+
+        * repository layout: ``<repo>/skills/<skill>/scripts/`` -> ``<repo>``
+        * installed layout:  ``<dest>/skills/<skill>/scripts/`` -> ``<dest>/skills``
+          because the installer places the engine beside the skills.
+        """
+        here = Path(__file__).resolve()
+        candidates = [here.parents[3], here.parents[2]]
+        for candidate in candidates:
+            if (candidate / "shared" / "__init__.py").is_file():
+                return candidate
+        return None
+
+    _runtime_root = _locate_runtime_root()
+    if _runtime_root is not None and str(_runtime_root) not in sys.path:
+        sys.path.insert(0, str(_runtime_root))
     from shared.execution import (
         ExecutionDepth,
         ExecutionProfile,
@@ -88,6 +110,9 @@ except ImportError:
         normalize_depth,
         validate_depth_conflict,
     )
+    from shared.version import PROJECT_VERSION
+    from shared.execution.context import RunContext, StageKind
+    from shared.execution.preflight import PreflightError
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 # OpenAlex politeness pool: declare contact in URL; custom agent-style UA suffixes
@@ -459,43 +484,100 @@ def deduplicate_records(records):
     return res.get("merged_records", [])
 
 
-def run_deep_search(query_str, limit=30, include_theses=True):
+def run_deep_search(query_str, limit=30, include_theses=True, profile=None):
     """
-    Multi-round deep search with concept expansion, citation chasing, deduplication,
-    and saturation tracking (Enhanced OpenAlex multi-pass expansion and limited citation chasing).
+    Deep-tier search (RFC-014 / P2-02).
+
+    Phase 1: Primary query.
+    Phase 2: Concept-expansion sub-queries, repeated ``profile.concept_expansion_rounds`` times.
+    Phase 3: Citation snowballing, repeated ``profile.snowball_rounds`` times.
+
+    Round counts come from the confirmed profile and only executed rounds are
+    reported (R11).
     """
+    profile = profile or get_profile(ExecutionDepth.DEEP)
+    expansion_budget = max(0, int(profile.concept_expansion_rounds))
+    snowball_budget = max(0, int(profile.snowball_rounds))
+
     sys.stderr.write(f"[*] Deep Search Phase 1: Primary query '{query_str}' (target: {limit})\n")
     errors = []
+    skipped_steps = []
+    queries_executed = 0
+    expansion_rounds_executed = 0
+    snowball_rounds_executed = 0
+
     r1_res = query_openalex_headless(query_str, limit=limit, include_theses=include_theses)
     round1_records, r1_err = r1_res[0], r1_res[1]
+    queries_executed += 1
     if r1_err:
         errors.append(r1_err)
     reported_total_hits = getattr(r1_res, "reported_total_hits", None)
 
-    # Phase 2: Formulate concept expansion / sub-query variants
+    # Phase 2: concept expansion / sub-query variants (one per configured round).
     words = [w for w in query_str.split() if len(w) > 3]
-    round2_records = []
-    if len(words) >= 2:
-        variant_query = f"{words[0]} {words[-1]}"
-        sys.stderr.write(f"[*] Deep Search Phase 2: Concept expansion query '{variant_query}'\n")
-        r2_res = query_openalex_headless(variant_query, limit=max(5, limit // 2), include_theses=include_theses)
-        round2_records, r2_err = r2_res[0], r2_res[1]
-        if r2_err:
-            errors.append(r2_err)
+    expansion_records = []
+    if expansion_budget and len(words) >= 2:
+        for round_index in range(expansion_budget):
+            if round_index == 0:
+                variant_query = f"{words[0]} {words[-1]}"
+            else:
+                tail = words[min(round_index, len(words) - 1)]
+                variant_query = f"{words[0]} {tail}"
+            sys.stderr.write(
+                f"[*] Deep Search Phase 2.{round_index + 1}: Concept expansion query '{variant_query}'\n"
+            )
+            r2_res = query_openalex_headless(
+                variant_query, limit=max(5, limit // (2 * (round_index + 1))), include_theses=include_theses
+            )
+            queries_executed += 1
+            expansion_rounds_executed += 1
+            expansion_records.extend(r2_res[0])
+            if r2_res[1]:
+                errors.append(r2_res[1])
+    elif expansion_budget:
+        skipped_steps.append(
+            {
+                "step": "concept_expansion",
+                "configured_rounds": expansion_budget,
+                "executed_rounds": 0,
+                "reason": "query_too_short_for_expansion",
+            }
+        )
 
-    combined = round1_records + round2_records
+    combined = round1_records + expansion_records
     deduped = deduplicate_records(combined)
 
-    # Phase 3: Citation Snowballing on the highest-cited candidate discovered
+    # Phase 3: citation snowballing on the highest-cited candidates discovered.
     snowballed_records = []
-    eligible_seeds = [r for r in deduped if r.get("doi") and r.get("doi") != "NR" and r.get("citation_count", 0) > 0]
-    if eligible_seeds:
+    eligible_seeds = [
+        r for r in deduped if r.get("doi") and r.get("doi") != "NR" and r.get("citation_count", 0) > 0
+    ]
+    if snowball_budget and eligible_seeds:
         eligible_seeds.sort(key=lambda x: x.get("citation_count", 0), reverse=True)
-        top_seed = eligible_seeds[0]
-        sys.stderr.write(f"[*] Deep Search Phase 3: Citation snowballing on top seed: {top_seed.get('title')} ({top_seed.get('doi')})\n")
-        snowballed, sb_errs = run_snowball_search(top_seed["doi"], limit=min(10, max(3, limit // 3)), include_theses=include_theses)
-        errors.extend(sb_errs)
-        snowballed_records = [s for s in snowballed if s.get("snowball_role") != "SEED_PAPER"]
+        for round_index in range(snowball_budget):
+            seed = eligible_seeds[min(round_index, len(eligible_seeds) - 1)]
+            sys.stderr.write(
+                f"[*] Deep Search Phase 3.{round_index + 1}: Citation snowballing on seed: "
+                f"{seed.get('title')} ({seed.get('doi')})\n"
+            )
+            snowballed, sb_errs = run_snowball_search(
+                seed["doi"], limit=min(10, max(3, limit // 3)), include_theses=include_theses
+            )
+            queries_executed += 1
+            snowball_rounds_executed += 1
+            errors.extend(sb_errs)
+            snowballed_records.extend(
+                s for s in snowballed if s.get("snowball_role") != "SEED_PAPER"
+            )
+    elif snowball_budget:
+        skipped_steps.append(
+            {
+                "step": "snowballing",
+                "configured_rounds": snowball_budget,
+                "executed_rounds": 0,
+                "reason": "no_eligible_seed_with_citation_count",
+            }
+        )
 
     all_candidates = deduplicate_records(deduped + snowballed_records)
 
@@ -510,61 +592,123 @@ def run_deep_search(query_str, limit=30, include_theses=True):
     expansion_status = "HIGH_EXPANSION_GAIN" if marginal_gain >= 0.3 else "MODERATE_EXPANSION_GAIN"
     saturation_tracking = {
         "mode": "deep",
-        "rounds_executed": 3,
+        "configured_rounds": 1 + expansion_budget + snowball_budget,
+        "queries_executed": queries_executed,
+        "expansion_rounds_executed": expansion_rounds_executed,
+        "snowball_rounds_executed": snowball_rounds_executed,
+        "rounds_executed": queries_executed,
         "total_raw_retrieved": total_retrieved,
         "unique_deduplicated": unique_count,
         "round1_baseline": len(round1_records),
-        "expansion_added": len(round2_records),
+        "expansion_added": len(expansion_records),
         "snowball_added": len(snowballed_records),
         "marginal_gain_ratio": round(marginal_gain, 3),
         "expansion_gain_status": expansion_status,
         "saturation_status": expansion_status,
         "reported_total_hits": reported_total_hits,
-        "errors": errors
+        "skipped_steps": skipped_steps,
+        "errors": errors,
     }
 
     return all_candidates, saturation_tracking
 
 
-def run_standard_search(query_str, limit=50, include_theses=True):
+def run_standard_search(query_str, limit=50, include_theses=True, profile=None):
     """
-    Two-phase standard search balancing recall and efficiency (RFC-014 / P2-02):
-    Phase 1: Primary query
-    Phase 2: Single concept expansion query
-    Phase 3: Targeted snowballing on top seed paper (limit 5)
+    Standard-tier search (RFC-014 / P2-02).
+
+    Phase 1: Primary query.
+    Phase 2: Concept-expansion queries, repeated ``profile.concept_expansion_rounds`` times.
+    Phase 3: Targeted snowballing on the top seed, repeated ``profile.snowball_rounds`` times.
+
+    Round counts are driven by the confirmed profile and the executed counts are
+    reported truthfully, so a configured-but-skipped step never appears as run
+    (R11).
     """
+    profile = profile or get_profile(ExecutionDepth.STANDARD)
+    expansion_budget = max(0, int(profile.concept_expansion_rounds))
+    snowball_budget = max(0, int(profile.snowball_rounds))
+
     sys.stderr.write(f"[*] Standard Search Phase 1: Primary query '{query_str}' (target: {limit})\n")
     errors = []
+    skipped_steps = []
+    queries_executed = 0
+    expansion_rounds_executed = 0
+    snowball_rounds_executed = 0
+
     r1_res = query_openalex_headless(query_str, limit=limit, include_theses=include_theses)
     round1_records, r1_err = r1_res[0], r1_res[1]
+    queries_executed += 1
     if r1_err:
         errors.append(r1_err)
     reported_total_hits = getattr(r1_res, "reported_total_hits", None)
 
-    # Phase 2: Formulate 1-round concept expansion query variant
+    # Phase 2: concept expansion queries (one per configured round).
     words = [w for w in query_str.split() if len(w) > 3]
-    round2_records = []
-    if len(words) >= 2:
-        variant_query = f"{words[0]} {words[-1]}"
-        sys.stderr.write(f"[*] Standard Search Phase 2: Concept expansion query '{variant_query}'\n")
-        r2_res = query_openalex_headless(variant_query, limit=max(3, limit // 3), include_theses=include_theses)
-        round2_records, r2_err = r2_res[0], r2_res[1]
-        if r2_err:
-            errors.append(r2_err)
+    expansion_records = []
+    if expansion_budget and len(words) >= 2:
+        for round_index in range(expansion_budget):
+            variant_query = f"{words[0]} {words[-1]}"
+            if round_index > 0:
+                # Later rounds narrow to a different term so the rounds are not
+                # literal duplicates of each other.
+                tail = words[min(round_index, len(words) - 1)]
+                variant_query = f"{words[0]} {tail}"
+            sys.stderr.write(
+                f"[*] Standard Search Phase 2.{round_index + 1}: Concept expansion query '{variant_query}'\n"
+            )
+            r2_res = query_openalex_headless(
+                variant_query, limit=max(3, limit // (3 * (round_index + 1))), include_theses=include_theses
+            )
+            queries_executed += 1
+            expansion_rounds_executed += 1
+            expansion_records.extend(r2_res[0])
+            if r2_res[1]:
+                errors.append(r2_res[1])
+    elif expansion_budget:
+        skipped_steps.append(
+            {
+                "step": "concept_expansion",
+                "configured_rounds": expansion_budget,
+                "executed_rounds": 0,
+                "reason": "query_too_short_for_expansion",
+            }
+        )
 
-    combined = round1_records + round2_records
+    combined = round1_records + expansion_records
     deduped = deduplicate_records(combined)
 
-    # Phase 3: Targeted lightweight snowballing on top 1 seed
+    # Phase 3: targeted lightweight snowballing on the top seed.
     snowballed_records = []
-    eligible_seeds = [r for r in deduped if r.get("doi") and r.get("doi") != "NR" and r.get("citation_count", 0) > 0]
-    if eligible_seeds:
+    eligible_seeds = [
+        r for r in deduped if r.get("doi") and r.get("doi") != "NR" and r.get("citation_count", 0) > 0
+    ]
+    if snowball_budget and eligible_seeds:
         eligible_seeds.sort(key=lambda x: x.get("citation_count", 0), reverse=True)
-        top_seed = eligible_seeds[0]
-        sys.stderr.write(f"[*] Standard Search Phase 3: Targeted snowballing on top seed: {top_seed.get('title')} ({top_seed.get('doi')})\n")
-        snowballed, sb_errs = run_snowball_search(top_seed["doi"], limit=5, include_theses=include_theses)
-        errors.extend(sb_errs)
-        snowballed_records = [s for s in snowballed if s.get("snowball_role") != "SEED_PAPER"]
+        for round_index in range(snowball_budget):
+            seed = eligible_seeds[min(round_index, len(eligible_seeds) - 1)]
+            sys.stderr.write(
+                f"[*] Standard Search Phase 3.{round_index + 1}: Targeted snowballing on seed: "
+                f"{seed.get('title')} ({seed.get('doi')})\n"
+            )
+            snowballed, sb_errs = run_snowball_search(
+                seed["doi"], limit=5, include_theses=include_theses
+            )
+            queries_executed += 1
+            snowball_rounds_executed += 1
+            errors.extend(sb_errs)
+            snowballed_records.extend(
+                s for s in snowballed if s.get("snowball_role") != "SEED_PAPER"
+            )
+    elif snowball_budget:
+        skipped_steps.append(
+            {
+                "step": "snowballing",
+                "configured_rounds": snowball_budget,
+                "executed_rounds": 0,
+                "reason": "no_eligible_seed_with_citation_count",
+            }
+        )
 
     all_candidates = deduplicate_records(deduped + snowballed_records)
     for idx, r in enumerate(all_candidates):
@@ -577,17 +721,22 @@ def run_standard_search(query_str, limit=50, include_theses=True):
 
     saturation_tracking = {
         "mode": "standard",
-        "rounds_executed": 2,
+        "configured_rounds": 1 + expansion_budget + snowball_budget,
+        "queries_executed": queries_executed,
+        "expansion_rounds_executed": expansion_rounds_executed,
+        "snowball_rounds_executed": snowball_rounds_executed,
+        "rounds_executed": queries_executed,
         "total_raw_retrieved": total_retrieved,
         "unique_deduplicated": unique_count,
         "round1_baseline": len(round1_records),
-        "expansion_added": len(round2_records),
+        "expansion_added": len(expansion_records),
         "snowball_added": len(snowballed_records),
         "marginal_gain_ratio": round(marginal_gain, 3),
         "expansion_gain_status": "MODERATE_EXPANSION_GAIN" if marginal_gain >= 0.15 else "LOW_EXPANSION_GAIN",
         "saturation_status": "MODERATE_EXPANSION_GAIN" if marginal_gain >= 0.15 else "LOW_EXPANSION_GAIN",
         "reported_total_hits": reported_total_hits,
-        "errors": errors
+        "skipped_steps": skipped_steps,
+        "errors": errors,
     }
     return all_candidates, saturation_tracking
 
@@ -621,6 +770,46 @@ def build_prisma_s_audit(mode: str, snowball_seed: str = None) -> dict:
     }
 
 
+def _emit_headless_error(
+    output_file,
+    status,
+    error,
+    stderr_message,
+    exit_code,
+):
+    """Emit a contract-shaped error payload and guarantee zero research calls."""
+    payload = {
+        "schema_version": "1.1",
+        "status": status,
+        "error": error,
+        "errors": [error],
+        "search_target": None,
+        "search_protocol": {
+            "mode": None,
+            "execution_depth": None,
+            "is_snowball": False,
+            "seed_identifier": None,
+        },
+        "retrieval_coverage_ledger": {},
+        "retrieval_gaps": [],
+        "acquisition_gaps": [],
+        "candidates": [],
+        "metadata": {
+            "agent_pipeline": "literature-discovery-acquisition",
+            "version": PROJECT_VERSION,
+        },
+    }
+    output_json = json.dumps(payload, indent=2, ensure_ascii=False)
+    if output_file:
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write(output_json)
+        sys.stderr.write("[-] Headless results saved to: %s (status: %s)\n" % (output_file, status))
+    else:
+        print(output_json)
+    sys.stderr.write(stderr_message)
+    return exit_code
+
+
 def run_headless_search(
     query=None,
     snowball_seed=None,
@@ -629,88 +818,149 @@ def run_headless_search(
     include_theses=True,
     limit=None,
     output_file=None,
+    run_context=None,
+    run_dir=None,
 ):
-    """运行完整的 Headless 数据检索与滚雪球管道 (支持 quick / standard / deep)"""
-    # 1. Check for missing execution depth in headless run (T08)
-    if not snowball_seed and not mode and not execution_depth:
-        payload = {
-            "schema_version": "1.1",
-            "status": "INPUT_REQUIRED",
-            "error": "Execution depth is required for headless runs. Please specify --execution-depth quick|standard|deep.",
-            "candidates": [],
-            "metadata": {
-                "agent_pipeline": "literature-discovery-acquisition",
-                "version": "0.6.5",
-            },
-        }
-        output_json = json.dumps(payload, indent=2, ensure_ascii=False)
-        if output_file:
-            with open(output_file, "w", encoding="utf-8") as f:
-                f.write(output_json)
-            sys.stderr.write(f"[-] Headless results saved to: {output_file} (status: INPUT_REQUIRED)\n")
-        else:
-            print(output_json)
-        sys.stderr.write("[-] INPUT_REQUIRED: Execution depth must be explicitly specified (--execution-depth).\n")
-        return 2
+    """运行完整的 Headless 数据检索与滚雪球管道 (支持 quick / standard / deep)
+
+    All research entry points (plain query and snowball) require an explicit,
+    valid execution depth. A missing *or invalid* value returns a structured
+    error and performs zero research tool calls (T08/T10, R03).
+    """
+    # 1. Distinguish "not provided" from "provided but invalid" (R03).
+    provided = [v for v in (mode, execution_depth) if v is not None and str(v).strip() != ""]
+    if not provided:
+        return _emit_headless_error(
+            output_file,
+            status="INPUT_REQUIRED",
+            error=(
+                "Execution depth is required for headless runs. "
+                "Please specify --execution-depth quick|standard|deep."
+            ),
+            stderr_message=(
+                "[-] INPUT_REQUIRED: Execution depth must be explicitly specified "
+                "(--execution-depth).\n"
+            ),
+            exit_code=2,
+        )
+
+    invalid = [v for v in provided if normalize_depth(str(v)) is None]
+    if invalid:
+        return _emit_headless_error(
+            output_file,
+            status="INVALID_PARAMETER",
+            error=(
+                "Invalid execution depth value(s): %s. "
+                "Allowed values: quick, standard, deep (aliases: 快速, 标准, 深度, 中等)."
+                % ", ".join(repr(v) for v in invalid)
+            ),
+            stderr_message="[-] INVALID_PARAMETER: %s\n" % ", ".join(repr(v) for v in invalid),
+            exit_code=1,
+        )
 
     # 2. Check for conflicting legacy mode and depth (T10)
     try:
         resolved_depth = validate_depth_conflict(mode, execution_depth)
     except ValueError as ve:
-        err_msg = str(ve)
-        payload = {
-            "schema_version": "1.1",
-            "status": "FAILED",
-            "error": err_msg,
-            "errors": [err_msg],
-            "candidates": [],
-        }
-        output_json = json.dumps(payload, indent=2, ensure_ascii=False)
-        if output_file:
-            with open(output_file, "w", encoding="utf-8") as f:
-                f.write(output_json)
-            sys.stderr.write(f"[-] Headless results saved to: {output_file} (status: FAILED)\n")
-        else:
-            print(output_json)
-        sys.stderr.write(f"[-] {err_msg}\n")
-        return 1
+        return _emit_headless_error(
+            output_file,
+            status="INVALID_PARAMETER",
+            error=str(ve),
+            stderr_message="[-] %s\n" % ve,
+            exit_code=1,
+        )
 
+    # 3. Every research entry point -- including snowball -- must pass the
+    #    preflight gate. There is no unconditional fallback to a default tier.
     if resolved_depth is None:
-        resolved_depth = ExecutionDepth.STANDARD
+        return _emit_headless_error(
+            output_file,
+            status="INPUT_REQUIRED",
+            error=(
+                "Execution depth is required for headless runs. "
+                "Please specify --execution-depth quick|standard|deep."
+            ),
+            stderr_message="[-] INPUT_REQUIRED: unresolvable execution depth.\n",
+            exit_code=2,
+        )
 
     prof = get_profile(resolved_depth)
-    if limit is None:
-        limit = prof.max_search_candidates
+    # `limit` is the PER-QUERY fetch ceiling; the run-level ceiling is a separate
+    # budget that accumulates across every query and expansion round (R11).
+    per_query_limit = limit if limit is not None else prof.max_search_candidates
+
+    ctx = run_context
+    if ctx is None:
+        ctx = RunContext.create(
+            resolved_depth,
+            source="EXPLICIT_ARG",
+            run_dir=run_dir,
+            interaction_mode="headless",
+        )
+    try:
+        ctx.begin_stage(StageKind.DISCOVERY)
+    except PreflightError as exc:
+        return _emit_headless_error(
+            output_file,
+            status="INVALID_PARAMETER",
+            error=str(exc),
+            stderr_message="[-] %s\n" % exc,
+            exit_code=1,
+        )
 
     errors = []
     saturation_info = None
     reported_hits = None
+    actual_queries = 0
+    expansion_rounds_executed = 0
+    snowball_rounds_executed = 0
+    skipped_steps = []
     if snowball_seed:
-        candidates, sb_errors = run_snowball_search(snowball_seed, limit=limit, include_theses=include_theses)
+        candidates, sb_errors = run_snowball_search(
+            snowball_seed, limit=per_query_limit, include_theses=include_theses
+        )
+        snowball_rounds_executed = 1
+        actual_queries = 1
         errors = sb_errors
         search_target = f"Snowball seed: {snowball_seed}"
         reported_hits = len(candidates)
     elif resolved_depth == ExecutionDepth.DEEP:
-        sys.stderr.write(f"[*] Running Headless Deep Search: '{query}' (Limit: {limit}, Theses: {include_theses})\n")
-        candidates, saturation_info = run_deep_search(query, limit=limit, include_theses=include_theses)
+        sys.stderr.write(f"[*] Running Headless Deep Search: '{query}' (Limit: {per_query_limit}, Theses: {include_theses})\n")
+        candidates, saturation_info = run_deep_search(
+            query, limit=per_query_limit, include_theses=include_theses, profile=prof
+        )
         errors = saturation_info.get("errors", [])
         search_target = query
         reported_hits = saturation_info.get("reported_total_hits")
+        actual_queries = int(saturation_info.get("queries_executed", 1))
+        expansion_rounds_executed = int(saturation_info.get("expansion_rounds_executed", 0))
+        snowball_rounds_executed = int(saturation_info.get("snowball_rounds_executed", 0))
+        skipped_steps = list(saturation_info.get("skipped_steps", []))
     elif resolved_depth == ExecutionDepth.STANDARD:
-        sys.stderr.write(f"[*] Running Headless Standard Search: '{query}' (Limit: {limit}, Theses: {include_theses})\n")
-        candidates, saturation_info = run_standard_search(query, limit=limit, include_theses=include_theses)
+        sys.stderr.write(f"[*] Running Headless Standard Search: '{query}' (Limit: {per_query_limit}, Theses: {include_theses})\n")
+        candidates, saturation_info = run_standard_search(
+            query, limit=per_query_limit, include_theses=include_theses, profile=prof
+        )
         errors = saturation_info.get("errors", [])
         search_target = query
         reported_hits = saturation_info.get("reported_total_hits")
+        actual_queries = int(saturation_info.get("queries_executed", 1))
+        expansion_rounds_executed = int(saturation_info.get("expansion_rounds_executed", 0))
+        snowball_rounds_executed = int(saturation_info.get("snowball_rounds_executed", 0))
+        skipped_steps = list(saturation_info.get("skipped_steps", []))
     else:
-        sys.stderr.write(f"[*] Running Headless Quick Search: '{query}' (Limit: {limit}, Theses: {include_theses})\n")
-        q_res = query_openalex_headless(query, limit=limit, include_theses=include_theses)
+        sys.stderr.write(f"[*] Running Headless Quick Search: '{query}' (Limit: {per_query_limit}, Theses: {include_theses})\n")
+        q_res = query_openalex_headless(query, limit=per_query_limit, include_theses=include_theses)
+        actual_queries = 1
         candidates, q_err = q_res[0], q_res[1]
         errors = [q_err] if q_err else []
         reported_hits = getattr(q_res, "reported_total_hits", None)
         saturation_info = {
             "mode": "quick",
             "rounds_executed": 1,
+            "queries_executed": 1,
+            "expansion_rounds_executed": 0,
+            "snowball_rounds_executed": 0,
             "total_raw_retrieved": len(candidates),
             "unique_deduplicated": len(candidates),
             "marginal_gain_ratio": 0.0,
@@ -799,11 +1049,69 @@ def run_headless_search(
         )
 
 
-    retrieval_ledger = [entry]
+    # The run-level candidate ceiling accumulates across every query. Anything
+    # fetched beyond it is preserved with an explicit unprocessed status instead
+    # of being silently dropped or silently counted (R11).
+    granted = ctx.consume_candidates(len(candidates))
+    unprocessed = []
+    if granted < len(candidates):
+        for record in candidates[granted:]:
+            unprocessed.append(
+                {
+                    "record_id": record.get("record_id") or record.get("id"),
+                    "title": record.get("title"),
+                    "source": record.get("source_databases"),
+                    "processing_status": "UNPROCESSED_BEYOND_RUN_CEILING",
+                }
+            )
+        candidates = candidates[:granted]
+    ctx.record_event(
+        "candidate_ceiling",
+        {
+            "per_query_limit": per_query_limit,
+            "run_ceiling": ctx.config.budgets.max_search_candidates,
+            "fetched": granted + len(unprocessed),
+            "processed": granted,
+            "unprocessed": len(unprocessed),
+        },
+    )
+
+    ledger_entries = [entry]
     metadata_corpus_summary = freeze_metadata_corpus(candidates)
-    gate_a_audit = audit_discovery_coverage_gate(retrieval_ledger, metadata_corpus_summary)
-    retrieval_gaps = [e for e in retrieval_ledger if e.get("coverage_status") in {CoverageStatus.PARTIAL, CoverageStatus.UNKNOWN}]
+    retrieval_gaps = [
+        e for e in ledger_entries
+        if e.get("coverage_status") in {CoverageStatus.PARTIAL, CoverageStatus.UNKNOWN}
+    ]
     acquisition_gaps = []
+
+    # Ledger A is an envelope object, matching retrieval_coverage_ledger.schema.json
+    # and the "dual independent ledgers" design (R11 contract alignment).
+    retrieval_ledger = {
+        "ledger_id": "LEDGER_A_RETRIEVAL_COVERAGE",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "entries": ledger_entries,
+        "retrieval_gaps": retrieval_gaps,
+        "has_retrieval_gaps": bool(retrieval_gaps),
+        "frozen_corpus_summary": {
+            "status": metadata_corpus_summary.get("status"),
+            "total_raw_records": metadata_corpus_summary.get("total_raw_records"),
+            "unique_records": metadata_corpus_summary.get("unique_records"),
+        },
+    }
+    gate_a_audit = audit_discovery_coverage_gate(retrieval_ledger, metadata_corpus_summary)
+
+    # Report only rounds that actually executed; a configured depth is not an
+    # executed round (R11).
+    if saturation_info is None:
+        saturation_info = {}
+    saturation_info["queries_executed"] = actual_queries
+    saturation_info["expansion_rounds_executed"] = expansion_rounds_executed
+    saturation_info["snowball_rounds_executed"] = snowball_rounds_executed
+    saturation_info["rounds_executed"] = actual_queries + expansion_rounds_executed
+    saturation_info["configured_rounds"] = (
+        ctx.config.budgets.concept_expansion_rounds + ctx.config.budgets.snowball_rounds + 1
+    )
+    saturation_info["skipped_steps"] = skipped_steps
 
     if status == "FAILED" or (not candidates and retrieval_gaps):
         overall_discovery_status = OverallDiscoveryStatus.FAILED
@@ -832,14 +1140,31 @@ def run_headless_search(
             "is_snowball": bool(snowball_seed),
             "seed_identifier": snowball_seed,
             "query": query,
-            "limit": limit,
+            "limit": per_query_limit,
+            "per_query_limit": per_query_limit,
             "include_theses": include_theses,
+            "configured_limits": {
+                "max_search_candidates": ctx.config.budgets.max_search_candidates,
+                "snowball_rounds": ctx.config.budgets.snowball_rounds,
+                "concept_expansion_rounds": ctx.config.budgets.concept_expansion_rounds,
+                "per_query_limit": per_query_limit,
+            },
+            "actual_usage": {
+                "queries_executed": actual_queries,
+                "expansion_rounds_executed": expansion_rounds_executed,
+                "snowball_rounds_executed": snowball_rounds_executed,
+                "candidates_processed": ctx.candidates_processed,
+                "candidates_unprocessed": len(unprocessed),
+                "skipped_steps": skipped_steps,
+            },
             "thesis_preference": {
                 "requested": "include" if include_theses else "exclude",
                 "enforcement": "FILTERED_BY_WORK_TYPE" if not include_theses else "PERMITTED",
             },
         },
         "candidates": candidates,
+        "unprocessed_candidates": unprocessed,
+        "execution_plan": ctx.planned_call_trace()['stages'],
         "prisma_s_audit": build_prisma_s_audit(resolved_depth.value, snowball_seed),
         "saturation_tracking": saturation_info,
         "grounding_controls": {
@@ -849,7 +1174,7 @@ def run_headless_search(
         },
         "metadata": {
             "agent_pipeline": "literature-discovery-acquisition",
-            "version": "0.6.5",
+            "version": PROJECT_VERSION,
             "schema_version": "1.1",
             "features": [
                 "OpenAlex Headless",

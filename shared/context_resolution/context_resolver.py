@@ -99,56 +99,511 @@ class ContextProvider:
         raise NotImplementedError
 
 
-def extract_execution_depth_from_text(text: str) -> Optional[str]:
-    """Extract explicit execution depth intent while rejecting false-positive triggers (T06, T07)."""
-    # 1. Mask false-positive domain phrases before searching for depth intent
-    masked = text
-    masked = re.sub(r"(深度学习|deep\s+learning)", "___MASKED___", masked, flags=re.IGNORECASE)
-    masked = re.sub(
-        r"(快速检测|快速测定|快速筛查|快速方法|rapid\s+detection|rapid\s+test)",
-        "___MASKED___",
-        masked,
-        flags=re.IGNORECASE,
-    )
-    masked = re.sub(
-        r"(标准差|standard\s+deviation|国家标准|行业标准|金标准|gold\s+standard)",
-        "___MASKED___",
-        masked,
-        flags=re.IGNORECASE,
-    )
+class DepthIntent(str, Enum):
+    """Classification of a depth-keyword mention inside a text span (R01).
 
-    # 2. Match depth keywords with command context or prefixes/suffixes
-    pat = re.compile(
-        r"(?:(?:这次用|使用|用|按|以|选|设置为|切换到|采用)\s*)?"
-        r"(快速|标准|深度|中等|quick|standard|deep)"
-        r"(?:\s*(?:模式|深度|档位|档|档次|运行|执行|level|tier|mode|depth))?",
-        re.IGNORECASE,
-    )
-    for m in pat.finditer(masked):
-        full_match = m.group(0).strip()
-        matched_word = m.group(1).strip()
-        has_prefix = any(p in full_match for p in ("这次用", "使用", "用", "按", "以", "选", "设置为", "切换到", "采用"))
-        has_suffix = any(
-            s in full_match
-            for s in ("模式", "深度", "档位", "档", "档次", "运行", "执行", "level", "tier", "mode", "depth")
-        )
-        if has_prefix or has_suffix or len(masked.strip()) <= 15:
-            from shared.execution.selection import normalize_depth
+    Only ``DECISION`` may be treated as an explicit user selection. Every other
+    member must stay unresolved (or be presented as a non-decision) so that a
+    keyword mention can never masquerade as a confirmed execution depth.
+    """
 
-            norm = normalize_depth(matched_word)
-            if norm:
-                return norm.value
+    NONE = "NONE"                  # No depth keyword at all
+    DECISION = "DECISION"          # Affirmative selection by the current user
+    CORRECTED = "CORRECTED"        # Explicit self-correction; last value wins
+    NEGATED = "NEGATED"            # "不要用深度模式" -> explicitly declined
+    QUESTION = "QUESTION"          # "深度模式是什么意思" -> asking, not choosing
+    QUOTED = "QUOTED"              # Direct quotation of someone else's wording
+    CONDITIONAL = "CONDITIONAL"    # "如果时间够就用深度档" -> not committed
+    AMBIGUOUS = "AMBIGUOUS"        # Two conflicting selections, no correction
+
+    @property
+    def is_confirmable(self) -> bool:
+        """Whether this intent may unlock an explicit-selection dimension."""
+        return self in (DepthIntent.DECISION, DepthIntent.CORRECTED)
+
+
+@dataclass
+class ExecutionDepthIntentResult:
+    """Structured outcome of depth-intent detection (R01).
+
+    Replaces the previous bare ``Optional[str]`` return so that callers can
+    distinguish "extracted a word" from "the user actually confirmed it".
+    """
+
+    intent: DepthIntent = DepthIntent.NONE
+    value: Optional[str] = None            # Canonical depth value, only when confirmable
+    source: str = "text"                   # Where the signal came from
+    scope: str = "current_run"             # Applicability of the decision
+    ambiguity: bool = False
+    candidates: List[str] = field(default_factory=list)
+    evidence: str = ""                     # The matched span, for auditability
+    reason: str = ""                       # Why this classification was reached
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "intent": self.intent.value,
+            "value": self.value,
+            "source": self.source,
+            "scope": self.scope,
+            "ambiguity": self.ambiguity,
+            "candidates": list(self.candidates),
+            "evidence": self.evidence,
+            "reason": self.reason,
+        }
+
+
+# Depth-surface forms that are NOT depth selections. Masking happens before any
+# keyword scan so that "深度学习" can never be read as "深度档". Patterns are
+# deliberately narrow (lookahead-bound) so that legitimate tier words such as a
+# bare "中等" alias or "快速模式" survive masking.
+_DEPTH_FALSE_POSITIVE_PATTERNS = (
+    # 深度 + domain noun (never a tier)
+    r"深度(?=学习|神经网络|网络|模型|融合|参与|访谈|分析|阅读|挖掘|合作|交流|改革|报道|调查)",
+    r"deep\s+(?=learning|neural|network|model|fusion|dive|read)",
+    # 快速 + domain noun (never a tier)
+    r"快速(?=检测|测定|筛查|诊断|方法|响应|原型|充电|排序|幂|部署|上手|验证|评估|检测法)",
+    r"rapid\s+(?=detection|test|prototyp|response|sort|charging)",
+    # 标准 as a norm/reference, not a tier
+    r"标准(?=差|偏差|化|规范|文件|委员会|值|品|物质|溶液|曲线|误|误差|大气压|状况)",
+    r"(?<=国家|行业|国际|地方|企业|技术|安全|质量|检测)标准",
+    r"金标准",
+    r"standard\s+(?=deviation|error|curve|solution|reference|committee|operating)",
+    r"gold\s+standard",
+    # 中等 + domain noun (never the "standard tier" alias)
+    r"中等(?=收入|规模|水平|教育|城市|城市群|职业|专业|技术|强度|大小|体型|以上|以下)",
+    # 快速/中等 in clearly adjectival verb phrases
+    r"快速(?=增长|发展|上升|下降|变化|扩张|增加|减少)",
+)
+
+# Someone else proposing/discussing a tier is not the current user selecting it.
+# Split by direction: a *preceding* attribution means the tier is reported speech
+# ("作者建议深度模式"), a *trailing* attribution means the tier is being inquired
+# about ("深度模式的文献"). A trailing topic noun far to the right is just wording.
+_ATTRIBUTION_BEFORE_MARKERS = (
+    "建议", "推荐", "作者", "论文中", "文献中", "原文", "有人", "他说", "她说",
+    "据称", "声称", "提到过", "讨论", "询问", "考虑", "是否需要", "要不要",
+    "suggest", "recommend", "author",
+)
+_ATTRIBUTION_AFTER_MARKERS = (
+    "是什么", "什么意思", "有哪些", "怎么样", "的文献", "的论文", "的说法",
+)
+_NON_DECISION_ATTRIBUTION_MARKERS = _ATTRIBUTION_BEFORE_MARKERS + _ATTRIBUTION_AFTER_MARKERS
+
+# A depth keyword plus an optional tier suffix. Used for candidate extraction.
+# The lookbehind stops "标准深度" from being read as two competing tiers.
+_DEPTH_KEYWORD_PATTERN = re.compile(
+    r"(?P<word>快速|标准|深度|中等|quick|standard|deep)"
+    r"(?:\s*(?P<suffix>模式|档位|档次|档|运行|执行|level|tier|mode|depth))?",
+    re.IGNORECASE,
+)
+
+# Suffixes that make a bare keyword a genuine tier reference ("深度模式").
+_TIER_SUFFIXES = ("模式", "档位", "档次", "档", "运行", "执行", "level", "tier", "mode", "depth")
+
+_NEGATION_MARKERS = (
+    "不要", "不用", "不想", "别用", "别选", "不选", "不采用", "不使用", "不按",
+    "取消", "无需", "不必", "禁止", "避免", "拒绝", "排除", "否掉", "否",
+    "do not", "don't", "dont", "no need", "avoid", "cancel", "without",
+)
+
+_QUESTION_MARKERS = (
+    "是什么意思", "什么意思", "是什么", "有哪些", "哪种", "哪个", "怎么", "如何",
+    "是否", "能否", "可以吗", "行吗", "吗", "呢", "为何", "为什么", "解释",
+    "what is", "what's", "which", "how ", "why", "does ", "should ",
+)
+
+_QUOTE_PAIRS = (("“", "”"), ("「", "」"), ("『", "』"), ('"', '"'), ("'", "'"), ("《", "》"))
+
+_CORRECTION_MARKERS = (
+    "不，", "不,", "不对", "不是", "更正", "纠正", "更正为",
+    "应该说", "准确说", "准确地说", "其实", "而是", "重新选",
+    "rather", "instead", "correction", "actually",
+)
+
+# An explicit switch is stronger than a bare negation: it replaces the earlier
+# tier instead of merely declining it ("不要用标准档，改用快速档" -> quick).
+_SWITCH_MARKERS = (
+    "改用", "换成", "换为", "换到", "改选", "重选", "重新选", "改为用",
+    "switch to", "change to", "instead use",
+)
+
+_CONDITIONAL_MARKERS = (
+    "如果", "假如", "若", "要是", "万一", "除非", "取决于", "看情况",
+    "if ", "unless", "depending",
+)
+
+# Commitment verbs that turn a hedge into an instruction. "就"/"则" are omitted
+# on purpose: they are the standard Chinese conditional correlatives.
+_COMMITMENT_MARKERS = ("请你", "帮我", "请用", "决定", "确定", "采用", "开始", "执行", "please ")
+
+_CLAUSE_SPLIT_PATTERN = re.compile(r"[，。！？；、\n\r\t]+|[!?;]+")
+
+
+def _iter_protected_quote_spans(text: str) -> List[Tuple[int, int]]:
+    """Return character spans that sit inside a quotation pair.
+
+    Quoted wording is treated as reported speech, never as the user's own
+    instruction, so a quoted depth keyword must not confirm anything.
+    """
+    spans: List[Tuple[int, int]] = []
+    for open_ch, close_ch in _QUOTE_PAIRS:
+        start = 0
+        while True:
+            begin = text.find(open_ch, start)
+            if begin == -1:
+                break
+            end = text.find(close_ch, begin + 1)
+            if end == -1:
+                # Unterminated quote: treat the remainder as quoted.
+                spans.append((begin, len(text)))
+                break
+            spans.append((begin, end))
+            start = end + 1
+    return spans
+
+
+def _offset_in_spans(offset: int, spans: List[Tuple[int, int]]) -> bool:
+    return any(begin <= offset <= end for begin, end in spans)
+
+
+def _iter_clauses_with_offsets(text: str) -> List[Tuple[str, int]]:
+    """Split ``text`` into clause-level spans, without cutting inside quotes.
+
+    Chinese quotation marks routinely contain commas ("论文中写着“采用深度模式，
+    但样本少”"), so a naive punctuation split would leak quoted wording into a
+    standalone clause and misread it as a user decision.
+    """
+    protected = _iter_protected_quote_spans(text)
+    clauses: List[Tuple[str, int]] = []
+    start = 0
+    for idx, ch in enumerate(text):
+        if ch not in "，。！？；、\n\r\t!?;":
+            continue
+        if _offset_in_spans(idx, protected):
+            continue
+        chunk = text[start:idx].strip()
+        if chunk:
+            clauses.append((chunk, start))
+        start = idx + 1
+    tail = text[start:].strip()
+    if tail:
+        clauses.append((tail, start))
+    return clauses
+
+
+def _iter_sentences_with_offsets(text: str) -> List[Tuple[str, int]]:
+    """Split ``text`` into sentence-level spans, never cutting inside quotes."""
+    protected = _iter_protected_quote_spans(text)
+    sentences: List[Tuple[str, int]] = []
+    start = 0
+    for idx, ch in enumerate(text):
+        if ch not in "。！？!?\n\r；;":
+            continue
+        if _offset_in_spans(idx, protected):
+            continue
+        chunk = text[start:idx].strip()
+        if chunk:
+            sentences.append((chunk, start))
+        start = idx + 1
+    tail = text[start:].strip()
+    if tail:
+        sentences.append((tail, start))
+    return sentences
+
+
+def _contains_any(haystack: str, needles: Tuple[str, ...]) -> Optional[str]:
+    for needle in needles:
+        if needle in haystack:
+            return needle
     return None
 
 
+def _has_adjacent_marker(
+    clause_text: str,
+    clause_offset: int,
+    mention_offset: int,
+    markers: Tuple[str, ...],
+    before: int = 6,
+    after: int = 4,
+) -> bool:
+    """Whether an attribution marker sits tightly around a mention.
+
+    The window is deliberately small: a topic noun several characters away
+    ("检索...文献") is ordinary wording, not attribution of the tier choice.
+    """
+    local = mention_offset - clause_offset
+    local_start = max(0, local - before)
+    local_end = min(len(clause_text), local + after)
+    window = clause_text[local_start:local_end]
+    return any(marker in window for marker in markers)
+
+
+def classify_execution_depth_intent(
+    text: str,
+    source: str = "current_user",
+    scope: str = "current_run",
+) -> ExecutionDepthIntentResult:
+    """Classify whether ``text`` contains a *confirmed* execution-depth selection (R01).
+
+    Extraction and confirmation are deliberately separate concerns here. The
+    function still finds depth keywords, but only an affirmative selection made
+    by the current user is reported as confirmable; negation, questions,
+    quotations, conditionals and unresolved multi-mentions are reported as
+    non-decisions with an auditable reason.
+    """
+    from shared.execution.selection import normalize_depth
+
+    if not text or not text.strip():
+        return ExecutionDepthIntentResult(reason="empty_text")
+
+    # 1. Mask surface forms that merely contain a depth keyword.
+    masked = text
+    for pattern in _DEPTH_FALSE_POSITIVE_PATTERNS:
+        masked = re.sub(pattern, "___MASKED___", masked, flags=re.IGNORECASE)
+
+    protected = _iter_protected_quote_spans(masked)
+
+    # 2. Collect genuine tier mentions as (offset, canonical_value, span_text).
+    mentions: List[Tuple[int, str, str]] = []
+    for m in _DEPTH_KEYWORD_PATTERN.finditer(masked):
+        if m.group("word").startswith("___"):
+            continue
+        suffix = (m.group("suffix") or "").strip().lower()
+        in_quote = _offset_in_spans(m.start(), protected)
+        # A bare keyword is only a tier reference when it carries a tier suffix,
+        # unless it is quoted (reported speech), an explicit command prefix, or
+        # the entire message (a bare "中等" reply to the depth question).
+        if not suffix and not in_quote:
+            preceding = masked[max(0, m.start() - 6):m.start()].strip()
+            whole_message = masked.strip() == m.group(0).strip()
+            # Only a command prefix *immediately* before the tier word counts;
+            # "标准深度" must not be read as two tiers just because "按" is
+            # nearby in "按标准深度".
+            has_command_prefix = any(
+                preceding.endswith(p)
+                for p in ("用", "按", "选", "走", "以", "成", "到", "为", "是", "set", "use", "to")
+            )
+            if not whole_message and not has_command_prefix:
+                continue
+        norm = normalize_depth(m.group("word"))
+        if not norm:
+            continue
+        mentions.append((m.start(), norm.value, m.group(0).strip()))
+
+    # A standard-tier word immediately followed by a depth-form modifier
+    # ("标准深度", "标准档深度") is one compound phrase, not two competing tiers.
+    # The gap stays at one character, so "用深度档还是标准档" keeps both mentions.
+    compound_filtered: List[Tuple[int, str, str]] = []
+    for offset, value, span in mentions:
+        gap_end = offset + len(span)
+        swallowed = any(
+            gap_end <= other_offset <= gap_end + 1 and other_span.startswith("深度")
+            for other_offset, _, other_span in mentions
+            if other_offset != offset
+        )
+        if not swallowed:
+            compound_filtered.append((offset, value, span))
+    if compound_filtered:
+        mentions = compound_filtered
+
+    if not mentions:
+        return ExecutionDepthIntentResult(reason="no_depth_mention")
+
+    # 3. Quoted mentions are reported speech, not user instructions.
+    unquoted = [item for item in mentions if not _offset_in_spans(item[0], protected)]
+    if not unquoted:
+        return ExecutionDepthIntentResult(
+            intent=DepthIntent.QUOTED,
+            source=source,
+            scope=scope,
+            evidence=mentions[0][2],
+            reason="depth_mention_inside_quotation",
+        )
+
+    # 4. Classify clause by clause so negation/question scope stays local.
+    clauses = _iter_clauses_with_offsets(masked)
+    correction_marker: Optional[str] = None
+    conditional_marker: Optional[str] = None
+    negation_marker: Optional[str] = None
+    question_marker: Optional[str] = None
+    attribution_marker: Optional[str] = None
+    conditional_clause_committed = False
+
+    for clause_text, clause_offset in clauses:
+        clause_end = clause_offset + len(clause_text)
+        clause_mentions = [item for item in unquoted if clause_offset <= item[0] <= clause_end]
+        found_correction = _contains_any(clause_text, _CORRECTION_MARKERS)
+        found_negation = _contains_any(clause_text, _NEGATION_MARKERS)
+        found_conditional = _contains_any(clause_text, _CONDITIONAL_MARKERS)
+        found_question = _contains_any(clause_text, _QUESTION_MARKERS)
+        found_attribution = _contains_any(clause_text, _NON_DECISION_ATTRIBUTION_MARKERS)
+        if found_correction:
+            correction_marker = correction_marker or found_correction
+        if found_negation:
+            negation_marker = negation_marker or found_negation
+        if found_conditional:
+            conditional_marker = conditional_marker or found_conditional
+        if found_question:
+            question_marker = question_marker or found_question
+        if found_attribution and clause_mentions:
+            # Attribution must sit *next to* the tier word. A distant "文献"
+            # elsewhere in a long clause is topic wording, not attribution.
+            for mention_offset, _, _ in clause_mentions:
+                if _has_adjacent_marker(
+                    clause_text, clause_offset, mention_offset, _ATTRIBUTION_BEFORE_MARKERS
+                ) or _has_adjacent_marker(
+                    clause_text, clause_offset, mention_offset, _ATTRIBUTION_AFTER_MARKERS
+                ):
+                    attribution_marker = attribution_marker or found_attribution
+                    break
+    # "这次不用深度，换成快速": the switch target wins over the negated tier.
+    switch_override: Optional[Tuple[str, str]] = None
+    for offset, value, span in unquoted:
+        tail_start = offset + len(span)
+        tail = masked[tail_start:tail_start + 12]
+        stop = _CLAUSE_SPLIT_PATTERN.search(tail)
+        if stop:
+            tail = tail[:stop.start()]
+        tail_marker = _contains_any(tail, _SWITCH_MARKERS)
+        if tail_marker:
+            switch_override = (value, tail_marker)
+            break
+
+    for clause_text, clause_offset in clauses:
+        # A conditional only commits the user when the *same clause* also
+        # carries a commitment verb ("如果时间够就请你用深度档").
+        if found_conditional and clause_mentions:
+            if any(marker in clause_text for marker in _COMMITMENT_MARKERS):
+                conditional_clause_committed = True
+
+    # A conditional that spans clauses ("如果时间够就用深度档") is still a hedge,
+    # so a commitment verb only counts when it lands in a *separate sentence*
+    # ("如果样本多就用深度档。请用深度档。").
+    if conditional_marker and not conditional_clause_committed:
+        for sentence, sentence_offset in _iter_sentences_with_offsets(masked):
+            sentence_end = sentence_offset + len(sentence)
+            sentence_mentions = [item for item in unquoted if sentence_offset <= item[0] <= sentence_end]
+            if not sentence_mentions:
+                continue
+            if _contains_any(sentence, _CONDITIONAL_MARKERS):
+                continue
+            if any(marker in sentence for marker in _COMMITMENT_MARKERS):
+                conditional_clause_committed = True
+                break
+
+    # An explicit switch ("不要用标准档，改用快速档") revises the earlier tier.
+    if not correction_marker and switch_override:
+        # Prefer the tier named right after the switch verb.
+        candidates.clear()
+        candidates.append(switch_override[0])
+        return _result(
+            DepthIntent.CORRECTED,
+            switch_override[0],
+            f"explicit_switch_via:{switch_override[1]}",
+        )
+
+    if not correction_marker:
+        switch_marker = _contains_any(masked, _SWITCH_MARKERS)
+        if switch_marker:
+            correction_marker = switch_marker
+
+    # A mid-sentence self-correction ("先用快速模式，不，改用深度模式") is split
+    # across clauses by the comma, so also look for the correction marker in the
+    # whole span whenever more than one tier was mentioned.
+    if not correction_marker and len({item[1] for item in unquoted}) > 1:
+        correction_marker = _contains_any(masked, _CORRECTION_MARKERS)
+
+    # A trailing question mark over the whole span is also an interrogative.
+    if not question_marker and re.search(r"[?？]\s*$", text.strip()):
+        question_marker = "?"
+
+    candidates: List[str] = []
+    for _, value, _ in unquoted:
+        if value not in candidates:
+            candidates.append(value)
+
+    def _result(intent: DepthIntent, value: Optional[str], reason: str, evidence: str = "") -> ExecutionDepthIntentResult:
+        return ExecutionDepthIntentResult(
+            intent=intent,
+            value=value,
+            source=source,
+            scope=scope,
+            ambiguity=intent == DepthIntent.AMBIGUOUS,
+            candidates=list(candidates),
+            evidence=evidence or (unquoted[-1][2] if unquoted else ""),
+            reason=reason,
+        )
+
+    # An explicit self-correction overrides everything else: the user is
+    # actively revising their own earlier statement, so the last value wins.
+    if correction_marker:
+        last_value = unquoted[-1][1]
+        return _result(
+            DepthIntent.CORRECTED,
+            last_value,
+            f"explicit_correction_via:{correction_marker}",
+        )
+
+    if negation_marker and not switch_override:
+        return _result(DepthIntent.NEGATED, None, f"negation_marker:{negation_marker}")
+
+    if question_marker:
+        return _result(DepthIntent.QUESTION, None, f"question_marker:{question_marker}")
+
+    if attribution_marker:
+        return _result(
+            DepthIntent.AMBIGUOUS,
+            None,
+            f"tier_attributed_to_third_party:{attribution_marker}",
+        )
+
+    if conditional_marker and not conditional_clause_committed:
+        return _result(
+            DepthIntent.CONDITIONAL,
+            None,
+            f"conditional_marker_without_commitment:{conditional_marker}",
+        )
+
+    if len(candidates) > 1:
+        return _result(
+            DepthIntent.AMBIGUOUS,
+            None,
+            "multiple_conflicting_depth_mentions_without_correction",
+        )
+
+    return _result(DepthIntent.DECISION, candidates[0], "affirmative_user_selection")
+
+
+def extract_execution_depth_from_text(text: str) -> Optional[str]:
+    """Backward-compatible wrapper returning only a *confirmable* depth value (R01).
+
+    Returns ``None`` for negations, questions, quotations, conditionals and
+    unresolved conflicts, so existing callers can no longer treat a keyword
+    mention as a confirmed selection.
+    """
+    result = classify_execution_depth_intent(text)
+    return result.value if result.intent.is_confirmable else None
+
+
 class ConversationContextProvider(ContextProvider):
-    """Parses historical statements and user confirmations in ongoing conversation."""
+    """Parses historical statements and user confirmations in ongoing conversation.
+
+    Only user-role turns may establish a decision (R01). An assistant message
+    that *recommends* a tier is not the user's selection, so it must never
+    resolve an explicit-selection dimension.
+    """
 
     def __init__(self, turns: Optional[List[Dict[str, str]]] = None):
         self.turns = turns or []
 
     def get_source_layer(self) -> str:
         return "conversation"
+
+    @staticmethod
+    def _is_user_turn(turn: Dict[str, Any]) -> bool:
+        """Treat a turn without a role as user content for backward compatibility."""
+        role = str(turn.get("role", "user") or "user").strip().lower()
+        return role in ("user", "human", "current_user")
 
     def fetch_facts(
         self,
@@ -168,22 +623,30 @@ class ConversationContextProvider(ContextProvider):
             if not content:
                 continue
 
+            is_user_turn = self._is_user_turn(turn)
             timestamp = float(turn.get("timestamp", len(self.turns) - turn_idx))
 
-            # Pattern: execution depth mentioned in prior turns (T06, T07)
-            if "EXECUTION_DEPTH" not in resolved_dims:
-                depth_val = extract_execution_depth_from_text(content)
-                if depth_val:
+            # Pattern: execution depth mentioned in prior turns (T06, T07 / R01).
+            # Only a user-role turn can establish the decision; assistant prose
+            # that merely recommends a tier must not resolve the dimension.
+            if is_user_turn and "EXECUTION_DEPTH" not in resolved_dims:
+                intent = classify_execution_depth_intent(
+                    content,
+                    source="conversation",
+                    scope="current_run",
+                )
+                if intent.intent.is_confirmable and intent.value:
                     facts.append(
                         ContextFact(
                             dimension_id="EXECUTION_DEPTH",
                             field_name="execution_depth",
-                            value=depth_val,
+                            value=intent.value,
                             source_layer="conversation",
                             source_ref=f"conversation_turn_{len(self.turns)-turn_idx}",
                             fact_type=FactType.TASK_DECISION,
                             volatility=FactVolatility.VOLATILE,
                             timestamp=timestamp,
+                            notes=f"intent={intent.intent.value};{intent.reason}",
                         )
                     )
                     resolved_dims.add("EXECUTION_DEPTH")
@@ -352,8 +815,17 @@ class AttachmentContextProvider(ContextProvider):
 class UpstreamArtifactContextProvider(ContextProvider):
     """Consumes artifacts from upstream ScholarFlow executions (e.g. Discovery -> Extraction -> Synthesis)."""
 
-    def __init__(self, upstream_data: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        upstream_data: Optional[Dict[str, Any]] = None,
+        current_run_id: Optional[str] = None,
+    ):
         self.upstream_data = upstream_data or {}
+        #: The run currently being executed. Resource authorisation never
+        #: transfers across runs, so this must match the upstream run id (R07).
+        self.current_run_id = current_run_id
+        #: Auditable record of upstream configuration that was NOT inherited.
+        self.rejected_inheritance: List[Dict[str, Any]] = []
 
     def get_source_layer(self) -> str:
         return "upstream_outputs"
@@ -410,35 +882,132 @@ class UpstreamArtifactContextProvider(ContextProvider):
                     )
                 )
 
-        # If upstream has execution profile or depth -> inherit EXECUTION_DEPTH (T11)
-        if "execution_profile" in self.upstream_data:
-            prof = self.upstream_data["execution_profile"]
-            depth_val = prof.get("depth") if isinstance(prof, dict) else getattr(prof, "depth", None)
-            if depth_val:
-                facts.append(
-                    ContextFact(
-                        dimension_id="EXECUTION_DEPTH",
-                        field_name="execution_depth",
-                        value=depth_val.value if hasattr(depth_val, "value") else str(depth_val),
-                        source_layer="upstream_outputs",
-                        source_ref="upstream_execution_profile",
-                        fact_type=FactType.TASK_DECISION,
-                    )
-                )
-        elif "execution_depth" in self.upstream_data:
-            depth_val = self.upstream_data["execution_depth"]
+        # Inherit the confirmed execution depth only from the SAME run (T11, R07).
+        inherited = self._resolve_inherited_execution_depth()
+        if inherited is not None:
+            depth_value, source_ref, rationale = inherited
             facts.append(
                 ContextFact(
                     dimension_id="EXECUTION_DEPTH",
                     field_name="execution_depth",
-                    value=depth_val.value if hasattr(depth_val, "value") else str(depth_val),
+                    value=depth_value,
                     source_layer="upstream_outputs",
-                    source_ref="upstream_execution_depth",
+                    source_ref=source_ref,
                     fact_type=FactType.TASK_DECISION,
+                    notes="%s|run_binding=verified" % rationale,
                 )
             )
 
         return facts
+
+    def _resolve_inherited_execution_depth(self):
+        """Return ``(depth, source_ref, rationale)`` for a same-run confirmation.
+
+        Scientific evidence carried by the upstream artifact stays usable
+        regardless; only the *resource authorisation* is run-bound. A missing or
+        mismatched ``run_id``, or an unconfirmed selection, is recorded in
+        :attr:`rejected_inheritance` and yields no inherited depth at all.
+        """
+        payload = None
+        source_ref = "upstream_execution_profile"
+        if isinstance(self.upstream_data.get("execution_profile"), (dict,)):
+            payload = self.upstream_data["execution_profile"]
+        elif isinstance(self.upstream_data.get("execution_profile"), object) and hasattr(
+            self.upstream_data.get("execution_profile"), "to_dict"
+        ):
+            payload = self.upstream_data["execution_profile"].to_dict()
+        elif "execution_depth" in self.upstream_data:
+            payload = {"depth": self.upstream_data["execution_depth"]}
+            source_ref = "upstream_execution_depth"
+
+        if payload is None:
+            return None
+
+        upstream_run_id = self.upstream_data.get("run_id") or payload.get("run_id")
+
+        if not upstream_run_id:
+            self.rejected_inheritance.append(
+                {
+                    "reason": "missing_run_id",
+                    "message": (
+                        "Upstream execution configuration carries no run_id; "
+                        "resource authorisation cannot be inherited."
+                    ),
+                }
+            )
+            return None
+
+        # No current run on record means resource authorisation cannot be
+        # verified, so it is not inherited (R07). Scientific evidence carried by
+        # the same artifact remains usable.
+        if not self.current_run_id:
+            self.rejected_inheritance.append(
+                {
+                    "reason": "no_current_run",
+                    "upstream_run_id": upstream_run_id,
+                    "message": (
+                        "No current run_id is known; upstream resource "
+                        "authorisation cannot be verified for this run."
+                    ),
+                }
+            )
+            return None
+
+        if upstream_run_id != self.current_run_id:
+            self.rejected_inheritance.append(
+                {
+                    "reason": "run_id_mismatch",
+                    "upstream_run_id": upstream_run_id,
+                    "current_run_id": self.current_run_id,
+                    "message": (
+                        "Upstream configuration belongs to run %r, not %r."
+                        % (upstream_run_id, self.current_run_id)
+                    ),
+                }
+            )
+            return None
+
+        selection = payload.get("selection")
+        if isinstance(selection, dict):
+            status = str(selection.get("status", "")).lower()
+            if status and status != "confirmed":
+                self.rejected_inheritance.append(
+                    {
+                        "reason": "unconfirmed_selection",
+                        "upstream_run_id": upstream_run_id,
+                        "selection_status": status,
+                        "message": (
+                            "Upstream run %r has an unconfirmed depth selection."
+                            % upstream_run_id
+                        ),
+                    }
+                )
+                return None
+
+        depth_raw = payload.get("depth", payload.get("execution_depth"))
+        if depth_raw is None:
+            self.rejected_inheritance.append(
+                {"reason": "missing_depth", "upstream_run_id": upstream_run_id,
+                 "message": "Upstream configuration carries no depth value."}
+            )
+            return None
+
+        from shared.execution.selection import normalize_depth
+
+        normalized = normalize_depth(depth_raw.value if hasattr(depth_raw, "value") else str(depth_raw))
+        if normalized is None:
+            self.rejected_inheritance.append(
+                {"reason": "invalid_depth", "upstream_run_id": upstream_run_id,
+                 "upstream_value": str(depth_raw),
+                 "message": "Upstream depth %r is not a valid tier." % (depth_raw,)}
+            )
+            return None
+
+        return (
+            normalized.value,
+            source_ref,
+            "Inherited from confirmed upstream run %s" % upstream_run_id,
+        )
 
 
 class ProjectSearchContextProvider(ContextProvider):
@@ -763,17 +1332,24 @@ class ContextResolver:
                 )
             )
 
-        # Execution depth intent from current prompt (T06, T07)
-        depth_val = extract_execution_depth_from_text(cleaned)
-        if depth_val:
+        # Execution depth intent from current prompt (T06, T07 / R01).
+        # A keyword mention is only a decision when the intent classification
+        # says the current user affirmatively selected a tier.
+        depth_intent = classify_execution_depth_intent(
+            cleaned,
+            source="current_user",
+            scope="current_run",
+        )
+        if depth_intent.intent.is_confirmable and depth_intent.value:
             facts.append(
                 ContextFact(
                     dimension_id="EXECUTION_DEPTH",
                     field_name="execution_depth",
-                    value=depth_val,
+                    value=depth_intent.value,
                     source_layer="current_user",
                     source_ref="current_user_message",
                     fact_type=FactType.TASK_DECISION,
+                    notes=f"intent={depth_intent.intent.value};{depth_intent.reason}",
                 )
             )
 

@@ -350,9 +350,13 @@ class TestComparabilityAndDeepRetrievalV065(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             data = json.loads(out_file.read_text(encoding="utf-8"))
 
+            # Ledger A is a canonical envelope object (R11 contract alignment).
             ledger = data["retrieval_coverage_ledger"]
-            self.assertEqual(len(ledger), 1)
-            entry = ledger[0]
+            self.assertIsInstance(ledger, dict)
+            self.assertEqual(ledger["ledger_id"], "LEDGER_A_RETRIEVAL_COVERAGE")
+            entries = ledger["entries"]
+            self.assertEqual(len(entries), 1)
+            entry = entries[0]
             # Must faithfully record 12500 total hits and PARTIAL coverage
             self.assertEqual(entry["reported_total_hits"], 12500)
             self.assertEqual(entry["metadata_records_retrieved"], 3)

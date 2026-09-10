@@ -36,13 +36,33 @@ class TestNoDanglingSchemaRefs(unittest.TestCase):
     """P0-05: skills 与 schemas 内禁止引用不存在的 schema 路径（如 schemas/v1.0/）。"""
 
     def test_no_v1_point_zero_refs(self):
+        """Dangling schema paths must be caught in code as well as in Markdown."""
         offenders = []
         for base in ["skills", "schemas", "shared"]:
-            for fp in Path(REPO_ROOT, base).rglob("*.md"):
-                text = fp.read_text(encoding="utf-8", errors="replace")
-                if "schemas/v1.0/" in text:
-                    offenders.append(str(fp.relative_to(REPO_ROOT)))
+            for pattern in ("*.md", "*.py"):
+                for fp in Path(REPO_ROOT, base).rglob(pattern):
+                    if "__pycache__" in fp.parts:
+                        continue
+                    text = fp.read_text(encoding="utf-8", errors="replace")
+                    if "schemas/v1.0/" in text:
+                        offenders.append(str(fp.relative_to(REPO_ROOT)))
         self.assertEqual(offenders, [], "dangling schemas/v1.0/ references in: %s" % offenders)
+
+    def test_every_schema_path_mentioned_in_code_exists(self):
+        """Any `schemas/<name>.json` named by Python source must exist on disk."""
+        import re as _re
+
+        missing = []
+        for base in ["shared", "skills", "scripts"]:
+            for fp in Path(REPO_ROOT, base).rglob("*.py"):
+                if "__pycache__" in fp.parts:
+                    continue
+                text = fp.read_text(encoding="utf-8", errors="replace")
+                for m in _re.finditer(r"schemas/([A-Za-z0-9_]+\.json)", text):
+                    target = REPO_ROOT / "schemas" / m.group(1)
+                    if not target.exists():
+                        missing.append("%s -> schemas/%s" % (fp.relative_to(REPO_ROOT), m.group(1)))
+        self.assertEqual(missing, [], "code references non-existent schemas: %s" % missing)
 
     def test_referenced_schema_files_exist(self):
         for fp in Path(REPO_ROOT, "skills").rglob("*.md"):

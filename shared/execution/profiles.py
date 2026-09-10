@@ -46,7 +46,15 @@ class ExecutionProfile:
     max_token_ceiling: Optional[int]    # Soft/estimated Token ceiling; None if unconstrained
     enforcement: str = "best_effort"    # "best_effort" (default) or "hard"
 
+    #: Aliases accepted on input and emitted on output for the depth field.
+    _DEPTH_ALIASES = ("depth", "execution_depth")
+
     def to_dict(self) -> Dict[str, Any]:
+        """Serialise the preset.
+
+        The output round-trips exactly through :meth:`from_dict`, and the
+        duplicate ``execution_depth`` alias is accepted on input (R04).
+        """
         data = asdict(self)
         data["depth"] = self.depth.value
         data["execution_depth"] = self.depth.value
@@ -54,9 +62,31 @@ class ExecutionProfile:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> ExecutionProfile:
+        """Rebuild a preset from its dictionary form.
+
+        Unknown keys are rejected loudly rather than silently ignored, and a
+        duplicate depth alias is tolerated as long as the values agree (R04).
+        """
         d = dict(data)
-        if isinstance(d.get("depth"), str):
-            d["depth"] = ExecutionDepth(d["depth"])
+        raw_depth = None
+        for alias in cls._DEPTH_ALIASES:
+            if alias in d:
+                candidate = d.pop(alias)
+                if raw_depth is None:
+                    raw_depth = candidate
+                elif candidate != raw_depth:
+                    raise ValueError(
+                        "Conflicting depth values in profile payload: %r vs %r"
+                        % (raw_depth, candidate)
+                    )
+        if raw_depth is None:
+            raise ValueError("Execution profile payload is missing a depth field")
+        d["depth"] = raw_depth if isinstance(raw_depth, ExecutionDepth) else ExecutionDepth(str(raw_depth).lower().strip())
+
+        allowed = {f for f in cls.__dataclass_fields__}  # type: ignore[attr-defined]
+        unknown = sorted(set(d) - allowed)
+        if unknown:
+            raise ValueError("Unknown execution profile field(s): %s" % ", ".join(unknown))
         return cls(**d)
 
 
@@ -127,7 +157,26 @@ DEPTH_PROFILES: Dict[ExecutionDepth, ExecutionProfile] = {
 
 
 def get_profile(depth: ExecutionDepth | str) -> ExecutionProfile:
-    """Retrieve the standard ExecutionProfile for a given depth tier."""
+    """Retrieve the standard ExecutionProfile for a given depth tier.
+
+    Accepts an ``ExecutionDepth`` member, a canonical value, or any documented
+    alias ("快速", "中等", ...). An unresolvable value raises ``ValueError``
+    instead of a bare ``KeyError`` (R04).
+    """
+    if isinstance(depth, ExecutionDepth):
+        return DEPTH_PROFILES[depth]
     if isinstance(depth, str):
-        depth = ExecutionDepth(depth.lower().strip())
-    return DEPTH_PROFILES[depth]
+        normalized = ExecutionDepth(depth.lower().strip()) if depth.strip().lower() in {
+            member.value for member in ExecutionDepth
+        } else None
+        if normalized is None:
+            from shared.execution.selection import normalize_depth
+
+            normalized = normalize_depth(depth)
+        if normalized is None:
+            raise ValueError(
+                "Invalid execution depth %r; allowed values are quick, standard, deep "
+                "(aliases: 快速, 标准, 深度, 中等)" % (depth,)
+            )
+        return DEPTH_PROFILES[normalized]
+    raise ValueError("Unsupported execution depth type: %r" % (type(depth).__name__,))

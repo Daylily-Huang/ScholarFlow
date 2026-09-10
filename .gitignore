@@ -43,3 +43,6 @@ scratch/
 test_output/
 *.tmp
 .planning/
+
+# Isolated installer verification output
+.sf-install-verify/

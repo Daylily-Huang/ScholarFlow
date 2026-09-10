@@ -82,6 +82,27 @@ graph TD
 
 ---
 
+## 🎚️ 统一执行深度架构 (Unified Execution Depth)
+
+在进入实质检索、下载或抽取之前，运行必须先确认一个**执行深度档位**。该档位与"研究目标"正交，不可用研究目标替代。
+
+| 档位 | 中文 | 约算力预算 | 检索候选上限 | 滚雪球/概念扩展 | 抽取单元上限 | 图表核验 | 红队质询 |
+|---|---|:---:|:---:|:---:|:---:|---|---|
+| `quick` | 快速档 | ~5 分钟 | 20 | 0 / 0 | 5 | `metadata_only` | `disabled` |
+| `standard` | 标准档（推荐） | ~20 分钟 | 50 | 1 / 1 | 20 | `sample_crosscheck` | `standard` |
+| `deep` | 深度档 | ~60 分钟 | 100 | 2 / 2 | 50 | `exhaustive_audit` | `adversarial_exhaustive` |
+
+**核心机制**
+
+1. **档位预设 ≠ 运行授权**：`ExecutionProfile` 只是三档资源上限模板（`shared/execution/profiles.py`）；只有经确认的 `RunExecutionConfig`（`shared/execution/config.py`）才携带确认记录与阶段范围，允许解锁实质执行。未确认配置一律不得保存为已授权状态。
+2. **统一运行配置契约**：`runs/<run_id>/execution_profile.json` 遵循 `schemas/execution_profile.schema.json`；保存前校验、读取后校验，写入采用临时文件 + 原子替换。
+3. **运行级预算与真实接入**：`RunContext`（`shared/execution/context.py`）携带同一份确认配置与共享总账贯穿 Discovery → Extraction → Synthesis；模型请求与数据库/API 请求分开计数；候选处理量按**运行级总上限**累计，超出部分显式标记为未处理而非静默丢弃。
+4. **诚实回执**：Token 计量状态由"已观测/未观测调用次数"推导（缺失用量时明确标注为下界）；存在未完成清单或未结算预留时回执为 `partial`；请求 `hard` 约束而当前无抢占能力时显式降级为 `best_effort` 并写入 `limitations`。
+5. **跨运行隔离**：只有 `run_id` 一致且 `selection.status == "confirmed"` 的上游配置才可继承；否则必须重新确认。上游科研证据仍可继续使用——**证据可用不等于资源授权可转移**。
+6. **可恢复**：`STAGE0_INPUT_REQUIRED` 阻塞状态可经 `resume_input()` 补答恢复；`RunContext.resume()` 依据持久化台账重建剩余额度，重启不重置已消耗预算。
+
+---
+
 ## 🧩 三大核心技能详解 (Skills Breakdown)
 
 ### 1. `literature-discovery-acquisition` (文献系统发现与全文获取)
@@ -100,7 +121,7 @@ graph TD
 - **PRISMA-S 检索过程可审计清单 `[PROTOCOL]`**：全流程记录概念矩阵（Concept Matrix）、检索饱和度日志（Search Saturation）与去重决策表。
 - **双轨运行模式**：
   - **交互工作流**：适合人类学者把关指导；
-  - **Headless CLI 模式**：通过 `python scripts/agent_search.py -q "..."` 直接输出契约化 JSON 流。
+  - **Headless CLI 模式**：通过 `python skills/literature-discovery-acquisition/scripts/agent_search.py -q "..." --execution-depth standard` 直接输出契约化 JSON 流（缺少或非法的执行深度会返回结构化 `INPUT_REQUIRED` / `INVALID_PARAMETER`，且不发起任何检索调用）。
 
 ---
 
@@ -246,8 +267,18 @@ python skills/literature-synthesis/scripts/school_clustering.py -i studies.json 
 
 ```text
 ScholarFlow/
+├── shared/                                     # 跨技能共享引擎（Python 标准库，零强制依赖）
+│   ├── execution/                             # 统一执行深度：档位预设、运行配置、预算总账、RunContext
+│   ├── grill_me/                              # Stage 0 自适应追问引擎与维度定义
+│   ├── context_resolution/                    # 上下文解析层（五层来源递进）
+│   ├── domain_lenses/                         # 9 大学科透镜
+│   └── core/ security/                        # 证据原则、跨技能契约、不可信内容策略
+│
 ├── schemas/                                   # 统一跨技能数据契约 (v1.1 Canonical JSON Schemas)
 │   ├── scholarflow_contract.md               # 契约规范、语义解耦与字段映射定义
+│   ├── execution_profile.schema.json         # 运行级执行配置契约（RunExecutionConfig）
+│   ├── comparison_record.schema.json         # 跨文献可比性分层记录
+│   ├── claim_evidence_matrix.schema.json     # 主张—证据矩阵契约
 │   ├── discovery_result.schema.json          # 检索输出 Envelope 顶层契约
 │   ├── literature_record.schema.json         # 候选文献记录标准 Schema
 │   ├── extraction_result.schema.json         # 结构化抽取 Envelope 顶层契约
@@ -309,13 +340,15 @@ ScholarFlow 明确区分两层分发界面，保障按需使用与依赖极简�
 - **自适应 Grill-Me 与动态推荐引擎**：`shared.grill_me` (含 `recommender.py`)
 - **不可信内容安全与脱敏层**：`shared.security`
 - **规范版本与契约元数据**：`shared.version`
+- **统一执行深度与预算引擎**：`shared.execution`（档位预设、运行配置、预算总账、运行上下文、产物持久化）
+- **跨技能契约与证据原则**：`shared.core`
 - **跨学科视角静态资产**：内置 9 个领域 Lens（通过 `importlib.resources` 访问 `shared.domain_lenses/*.md`）
 
 ### 2. 全量科研技能套件 (`git clone` / GitHub Release Archive)
 面向 Agent 工作区、论文作者与课题组，提供端到端科研智能体体系：
 - **三大技能完整 Manifest**：`skills/`（Discovery、Extraction、Synthesis 的 `SKILL.md`）
 - **规范化 JSON Schemas**：`schemas/*.schema.json`（含双层契约与 Envelope 定义）
-- **方法论参考与角色提示词**：`references/` 与 `roles/`（如 Gatekeeper、Devil's Advocate 协议）
+- **方法论参考与角色提示词**：`references/` 与 `role/`（如 Gatekeeper、Devil's Advocate 协议）
 - **多领域案例与对抗夹具**：`examples/` 与 `benchmarks/data/`
 - **科研回归基准与中立性 Linter**：`benchmarks/` 与 `scripts/`
 
@@ -351,12 +384,14 @@ python benchmarks/run_benchmarks.py
 
 | 评测维度 (Benchmark Dimension) | 核心科研质量指标 (Target Metric) | 目标阈值 | 实测表现 (Measured) | 门禁状态 |
 |:---|:---|:---:|:---:|:---:|
-| **发现检索基准 (Discovery)** | **Seed Recovery Rate** (已知种子文献召回率) | 100.0% | `100.0%` | **[PASS]** |
-| **抽取契约基准 (Extraction)** | **NR Accuracy** (敢于报告未提及，严防无中生有) | 100.0% | `100.0%` | **[PASS]** |
+| **发现检索基准 (Discovery, Synthetic)** | **Seed Recovery & Dedup Rate**（合成样本池去重保留率，**非在线召回实验**） | 100.0% | `100.0%` | **[PASS]** |
+| **抽取夹具完整性 (Extraction Fixture, Synthetic)** | **NR Accuracy**（夹具自洽性检查，**不调用抽取流程**） | 100.0% | `100.0%` | **[PASS]** |
 | | **Field Precision** (字段级精准抽取率) | ≥ 95.0% | `100.0%` | **[PASS]** |
 | **声明核验 (Claim Audit)** | **Accuracy** (局部上下文协同对齐率) | ≥ 90.0% | `100.0%` | **[PASS]** |
 | | **False-Support Rate** (错误断言误判支持率，科研最高危指标) | **0.00%** | `0.0%` | **[PASS]** |
 | **综合争议 (Synthesis)** | **Consensus Calibration** (共识梯队与边界标定准确率) | 100.0% | `100.0%` | **[PASS]** |
+| **主张—证据关系对齐 (Relation Alignment)** | **False-Relation Rate** (共现误判为关系率) | 0.00% | `0.0%` | **[PASS]** |
+| **上下文充分性 (Context Expansion)** | **False Promotion Rate** (候选命中误升格为证据率) | 0.00% | `0.0%` | **[PASS]** |
 
 ---
 

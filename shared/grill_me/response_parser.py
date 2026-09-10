@@ -12,6 +12,15 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
+from shared.grill_me.selection_validation import (
+    SelectionProblem,
+    SelectionValidation,
+    collect_unsatisfied_required,
+    normalize_candidate_value,
+    requires_explicit_selection,
+    validate_explicit_selection,
+)
+
 
 class PriorityTier(str, Enum):
     CRITICAL = "CRITICAL"          # Must be resolved; blocks execution if ambiguous
@@ -143,15 +152,51 @@ class GrillResponseParser:
         inferred_resolutions: Optional[Dict[str, DimensionResolution]] = None,
         all_critical_dimensions: Optional[List[GrillDimension]] = None,
     ) -> Tuple[Dict[str, DimensionResolution], List[str]]:
-        """Parse user response against a list of GrillQuestion objects.
+        """Parse a user response (public, backward-compatible entry point).
 
         Returns:
             resolutions: dict mapping dimension_id to DimensionResolution
             unresolved_critical: list of dimension_ids that are CRITICAL but could not be resolved
+
+        Use :meth:`parse_with_errors` when the caller also needs the rejected
+        raw values (R02).
+        """
+        resolutions, unresolved, _invalid = cls.parse_with_errors(
+            user_text,
+            questions,
+            inferred_resolutions=inferred_resolutions,
+            all_critical_dimensions=all_critical_dimensions,
+        )
+        return resolutions, unresolved
+
+    @classmethod
+    def parse_with_errors(
+        cls,
+        user_text: str,
+        questions: List[GrillQuestion],
+        inferred_resolutions: Optional[Dict[str, DimensionResolution]] = None,
+        all_critical_dimensions: Optional[List[GrillDimension]] = None,
+    ) -> Tuple[Dict[str, DimensionResolution], List[str], Dict[str, str]]:
+        """Parse a user response and also report rejected values.
+
+        Returns:
+            resolutions: dict mapping dimension_id to DimensionResolution
+            unresolved_critical: list of dimension_ids that are CRITICAL but could not be resolved
+            invalid_values: dict mapping dimension_id to a rejected raw value
         """
         resolutions: Dict[str, DimensionResolution] = {}
         if inferred_resolutions:
             resolutions.update(inferred_resolutions)
+
+        # Values that were supplied but rejected (R02). A rejected value must
+        # block confirmation rather than silently unlock the dimension.
+        invalid: Dict[str, str] = {}
+
+        def _apply(q: GrillQuestion, raw_choice: str) -> None:
+            canonical = cls._apply_choice_to_dimension(q, raw_choice, resolutions)
+            if canonical is None and requires_explicit_selection(q.dimension):
+                resolutions.pop(q.dimension.id, None)
+                invalid[q.dimension.id] = raw_choice.strip()
 
         cleaned_text = user_text.strip()
 
@@ -174,15 +219,19 @@ class GrillResponseParser:
                     rationale=f"User accepted recommended option: {rationale}",
                 )
             unresolved = cls._check_unresolved_critical(questions, resolutions, all_critical_dimensions)
-            return resolutions, unresolved
+            return resolutions, unresolved, invalid
 
         # Case 2: Indexed selection (e.g., "1A 2B 3C", "1.A 2.B", "1-B, 2-A", "1:A 2:C", "1选A 2选B")
-        indexed_matches = cls._extract_indexed_choices(cleaned_text, len(questions))
-        if indexed_matches:
+        indexed_matches, indexed_raw = cls._indexed_choice_and_raw(cleaned_text, len(questions))
+        if indexed_matches or indexed_raw:
             for idx, key_or_override in indexed_matches.items():
-                if 1 <= idx <= len(questions):
-                    q = questions[idx - 1]
-                    cls._apply_choice_to_dimension(q, key_or_override, resolutions)
+                q = questions[idx - 1]
+                _apply(q, key_or_override)
+            for idx, leftover in indexed_raw.items():
+                q = questions[idx - 1]
+                if requires_explicit_selection(q.dimension):
+                    resolutions.pop(q.dimension.id, None)
+                    invalid[q.dimension.id] = leftover
 
         # Case 3: Sequential bare letters if count matches questions (e.g. "A B C" or "A, B, A")
         elif cls._is_sequential_bare_letters(cleaned_text, len(questions)):
@@ -190,11 +239,11 @@ class GrillResponseParser:
             for idx, letter in enumerate(letters, start=1):
                 if idx <= len(questions):
                     q = questions[idx - 1]
-                    cls._apply_choice_to_dimension(q, letter.upper(), resolutions)
+                    _apply(q, letter.upper())
 
         # Case 4: Freeform text with explicit overrides or partial mentions
         else:
-            cls._extract_freeform_choices(cleaned_text, questions, resolutions)
+            cls._extract_freeform_choices(cleaned_text, questions, resolutions, invalid)
 
         # Ensure any question not explicitly answered falls back appropriately or stays unresolved
         for q in questions:
@@ -216,20 +265,134 @@ class GrillResponseParser:
                     )
 
         unresolved = cls._check_unresolved_critical(questions, resolutions, all_critical_dimensions)
-        return resolutions, unresolved
+        for dimension_id in invalid:
+            if dimension_id not in unresolved:
+                unresolved.append(dimension_id)
+        return resolutions, unresolved, invalid
+
+    #: A single option letter, or a recognised "accept the recommendation" word.
+    #: Chinese depth aliases are matched whole so that "深度" is accepted while
+    #: the leading character of an unrelated word ("banana" -> "B") is not.
+    #: The letter alternative requires a token boundary, so the leading "b" of
+    #: an unrelated word ("banana") is not mistaken for option B.
+    _CHOICE_VALUE_PATTERN = (
+        r"(推荐|建议|rec(?:ommended)?|深度|快速|中等|标准|[A-Da-d](?![A-Za-z0-9]))"
+    )
+    _CHOICE_VALUE_RE = re.compile(_CHOICE_VALUE_PATTERN)
+    _INDEXED_PREFIX_RE = re.compile(r"(?<![0-9])(?:第)?\s*([1-9])\s*(?:题)?")
+    _DIGIT_GROUP_RE = re.compile(r"(?<![0-9])[1-9](?![0-9])")
+
+    @classmethod
+    def _indexed_choice_and_raw(
+        cls, text: str, max_questions: int
+    ) -> Tuple[Dict[int, str], Dict[int, str]]:
+        """Return (resolved choices, raw text supplied per index).
+
+        ``raw`` lets the caller detect an answer that carries free text which
+        maps to no option, so a closed dimension can report a field error
+        instead of silently treating it as "not answered" (R02).
+        """
+        choices: Dict[int, str] = {}
+        raw: Dict[int, str] = {}
+        for group in cls._split_digit_groups(text):
+            prefix = cls._INDEXED_PREFIX_RE.match(group)
+            if not prefix:
+                continue
+            idx = int(prefix.group(1))
+            if not (1 <= idx <= max_questions):
+                continue
+            remainder = group[prefix.end():]
+            stripped = remainder.lstrip(" .:-)]=选按\t")
+            value_match = cls._CHOICE_VALUE_RE.match(stripped)
+            if value_match:
+                choices[idx] = value_match.group(1)
+                continue
+            override = cls._extract_override_from_group(group)
+            if override:
+                choices[idx] = override
+                continue
+            leftover = stripped.strip()
+            if leftover:
+                raw[idx] = leftover
+        return choices, raw
 
     @classmethod
     def _extract_indexed_choices(cls, text: str, max_questions: int) -> Dict[int, str]:
+        """Extract ``question index -> choice`` pairs from shorthand answers.
+
+        Only a whole token counts as a choice: ``1A``/``1 A``/``1选B``/``1. A``
+        are accepted, while ``1 banana`` is not read as option ``B``.
+        """
         results: Dict[int, str] = {}
-        pattern = re.compile(
-            r"(?:第|题)?\s*([1-9])\s*(?:题|\.|\:|\-|\)|\s*(?:选|按)?)\s*([A-Da-d]|推荐|建议|[^\s,;，；]+)"
-        )
-        for m in pattern.finditer(text):
-            idx = int(m.group(1))
-            val = m.group(2).strip()
-            if 1 <= idx <= max_questions:
-                results[idx] = val
+        for group in cls._split_digit_groups(text):
+            prefix = cls._INDEXED_PREFIX_RE.match(group)
+            if not prefix:
+                continue
+            idx = int(prefix.group(1))
+            if not (1 <= idx <= max_questions):
+                continue
+            remainder = group[prefix.end():]
+            value_match = cls._CHOICE_VALUE_RE.match(remainder.lstrip(" .:-)]=选按	"))
+            if value_match:
+                results[idx] = value_match.group(1)
+                continue
+            # A free-text override must be introduced by an explicit delimiter
+            # ("1: 只用开放获取文献"); a stray word after the index ("1 banana")
+            # is not a selection and must not be interpreted as option B.
+            override = cls._extract_override_from_group(group)
+            if override:
+                results[idx] = override
         return results
+
+    #: Separator that introduces a free-text override value ("3自定义：...").
+    _OVERRIDE_DELIMITER_RE = re.compile(r"[:：=]")
+
+    @classmethod
+    def _extract_override_from_group(cls, group: str) -> Optional[str]:
+        """Return the free-text value of one index group, if it declares one."""
+        prefix = cls._INDEXED_PREFIX_RE.match(group)
+        if not prefix:
+            return None
+        remainder = group[prefix.end():]
+        if cls._CHOICE_VALUE_RE.match(remainder.lstrip(" .:-)]=选按\t")):
+            return None
+        delimiter = cls._OVERRIDE_DELIMITER_RE.search(remainder)
+        if not delimiter:
+            return None
+        override = remainder[delimiter.end():].strip()
+        return override or None
+
+    @classmethod
+    def _split_digit_groups(cls, text: str) -> List[str]:
+        """Split shorthand text into index groups starting at each bare digit."""
+        boundaries: List[int] = []
+        for m in cls._DIGIT_GROUP_RE.finditer(text):
+            start = m.start()
+            while boundaries and start - boundaries[-1] <= 2:
+                break
+            boundaries.append(start)
+        groups: List[str] = []
+        for position, start in enumerate(boundaries):
+            end = boundaries[position + 1] if position + 1 < len(boundaries) else len(text)
+            chunk = text[start:end].strip()
+            if chunk:
+                groups.append(chunk)
+        return groups
+
+    @classmethod
+    def _extract_freeform_override_value(cls, text: str) -> Optional[str]:
+        """Extract a free-text override value for an *open* dimension.
+
+        The value is read from a single index group, so embedded years are not
+        mistaken for new question indices. Returns ``None`` when the override
+        carries no explicit delimiter, because a stray word after an index is
+        not a free-text specification.
+        """
+        for group in cls._split_digit_groups(text):
+            override = cls._extract_override_from_group(group)
+            if override:
+                return override
+        return None
 
     @classmethod
     def _is_sequential_bare_letters(cls, text: str, expected_count: int) -> bool:
@@ -244,27 +407,36 @@ class GrillResponseParser:
         text: str,
         questions: List[GrillQuestion],
         resolutions: Dict[str, DimensionResolution],
+        invalid: Optional[Dict[str, str]] = None,
     ) -> None:
         for idx, q in enumerate(questions, start=1):
+            # The letter alternative needs a token boundary so that "1 banana"
+            # is not read as option B; Chinese aliases are matched whole.
+            value = r"([A-Da-d](?![A-Za-z0-9])|推荐|建议|深度|快速|中等|标准)"
             patterns = [
-                rf"{idx}[号题]?\s*[:：=选]?\s*([A-Da-d]|推荐|建议)",
-                rf"{re.escape(q.dimension.name)}\s*[:：=选]?\s*([A-Da-d]|推荐|建议)",
+                rf"(?<![0-9]){idx}[号题]?\s*[:：=选]?\s*" + value,
+                rf"{re.escape(q.dimension.name)}\s*[:：=选]?\s*" + value,
             ]
             matched = False
             for pat in patterns:
                 m = re.search(pat, text, re.IGNORECASE)
                 if m:
                     choice = m.group(1)
-                    cls._apply_choice_to_dimension(q, choice, resolutions)
+                    canonical = cls._apply_choice_to_dimension(q, choice, resolutions)
+                    if canonical is None and requires_explicit_selection(q.dimension):
+                        resolutions.pop(q.dimension.id, None)
+                        if invalid is not None:
+                            invalid[q.dimension.id] = choice.strip()
                     matched = True
                     break
             if not matched:
-                override_pat = rf"{idx}[号题]?\s*[:：=选]?\s*([^,;，。\n]+)"
-                om = re.search(override_pat, text)
-                if om:
-                    content = om.group(1).strip()
-                    if content and not re.match(r"^[1-9]", content):
-                        cls._apply_choice_to_dimension(q, content, resolutions)
+                content = cls._extract_freeform_override_value(text)
+                if content:
+                    canonical = cls._apply_choice_to_dimension(q, content, resolutions)
+                    if canonical is None and requires_explicit_selection(q.dimension):
+                        resolutions.pop(q.dimension.id, None)
+                        if invalid is not None:
+                            invalid[q.dimension.id] = content
 
     @classmethod
     def _apply_choice_to_dimension(
@@ -272,7 +444,12 @@ class GrillResponseParser:
         q: GrillQuestion,
         choice_str: str,
         resolutions: Dict[str, DimensionResolution],
-    ) -> None:
+    ) -> Optional[str]:
+        """Apply one answer to a dimension.
+
+        Returns the canonical selected value, or ``None`` when the value is
+        rejected because a closed dimension only accepts its declared options.
+        """
         choice_clean = choice_str.strip()
         if choice_clean in ("推荐", "建议", "rec", "recommended"):
             rec = q.recommended_option
@@ -290,7 +467,7 @@ class GrillResponseParser:
                 priority=q.dimension.priority,
                 rationale=rationale,
             )
-            return
+            return val
 
         opt = q.dimension.get_option_by_key(choice_clean)
         if opt:
@@ -304,27 +481,41 @@ class GrillResponseParser:
                 priority=q.dimension.priority,
                 rationale=opt.rationale or f"User explicitly selected Option {opt.key}",
             )
-            return
+            return opt.value if opt.value is not None else opt.label
 
-        # Special alias matching for EXECUTION_DEPTH (e.g. "快速", "标准", "深度", "中等", "quick", etc.)
-        if q.dimension.id == "EXECUTION_DEPTH":
-            from shared.execution.selection import normalize_depth
-            norm = normalize_depth(choice_clean)
-            if norm:
-                for o in q.dimension.options:
-                    o_val = o.value.value if isinstance(o.value, Enum) else str(o.value)
-                    if o_val == norm.value:
-                        resolutions[q.dimension.id] = DimensionResolution(
-                            dimension_id=q.dimension.id,
-                            dimension_name=q.dimension.name,
-                            selected_key=o.key,
-                            selected_value=norm.value,
-                            selected_label=o.label,
-                            provenance=Provenance.USER,
-                            priority=q.dimension.priority,
-                            rationale=o.rationale or f"User explicitly selected {norm.value} execution depth",
-                        )
-                        return
+        # A closed dimension (e.g. EXECUTION_DEPTH) has no free-text fallback:
+        # "1 zzz" must never confirm it with the literal value "zzz" (R02).
+        if requires_explicit_selection(q.dimension):
+            canonical = normalize_candidate_value(q.dimension, choice_clean)
+            if canonical is None:
+                # Record the rejection so the engine can surface a field error
+                # and stay unresolved instead of silently accepting garbage.
+                return None
+            for o in q.dimension.options:
+                o_val = o.value.value if isinstance(o.value, Enum) else str(o.value)
+                if o_val == canonical:
+                    resolutions[q.dimension.id] = DimensionResolution(
+                        dimension_id=q.dimension.id,
+                        dimension_name=q.dimension.name,
+                        selected_key=o.key,
+                        selected_value=canonical,
+                        selected_label=o.label,
+                        provenance=Provenance.USER,
+                        priority=q.dimension.priority,
+                        rationale=o.rationale or f"User explicitly selected {canonical}",
+                    )
+                    return canonical
+            resolutions[q.dimension.id] = DimensionResolution(
+                dimension_id=q.dimension.id,
+                dimension_name=q.dimension.name,
+                selected_key="CUSTOM",
+                selected_value=canonical,
+                selected_label=canonical,
+                provenance=Provenance.USER,
+                priority=q.dimension.priority,
+                rationale=f"User explicitly selected {canonical}",
+            )
+            return canonical
 
         resolutions[q.dimension.id] = DimensionResolution(
             dimension_id=q.dimension.id,
@@ -337,6 +528,7 @@ class GrillResponseParser:
             rationale="User-provided custom parameter specification",
             user_notes=choice_clean,
         )
+        return choice_clean
 
     @classmethod
     def _check_unresolved_critical(
@@ -346,24 +538,58 @@ class GrillResponseParser:
         all_critical_dimensions: Optional[List[GrillDimension]] = None,
     ) -> List[str]:
         unresolved: List[str] = []
+
+        def _is_unresolved(dim: GrillDimension) -> bool:
+            if dim.id not in resolutions:
+                return True
+            res = resolutions[dim.id]
+            if not res.selected_label or res.selected_key == "":
+                return True
+            # A closed dimension is only resolved by a valid, user-provenanced
+            # selection -- presence alone is not enough (R02).
+            if requires_explicit_selection(dim):
+                return not validate_explicit_selection(dim, resolution=res).satisfied
+            return False
+
         for q in questions:
-            if q.dimension.priority == PriorityTier.CRITICAL:
-                if q.dimension.id not in resolutions:
-                    unresolved.append(q.dimension.id)
-                else:
-                    res = resolutions[q.dimension.id]
-                    if not res.selected_label or res.selected_key == "":
-                        unresolved.append(q.dimension.id)
+            if q.dimension.priority == PriorityTier.CRITICAL and _is_unresolved(q.dimension):
+                unresolved.append(q.dimension.id)
 
         if all_critical_dimensions:
             for dim in all_critical_dimensions:
-                if dim.id not in resolutions and dim.id not in unresolved:
+                if dim.id not in unresolved and _is_unresolved(dim):
                     unresolved.append(dim.id)
-                elif dim.id in resolutions and dim.id not in unresolved:
-                    res = resolutions[dim.id]
-                    if not res.selected_label or res.selected_key == "":
-                        unresolved.append(dim.id)
         return unresolved
+
+
+def _classify_context_provenance(var: Any):
+    """Map a resolved context variable to (provenance, rationale, is_first_party).
+
+    Only a value that can be traced to the current user's own words counts as a
+    first-party decision; everything else may inform a recommendation but must
+    not unlock a closed dimension on its own (R02).
+    """
+    if var is None or not getattr(var, "primary_fact", None):
+        return Provenance.CONTEXT, "Resolved from research context", False
+    fact = var.primary_fact
+    layer = getattr(fact, "source_layer", "") or ""
+    notes = str(getattr(fact, "notes", "") or "")
+    if layer in ("current_user", "conversation"):
+        provenance = Provenance.USER
+        is_first_party = True
+    elif layer == "upstream_outputs":
+        # An upstream value only counts as an authorisation when the context
+        # layer verified that it belongs to the *current* run (R07).
+        provenance = Provenance.UPSTREAM
+        is_first_party = "run_binding=verified" in notes
+    elif layer == "project_search":
+        provenance = Provenance.PROJECT
+        is_first_party = False
+    else:
+        provenance = Provenance.CONTEXT
+        is_first_party = False
+    rationale = "Resolved from %s (%s)" % (layer or "context", getattr(fact, "source_ref", "unknown"))
+    return provenance, rationale, is_first_party
 
 
 class GrillEngine:
@@ -383,6 +609,19 @@ class GrillEngine:
         self.all_dimensions: Dict[str, GrillDimension] = {}
         self.context_brief: str = ""
         self.context_resolver: Optional[Any] = None
+        # R02: raw values that were supplied but rejected by closed-dimension validation
+        self.invalid_selections: Dict[str, str] = {}
+        # R02: non-first-party candidates kept as recommendations only
+        self.recommended_selections: Dict[str, Any] = {}
+        # R08: answers are bound to a question set so a reshuffled round cannot
+        # reinterpret an old index as a new question.
+        self.question_set_id: str = ""
+        self._question_set_counter: int = 0
+        self.pending_selections: Dict[str, DimensionResolution] = {}
+
+    def _next_question_set_id(self) -> str:
+        self._question_set_counter += 1
+        return "%s-q%d" % (self.skill_name or "stage0", self._question_set_counter)
 
     def register_dimensions(self, dimensions: List[GrillDimension]) -> None:
         for dim in dimensions:
@@ -408,29 +647,28 @@ class GrillEngine:
                 if dim_id in self.all_dimensions:
                     dim = self.all_dimensions[dim_id]
                     var = context_resolver.resolved_variables.get(dim_id)
-                    prov = Provenance.CONTEXT
-                    if var and var.primary_fact:
-                        layer = var.primary_fact.source_layer
-                        if layer in ("current_user", "conversation"):
-                            prov = Provenance.USER
-                        elif layer == "upstream_outputs":
-                            prov = Provenance.UPSTREAM
-                        elif layer == "project_search":
-                            prov = Provenance.PROJECT
-                    rat = (
-                        f"Resolved from {var.primary_fact.source_layer} ({var.primary_fact.source_ref})"
-                        if var and var.primary_fact
-                        else "Resolved from research context"
-                    )
+                    provenance, rationale, is_first_party = _classify_context_provenance(var)
+                    if requires_explicit_selection(dim):
+                        canonical = normalize_candidate_value(dim, val)
+                        if canonical is None:
+                            # A closed dimension cannot be unlocked by a stray
+                            # value found in context (R02).
+                            continue
+                        val = canonical
+                        if not is_first_party:
+                            # Keep it as a *recommendation* only: the user still
+                            # has to select the tier explicitly.
+                            self.recommended_selections[dim_id] = val
+                            continue
                     self.resolutions[dim_id] = DimensionResolution(
                         dimension_id=dim.id,
                         dimension_name=dim.name,
                         selected_key="CONTEXT",
                         selected_value=val,
                         selected_label=str(val),
-                        provenance=prov,
+                        provenance=provenance,
                         priority=dim.priority,
-                        rationale=rat,
+                        rationale=rationale,
                     )
                     inferred[dim_id] = val
 
@@ -440,6 +678,15 @@ class GrillEngine:
         critical_dims: List[GrillDimension] = []
         for dim in self.all_dimensions.values():
             if dim.priority == PriorityTier.CRITICAL:
+                if requires_explicit_selection(dim):
+                    # An inferred value may only inform the recommendation (R02);
+                    # the dimension stays open until the user actually selects it.
+                    if dim.id not in self.resolutions:
+                        canonical = normalize_candidate_value(dim, inferred.get(dim.id))
+                        if canonical:
+                            self.recommended_selections[dim.id] = canonical
+                        critical_dims.append(dim)
+                    continue
                 if dim.id not in inferred:
                     critical_dims.append(dim)
                 elif dim.id not in self.resolutions:
@@ -472,7 +719,11 @@ class GrillEngine:
 
         # Tier 3: DEFAULTABLE dimensions apply standard defaults silently
         for dim in self.all_dimensions.values():
-            if dim.priority == PriorityTier.DEFAULTABLE and dim.id not in self.resolutions:
+            if (
+                dim.priority == PriorityTier.DEFAULTABLE
+                and dim.id not in self.resolutions
+                and not requires_explicit_selection(dim)
+            ):
                 if dim.id in inferred:
                     self.resolutions[dim.id] = DimensionResolution(
                         dimension_id=dim.id,
@@ -537,19 +788,68 @@ class GrillEngine:
             parts.append(self.generate_snapshot_markdown())
         return "\n".join(parts)
 
-    def submit_response(self, user_response: str) -> Tuple[GrillState, Dict[str, Any]]:
-        """Process user response, transition state machine, and return status payload."""
-        if self.state not in (GrillState.STAGE0_UNRESOLVED, GrillState.STAGE0_ROUND2):
+    #: States in which a user response may be consumed. ``STAGE0_INPUT_REQUIRED``
+    #: is included so a blocked run can be resumed instead of restarted (R08).
+    SUBMITTABLE_STATES = (
+        GrillState.STAGE0_UNRESOLVED,
+        GrillState.STAGE0_ROUND2,
+        GrillState.STAGE0_INPUT_REQUIRED,
+    )
+
+    def submit_response(
+        self, user_response: str, question_set_id: Optional[str] = None
+    ) -> Tuple[GrillState, Dict[str, Any]]:
+        """Process user response, transition state machine, and return status payload.
+
+        Args:
+            user_response: raw user answer text.
+            question_set_id: optional binding. When supplied and it does not match
+                the active question set, stale answers are rejected instead of
+                being reinterpreted against a reshuffled question list (R08).
+        """
+        if self.state not in self.SUBMITTABLE_STATES:
             raise ValueError(f"Cannot submit response in state {self.state}")
 
+        if (
+            question_set_id is not None
+            and self.question_set_id
+            and question_set_id != self.question_set_id
+        ):
+            raise ValueError(
+                "Stale answer for question set %r; the active set is %r"
+                % (question_set_id, self.question_set_id)
+            )
+
+        resuming = self.state == GrillState.STAGE0_INPUT_REQUIRED
+        if resuming:
+            # Preserve everything already answered; only the blocked items are
+            # re-presented for completion.
+            self.state = GrillState.STAGE0_ROUND2
+
         all_critical = [d for d in self.all_dimensions.values() if d.priority == PriorityTier.CRITICAL]
-        new_res, unresolved = GrillResponseParser.parse(
+        new_res, unresolved, invalid_values = GrillResponseParser.parse_with_errors(
             user_response,
             self.active_questions,
             self.resolutions,
             all_critical_dimensions=all_critical,
         )
         self.resolutions.update(new_res)
+        self.invalid_selections = dict(invalid_values)
+
+        if invalid_values:
+            rejected = ", ".join(
+                "%s=%r" % (dim_id, raw) for dim_id, raw in sorted(invalid_values.items())
+            )
+            # Invalid input is a field error: it must not confirm anything.
+            self.state = GrillState.STAGE0_INPUT_REQUIRED if resuming or self.round >= self.MAX_ROUNDS else GrillState.STAGE0_ROUND2
+            return self.state, {
+                "status": "INVALID_SELECTION",
+                "round": self.round,
+                "invalid_selections": invalid_values,
+                "unresolved": unresolved,
+                "message": "Rejected value(s) for closed dimension(s): %s" % rejected,
+                "snapshot": self.generate_snapshot_markdown(),
+            }
 
         if not unresolved:
             self.state = GrillState.STAGE0_CONFIRMED
@@ -557,12 +857,13 @@ class GrillEngine:
             return self.state, {
                 "status": "CONFIRMED",
                 "round": self.round,
+                "question_set_id": self.question_set_id,
                 "snapshot": snapshot,
                 "unresolved": [],
             }
 
         # If unresolved criticals exist and we haven't reached max rounds:
-        if self.round < self.MAX_ROUNDS:
+        if self.round < self.MAX_ROUNDS and not resuming:
             self.round += 1
             self.state = GrillState.STAGE0_ROUND2
             unresolved_dims = [self.all_dimensions[uid] for uid in unresolved if uid in self.all_dimensions]
@@ -570,79 +871,175 @@ class GrillEngine:
                 GrillQuestion(index=idx, dimension=d, prompt=f"[待决要素追问] {d.name}: {d.description}")
                 for idx, d in enumerate(unresolved_dims, start=1)
             ]
+            self.question_set_id = self._next_question_set_id()
             return self.state, {
                 "status": "ROUND2_REQUIRED",
                 "round": self.round,
+                "question_set_id": self.question_set_id,
                 "questions": self.active_questions,
                 "unresolved": unresolved,
             }
-        else:
-            # Check if any unresolved dimension requires explicit selection (T05)
-            explicit_unresolved = [
-                uid
-                for uid in unresolved
-                if (
-                    self.all_dimensions.get(uid)
-                    and getattr(self.all_dimensions[uid], "requires_explicit_selection", False)
-                )
-                or uid == "EXECUTION_DEPTH"
-            ]
-            if explicit_unresolved:
-                self.state = GrillState.STAGE0_INPUT_REQUIRED
-                return self.state, {
-                    "status": "INPUT_REQUIRED",
-                    "round": self.round,
-                    "unresolved": explicit_unresolved,
-                    "message": f"Critical dimension(s) {explicit_unresolved} require explicit selection. Stage 1 execution is blocked.",
-                    "snapshot": self.generate_snapshot_markdown(),
-                }
 
-            # Normal safe conservative default upon budget exhaustion for standard critical dimensions
-            for uid in unresolved:
-                d = self.all_dimensions[uid]
-                rec = d.get_recommended_option()
-                k = rec.key if rec else d.default_key
-                val = rec.value if (rec and rec.value is not None) else d.default_value
-                lbl = rec.label if rec else str(d.default_value)
-                self.resolutions[uid] = DimensionResolution(
-                    dimension_id=uid,
-                    dimension_name=d.name,
-                    selected_key=k,
-                    selected_value=val,
-                    selected_label=lbl,
-                    provenance=Provenance.SYSTEM_RULE,
-                    priority=d.priority,
-                    rationale="Enforced safe conservative default upon budget exhaustion",
+        # Closed dimensions can never be force-defaulted: they block instead (T05, R02).
+        blocked = collect_unsatisfied_required(
+            [self.all_dimensions[uid] for uid in unresolved if uid in self.all_dimensions],
+            self.resolutions,
+        )
+        if blocked:
+            self.state = GrillState.STAGE0_INPUT_REQUIRED
+            self.active_questions = [
+                GrillQuestion(
+                    index=idx,
+                    dimension=self.all_dimensions[item.dimension_id],
+                    prompt=f"[需要明确选择] {self.all_dimensions[item.dimension_id].name}: "
+                    f"{self.all_dimensions[item.dimension_id].description}",
                 )
-            self.state = GrillState.STAGE0_CONFIRMED
-            snapshot = self.generate_snapshot_markdown()
+                for idx, item in enumerate(blocked, start=1)
+                if item.dimension_id in self.all_dimensions
+            ]
+            self.question_set_id = self._next_question_set_id()
             return self.state, {
-                "status": "CONFIRMED_WITH_WARNING",
+                "status": "INPUT_REQUIRED",
                 "round": self.round,
-                "snapshot": snapshot,
-                "unresolved_forced": unresolved,
+                "question_set_id": self.question_set_id,
+                "questions": self.active_questions,
+                "unresolved": [item.dimension_id for item in blocked],
+                "field_errors": [item.to_dict() for item in blocked],
+                "message": (
+                    "Dimension(s) %s require an explicit, valid selection. "
+                    "Stage 1 execution is blocked until they are supplied."
+                    % [item.dimension_id for item in blocked]
+                ),
+                "snapshot": self.generate_snapshot_markdown(),
             }
+
+        # No CRITICAL dimension is listed as unresolved, but a closed dimension
+        # may still be unsatisfied (e.g. it was answered with an invalid value in
+        # an earlier round). Confirmation must not slip through that gap (R02).
+        still_blocked = collect_unsatisfied_required(self.all_dimensions.values(), self.resolutions)
+        if still_blocked:
+            self.state = GrillState.STAGE0_INPUT_REQUIRED
+            self.active_questions = [
+                GrillQuestion(
+                    index=idx,
+                    dimension=self.all_dimensions[item.dimension_id],
+                    prompt=f"[需要明确选择] {self.all_dimensions[item.dimension_id].name}: "
+                    f"{self.all_dimensions[item.dimension_id].description}",
+                )
+                for idx, item in enumerate(still_blocked, start=1)
+                if item.dimension_id in self.all_dimensions
+            ]
+            self.question_set_id = self._next_question_set_id()
+            return self.state, {
+                "status": "INPUT_REQUIRED",
+                "round": self.round,
+                "question_set_id": self.question_set_id,
+                "questions": self.active_questions,
+                "unresolved": [item.dimension_id for item in still_blocked],
+                "field_errors": [item.to_dict() for item in still_blocked],
+                "message": (
+                    "Dimension(s) %s require an explicit, valid selection. "
+                    "Stage 1 execution is blocked until they are supplied."
+                    % [item.dimension_id for item in still_blocked]
+                ),
+                "snapshot": self.generate_snapshot_markdown(),
+            }
+
+        # Normal safe conservative default upon budget exhaustion for standard critical dimensions
+        for uid in unresolved:
+            d = self.all_dimensions[uid]
+            rec = d.get_recommended_option()
+            k = rec.key if rec else d.default_key
+            val = rec.value if (rec and rec.value is not None) else d.default_value
+            lbl = rec.label if rec else str(d.default_value)
+            self.resolutions[uid] = DimensionResolution(
+                dimension_id=uid,
+                dimension_name=d.name,
+                selected_key=k,
+                selected_value=val,
+                selected_label=lbl,
+                provenance=Provenance.SYSTEM_RULE,
+                priority=d.priority,
+                rationale="Enforced safe conservative default upon budget exhaustion",
+            )
+        self.state = GrillState.STAGE0_CONFIRMED
+        snapshot = self.generate_snapshot_markdown()
+        return self.state, {
+            "status": "CONFIRMED_WITH_WARNING",
+            "round": self.round,
+            "question_set_id": self.question_set_id,
+            "snapshot": snapshot,
+            "unresolved_forced": unresolved,
+        }
+
+    def resume_input(self, user_response: str, question_set_id: Optional[str] = None):
+        """Resume a run blocked in ``STAGE0_INPUT_REQUIRED`` (R08).
+
+        Previously the blocked state rejected every answer, so the only recovery
+        was restarting the whole gate. Already-answered parameters are preserved.
+        """
+        if self.state != GrillState.STAGE0_INPUT_REQUIRED:
+            raise ValueError(
+                "resume_input requires state STAGE0_INPUT_REQUIRED, current state is %s" % self.state
+            )
+        return self.submit_response(user_response, question_set_id=question_set_id)
 
     def bypass_headless(self, parameters: Dict[str, Any]) -> Tuple[GrillState, str]:
         """Bypass interactive gate when all parameters are explicitly supplied."""
-        # Check if any registered dimension requires explicit selection but is missing (T08)
-        missing_explicit = []
+        # Validate every closed dimension: missing AND invalid values both block
+        # headless execution (T08 + R02/R03). A value such as "banana" must not be
+        # accepted just because the key is present.
+        canonical_values: Dict[str, Any] = {}
+        field_errors: List[Dict[str, Any]] = []
         for dim in self.all_dimensions.values():
-            if getattr(dim, "requires_explicit_selection", False) or dim.id == "EXECUTION_DEPTH":
-                val = parameters.get(dim.id)
-                if val is None or str(val).strip() == "":
-                    if dim.id not in self.resolutions:
-                        missing_explicit.append(dim.id)
+            if not requires_explicit_selection(dim):
+                continue
+            raw_value = parameters.get(dim.id)
+            if raw_value is None or str(raw_value).strip() == "":
+                if dim.id not in self.resolutions:
+                    field_errors.append(
+                        SelectionValidation(
+                            dimension_id=dim.id,
+                            satisfied=False,
+                            problem=SelectionProblem.MISSING,
+                            message="Explicit parameter required.",
+                        ).to_dict()
+                    )
+                continue
+            canonical = normalize_candidate_value(dim, raw_value)
+            if canonical is None:
+                field_errors.append(
+                    SelectionValidation(
+                        dimension_id=dim.id,
+                        satisfied=False,
+                        problem=SelectionProblem.INVALID_VALUE,
+                        value=raw_value,
+                        message="%r is not a valid option for %s." % (raw_value, dim.id),
+                    ).to_dict()
+                )
+                continue
+            canonical_values[dim.id] = canonical
 
-        if missing_explicit:
+        if field_errors:
+            self.invalid_selections = {
+                item["dimension_id"]: str(item.get("value"))
+                for item in field_errors
+                if item.get("problem") == SelectionProblem.INVALID_VALUE.value
+            }
             self.state = GrillState.STAGE0_INPUT_REQUIRED
-            msg = f"INPUT_REQUIRED: Headless execution blocked. Explicit parameter(s) required: {missing_explicit}"
+            blocked_ids = [item["dimension_id"] for item in field_errors]
+            msg = (
+                "INPUT_REQUIRED: Headless execution blocked. "
+                "Explicit parameter(s) required or invalid: %s" % blocked_ids
+            )
             return self.state, msg
 
         for k, v in parameters.items():
             dim = self.all_dimensions.get(k)
             dim_name = dim.name if dim else k
             dim_prio = dim.priority if dim else PriorityTier.HIGH_IMPACT
+            if dim is not None and requires_explicit_selection(dim):
+                v = canonical_values.get(k, v)
             self.resolutions[k] = DimensionResolution(
                 dimension_id=k,
                 dimension_name=dim_name,
@@ -654,6 +1051,9 @@ class GrillEngine:
                 rationale="Supplied headlessly via parameter configuration",
             )
         for dim in self.all_dimensions.values():
+            if requires_explicit_selection(dim):
+                # Already validated above; never fall back to a default here.
+                continue
             if dim.priority == PriorityTier.CRITICAL and dim.id not in self.resolutions:
                 rec = dim.get_recommended_option()
                 k = rec.key if rec else dim.default_key

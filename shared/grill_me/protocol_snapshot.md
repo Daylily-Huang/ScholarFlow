@@ -14,7 +14,7 @@
 - **Gate Status**: `CONFIRMED` <!-- 或 UNRESOLVED / INPUT_REQUIRED -->
 - **Confirmation Timestamp**: `{iso_timestamp}`
 - **Interaction Rounds**: `{round_count}` (Target: <= 2)
-- **Gate Engine**: `ScholarFlow Adaptive Research Grill Engine v0.6.5`
+- **Gate Engine**: `ScholarFlow Adaptive Research Grill Engine v0.6.6`
 
 ## 1. 核心研究边界与参数配置清单
 
