@@ -126,27 +126,40 @@ class TestExecutionDepthAcceptance(unittest.TestCase):
         self.assertNotIn("EXECUTION_DEPTH", self.engine.resolutions)
 
     # -------------------------------------------------------------------------
-    # T04: 注册超过 5 个 CRITICAL -> 深度必展示，其余必需项未决时不执行
+    # T04: CRITICAL 数量超过每轮上限 -> 深度必展示，其余必需项未决不执行
     # -------------------------------------------------------------------------
-    def test_T04_over_5_critical_dimensions_depth_prioritized(self):
-        # Discovery has D1, D2, D3, D4, D5 as CRITICAL. Plus EXECUTION_DEPTH = 6 criticals!
+    def test_T04_over_cap_critical_dimensions_depth_prioritized(self):
+        # Discovery has D1..D5 as CRITICAL, plus EXECUTION_DEPTH = 6 criticals,
+        # while a round presents at most MAX_QUESTIONS_PER_ROUND (4).
         questions = self.engine.select_questions("文献检索任务")
-        self.assertLessEqual(len(questions), 5)
-        # Verify EXECUTION_DEPTH is prioritized into the 5 presented questions
+        self.assertLessEqual(len(questions), 4)
+
+        # EXECUTION_DEPTH must win one of the limited slots.
         dim_ids = [q.dimension.id for q in questions]
         self.assertIn("EXECUTION_DEPTH", dim_ids)
 
-        # The 6th critical dimension not asked in round 1 must not be assumed passed
+        # Criticals that did not fit in round 1 must not be silently assumed.
         all_crits = [d.id for d in self.engine.all_dimensions.values() if d.priority == PriorityTier.CRITICAL]
         self.assertEqual(len(all_crits), 6)
         omitted = [cid for cid in all_crits if cid not in dim_ids]
-        self.assertEqual(len(omitted), 1)
+        self.assertEqual(len(omitted), 6 - len(dim_ids))
+        self.assertTrue(omitted)
 
-        # Answer round 1
+        # Answering round 1 ("按推荐") cannot confirm the run: the omitted
+        # criticals are re-asked in round 2 rather than defaulted.
         state, payload = self.engine.submit_response("全部按推荐")
-        # Must require Round 2 to resolve the omitted critical dimension
         self.assertEqual(state, GrillState.STAGE0_ROUND2)
-        self.assertIn(omitted[0], payload["unresolved"])
+        for cid in omitted:
+            self.assertIn(cid, payload["unresolved"])
+            self.assertNotIn(cid, self.engine.resolutions)
+
+    def test_T04b_round2_resolves_the_omitted_criticals(self):
+        self.engine.select_questions("文献检索任务")
+        state, _payload = self.engine.submit_response("全部按推荐")
+        self.assertEqual(state, GrillState.STAGE0_ROUND2)
+        state, payload = self.engine.submit_response("全部按推荐")
+        self.assertEqual(state, GrillState.STAGE0_CONFIRMED)
+        self.assertEqual(payload["status"], "CONFIRMED")
 
     # -------------------------------------------------------------------------
     # T05: 两轮均未回答深度 -> INPUT_REQUIRED，不静默回退

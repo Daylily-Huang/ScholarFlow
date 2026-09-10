@@ -757,6 +757,52 @@ def format_markdown_report(results: Dict[str, Any]) -> str:
         lines.append(f"- **证据权重分布**：SUPPORT: {data['stance_percentages']['SUPPORT']}% | REFUTE: {data['stance_percentages']['REFUTE']}% | CONDITIONAL: {data['stance_percentages']['CONDITIONAL']}% (总权重: {data['total_evidence_weight']})")
         lines.append("")
         
+        # Comparability disclosure: a method-level split must be visible in the
+        # rendered report, not only in the JSON payload. Omitting it here was
+        # what let a stratified disagreement read as "no disagreement".
+        cross = data.get("cross_stratum_analysis")
+        if cross and cross.get("stratum_count", 0) > 1:
+            lines.append("### ⚖️ 可比性分层与跨层差异 (Comparability Strata)")
+            lines.append("")
+            lines.append(
+                "- **分层数**：%d | **无法归入任何层**：%d 条"
+                % (cross["stratum_count"], cross.get("uncomparable_claim_count", 0))
+            )
+            primary = data.get("primary_stratum")
+            if primary:
+                lines.append("- **头条结论所在层**：`%s`（其余层结论见下表，**不可用以代表整体**）" % primary)
+            lines.append("")
+            lines.append("| 分层 | 主张数 | 倾向 | 层内共识 |")
+            lines.append("|---|---:|---|---|")
+            for key, info in sorted(cross.get("per_stratum", {}).items()):
+                lines.append(
+                    "| `%s` | %s | `%s` | `%s` |"
+                    % (key, info.get("claim_count"), info.get("direction"),
+                       info.get("consensus_classification"))
+                )
+            lines.append("")
+            if cross.get("disclosure"):
+                tag = "⚠️ **分层间方向不一致**" if cross.get("has_cross_stratum_difference") else "ℹ️ 分层说明"
+                lines.append("%s：%s" % (tag, cross["disclosure"]))
+                lines.append("")
+            lines.append(
+                "> 方法学差异只能提示「差异与方法相关」，**不能证明差异由方法造成**。"
+                "跨层比较需在方法可比的层内进行。"
+            )
+            lines.append("")
+
+        within = data.get("within_stratum_analysis")
+        if within is not None and data.get("primary_stratum"):
+            lines.append(
+                "### 层内结论（仅限 `%s`）" % data["primary_stratum"]
+            )
+            lines.append("")
+            lines.append(
+                "- 层内共识层级：`%s` | 层内主张数：%s"
+                % (within.get("consensus_classification", "N/A"), len(within.get("claims", [])))
+            )
+            lines.append("")
+
         lines.append("### 证据链条明细对决表")
         lines.append("")
         lines.append("| 来源文献 | 立场 (Stance) | 证据等级 (Tier) | 核心主张 | 关键方法 | 适用边界 |")

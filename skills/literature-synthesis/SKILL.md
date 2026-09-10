@@ -28,7 +28,7 @@ description: 通用学科科研文献跨篇证据综合分析、学术争议发�
 ### 阶段 1：Stage 0 上下文感知科研决策门禁 (Context-Aware Research Gate)
 - **执行序列**：
   1. **Stage 0A — Context Resolution**：优先直接消费上游 Extraction 产出的结构化 EvidenceRecord 与证据表，自动将 S3 证据边界确认为 `audited_extraction_table`，输出《现有科研上下文确认简报》，已知要素与结论自动继承，严禁对已知要素重复询问；若上游已确认执行深度则直接继承，否则必须提供快速/标准/深度三档确认；
-  2. **Stage 0B — Adaptive Grill-Me**：读取 [references/stage0_grill_me.md](./references/stage0_grill_me.md) 与 `shared/grill_me/`，首轮确保包含 `EXECUTION_DEPTH` 及未决的 `CRITICAL` / `HIGH_IMPACT` 维度中动态生成 3~5 个核心追问，每题提供 Recommended 选项与依据，严格执行 STOP Rule 静默等待用户确认；未确认执行深度绝不开工；
+  2. **Stage 0B — Adaptive Grill-Me**：读取 [references/stage0_grill_me.md](./references/stage0_grill_me.md) 与 `shared/grill_me/`，首轮确保包含 `EXECUTION_DEPTH` 及未决的 `CRITICAL` / `HIGH_IMPACT` 维度中动态生成 3~4 个核心追问，每题提供 Recommended 选项与依据，严格执行 STOP Rule 静默等待用户确认；未确认执行深度绝不开工；
   3. **Stage 0C — Protocol Snapshot**：确认后固化全字段来源审计快照，解锁 Step 1 实质综合分析。
 - **决策维度原则**：执行深度（`execution_depth`：快速首批 3 个主张/标准 10 个主张/深度 20 个主张且含敏感性分析）与综合任务类型（`S1`：争议扫描/学派演化/主张审计）正交组合使用。
 - **禁止提前读取**：任何 Step 1+ 的规程、角色契约、模板或长案例。
@@ -114,7 +114,7 @@ flowchart TD
   - **证据就绪预检与直接摄取**：优先直接消费 [`literature-evidence-extraction`](../literature-evidence-extraction/SKILL.md) 产出的结构化 EvidenceRecord 与证据表，自动将 S3 证据边界确认为 `audited_extraction_table`，严禁让用户重新解释文献题录；
   - **继承前序研判**：自动继承 Discovery 的检索协议与 Extraction 确立的事实结论，在《现有科研上下文确认简报》中固化已知要素（标记 `[USER]` / `[CONTEXT]` / `[UPSTREAM]`）；
 - **Stage 0B：自适应科研决策追问 (Adaptive Research Grill-Me)**：
-  - 评估 S1 至 S11 决策维度，仅从未决的 `CRITICAL` 维度（S1 综合目的、S2 核心争鸣假说、S4 比较单元）与关键 `HIGH_IMPACT` 维度（S5 可比性、S6 证据加权、S7 学派灵敏度）中动态生成 **3~5 个** 结构化提问；
+  - 评估 S1 至 S11 决策维度，仅从未决的 `CRITICAL` 维度（S1 综合目的、S2 核心争鸣假说、S4 比较单元）与关键 `HIGH_IMPACT` 维度（S5 可比性、S6 证据加权、S7 学派灵敏度）中动态生成 **3~4 个** 结构化提问；
   - 每题配备带有充分依据的 `(Recommended)` 选项与置信度标签；次要 `DEFAULTABLE` 维度自动继承科学默认；
   - **严格交互硬门禁 (STOP Rule)**：**Agent 输出问题后必须立即终止当前回复，进入静默等待状态**，严禁在同一回复中自问自答或直接调用分析工具。
 - **Stage 0C：协议快照生成与执行放行 (Protocol Snapshot & Execution Gate)**：

@@ -40,7 +40,7 @@ description: 通用学科科研文献证据可信抽取与事实核验专业技�
 ### 阶段 1：Stage 0 上下文感知科研决策门禁 (Context-Aware Research Gate)
 - **执行序列**：
   1. **Stage 0A — Context Resolution**：自动读取任务附件/PDF、历史对话、上游 Discovery 检索产物与 Schema 快照，进行全文预检（无全文则熔断）；自动识别多队列/多数据集，输出《现有科研上下文确认简报》，已知约束与 Schema 自动确认，严禁对已知要素重复询问；若上游已确认执行深度则直接继承，否则必须提供快速/标准/深度三档确认；
-  2. **Stage 0B — Adaptive Grill-Me**：读取 [references/stage0_grill_me.md](./references/stage0_grill_me.md) 与 `shared/grill_me/`，首轮确保包含 `EXECUTION_DEPTH` 及未决的 `CRITICAL`（目的、Schema、实验隔离）与关键 `HIGH_IMPACT` 维度，动态生成 3~5 个结构化提问，每题附带 Recommended 选项与依据，严格执行 STOP Rule 静默等待用户确认；未确认执行深度绝不开工；
+  2. **Stage 0B — Adaptive Grill-Me**：读取 [references/stage0_grill_me.md](./references/stage0_grill_me.md) 与 `shared/grill_me/`，首轮确保包含 `EXECUTION_DEPTH` 及未决的 `CRITICAL`（目的、Schema、实验隔离）与关键 `HIGH_IMPACT` 维度，动态生成 3~4 个结构化提问，每题附带 Recommended 选项与依据，严格执行 STOP Rule 静默等待用户确认；未确认执行深度绝不开工；
   3. **Stage 0C — Protocol Snapshot**：用户确认后固化全字段来源审计快照（`[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）；
   - **交付格式默认与覆盖**：`E10 交付格式` 维度（Tier 3）默认**三轨全套**（MD 底稿 + CSV/JSON 数据 + HTML 报告），写入快照 `[DEFAULTED]`；用户可在确认回复中一句话覆盖（如 `格式: xlsx`，xlsx 导出需可选 openpyxl），解锁 Phase A 实质抽取。
 - **决策维度原则**：执行深度（`execution_depth`：快速首批 5 篇/标准 20 篇/深度 50 篇）与抽取任务类型（`E1`：常规抽取/事实审计）正交组合使用。
@@ -126,7 +126,7 @@ flowchart TD
   - 若输入文献中检测到多队列/多数据集（Multi-Cohort），自动识别出上下文复杂性，并在《现有科研上下文确认简报》中标记，保留 E4 隔离决策供确认；
   - 已知约束与上游 Schema 自动确认为 `RESOLVED`（标记 `[USER]` / `[CONTEXT]` / `[UPSTREAM]`），杜绝重复询问。
 - **Stage 0B：自适应科研决策追问 (Adaptive Research Grill-Me)**：
-  - 评估 E1 至 E9 决策维度，仅从未决的 `CRITICAL` 维度（E1 目的、E3 Schema、E4 实验隔离）与关键 `HIGH_IMPACT` 维度（E5 重计算、E6 单位归一化）中动态生成 **3~5 个** 结构化提问；
+  - 评估 E1 至 E9 决策维度，仅从未决的 `CRITICAL` 维度（E1 目的、E3 Schema、E4 实验隔离）与关键 `HIGH_IMPACT` 维度（E5 重计算、E6 单位归一化）中动态生成 **3~4 个** 结构化提问；
   - 每题配备带有充分依据的 `(Recommended)` 选项与置信度标签；
   - **严格交互硬门禁 (STOP Rule)**：**Agent 输出问题后必须立即终止当前回复，进入静默等待状态**，严禁在同一回复中自问自答或直接调用抽取工具。
 - **Stage 0C：协议快照生成与执行放行 (Protocol Snapshot & Execution Gate)**：

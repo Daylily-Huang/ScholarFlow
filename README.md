@@ -71,7 +71,7 @@ graph TD
    - **正交过滤与已知要素确认**：启用跨学科正交防泄漏过滤，已知约束自动确认为 `RESOLVED`（标记 `[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]`），呈现《现有科研上下文确认简报》，严禁对已知要素重复发问；
    - **同级冲突检测**：检测到无时间戳的同级资料矛盾时，标记 `UNRESOLVED_CONFLICT` 提交学者仲裁。
 2. **Stage 0B：自适应科研决策追问 (Adaptive Research Grill-Me)**：
-   - **只问未决高影响变量**：仅针对上下文未覆盖的 `CRITICAL` 与 `HIGH_IMPACT` 维度动态筛选 **3~5 个** 核心追问；
+   - **只问未决高影响变量**：仅针对上下文未覆盖的 `CRITICAL` 与 `HIGH_IMPACT` 维度动态筛选 **3~4 个** 核心追问；
    - **每题必带推荐**：提供带有明确依据的 `(Recommended)` 选项与置信度标签；次要 `DEFAULTABLE` 维度自动应用学科透镜默认值；
    - **严格交互硬门禁 (STOP Rule)**：Agent 输出提问清单后，**必须立即终止当前回复，进入静默等待状态**，严禁自问自答或在同一轮次中偷跑下游工具。
 3. **Stage 0C：协议快照生成与执行放行 (Protocol Snapshot & Execution Gate)**：

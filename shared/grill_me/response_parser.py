@@ -595,7 +595,9 @@ def _classify_context_provenance(var: Any):
 class GrillEngine:
     """Core state engine coordinating question selection, budget enforcement, and gate approval."""
 
-    MAX_QUESTIONS_PER_ROUND = 5
+    #: Upper bound per round. Kept in step with the STOP-Rule question-tool
+    #: routing in shared/grill_me/core_protocol.md (<= 4 questions per round).
+    MAX_QUESTIONS_PER_ROUND = 4
     MIN_QUESTIONS_PER_ROUND = 3
     MAX_ROUNDS = 2
 
@@ -702,7 +704,7 @@ class GrillEngine:
                     )
 
         # Prioritize dimensions requiring explicit selection (e.g. EXECUTION_DEPTH)
-        # so they are never pushed out of round 1 when CRITICAL dimensions exceed MAX_QUESTIONS_PER_ROUND (T04)
+        # so they are never pushed out of round 1 when CRITICAL dimensions exceed MAX_QUESTIONS_PER_ROUND (T04, now 4)
         critical_dims.sort(
             key=lambda d: 0 if getattr(d, "requires_explicit_selection", False) or d.id == "EXECUTION_DEPTH" else 1
         )

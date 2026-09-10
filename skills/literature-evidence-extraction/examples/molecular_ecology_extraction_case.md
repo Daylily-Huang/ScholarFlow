@@ -46,7 +46,7 @@ Agent 快速浏览文档目录与摘要后向用户汇报：
 | **P03** | Master Mix / Polymerase | Assay-STR | 5.0 μL Qiagen Multiplex PCR Master Mix | E1 (EXPLICIT) | “...5.0 μL 2× Qiagen Multiplex PCR Master Mix (HotStarTaq DNA Polymerase)...” | Page 4, Section 2.3 | SUPPORTED | 预混酶 2× 体系，加 5.0 μL |
 | **P04** | BSA Concentration | Assay-STR | NR | E4 (NR) | — | Page 4, Section 2.3 | NOT_REPORTED | 全文检索 BSA，作者未提及添加牛血清白蛋白 |
 | **P05** | Primers Total Volume | Assay-STR | 1.8 μL (15 pairs pooled) | E2 (DERIVED) | “...primer mix containing 15 fluorescently labeled primer pairs (0.12 μL each primer pair at 10 μM)...” | Page 4, Section 2.3 | SUPPORTED | 推导公式：15 × 0.12 μL = 1.8 μL |
-| **P06** | Annealing Temperature ($T_a$) | Assay-STR | 55°C (正文) / 53–56°C (表1) | E1 (EXPLICIT) | 正文：“...annealed at 55°C for 90 s...”; 表1附注：“Loci Pun-01,04 annealed at 53°C, remaining loci at 56°C.” | Page 4 & Table 1 Footnote | CONTRADICTORY | 存在方法叙述与具体位点表注冲突，多重优化后实际位点退火为梯度 |
+| **P06** | Annealing Temperature ($T_a$) | Assay-STR | 55°C (正文) / 53~46°C (表1) | E1 (EXPLICIT) | 正文：“...annealed at 55°C for 90 s...”; 表1附注：“Loci Pun-01,04 annealed at 53°C, remaining loci at 56°C.” | Page 4 & Table 1 Footnote | CONTRADICTORY | 存在方法叙述与具体位点表注冲突，多重优化后实际位点退火为梯度 |
 | **P07** | PCR Cycling Times | Assay-STR | 40 cycles | E1 (EXPLICIT) | “...followed by 40 cycles of 94°C for 30 s, 55°C for 90 s, and 72°C for 60 s...” | Page 4, Section 2.3 | SUPPORTED | 粪便微卫星常采用 40 循环 |
 | **R01** | Overall Genotyping Success | Assay-STR | 78.7% (85/108) | E1 (EXPLICIT) | “A total of 85 fecal samples (78.7%) yielded reliable consensus genotypes at ≥10 loci.” | Page 6, Section 3.1 | SUPPORTED | 准入达标率为 78.7% |
 | **R02** | Multi-tube PCR Replicates | Assay-STR | 3–7 replicates per locus | E1 (EXPLICIT) | “Heterozygotes were confirmed after at least 3 independent PCRs; homozygotes required at least 7 identical replicates.” | Page 5, Section 2.4 | SUPPORTED | 遵循经典多管法准则 |
@@ -65,7 +65,7 @@ Agent 快速浏览文档目录与摘要后向用户汇报：
   - E3 (REFERENCED 引述)：1 项 (D01 引用 Waits 2001)
   - E4 (NR 未报告)：1 项 (P04 BSA 未提及，严禁脑补)
 - **异常标注**：
-  - CONTRADICTORY：1 项 (P06 退火温度正文 55°C 与表注 53–56°C 冲突，已完整列出双重原句与提示)
+  - CONTRADICTORY：1 项 (P06 退火温度正文 55°C 与表注 53~46°C 冲突，已完整列出双重原句与提示)
 - **14 项硬指标核查结论**：14/14 项审查全数合规，无引文伪造，无常识填空，Assay 隔离完全。
 - **终审裁决**：[x] PASS (放行交付)
 - **审查员签署**：Evidence Auditor
@@ -118,7 +118,7 @@ Agent 快速浏览文档目录与摘要后向用户汇报：
       "field_name": "Annealing Temperature",
       "module": "parameters",
       "assay_id": "Assay-STR",
-      "extracted_value": "55°C (正文) / 53–56°C (表1附注)",
+      "extracted_value": "55°C (正文) / 53~46°C (表1附注)",
       "evidence_level": "E1_EXPLICIT",
       "verbatim_quote": "正文: annealed at 55°C for 90 s; 表1: Loci Pun-01,04 annealed at 53°C, remaining loci at 56°C.",
       "source_type": "Text",

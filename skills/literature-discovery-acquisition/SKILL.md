@@ -47,7 +47,7 @@ description: >-
 ### 阶段 1：Stage 0 上下文感知科研决策门禁 (Context-Aware Research Gate)
 - **执行序列**：
   1. **Stage 0A — Context Resolution**：按五层优先级自动解析现有上下文（当前指令、历史对话、任务附件、上游产物及按需项目检索），输出《现有科研上下文确认简报》，已知要素自动确认为 `RESOLVED`，严禁对已知要素重复发问；
-  2. **Stage 0B — Adaptive Grill-Me**：读取 [references/stage0_grill_me.md](references/stage0_grill_me.md) 与 `shared/grill_me/`，首轮确保包含 `EXECUTION_DEPTH`（快速/标准/深度，推荐标准档）及未决的 `CRITICAL` / `HIGH_IMPACT` 维度，动态生成 3~5 个结构化追问，每题附带 Recommended 选项与方法学依据，严格执行 STOP Rule 静默等待用户确认；未确认执行深度绝不开工；
+  2. **Stage 0B — Adaptive Grill-Me**：读取 [references/stage0_grill_me.md](references/stage0_grill_me.md) 与 `shared/grill_me/`，首轮确保包含 `EXECUTION_DEPTH`（快速/标准/深度，推荐标准档）及未决的 `CRITICAL` / `HIGH_IMPACT` 维度，动态生成 3~4 个结构化追问，每题附带 Recommended 选项与方法学依据，严格执行 STOP Rule 静默等待用户确认；未确认执行深度绝不开工；
   3. **Stage 0C — Protocol Snapshot**：用户确认后固化全字段来源审计快照（`[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）；
   - **交付格式默认与覆盖**：`D15 交付格式` 维度（Tier 3）默认**三轨全套**（MD 底稿 + CSV/JSON 数据 + HTML 报告），写入快照 `[DEFAULTED]`；用户可在确认回复中一句话覆盖（如 `格式: xlsx`，xlsx 导出需可选 openpyxl），解锁 Stage 1 实质执行。
 - **决策维度原则**：执行深度（`execution_depth`）与研究目标（`D1`）正交解耦，已在会话明确指定或上游已确认者不重复询问。
@@ -155,7 +155,7 @@ flowchart TD
    - **同级冲突仲裁**：检测到无时间戳的同级资料矛盾时，标记 `UNRESOLVED_CONFLICT` 提交用户裁决。
 
 2. **Stage 0B：自适应科研决策追问 (Adaptive Research Grill-Me)**
-   - **只问未决高影响变量**：仅针对上下文未覆盖的 `CRITICAL`（D1-D5）与高影响 `HIGH_IMPACT`（D6-D9）维度动态筛选 **3~5 个** 核心追问；
+   - **只问未决高影响变量**：仅针对上下文未覆盖的 `CRITICAL`（D1-D5）与高影响 `HIGH_IMPACT`（D6-D9）维度动态筛选 **3~4 个** 核心追问；
    - **每题必带推荐**：提供带有明确依据的 `(Recommended)` 选项与置信度标签；次要 `DEFAULTABLE` 维度（D10-D14）自动应用学科透镜默认值；
    - **严格交互硬门禁 (STOP Rule)**：**Agent 输出问题清单后必须立即终止回复，进入静默等待状态**，严禁自问自答或在同轮调用检索/下载工具。
 
@@ -240,7 +240,7 @@ flowchart TD
 
 ### Stage 6：核心种子文献双向引文追踪 (Citation Chasing)
 
-挑选 3–5 篇经过初筛的里程碑论文与权威综述作为 Seed Papers：
+挑选 3~4 篇经过初筛的里程碑论文与权威综述作为 Seed Papers：
 - **Backward Citation Chasing (反向追溯)**：追溯种子论文的参考文献列表；
 - **Forward Citation Chasing (正向追踪)**：追踪引用该种子论文的最新后续研究；
 - **Author Chasing**：追踪核心作者/课题组相关成果；

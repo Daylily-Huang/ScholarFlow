@@ -62,10 +62,10 @@ flowchart TD
 单靠关键词检索容易受限于学术界的“用词分歧”（同一概念不同学派使用完全不同的词汇）。必须依托**学术引用网络**进行引文追踪。
 
 ### 1. 种子文献挑选标准 (Seed Papers Selection)
-从 Stage 5 判为 `Include` 的文献中，挑选 3–5 篇具有代表性的文献作为初始种子（Seed Papers）：
+从 Stage 5 判为 `Include` 的文献中，挑选 3~4 篇具有代表性的文献作为初始种子（Seed Papers）：
 - **方法奠基论文 (Methodological Landmark)**：最早提出该分析方法或该物种微卫星体系的经典论文；
 - **权威综述论文 (Authoritative Review)**：发表在顶级综述期刊（如 TREE）上的大篇幅综述；
-- **高被引近期实证 (High-Impact Recent Empirical)**：近 3–5 年发表在领域顶刊、被引较高的代表性论文。
+- **高被引近期实证 (High-Impact Recent Empirical)**：近 3~4 年发表在领域顶刊、被引较高的代表性论文。
 
 ### 2. 双向追踪执行机制
 

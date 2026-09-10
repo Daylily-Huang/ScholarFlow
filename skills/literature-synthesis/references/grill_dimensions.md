@@ -75,6 +75,6 @@
 ## 3. 提问生成与默认规则
 
 1. 启动时解析已有任务指示，将已确定项标记为 `[INFERRED]`；
-2. 动态挑选未决的 `CRITICAL` 维度（S1-S4）与关键 `HIGH_IMPACT` 维度（S5-S7），组合为 **3~5 题**；
+2. 动态挑选未决的 `CRITICAL` 维度（S1-S4）与关键 `HIGH_IMPACT` 维度（S5-S7），组合为 **3~4 题**；
 3. 其余 `DEFAULTABLE` 维度（S8-S11）自动应用默认选项 A，并在 Protocol Snapshot 中打上 `[DEFAULTED]` 标签；
 4. 提问输出后，**Agent 必须执行 STOP Rule**，等待用户回复。

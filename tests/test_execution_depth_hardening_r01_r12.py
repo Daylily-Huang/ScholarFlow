@@ -922,6 +922,23 @@ class TestR11CandidateCeilingAndRoundReporting(unittest.TestCase):
         self.assertEqual(quick_info["expansion_rounds_executed"], 0)
         self.assertEqual(quick_info["queries_executed"], 1)
 
+    def test_rounds_executed_matches_queries_executed(self):
+        """A real run showed rounds_executed=4 while only 3 queries ran."""
+        self.ags.query_openalex_headless = self._stub(self._records(3))
+        self.ags.run_snowball_search = lambda *a, **k: ([], [])
+        _records, info = self.ags.run_standard_search(
+            "habitat connectivity", limit=5, profile=self.ags.get_profile("standard")
+        )
+        self.assertEqual(
+            info["rounds_executed"],
+            info["queries_executed"],
+            "rounds_executed must equal the number of queries actually executed",
+        )
+        self.assertEqual(
+            info["queries_executed"],
+            info["expansion_rounds_executed"] + info["snowball_rounds_executed"] + 1,
+        )
+
     def test_skipped_steps_are_reasoned_not_counted(self):
         self.ags.query_openalex_headless = self._stub(self._records(2))
         _records, info = self.ags.run_deep_search("生态学", limit=5, profile=self.ags.get_profile("deep"))
@@ -1361,6 +1378,35 @@ class TestStratifiedControversyDisclosure(unittest.TestCase):
         self.assertIn("SUPPORT_LEANING", directions)
         self.assertIn("REFUTE_LEANING", directions)
         self.assertIn("disclosure", cross)
+
+    def test_cross_stratum_disclosure_reaches_markdown(self):
+        """The rendered report must carry the disclosure, not just the JSON.
+
+        The CLI defaults to `-f markdown`; a disclosure that only exists in the
+        payload is invisible to every user of the report.
+        """
+        from controversy_analyzer import analyze, format_markdown_report
+
+        data = analyze(self._claims())
+        markdown = format_markdown_report(data)
+        self.assertIn("可比性分层", markdown)
+        self.assertIn("SUPPORT_LEANING", markdown)
+        self.assertIn("REFUTE_LEANING", markdown)
+        self.assertIn("分层间方向不一致", markdown)
+        self.assertIn("不可用以代表整体", markdown)
+        # And it must not read as causal proof.
+        self.assertIn("不能证明差异由方法造成", markdown)
+
+    def test_single_stratum_markdown_has_no_stratum_section(self):
+        from controversy_analyzer import analyze, format_markdown_report
+
+        homogeneous = [
+            dict(self._claims()[0], topic="solo"),
+            dict(self._claims()[0], claim_id="C3", paper_id="P3",
+                 independence_group_id="G3", method="line transect survey"),
+        ]
+        markdown = format_markdown_report(analyze(homogeneous))
+        self.assertNotIn("分层间方向不一致", markdown)
 
     def test_single_stratum_topic_is_unaffected(self):
         from controversy_analyzer import analyze

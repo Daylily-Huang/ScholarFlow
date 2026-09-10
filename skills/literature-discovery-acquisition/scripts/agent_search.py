@@ -1107,7 +1107,9 @@ def run_headless_search(
     saturation_info["queries_executed"] = actual_queries
     saturation_info["expansion_rounds_executed"] = expansion_rounds_executed
     saturation_info["snowball_rounds_executed"] = snowball_rounds_executed
-    saturation_info["rounds_executed"] = actual_queries + expansion_rounds_executed
+    # `actual_queries` already counts every executed query, including the
+    # concept-expansion and snowball rounds, so it must not be summed again.
+    saturation_info["rounds_executed"] = actual_queries
     saturation_info["configured_rounds"] = (
         ctx.config.budgets.concept_expansion_rounds + ctx.config.budgets.snowball_rounds + 1
     )

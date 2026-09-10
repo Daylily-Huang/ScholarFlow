@@ -283,7 +283,7 @@ class TestContextAwareGrill(unittest.TestCase):
             context_resolver=resolver,
         )
         self.assertGreaterEqual(len(questions), 3)
-        self.assertLessEqual(len(questions), 5)
+        self.assertLessEqual(len(questions), 4)
         self.assertEqual(engine.state, GrillState.STAGE0_UNRESOLVED)
 
         presentation = engine.render_presentation()

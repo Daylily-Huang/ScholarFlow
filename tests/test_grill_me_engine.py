@@ -137,9 +137,9 @@ class TestGrillEngine(unittest.TestCase):
         self.engine.register_dimensions(get_discovery_dimensions())
 
     def test_question_selection_budget_and_priority(self):
-        # Should select at most MAX_QUESTIONS_PER_ROUND (5)
+        # Should select at most MAX_QUESTIONS_PER_ROUND (4 per the STOP-Rule routing)
         questions = self.engine.select_questions("请帮我进行CRISPR前沿研究调研")
-        self.assertLessEqual(len(questions), 5)
+        self.assertLessEqual(len(questions), 4)
         self.assertGreaterEqual(len(questions), 3)
 
         # All selected questions should be CRITICAL or HIGH_IMPACT
@@ -167,13 +167,30 @@ class TestGrillEngine(unittest.TestCase):
         self.assertEqual(self.engine.resolutions["D1"].provenance, Provenance.INFERRED)
 
     def test_happy_path_fast_reply(self):
-        self.engine.select_questions("调研mRNA疫苗中和抗体反应")
+        # "Single round then confirm" requires the question set to fit one round.
+        # Discovery carries 6 CRITICAL dimensions while a round presents at most
+        # 4, so two of them are supplied up front here; the two-round path is
+        # covered by test_two_round_confirmation_when_criticals_exceed_the_cap.
+        questions = self.engine.select_questions(
+            "调研mRNA疫苗中和抗体反应",
+            inferred_values={"D4": "empirical_quantitative", "D5": "strict_peer_reviewed"},
+        )
+        self.assertLessEqual(len(questions), 4)
         state, payload = self.engine.submit_response("按推荐")
         self.assertEqual(state, GrillState.STAGE0_CONFIRMED)
         self.assertEqual(payload["status"], "CONFIRMED")
         self.assertIn("# Stage 0 Protocol Snapshot", payload["snapshot"])
         self.assertIn("[USER]", payload["snapshot"])
         self.assertIn("[DEFAULTED]", payload["snapshot"])
+
+    def test_two_round_confirmation_when_criticals_exceed_the_cap(self):
+        """6 CRITICAL dimensions vs a 4-question cap -> round 2, not a default."""
+        self.engine.select_questions("调研mRNA疫苗中和抗体反应")
+        state, _payload = self.engine.submit_response("按推荐")
+        self.assertEqual(state, GrillState.STAGE0_ROUND2)
+        state, payload = self.engine.submit_response("按推荐")
+        self.assertEqual(state, GrillState.STAGE0_CONFIRMED)
+        self.assertEqual(payload["status"], "CONFIRMED")
 
     def test_multi_round_and_exhaustion(self):
         # Round 1: user provides ambiguous answer that leaves critical dimensions unresolved
