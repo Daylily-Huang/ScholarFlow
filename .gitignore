@@ -46,3 +46,6 @@ test_output/
 
 # Isolated installer verification output
 .sf-install-verify/
+
+# Local credential file (never commit)
+pathtoken.txt

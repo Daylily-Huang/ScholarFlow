@@ -436,48 +436,119 @@ def audit_discovery_coverage_gate(
     - [ ] Cross-source substitution disallowed (OpenAlex cannot mark CNKI searched).
     """
     violations = []
-    checks = {
-        "planned_sources_accounted": True,
-        "no_access_failure_as_zero": True,
-        "hit_reconciliation_valid": True,
-        "pagination_recorded": True,
-        "corpus_frozen": bool(frozen_corpus and frozen_corpus.get("status") == "CORPUS_FROZEN"),
-        "no_cross_source_substitution": True
-    }
+    unknown = []
 
     if isinstance(retrieval_ledger, list):
         entries = retrieval_ledger
-        has_retrieval_gaps = any(e.get("coverage_status") in {CoverageStatus.PARTIAL, CoverageStatus.UNKNOWN} for e in entries)
+        ledger_planned = None
+        has_retrieval_gaps = any(
+            e.get("coverage_status") in {CoverageStatus.PARTIAL, CoverageStatus.UNKNOWN} for e in entries
+        )
     elif isinstance(retrieval_ledger, dict):
-        entries = retrieval_ledger.get("entries", [])
+        entries = retrieval_ledger.get("entries", []) or []
+        ledger_planned = retrieval_ledger.get("planned_sources")
         has_retrieval_gaps = retrieval_ledger.get("has_retrieval_gaps", False)
     else:
         entries = []
+        ledger_planned = None
         has_retrieval_gaps = False
+
+    # Each check is computed from the ledger. When the evidence needed to decide
+    # a check is absent, the check is reported as "unknown" rather than silently
+    # passing (review follow-up: decorative checks must not read as PASS).
+    checks: Dict[str, Any] = {
+        "no_access_failure_as_zero": True,
+        "pagination_recorded": True,
+        "corpus_frozen": bool(frozen_corpus and frozen_corpus.get("status") == "CORPUS_FROZEN"),
+        "no_cross_source_substitution": True,
+    }
+
+    searched_sources = [str(e.get("source_id", "")) for e in entries]
+
     for e in entries:
         st = e.get("execution_status")
         hits = e.get("reported_total_hits")
-        src = e.get("source_id", "")
+        src = str(e.get("source_id", ""))
 
         # Violation: access failure written as 0 hits
         if st in RetrievalStatus.ACCESS_FAILURE_STATUSES and hits == 0:
             checks["no_access_failure_as_zero"] = False
             violations.append(f"Access failure for source '{src}' was falsely written as 0 hits (Rule 10 violation).")
 
-        # Violation: cross source substitution (e.g. OpenAlex claiming CNKI)
-        if "cnki" in src.lower() and "openalex" in str(e.get("notes", "")).lower() and st == RetrievalStatus.SEARCHED_COMPLETE:
-            checks["no_cross_source_substitution"] = False
-            violations.append("Cross-source substitution violation: OpenAlex discovery cannot be claimed as CNKI coverage.")
+        # Violation: a source marked as executed without any recorded attempt.
+        if st in (RetrievalStatus.SEARCHED_COMPLETE, RetrievalStatus.SEARCHED_WITH_ERRORS):
+            if e.get("metadata_records_retrieved") is None and hits is None:
+                checks["no_cross_source_substitution"] = False
+                violations.append(
+                    f"Source '{src}' is marked executed but records no attempt evidence "
+                    "(no retrieved count and no reported hits)."
+                )
+
+        # Violation: cross-source substitution. A source may not claim execution
+        # on the strength of a *different* database's discovery.
+        notes_l = str(e.get("notes", "")).lower()
+        src_l = src.lower()
+        for other in ("cnki", "wanfang", "vip", "web of science", "scopus", "openalex"):
+            if other in src_l:
+                continue  # naming its own database is not substitution
+            if other in notes_l and st == RetrievalStatus.SEARCHED_COMPLETE:
+                checks["no_cross_source_substitution"] = False
+                violations.append(
+                    "Cross-source substitution violation: discovery via '%s' cannot be "
+                    "claimed as coverage of '%s'." % (other, src or "unknown")
+                )
 
         # Check pagination
         if not e.get("pagination_status"):
             checks["pagination_recorded"] = False
             violations.append(f"Source '{src}' missing pagination completeness status.")
 
+    # Measurable only when the run declared which databases it planned to search.
+    if ledger_planned is None:
+        checks["planned_sources_accounted"] = "unknown"
+        unknown.append(
+            "planned_sources_accounted: the run did not declare a planned source list, "
+            "so planned-vs-executed coverage cannot be verified."
+        )
+    else:
+        planned = {str(x).lower() for x in ledger_planned}
+        executed = {x.lower() for x in searched_sources if x}
+        missing = sorted(planned - executed)
+        checks["planned_sources_accounted"] = not missing
+        if missing:
+            violations.append(
+                "Planned database(s) without an explicit execution record: %s" % ", ".join(missing)
+            )
+
+    # Measurable only when at least one source reports a total hit count.
+    hit_bearing = [e for e in entries if e.get("reported_total_hits") is not None]
+    if not entries or not hit_bearing:
+        checks["hit_reconciliation_valid"] = "unknown"
+        unknown.append(
+            "hit_reconciliation_valid: no source reported a total hit count "
+            "(access failures legitimately report null), so reconciliation is not verifiable."
+        )
+    else:
+        mismatched = []
+        for e in hit_bearing:
+            total = e.get("reported_total_hits")
+            retrieved = e.get("metadata_records_retrieved")
+            if retrieved is None:
+                mismatched.append(str(e.get("source_id", "")))
+            elif retrieved > total:
+                mismatched.append(str(e.get("source_id", "")))
+        checks["hit_reconciliation_valid"] = not mismatched
+        if mismatched:
+            violations.append(
+                "Retrieved count exceeds reported total hits for source(s): %s"
+                % ", ".join(sorted(set(mismatched)))
+            )
+
     if not checks["corpus_frozen"]:
         violations.append("Metadata corpus was not frozen prior to fulltext acquisition.")
 
-    gate_status = "PASS" if not violations else "REJECT"
+    # "unknown" is not a pass: it blocks an unqualified PASS verdict.
+    gate_status = "REJECT" if violations else ("PASS_WITH_UNKNOWNS" if unknown else "PASS")
     gaps_count = (
         len(retrieval_ledger.get('retrieval_gaps', []))
         if isinstance(retrieval_ledger, dict)
@@ -488,6 +559,8 @@ def audit_discovery_coverage_gate(
         "gate": "GATE_A_DISCOVERY_COVERAGE",
         "status": gate_status,
         "checks": checks,
+        "unknowns": unknown,
+        "searched_sources": sorted({s for s in searched_sources if s}),
         "violations": violations,
         "has_retrieval_gaps": has_retrieval_gaps,
         "retrieval_gap_summary": (

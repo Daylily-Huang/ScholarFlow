@@ -23,6 +23,10 @@ jobs:
         run: python benchmarks/run_benchmarks.py
       - name: Run domain neutrality linter
         run: python scripts/domain_neutrality_linter.py
+      - name: Run skill builtin self-tests
+        run: |
+          python skills/literature-evidence-extraction/scripts/context_expansion.py --test
+          python skills/literature-discovery-acquisition/scripts/calculate_screening_agreement.py --test
 
   contract-validation:
     runs-on: ubuntu-latest

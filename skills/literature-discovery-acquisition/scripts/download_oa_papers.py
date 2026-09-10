@@ -228,31 +228,97 @@ def download_file(url, target_path, timeout=30):
         return False, str(e)
 
 
-def run_pipeline(input_path, output_dir, max_downloads=None):
-    os.makedirs(output_dir, exist_ok=True)
-    
-    # 1. 解析输入记录
-    records = []
+#: Envelope keys that carry a usable candidate list, in reading order.
+_CANDIDATE_LIST_KEYS = ("records", "candidates", "literature_records", "items")
+
+#: Envelope keys that indicate the producer reported a failure.
+_FAILURE_STATUS_KEYS = ("status", "overall_discovery_status")
+_FAILURE_STATUS_VALUES = {"FAILED", "INPUT_REQUIRED", "INVALID_PARAMETER"}
+
+
+class InputContractError(Exception):
+    """Raised when the input structure cannot be interpreted as a record list."""
+
+
+def load_candidate_records(input_path):
+    """Read a candidate list from a discovery JSON or CSV export.
+
+    Three outcomes are deliberately distinguished, because conflating them is
+    what let a silent no-op masquerade as success (R06 follow-up):
+
+    * unrecognised structure / parse failure -> :class:`InputContractError`
+    * upstream reported a failure            -> ``([] , "FAILED_UPSTREAM")``
+    * genuinely empty result                 -> ``([] , "EMPTY")``
+
+    Returns:
+        ``(records, state)`` where state is ``"OK"``, ``"EMPTY"`` or
+        ``"FAILED_UPSTREAM"``.
+    """
     if input_path.endswith('.json'):
         with open(input_path, 'r', encoding='utf-8') as f:
             raw = json.load(f)
-            if isinstance(raw, list):
-                records = raw
-            elif isinstance(raw, dict) and "records" in raw:
-                records = raw["records"]
-    elif input_path.endswith('.csv'):
+        if isinstance(raw, list):
+            return raw, ("OK" if raw else "EMPTY")
+        if not isinstance(raw, dict):
+            raise InputContractError(
+                "JSON root must be an object or array, got %s" % type(raw).__name__
+            )
+        for status_key in _FAILURE_STATUS_KEYS:
+            status_value = raw.get(status_key)
+            if isinstance(status_value, str) and status_value.upper() in _FAILURE_STATUS_VALUES:
+                return [], "FAILED_UPSTREAM"
+        for key in _CANDIDATE_LIST_KEYS:
+            if key in raw:
+                value = raw[key]
+                if not isinstance(value, list):
+                    raise InputContractError("'%s' must be a list, got %s" % (key, type(value).__name__))
+                return value, ("OK" if value else "EMPTY")
+        raise InputContractError(
+            "No candidate list found. Recognised keys: %s. Present keys: %s"
+            % (", ".join(_CANDIDATE_LIST_KEYS), ", ".join(sorted(raw.keys())) or "(none)")
+        )
+
+    if input_path.endswith('.csv'):
+        records = []
         with open(input_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
+            fieldnames = reader.fieldnames or []
+            if not fieldnames:
+                raise InputContractError("CSV has no header row")
             for row in reader:
-                # 转换 authors 字段
                 if "authors" in row and isinstance(row["authors"], str):
                     row["authors"] = [a.strip() for a in row["authors"].split(";") if a.strip()]
                 records.append(row)
-    else:
-        print(f"[-] Unsupported file format: {input_path}")
-        return 1
+        return records, ("OK" if records else "EMPTY")
+
+    raise InputContractError("Unsupported file format: %s" % input_path)
+
+
+def run_pipeline(input_path, output_dir, max_downloads=None):
+    os.makedirs(output_dir, exist_ok=True)
+
+    # 1. Parse input records. Not understanding the input is an error; an empty
+    #    but well-formed result is not, and a failed upstream is preserved.
+    try:
+        records, input_state = load_candidate_records(input_path)
+    except InputContractError as exc:
+        print(f"[-] INPUT_CONTRACT_ERROR: {exc}")
+        print("[-] Refusing to report success: the input was not understood.")
+        return 3
+    except (ValueError, OSError) as exc:
+        print(f"[-] INPUT_CONTRACT_ERROR: cannot read {input_path}: {exc}")
+        return 3
 
     print(f"[*] Loaded {len(records)} candidate records from {input_path}")
+
+    if input_state == "FAILED_UPSTREAM":
+        print("[-] UPSTREAM_FAILED: the discovery run did not succeed; no acquisition attempted.")
+        return 2
+    if input_state == "EMPTY":
+        print("[!] NO_PROCESSABLE_RECORDS: input is valid but contains no candidates.")
+        print("[!] Nothing was downloaded. This is not a completed acquisition.")
+        return 0
+
     
     ledger = []
     csl_library = []

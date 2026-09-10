@@ -572,20 +572,75 @@ def analyze(claims: List[Dict[str, Any]], topic_filter: Optional[str] = None, ta
             s_res["claims"] = s_claims
             strata_analysis[s_key] = s_res
 
-        # Select primary stratum for headline consensus
-        if "core_stratum" in strata_analysis and len(strata_analysis["core_stratum"]["claims"]) > 0:
-            primary_analysis = dict(strata_analysis["core_stratum"])
-        elif strata_analysis:
-            best_k = max(strata_analysis.keys(), key=lambda k: len(strata_analysis[k].get("claims", [])))
-            primary_analysis = dict(strata_analysis[best_k])
-        else:
-            primary_analysis = compute_topic_consensus(t_claims)
+        # Headline consensus is computed over the WHOLE claim set. A single
+        # stratum must never stand in for the topic, or a method-level split
+        # would be reported as "no disagreement" (review follow-up).
+        overall_analysis = compute_topic_consensus(t_claims)
 
-        primary_analysis["claims"] = t_claims
-        primary_analysis["strata"] = strata_analysis
-        primary_analysis["uncomparable_claims"] = uncomp
-        primary_analysis["comparability_records"] = strat_res.get("pairwise_comparisons", [])
-        results[t] = primary_analysis
+        # Best-evidenced stratum is still reported, but as a labelled stratum,
+        # not as the topic-level verdict.
+        primary_key = None
+        if strata_analysis:
+            if "core_stratum" in strata_analysis and strata_analysis["core_stratum"].get("claims"):
+                primary_key = "core_stratum"
+            else:
+                primary_key = max(
+                    strata_analysis.keys(),
+                    key=lambda k: len(strata_analysis[k].get("claims", [])),
+                )
+        primary_analysis = (
+            dict(strata_analysis[primary_key]) if primary_key else compute_topic_consensus(t_claims)
+        )
+
+        # Cross-stratum disagreement must be surfaced explicitly. Two strata
+        # pointing opposite ways is a finding, not an absence of one.
+        per_stratum_directions = {}
+        for s_key, s_res in strata_analysis.items():
+            hbs = s_res.get("heuristic_balance_score", {}) or {}
+            support = float(hbs.get("SUPPORT", hbs.get("support_pct", 0.0)) or 0.0)
+            refute = float(hbs.get("REFUTE", hbs.get("refute_pct", 0.0)) or 0.0)
+            if support > refute:
+                direction = "SUPPORT_LEANING"
+            elif refute > support:
+                direction = "REFUTE_LEANING"
+            else:
+                direction = "BALANCED"
+            per_stratum_directions[s_key] = {
+                "direction": direction,
+                "claim_count": len(s_res.get("claims", [])),
+                "consensus_classification": s_res.get("consensus_classification"),
+            }
+
+        distinct_directions = {v["direction"] for v in per_stratum_directions.values()} - {"BALANCED"}
+        cross_stratum = {
+            "stratum_count": len(strata_analysis),
+            "per_stratum": per_stratum_directions,
+            "uncomparable_claim_count": len(uncomp),
+            "has_cross_stratum_difference": len(distinct_directions) > 1,
+        }
+        if cross_stratum["has_cross_stratum_difference"]:
+            cross_stratum["disclosure"] = (
+                "Different strata lean in different directions (%s). This is a method/context-level "
+                "difference, not evidence that the topic is settled; it must be reported alongside "
+                "the within-stratum verdict." % ", ".join(sorted(distinct_directions))
+            )
+        elif len(strata_analysis) > 1:
+            cross_stratum["disclosure"] = (
+                "Topic splits into %d strata that lean the same way; the within-stratum verdict "
+                "is reported and the split itself remains a comparability finding."
+                % len(strata_analysis)
+            )
+
+        headline_analysis = dict(overall_analysis)
+        headline_analysis["claims"] = t_claims
+        headline_analysis["strata"] = strata_analysis
+        headline_analysis["primary_stratum"] = primary_key
+        headline_analysis["within_stratum_analysis"] = primary_analysis
+        headline_analysis["within_stratum_key"] = primary_key
+        headline_analysis["cross_stratum_analysis"] = cross_stratum
+        headline_analysis["uncomparable_claims"] = uncomp
+        headline_analysis["comparability_records"] = strat_res.get("pairwise_comparisons", [])
+        results[t] = headline_analysis
         
     return results
 

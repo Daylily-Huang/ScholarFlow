@@ -395,6 +395,22 @@ python benchmarks/run_benchmarks.py
 
 ---
 
+## 🧭 能力状态表 (Capability Status)
+
+每一分钟投入前，建议先读 [`docs/CAPABILITY_STATUS.md`](docs/CAPABILITY_STATUS.md)：它把三个 Skill 的每项能力标注为四种状态之一——
+
+| 状态 | 含义 |
+|---|---|
+| `CODE_VERIFIED` | 有执行路径且有行为测试；可直接依赖 |
+| `HOST_EXECUTED` | 只有规程与提示词，效果取决于宿主 Agent 的遵循程度 |
+| `HUMAN_CONFIRMED` | 自动判断不足以保证正确，必须人工裁定 |
+| `NOT_SUPPORTED` | 明确不交付；调用会得到显式缺口或错误 |
+
+> [!IMPORTANT]
+> `HOST_EXECUTED` **不等于**已实现。SKILL.md 里的 `[PROTOCOL]` 标签描述的是规程性质，不是执行保证。该文档第 5 节还列出了当前文档中**仍会误导用户**的表述（如"9 类争议"实为 3 类），以该文档为准。
+
+---
+
 ## 📊 能力成熟度与验证分级 (Capability Maturity Matrix)
 
 按照 ScholarFlow 证据分级哲学（Level 1 单元测试 → Level 2 合成回归验证 → Level 3 人工金标验证 → Level 4 外部跨学科验证），各核心能力当前成熟度界定如下：

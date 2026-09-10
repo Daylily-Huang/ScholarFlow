@@ -16,9 +16,24 @@ Pure Python standard library (zero external runtime dependencies).
 
 import json
 import os
+import shutil
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+
+#: The installer is exercised through bash. Environments without bash (or with
+#: bash present but not executable by the test runner) must skip rather than
+#: fail: a missing shell says nothing about the code under test.
+BASH_AVAILABLE = shutil.which("bash") is not None
+
+
+def _run_bash(args, **kwargs):
+    """Run a bash command, converting environment limits into a skip."""
+    try:
+        return subprocess.run(args, **kwargs)
+    except (FileNotFoundError, PermissionError, OSError) as exc:
+        raise unittest.SkipTest("bash is not usable in this environment: %s" % exc)
 
 import tests.helpers as helpers
 from tests.schema_helpers import validate_payload, JSONSCHEMA_AVAILABLE
@@ -930,6 +945,7 @@ class TestR11CandidateCeilingAndRoundReporting(unittest.TestCase):
 # ---------------------------------------------------------------------------
 # R06: an installed skill tree must resolve the shared engine
 # ---------------------------------------------------------------------------
+@unittest.skipUnless(BASH_AVAILABLE, "bash is required to exercise the shell installer")
 class TestR06InstalledRuntime(unittest.TestCase):
     """R06: the installer ships a single engine copy that resolves in isolation."""
 
@@ -938,9 +954,7 @@ class TestR06InstalledRuntime(unittest.TestCase):
     def _install(self, destination):
         env = dict(os.environ)
         env["SCHOLARFLOW_SKILLS_DEST"] = str(destination)
-        import subprocess
-
-        return subprocess.run(
+        return _run_bash(
             ["bash", str(self.INSTALLER)],
             env=env,
             capture_output=True,
@@ -950,7 +964,7 @@ class TestR06InstalledRuntime(unittest.TestCase):
 
     def test_installer_ships_exactly_one_engine_copy(self):
         if not self.INSTALLER.exists():
-            self.skipTest("bash installer not available on this platform")
+            self.skipTest("shell installer not present on this platform")
         with tempfile.TemporaryDirectory() as td:
             result = self._install(td)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -961,15 +975,13 @@ class TestR06InstalledRuntime(unittest.TestCase):
 
     def test_installed_entry_point_resolves_the_engine(self):
         if not self.INSTALLER.exists():
-            self.skipTest("bash installer not available on this platform")
+            self.skipTest("shell installer not present on this platform")
         with tempfile.TemporaryDirectory() as td:
             result = self._install(td)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
             entry = Path(td) / "literature-discovery-acquisition" / "scripts" / "agent_search.py"
             self.assertTrue(entry.is_file())
-
-            import subprocess
 
             probe = (
                 "from pathlib import Path;"
@@ -979,7 +991,7 @@ class TestR06InstalledRuntime(unittest.TestCase):
                 "import shared;"
                 "print(shared.__file__)"
             )
-            probe_result = subprocess.run(
+            probe_result = _run_bash(
                 ["python3", "-I", "-S", "-c", probe],
                 cwd=str(entry.parent),
                 capture_output=True,
@@ -992,15 +1004,14 @@ class TestR06InstalledRuntime(unittest.TestCase):
 
     def test_installed_entry_point_enforces_the_depth_gate(self):
         if not self.INSTALLER.exists():
-            self.skipTest("bash installer not available on this platform")
+            self.skipTest("shell installer not present on this platform")
         with tempfile.TemporaryDirectory() as td:
             result = self._install(td)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
             scripts_dir = Path(td) / "literature-discovery-acquisition" / "scripts"
-            import subprocess
 
-            missing = subprocess.run(
+            missing = _run_bash(
                 ["python3", "-I", "-S", "agent_search.py", "-q", "topic"],
                 cwd=str(scripts_dir),
                 capture_output=True,
@@ -1008,7 +1019,7 @@ class TestR06InstalledRuntime(unittest.TestCase):
             )
             self.assertEqual(missing.returncode, 2, missing.stdout + missing.stderr)
 
-            invalid = subprocess.run(
+            invalid = _run_bash(
                 ["python3", "-I", "-S", "agent_search.py", "-q", "topic", "-d", "banana"],
                 cwd=str(scripts_dir),
                 capture_output=True,
@@ -1018,8 +1029,6 @@ class TestR06InstalledRuntime(unittest.TestCase):
 
     def test_runtime_lookup_prefers_the_installed_layout(self):
         """The resolver must find <dest>/shared when no repo root exists."""
-        import subprocess
-
         with tempfile.TemporaryDirectory() as td:
             installed = Path(td) / "literature-discovery-acquisition" / "scripts"
             installed.mkdir(parents=True)
@@ -1034,7 +1043,7 @@ class TestR06InstalledRuntime(unittest.TestCase):
                 "print([str(c) for c in candidates if (c / 'shared' / '__init__.py').is_file()])"
             )
             (installed / "probe.py").write_text("", encoding="utf-8")
-            result = subprocess.run(
+            result = _run_bash(
                 ["python3", "-I", "-S", "-c", probe],
                 cwd=str(installed),
                 capture_output=True,
@@ -1042,6 +1051,357 @@ class TestR06InstalledRuntime(unittest.TestCase):
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn(str(Path(td)), result.stdout)
+
+
+# ---------------------------------------------------------------------------
+# Follow-up fixes: concrete defects confirmed against the same codebase
+# ---------------------------------------------------------------------------
+class TestStructuredEvidencePromotion(unittest.TestCase):
+    """A table/figure hit must promote without crashing and keep its provenance."""
+
+    def setUp(self):
+        import context_expansion as ce
+
+        self.ce = ce
+        self.candidate = {
+            "type": ce.CandidateType.TABLE_CELL,
+            "hit_text": "42.5",
+            "page": 5,
+            "section": "Results",
+            "table_id": "Table 2",
+            "table_data": {"title": "Table 2. Density", "unit": "ind/km2", "footnote": "n=12"},
+            "row_header": "Treatment A",
+            "col_header": "Density",
+            "cell_value": "42.5",
+        }
+
+    def _promote(self, semantic_role, extra=None):
+        ce = self.ce
+        expanded = ce.expand_candidate_context("Page 5 text about density.", self.candidate)
+        ccr = ce.build_candidate_context_record(
+            candidate_id="C1",
+            tin_id="TIN-1",
+            candidate_type=ce.CandidateType.TABLE_CELL,
+            hit_text="42.5",
+            expanded_ctx=expanded,
+            semantic_role=semantic_role,
+            alignment={"status": ce.AlignmentStatus.ALIGNED},
+            page=5,
+            section="Results",
+        )
+        if extra:
+            ccr.update(extra)
+        return ce.promote_candidate_to_evidence(ccr, "EV-1", "density", 42.5)
+
+    def test_structured_span_separates_raw_cell_from_assembled_context(self):
+        expanded = self.ce.expand_candidate_context("Page 5 text.", self.candidate)
+        span = expanded["evidence_span"]
+        self.assertEqual(span["text"], "42.5", "the verbatim quote must be the raw cell value")
+        self.assertNotEqual(span["context_text"], span["text"])
+        self.assertTrue(span["is_assembled_context"])
+        self.assertEqual(span["locator"]["table_or_figure_id"], "Table 2")
+        self.assertEqual(span["locator"]["unit"], "ind/km2")
+
+    def test_promotion_does_not_crash(self):
+        evidence, reason = self._promote(self.ce.SemanticRole.CURRENT_STUDY_RESULT)
+        self.assertIsNotNone(evidence, reason)
+
+    def test_verbatim_quote_and_location_survive_promotion(self):
+        evidence, _reason = self._promote(self.ce.SemanticRole.CURRENT_STUDY_RESULT)
+        self.assertEqual(evidence["verbatim_quote"], "42.5")
+        self.assertEqual(evidence["location"]["table_or_figure_id"], "Table 2")
+        self.assertEqual(evidence["location"]["row_header"], "Treatment A")
+        self.assertEqual(evidence["location"]["page"], 5)
+
+    def test_support_type_is_derived_not_hardcoded(self):
+        explicit, _ = self._promote(self.ce.SemanticRole.CURRENT_STUDY_RESULT)
+        referenced, _ = self._promote(self.ce.SemanticRole.REFERENCED_WORK)
+        derived, _ = self._promote(
+            self.ce.SemanticRole.CURRENT_STUDY_RESULT, {"derived_from": {"formula": "a*b"}}
+        )
+        self.assertEqual(explicit["support_type"], "EXPLICIT")
+        self.assertEqual(referenced["support_type"], "REFERENCED")
+        self.assertEqual(derived["support_type"], "DERIVED")
+
+    def test_missing_locator_still_blocks_isolated_cell(self):
+        ce = self.ce
+        isolated = dict(self.candidate)
+        isolated["row_header"] = ""
+        isolated["col_header"] = ""
+        expanded = ce.expand_candidate_context("Page 5 text.", isolated)
+        ccr = ce.build_candidate_context_record(
+            candidate_id="C2",
+            tin_id="TIN-1",
+            candidate_type=ce.CandidateType.TABLE_CELL,
+            hit_text="42.5",
+            expanded_ctx=expanded,
+            semantic_role=ce.SemanticRole.CURRENT_STUDY_RESULT,
+            alignment={"status": ce.AlignmentStatus.ALIGNED},
+        )
+        self.assertFalse(ccr["decision"]["eligible_for_extraction"])
+
+
+class TestDownloadInputContract(unittest.TestCase):
+    """Not understanding the input must not be reported as success."""
+
+    def setUp(self):
+        import download_oa_papers
+
+        self.mod = download_oa_papers
+
+    def _write(self, directory, payload):
+        path = Path(directory) / "in.json"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        return str(path)
+
+    def test_agent_search_output_is_recognised(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = self._write(
+                td,
+                {
+                    "schema_version": "1.1",
+                    "status": "SUCCESS",
+                    "candidates": [{"record_id": "R1", "doi": "10.0/x"}],
+                    "search_protocol": {},
+                },
+            )
+            records, state = self.mod.load_candidate_records(path)
+        self.assertEqual(state, "OK")
+        self.assertEqual(len(records), 1)
+
+    def test_upstream_failure_is_preserved(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = self._write(td, {"status": "FAILED", "candidates": [], "errors": ["boom"]})
+            records, state = self.mod.load_candidate_records(path)
+        self.assertEqual(state, "FAILED_UPSTREAM")
+        self.assertEqual(records, [])
+
+    def test_legitimately_empty_result_is_not_an_error(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = self._write(td, {"status": "SUCCESS", "candidates": []})
+            records, state = self.mod.load_candidate_records(path)
+        self.assertEqual(state, "EMPTY")
+        self.assertEqual(records, [])
+
+    def test_unrecognised_structure_raises(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = self._write(td, {"foo": "bar", "stuff": [1, 2]})
+            with self.assertRaises(self.mod.InputContractError):
+                self.mod.load_candidate_records(path)
+
+    def test_wrong_type_for_known_key_raises(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = self._write(td, {"candidates": {"not": "a list"}})
+            with self.assertRaises(self.mod.InputContractError):
+                self.mod.load_candidate_records(path)
+
+    def test_run_pipeline_reports_nonzero_on_unreadable_input(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = self._write(td, {"foo": "bar"})
+            rc = self.mod.run_pipeline(path, str(Path(td) / "out"))
+        self.assertEqual(rc, 3, "an uninterpretable input must not exit 0")
+
+    def test_run_pipeline_reports_nonzero_on_upstream_failure(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = self._write(td, {"status": "FAILED", "candidates": []})
+            rc = self.mod.run_pipeline(path, str(Path(td) / "out"))
+        self.assertEqual(rc, 2)
+
+
+class TestGateADoesRealChecks(unittest.TestCase):
+    """Gate A checks must be computed from the ledger, not pre-set to True."""
+
+    def setUp(self):
+        from retrieval_coverage import audit_discovery_coverage_gate, freeze_metadata_corpus
+
+        self.audit = audit_discovery_coverage_gate
+        self.freeze = freeze_metadata_corpus
+        self.frozen = freeze_metadata_corpus([{"record_id": "R1", "title": "T"}])
+
+    def test_planned_but_unexecuted_source_is_rejected(self):
+        gate = self.audit(
+            {
+                "entries": [
+                    {
+                        "source_id": "OpenAlex",
+                        "execution_status": "SEARCHED_COMPLETE",
+                        "reported_total_hits": 10,
+                        "metadata_records_retrieved": 10,
+                        "pagination_status": "COMPLETE",
+                        "coverage_status": "COMPLETE",
+                    }
+                ],
+                "planned_sources": ["OpenAlex", "CNKI"],
+                "retrieval_gaps": [],
+                "has_retrieval_gaps": False,
+            },
+            self.frozen,
+        )
+        self.assertFalse(gate["checks"]["planned_sources_accounted"])
+        self.assertEqual(gate["status"], "REJECT")
+
+    def test_unverifiable_checks_are_unknown_not_pass(self):
+        gate = self.audit(
+            {
+                "entries": [
+                    {
+                        "source_id": "OpenAlex",
+                        "execution_status": "TEMPORARILY_UNAVAILABLE",
+                        "reported_total_hits": None,
+                        "metadata_records_retrieved": 0,
+                        "pagination_status": "FAILED_MIDWAY",
+                        "coverage_status": "UNKNOWN",
+                    }
+                ],
+                "retrieval_gaps": [],
+                "has_retrieval_gaps": True,
+            },
+            self.frozen,
+        )
+        self.assertEqual(gate["checks"]["planned_sources_accounted"], "unknown")
+        self.assertEqual(gate["checks"]["hit_reconciliation_valid"], "unknown")
+        self.assertEqual(gate["status"], "PASS_WITH_UNKNOWNS")
+        self.assertTrue(gate["unknowns"])
+
+    def test_cross_source_substitution_is_detected(self):
+        gate = self.audit(
+            {
+                "entries": [
+                    {
+                        "source_id": "CNKI",
+                        "execution_status": "SEARCHED_COMPLETE",
+                        "reported_total_hits": 20,
+                        "metadata_records_retrieved": 20,
+                        "pagination_status": "COMPLETE",
+                        "coverage_status": "COMPLETE",
+                        "notes": "Covered via OpenAlex query results",
+                    }
+                ],
+                "has_retrieval_gaps": False,
+            },
+            self.frozen,
+        )
+        self.assertFalse(gate["checks"]["no_cross_source_substitution"])
+        self.assertEqual(gate["status"], "REJECT")
+
+    def test_clean_ledger_still_passes(self):
+        gate = self.audit(
+            {
+                "entries": [
+                    {
+                        "source_id": "OpenAlex",
+                        "execution_status": "SEARCHED_COMPLETE",
+                        "reported_total_hits": 10,
+                        "metadata_records_retrieved": 10,
+                        "pagination_status": "COMPLETE",
+                        "coverage_status": "COMPLETE",
+                    }
+                ],
+                "planned_sources": ["OpenAlex"],
+                "has_retrieval_gaps": False,
+            },
+            self.frozen,
+        )
+        self.assertEqual(gate["status"], "PASS")
+
+
+class TestStratifiedControversyDisclosure(unittest.TestCase):
+    """A method-level split must not be reported as 'no disagreement'."""
+
+    def _claims(self):
+        return [
+            {
+                "topic": "road connectivity",
+                "claim_id": "C1",
+                "claim_text": "Roads reduce connectivity",
+                "paper_id": "P1",
+                "stance": "SUPPORT",
+                "evidence_strength": "DIRECT_EMPIRICAL",
+                "evidence_ids": ["E1"],
+                "independence_group_id": "G1",
+                "method": "line transect survey",
+            },
+            {
+                "topic": "road connectivity",
+                "claim_id": "C2",
+                "claim_text": "Roads reduce connectivity",
+                "paper_id": "P2",
+                "stance": "REFUTE",
+                "evidence_strength": "DIRECT_EMPIRICAL",
+                "evidence_ids": ["E2"],
+                "independence_group_id": "G2",
+                "method": "camera trap SECR",
+            },
+        ]
+
+    def test_headline_is_computed_over_the_whole_claim_set(self):
+        from controversy_analyzer import analyze
+
+        data = analyze(self._claims())["road connectivity"]
+        # Homogeneous strata would hide the disagreement; the headline must not.
+        self.assertEqual(data["consensus_classification"], "ACTIVE_CONTROVERSY")
+
+    def test_within_stratum_verdict_is_still_reported(self):
+        from controversy_analyzer import analyze
+
+        data = analyze(self._claims())["road connectivity"]
+        self.assertIn("within_stratum_analysis", data)
+        self.assertEqual(
+            data["within_stratum_analysis"]["consensus_classification"], "INSUFFICIENT_EVIDENCE"
+        )
+        self.assertEqual(data["primary_stratum"], "core_stratum")
+
+    def test_cross_stratum_difference_is_disclosed(self):
+        from controversy_analyzer import analyze
+
+        data = analyze(self._claims())["road connectivity"]
+        cross = data["cross_stratum_analysis"]
+        self.assertTrue(cross["has_cross_stratum_difference"])
+        directions = {v["direction"] for v in cross["per_stratum"].values()}
+        self.assertIn("SUPPORT_LEANING", directions)
+        self.assertIn("REFUTE_LEANING", directions)
+        self.assertIn("disclosure", cross)
+
+    def test_single_stratum_topic_is_unaffected(self):
+        from controversy_analyzer import analyze
+
+        homogeneous = [
+            dict(self._claims()[0], topic="solo"),
+            dict(self._claims()[0], claim_id="C3", paper_id="P3", independence_group_id="G3", method="line transect survey"),
+        ]
+        data = analyze(homogeneous)["solo"]
+        self.assertFalse(data["cross_stratum_analysis"]["has_cross_stratum_difference"])
+
+
+class TestBuiltinSelfTests(unittest.TestCase):
+    """Script self-tests must pass and must run in CI."""
+
+    SCRIPTS = (
+        "skills/literature-evidence-extraction/scripts/context_expansion.py",
+        "skills/literature-discovery-acquisition/scripts/calculate_screening_agreement.py",
+    )
+
+    def test_builtin_self_tests_pass(self):
+        for rel in self.SCRIPTS:
+            script = helpers.REPO_ROOT / rel
+            self.assertTrue(script.exists(), rel)
+            result = _run_bash(
+                ["python3", str(script), "--test"],
+                cwd=str(helpers.REPO_ROOT),
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(
+                result.returncode,
+                0,
+                "%s --test failed: %s %s"
+                % (rel, result.stdout[-1200:], result.stderr[-1200:]),
+            )
+
+    def test_ci_runs_the_builtin_self_tests(self):
+        ci = (helpers.REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+        self.assertIn("context_expansion.py --test", ci)
+        self.assertIn("calculate_screening_agreement.py --test", ci)
 
 
 def _conversation_provider(turns):

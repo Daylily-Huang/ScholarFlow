@@ -286,6 +286,46 @@ def get_section_heading(text: str, offset: int) -> Optional[str]:
     return None
 
 
+def _build_structured_evidence_span(
+    candidate: Dict[str, Any],
+    structured_ctx: Dict[str, Any],
+    raw_value: str,
+) -> Dict[str, Any]:
+    """Build the evidence span for a structured (table/figure) hit.
+
+    Two distinct things are recorded and must not be conflated:
+
+    * ``text`` -- the **raw cell/panel content**, which is what a verbatim quote
+      may legitimately claim.
+    * ``context_text`` -- the assembled row/column header sentence, which exists
+      to *interpret* the raw value and is explicitly not source prose.
+
+    The locator fields (table/figure id, headers, unit, footnote, page) travel
+    with the span so the position stays auditable downstream.
+    """
+    raw_text = str(raw_value or "").strip()
+    locator = {
+        "table_or_figure_id": candidate.get("table_id") or candidate.get("figure_id")
+        or structured_ctx.get("table_title"),
+        "row_header": structured_ctx.get("row_header"),
+        "col_header": structured_ctx.get("col_header"),
+        "unit": structured_ctx.get("unit"),
+        "footnote": structured_ctx.get("footnote"),
+        "panel": structured_ctx.get("panel"),
+        "axis": structured_ctx.get("axis"),
+    }
+    return {
+        "text": raw_text,
+        "context_text": structured_ctx.get("context_text", ""),
+        "is_assembled_context": True,
+        "raw_content_preserved": bool(raw_text),
+        "page": candidate.get("page"),
+        "offset": candidate.get("offset", 0),
+        "section": candidate.get("section"),
+        "locator": {k: v for k, v in locator.items() if v},
+    }
+
+
 def get_structured_table_context(table_data: Dict[str, Any], cell_locator: Dict[str, Any]) -> Dict[str, Any]:
     """
     Assemble structured table context: Table Title + Col Header + Row Header + Value + Footnote.
@@ -540,21 +580,18 @@ def expand_candidate_context(
         table_data = candidate.get("table_data", {})
         ctx = get_structured_table_context(table_data, candidate)
         stop_cond = StopCondition.STOP_B_STRUCTURED_RESOLVED if ctx["is_sufficient"] else StopCondition.STOP_C_CONTEXT_EXHAUSTED
+        structured_span = _build_structured_evidence_span(candidate, ctx, ctx.get("cell_value", ""))
         return {
             "level_reached": ExpansionLevel.STRUCTURED_CONTEXT,
             "stop_condition": stop_cond,
             "context_text": ctx["context_text"],
-            "raw_text": ctx["context_text"],
+            "raw_text": ctx.get("cell_value") or ctx["context_text"],
+            # The verbatim quote stays the *raw cell content*; the assembled
+            # header/value sentence is explanation, not source text.
+            "evidence_span": structured_span,
             "structured_info": ctx,
             "spans": [ctx["context_text"]],
-            "structured_spans": [
-                {
-                    "text": ctx["context_text"],
-                    "page": candidate.get("page"),
-                    "offset": offset,
-                    "section": candidate.get("section"),
-                }
-            ],
+            "structured_spans": [structured_span],
             "context_sufficiency": ContextSufficiency.SUFFICIENT if ctx["is_sufficient"] else ContextSufficiency.INSUFFICIENT,
             "isolated_cell_failure": ctx.get("isolated_cell_failure", False),
         }
@@ -563,21 +600,16 @@ def expand_candidate_context(
         fig_data = candidate.get("figure_data", {})
         ctx = get_structured_figure_context(fig_data, candidate)
         stop_cond = StopCondition.STOP_B_STRUCTURED_RESOLVED if ctx["is_sufficient"] else StopCondition.STOP_C_CONTEXT_EXHAUSTED
+        structured_span = _build_structured_evidence_span(candidate, ctx, ctx.get("value", ""))
         return {
             "level_reached": ExpansionLevel.STRUCTURED_CONTEXT,
             "stop_condition": stop_cond,
             "context_text": ctx["context_text"],
-            "raw_text": ctx["context_text"],
+            "raw_text": ctx.get("value") or ctx["context_text"],
+            "evidence_span": structured_span,
             "structured_info": ctx,
             "spans": [ctx["context_text"]],
-            "structured_spans": [
-                {
-                    "text": ctx["context_text"],
-                    "page": candidate.get("page"),
-                    "offset": offset,
-                    "section": candidate.get("section"),
-                }
-            ],
+            "structured_spans": [structured_span],
             "context_sufficiency": ContextSufficiency.SUFFICIENT if ctx["is_sufficient"] else ContextSufficiency.INSUFFICIENT,
         }
 
@@ -1062,6 +1094,39 @@ def verify_candidate_lifecycle_transition(cur_state: str, next_state: str) -> Tu
         return False, f"Illegal lifecycle jump from {cur_state} to {next_state} (skipped required stages: {skipped})"
 
 
+def _resolve_support_type(
+    ccr: Dict[str, Any],
+    sem_role: str,
+    verbatim_quote: str,
+) -> Tuple[str, str]:
+    """Derive the extraction-provenance dimension for a promoted record.
+
+    Returns ``(support_type, rationale)`` using the canonical four-value scale:
+
+    * ``EXPLICIT``   -- the raw source text carries the value.
+    * ``REFERENCED`` -- the value belongs to cited prior work, not this study.
+    * ``DERIVED``    -- the value was computed from reported inputs.
+    * ``NOT_REPORTED`` -- the source does not state the value at all.
+    """
+    derived = ccr.get("derived_from") or ccr.get("derivation")
+    if derived or ccr.get("computation_formula"):
+        formula = ""
+        if isinstance(derived, dict):
+            formula = derived.get("formula", "")
+        return "DERIVED", "Value computed from reported inputs%s" % ((" (%s)" % formula) if formula else "")
+
+    if sem_role == SemanticRole.REFERENCED_WORK:
+        return "REFERENCED", "Value is attributed to cited prior work, not this study"
+
+    if ccr.get("not_reported") or ccr.get("extracted_value_is_nr"):
+        return "NOT_REPORTED", "Source does not report this value"
+
+    if str(verbatim_quote or "").strip():
+        return "EXPLICIT", "Raw source text carries the value"
+
+    return "NOT_REPORTED", "No verbatim source text backs this value"
+
+
 def promote_candidate_to_evidence(
     ccr: Dict[str, Any],
     record_id: str,
@@ -1143,13 +1208,23 @@ def promote_candidate_to_evidence(
     if not source_target_claim:
         source_target_claim = ccr.get("target_claim") or ccr.get("source_target_claim")
 
+    # support_type answers "how did this value come from the paper's text?".
+    # It must not be a constant: a referenced value is not an explicit one, and
+    # a derived value carries a formula rather than a verbatim quote.
+    support_type, support_rationale = _resolve_support_type(ccr, sem_role, verbatim_quote)
+
+    structured_locator = ccr.get("context_expansion", {}).get("evidence_span", {}) or {}
+    if isinstance(structured_locator, dict):
+        structured_locator = structured_locator.get("locator", {}) or {}
+
     evidence_record = {
         "schema_version": "1.0",
         "evidence_id": evidence_id,
         "record_id": record_id,
         "field": field,
         "extracted_value": extracted_value,
-        "support_type": "EXPLICIT",
+        "support_type": support_type,
+        "support_type_rationale": support_rationale,
         "evidence_strength": ev_strength,
         "claim_status": claim_status,
         "status": claim_status,
@@ -1160,7 +1235,13 @@ def promote_candidate_to_evidence(
         "location": {
             "page": ccr.get("locator", {}).get("page"),
             "section": ccr.get("locator", {}).get("section"),
-            "table_or_figure_id": None,
+            # Preserved from the structured locator so a table/figure provenance
+            # survives promotion instead of being flattened to null.
+            "table_or_figure_id": structured_locator.get("table_or_figure_id"),
+            "row_header": structured_locator.get("row_header"),
+            "col_header": structured_locator.get("col_header"),
+            "unit": structured_locator.get("unit"),
+            "footnote": structured_locator.get("footnote"),
         },
         "candidate_context_id": ccr.get("candidate_id"),
         "context_sufficiency": ctx_suff,
@@ -1337,14 +1418,36 @@ def main():
         assert audit["passed"] is True
         print("  [PASS] audit_context_sufficiency")
 
-        # Test Negation Detection
+        # Test Negation Detection.
+        # An explicit negation of the target relationship is a CONTRADICTION, not
+        # a mere non-alignment: the source positively asserts the opposite of the
+        # target. Both outcomes block promotion, but only CONTRADICTS_TARGET lets
+        # the pipeline report the disagreement instead of discarding it.
         neg_cand_offset = sample_doc.find("Compound Y did not")
         neg_cand = {"type": CandidateType.TEXT_SENTENCE, "hit_text": "affect", "offset": neg_cand_offset}
         neg_ctx = expand_candidate_context(sample_doc, neg_cand)
         neg_tin = {"task_type": TINTaskType.CLAIM, "target_claim": "Compound Y affects performance"}
         neg_align = evaluate_target_alignment(neg_tin, neg_ctx)
-        assert neg_align["status"] == AlignmentStatus.NOT_ALIGNED
-        print("  [PASS] negation detection correctly rejects claim promotion")
+        assert neg_align["status"] == AlignmentStatus.CONTRADICTS_TARGET, (
+            "negated target claim must be reported as CONTRADICTS_TARGET, got %s" % neg_align["status"]
+        )
+        # And it must not be promotable on the default (non-contradiction) path.
+        neg_ccr = build_candidate_context_record(
+            candidate_id="NEG1",
+            tin_id="TIN-NEG",
+            candidate_type=neg_cand["type"],
+            hit_text="affect",
+            expanded_ctx=neg_ctx,
+            semantic_role=SemanticRole.CURRENT_STUDY_RESULT,
+            alignment=neg_align,
+            page=None,
+        )
+        assert neg_ccr["decision"]["eligible_for_extraction"] is False, (
+            "a contradiction must not be eligible for positive extraction"
+        )
+        neg_ev, neg_reason = promote_candidate_to_evidence(neg_ccr, "EV-NEG", "effect", "no effect")
+        assert neg_ev is None, "contradictory evidence must not be promoted by default"
+        print("  [PASS] negation detection reports CONTRADICTS_TARGET and blocks promotion")
 
         print("All AECE builtin self-tests PASSED successfully!")
 
