@@ -407,7 +407,7 @@ python benchmarks/run_benchmarks.py
 | `NOT_SUPPORTED` | 明确不交付；调用会得到显式缺口或错误 |
 
 > [!IMPORTANT]
-> `HOST_EXECUTED` **不等于**已实现。SKILL.md 里的 `[PROTOCOL]` 标签描述的是规程性质，不是执行保证。该文档第 5 节还列出了当前文档中**仍会误导用户**的表述（如"9 类争议"实为 3 类），以该文档为准。
+> `HOST_EXECUTED` **不等于**已实现。SKILL.md 里的 `[PROTOCOL]` 标签描述的是规程性质，不是执行保证。该文档第 6 节还列出了当前文档中**仍会误导用户**的表述（如"9 类争议"实为 3 类、Stage 0 上下文自动识别范围远小于文档描述），以该文档为准。
 
 ---
 

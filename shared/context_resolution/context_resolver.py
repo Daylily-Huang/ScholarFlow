@@ -1089,7 +1089,16 @@ class ProjectSearchContextProvider(ContextProvider):
                         )
                     )
 
-            # Query-driven sample size detection
+            # Query-driven sample size detection.
+            #
+            # NOTE: `SAMPLE_SIZE` is NOT a Grill dimension -- no skill registers
+            # it, so `GrillEngine.select_questions()` never passes it in
+            # `target_dimensions` and this fact is filtered out of the normal
+            # Stage 0 flow. It stays because the fact is a live carrier for the
+            # equal-layer conflict path: callers that request the key explicitly
+            # (and their tests) rely on two project files disagreeing here to
+            # produce UNRESOLVED_CONFLICT. Do not mistake its presence for
+            # Stage 0 sample-size coverage.
             m_sample = re.search(r"(?:sample size|total sample|总样本量|样本量)\s*[:：=]\s*(\d+)", doc_text, re.IGNORECASE)
             if m_sample:
                 facts.append(
