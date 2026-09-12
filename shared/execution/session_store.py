@@ -30,6 +30,7 @@ from typing import Any, Dict, List, Optional, Tuple
 _ABSENT = object()
 
 EVENTS_FILENAME = "events.jsonl"
+CHECKPOINT_FILENAME = "checkpoint.json"
 SESSION_FILENAME = "session.json"
 LEDGER_FILENAME = "usage_ledger.jsonl"
 
@@ -70,6 +71,7 @@ class SessionStore:
         self._recovery_notes: List[Dict[str, Any]] = []
         self.session_dir = session_dir
         self.events_path = os.path.join(session_dir, EVENTS_FILENAME)
+        self.checkpoint_path = os.path.join(self.session_dir, CHECKPOINT_FILENAME)
         self.session_path = os.path.join(session_dir, SESSION_FILENAME)
         self.ledger_path = os.path.join(session_dir, LEDGER_FILENAME)
 
@@ -114,7 +116,16 @@ class SessionStore:
                  "quarantined_tail": parsed["quarantined_tail"]},
             )
 
+        prefix = ""
+        if os.path.isfile(self.events_path) and os.path.getsize(self.events_path) > 0:
+            with open(self.events_path, "rb") as fh:
+                fh.seek(-1, os.SEEK_END)
+                if fh.read(1) != b"\n":
+                    prefix = "\n"
+
         with open(self.events_path, "a", encoding="utf-8") as fh:
+            if prefix:
+                fh.write(prefix)
             fh.write(line + "\n")
             fh.flush()
             os.fsync(fh.fileno())
@@ -269,9 +280,15 @@ class SessionStore:
             return json.load(fh)
 
     def save_snapshot(self, session: Dict[str, Any], expected_revision: int) -> Dict[str, Any]:
-        """原子写入快照；revision 冲突则拒绝覆盖。
+        """原子写入快照缓存（物化视图）；revision 冲突则拒绝覆盖。
 
-        成功后自动写入一条 `CHECKPOINT` 事件（若调用方未提供 event）。
+        遵循事件先行协议（Event-First Protocol）：事件日志是系统真源（Authoritative Source）。
+        快照作为物化加速视图保存，调用方须先通过 append_event() 记录业务事件与 CHECKPOINT，
+        再行持久化快照，本方法不隐式伪造或自动追加 CHECKPOINT 事件。
+
+        **这是调用约定，不是代码保证**：本方法无法阻止调用方写入事件未记录的字段。
+        要让"快照即事件重放结果"可被机械核验，须调用 `seal_checkpoint()` 建立可信
+        重放基底；未封存时 `consistency_report()` 会报 `SNAPSHOT_BASE_UNVERIFIED`。
         """
         current = None
         if os.path.isfile(self.session_path):
@@ -287,14 +304,115 @@ class SessionStore:
         return session
 
     # ------------------------------------------------------------ 一致性与恢复
+    # ------------------------------------------------------------ 事件先行检查点
+    def load_checkpoint(self) -> Optional[Dict[str, Any]]:
+        """读取已封存的检查点（可信重放基底）；不存在返回 None。"""
+        if not os.path.isfile(self.checkpoint_path):
+            return None
+        with open(self.checkpoint_path, "r", encoding="utf-8") as fh:
+            return json.load(fh)
+
+    @staticmethod
+    def _event_digest(events: List[Dict[str, Any]]) -> str:
+        canonical = "\n".join(json.dumps(e, ensure_ascii=False, sort_keys=True)
+                              for e in events)
+        return "sha256:" + hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+    def seal_checkpoint(self, session: Dict[str, Any], expected_revision: int) -> Dict[str, Any]:
+        """把当前状态封存为**可信重放基底**（Event-First Protocol）。
+
+        事件日志是唯一真源；快照只是物化视图。只有封存过的检查点才能作为重放的
+        可信起点——否则"快照里多出来的字段"无法与"事件未记录的修改"区分
+        （第二轮核查 P2-4）。
+
+        封存条件：传入状态必须与**全部事件重放结果**的业务投影一致，否则拒绝封存
+        （不能把未经事件解释的状态固化成可信基底）。封存同时写入快照。
+        """
+        read = self._read_events()
+        if read["quarantined_tail"]:
+            raise CorruptEventLog(
+                "事件日志尾部损坏，拒绝封存检查点：请先执行恢复（rebuild/recover）",
+                {"path": self.events_path, "reason": "RECOVERY_REQUIRED",
+                 "quarantined_tail": read["quarantined_tail"]})
+        events = read["events"]
+        # 可信基底必须是"纯粹由事件解释"的状态：从空基底重放，再与传入状态在
+        # 可投影字段上逐项比对。直接在传入状态上重放会原样保留事件未记录的字段，
+        # 那样等于把"未记录修改"固化成可信基底（第二轮核查 P2-4 反例）。
+        from_events = self.project({}, events)
+        event_fields = [f for f in PROJECTABLE_FIELDS if f in from_events]
+        conflicts = [f for f in event_fields
+                     if f in session and session.get(f) != from_events.get(f)]
+        if conflicts:
+            raise ProjectionError(
+                "拒绝封存与事件重放冲突的状态：字段 %s 与事件不一致" % sorted(conflicts))
+        # 事件从未定义的字段由封存时的状态承载（作为可信基底的一部分），
+        # 但必须在检查点里逐项记录，便于审计"基底里有哪些不是事件推出来的"。
+        inherited = sorted(f for f in PROJECTABLE_FIELDS
+                           if f in session and f not in from_events)
+        replayed = self.project(session, events)
+        payload = {
+            "schema_version": "0.1",
+            "last_event_id": replayed.get("last_applied_event_id"),
+            "event_count": len(events),
+            "event_log_digest": self._event_digest(events),
+            "inherited_fields": inherited,
+            "state": replayed,
+        }
+        self._atomic_write_json(self.checkpoint_path, payload)
+        saved = self.save_snapshot(replayed, expected_revision)
+        return {"checkpoint": self.checkpoint_path, "event_count": len(events),
+                "last_event_id": payload["last_event_id"], "snapshot": saved}
+
+    def _replay_from_checkpoint(self, checkpoint: Dict[str, Any], read: Dict[str, Any]) -> Dict[str, Any]:
+        """从检查点重放其后的事件；返回 `(projected, divergences)`。"""
+        events = read["events"]
+        divergences: List[Dict[str, Any]] = []
+        count = checkpoint.get("event_count")
+        prefix = events[:count] if isinstance(count, int) and count >= 0 else []
+        if self._event_digest(prefix) != checkpoint.get("event_log_digest"):
+            divergences.append({
+                "kind": "CHECKPOINT_EVENT_PREFIX_CHANGED",
+                "detail": ("检查点封存的事件前缀已被改写或被截断：可信基底不再成立，"
+                           "须重新封存并人工核对。"),
+                "checkpoint_events": count,
+            })
+        recorded_id = checkpoint.get("last_event_id")
+        position = None
+        for idx, ev in enumerate(events):
+            if ev.get("event_id") == recorded_id:
+                position = idx
+                break
+        if recorded_id is not None and position is None:
+            divergences.append({
+                "kind": "CHECKPOINT_EVENT_MISSING",
+                "detail": "检查点记录的 last_event_id 已不在事件日志中",
+                "last_event_id": recorded_id,
+            })
+            return dict(checkpoint.get("state") or {}), divergences
+        tail = events[(position + 1) if position is not None else len(events):]
+        state = checkpoint.get("state") or {}
+        return self.project(state, tail), divergences
+
     def consistency_report(self, session: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """核对快照与事件日志是否一致，不一致时显式报告差异。"""
         session = session if session is not None else self.load_snapshot()
         read = self._read_events()
-        projected = self.project(session, read["events"])
+        checkpoint = self.load_checkpoint()
+        checkpoint_divergences: List[Dict[str, Any]] = []
+        if checkpoint is None:
+            # R04/P2-4：没有封存检查点时，快照只是"当前状态"，无法证明它就是
+            # 事件重放的合法起点。如实报告，而不是默认它可信。
+            checkpoint_divergences.append({
+                "kind": "SNAPSHOT_BASE_UNVERIFIED",
+                "detail": ("未找到 checkpoint.json：重放以当前快照为起点，事件未记录的"
+                           "字段无法与未记录修改区分。请先 seal_checkpoint() 建立可信基底。"),
+            })
+            projected = self.project(session, read["events"])
+        else:
+            projected, checkpoint_divergences = self._replay_from_checkpoint(checkpoint, read)
         snap_last = session.get("last_applied_event_id")
         replay_last = projected.get("last_applied_event_id")
-        divergence = []
+        divergence = list(checkpoint_divergences)
         if snap_last != replay_last:
             divergence.append({
                 "kind": "LAST_APPLIED_EVENT_MISMATCH",
@@ -330,6 +448,8 @@ class SessionStore:
             "replayed_last_applied_event_id": replay_last,
             "divergence": divergence,
             "authoritative_source": EVENTS_FILENAME,
+            "replay_base": (CHECKPOINT_FILENAME if checkpoint is not None
+                            else "snapshot(unverified)"),
         }
 
     @staticmethod
@@ -415,6 +535,7 @@ class SessionStore:
         """检测并修复孤儿外键引用：若批次升级的 gap_id 缺失，自动在 gap_requests 中补全占位缺口契约。"""
         healed_session = dict(session)
         gaps_list = list(healed_session.get("gap_requests") or [])
+        synthesized = []
         existing_gap_ids = {g.get("gap_id") for g in gaps_list if g.get("gap_id")}
         actions = []
 
@@ -449,6 +570,7 @@ class SessionStore:
                                 % (gid, len(ideas)))
 
                     new_gap = {
+                        "schema_version": "0.1",
                         "gap_id": gid,
                         "idea_id": idea_id,
                         "idea_version": idea_version,
@@ -471,10 +593,45 @@ class SessionStore:
                         "result_refs": [],
                     }
                     gaps_list.append(new_gap)
+                    synthesized.append(new_gap)
                     existing_gap_ids.add(gid)
                     actions.append(
                         f"Synthesized PENDING placeholder gap_request '{gid}' for review_batch "
                         f"'{b.get('batch_id')}' (not an authorisation; user confirmation still required)")
 
         healed_session["gap_requests"] = gaps_list
+
+        # R06：修复产物必须**立刻**过一遍契约校验。不能符合契约的输出不得混进
+        # 正式 gap_requests——那会让"修复"变成"制造非法数据"；改为作为待修复提案返回。
+        # 只校验**本次修复新生成**的占位，不追溯惩罚会话里既有的历史缺口。
+        validated_new, rejected = self._validate_repaired_gaps(synthesized)
+        validated_ids = {g.get("gap_id") for g in validated_new}
+        rejected_ids = {b["gap"].get("gap_id") for b in rejected}
+        healed_session["gap_requests"] = [
+            g for g in gaps_list
+            if g.get("gap_id") not in rejected_ids or g not in synthesized]
+        if rejected:
+            healed_session.setdefault("repair_proposals", []).extend(rejected)
+            for bad in rejected:
+                actions.append(
+                    "SCHEMA_REJECTED: placeholder gap '%s' does not satisfy "
+                    "research_debate_gap.schema.json (%s); returned as a repair proposal "
+                    "instead of a formal gap_request"
+                    % (bad.get("gap", {}).get("gap_id"), "; ".join(bad.get("errors", [])[:3])))
         return healed_session, actions
+
+    @staticmethod
+    def _validate_repaired_gaps(gaps_list):
+        """对修复生成的缺口做契约校验，返回 (通过, 被拒提案)。"""
+        try:
+            from shared.validation.schema_gate import validate as _validate_schema
+        except Exception:  # noqa: BLE001 - 校验器不可用时明确标注，不静默跳过
+            return list(gaps_list), []
+        validated, rejected = [], []
+        for gap in gaps_list:
+            ok, mode, errors = _validate_schema(gap, "research_debate_gap.schema.json")
+            if ok:
+                validated.append(gap)
+            else:
+                rejected.append({"gap": gap, "errors": errors, "mode": mode})
+        return validated, rejected

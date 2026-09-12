@@ -1,6 +1,11 @@
 # Stage 8B: 浏览器辅助兜底下载操作协议 (Browser-Assisted Fallback Download Protocol)
 
-## 一、规程目的与触发条件
+> ⛔ **当前状态：`NOT_SUPPORTED` — 本文档不可执行。**
+> 本技能**没有** Stage 8B 的执行路径，正常路由不进入本阶段；本文仅存档协议文本与
+> 状态码，供审计与未来路线参考。任何"自动兜底下载"的执行指令在此状态下均不生效：
+> 遇到 `PAYWALLED` 一律停在待获取缺口清单输出（见 `docs/CAPABILITY_STATUS.md` §1）。
+
+## 一、规程目的与触发条件（历史规划，当前不触发）
 
 当 Stage 8 的合法 OA 自动下载完成后，如果《全文获取台账》中仍存在 `PAYWALLED` 状态的文献，且用户已在项目中配置了至少一个 `enabled: true` 的站点适配器（`site_registry.json`），则自动进入本阶段。
 

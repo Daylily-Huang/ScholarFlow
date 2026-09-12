@@ -114,7 +114,7 @@ flowchart TD
 ---
 
 ### 维度 9：浏览器下载安全与凭据审计 (Browser Security & Credential Audit)
-- **审查重点**（当启用了 Stage 8B 浏览器兜底功能时）：
+- **审查重点**（仅当未来启用 Stage 8B 时适用；当前 `NOT_SUPPORTED`，无产出可审）：
   - Agent 的全部输出（对话、日志、台账、审计报告）中是否泄露了凭据明文（用户名或密码）？
   - `.env` 文件是否已被 `.gitignore` 覆盖？
   - 浏览器下载的 PDF 是否全部通过了 `%PDF-` 魔数与体积校验？

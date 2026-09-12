@@ -18,12 +18,16 @@ import unittest
 
 import helpers  # noqa: F401
 
+import tempfile
+
 from shared.execution import (  # noqa: E402
     TARGET_SKILLS, scope_fingerprint, to_upstream_payload, prepare_dispatch,
     to_evidence_link, ingest_returns, normalize_quote_text,
     to_executable_query, candidates_to_records,
     detect_language_mismatch, align_against_proposition, variant_fingerprint,
 )
+from shared.execution.session_store import SessionStore  # noqa: E402
+from helpers import semantic_verification  # noqa: E402
 
 REPO_ROOT = helpers.REPO_ROOT
 
@@ -32,6 +36,7 @@ def _gap(**over):
     g = {
         "schema_version": "0.1",
         "gap_id": "GAP-001",
+        "session_id": "S1",
         "idea_id": "I1",
         "idea_version": 1,
         "gap_type": "SEARCH_GAP",
@@ -53,8 +58,35 @@ def _gap(**over):
 
 def _confirm(g, event_id="EV-GAP-1"):
     g = dict(g)
-    g["approval"] = dict(g["approval"], status="CONFIRMED", confirmed_event_id=event_id)
+    g["approval"] = dict(g["approval"], status="CONFIRMED", confirmed_event_id=event_id,
+                         approved_idea_version=g.get("idea_version"))
     return g
+
+
+def _store_for(gap, event_id="EV-GAP-1", **payload_over):
+    """建一个真实 SessionStore，内含该缺口的用户 GAP_CONFIRMED 事件。
+
+    R05 之后授权核验要求可信事件上下文：只有范围指纹不算授权证明。
+    """
+    folder = tempfile.mkdtemp(prefix="sf-handoff-")
+    store = SessionStore(folder)
+    payload = {
+        "gap_id": gap.get("gap_id"),
+        "idea_id": gap.get("idea_id"),
+        "idea_version": gap.get("idea_version"),
+        "scope_fingerprint": scope_fingerprint(gap),
+        "confirmed_by": "user",
+    }
+    payload.update(payload_over)
+    event = {
+        "schema_version": "0.1", "event_id": event_id,
+        "session_id": gap.get("session_id"), "seq": 1,
+        "type": "GAP_CONFIRMED", "actor": "user", "execution_kind": "USER",
+        "payload": payload, "created_at": "2026-09-13T00:00:00Z",
+    }
+    event.update({k: v for k, v in payload_over.items() if k.startswith("_event_")})
+    store.append_event(event)
+    return store
 
 
 class TestFingerprint(unittest.TestCase):
@@ -93,7 +125,8 @@ class TestDispatchGate(unittest.TestCase):
         self.assertTrue(r["must_reconfirm"])
 
     def test_confirmed_approval_dispatches_with_mapped_payload(self):
-        r = prepare_dispatch(_confirm(_gap()))
+        g = _confirm(_gap())
+        r = prepare_dispatch(g, session_store=_store_for(g))
         self.assertTrue(r["dispatchable"], r)
         payload = r["payload"]
         self.assertEqual(payload["gap_type"], "SEARCH_GAP")
@@ -174,6 +207,10 @@ class TestEvidenceAlignmentHardRules(unittest.TestCase):
              "verbatim_quote": "", "location": {"page": 4, "section": "Results"},
              "checked_scope": "该文 Results 与 Methods"}
         r.update(over)
+        # R01 之后 VERIFIED 需要绑定完整的语义核验凭据；本类测的是命题对齐，
+        # 因此默认给"正例"配一份合规凭据，需要验证语义门槛时再显式覆盖。
+        r.setdefault("semantic_verification",
+                     semantic_verification(r["evidence_id"], self.PROP))
         return r
 
     def test_support_with_supported_quote_is_verified(self):
@@ -240,7 +277,9 @@ class TestIngestReturns(unittest.TestCase):
         records = [
             {"evidence_id": "EV-A", "location": {"page": 1},
              "verbatim_quote": "在批内配对比较中，根际土与非根际土的 amoA 丰度差异方向与 nifH 一致。",
-             "checked_scope": "Results"},
+             "checked_scope": "Results",
+             "semantic_verification": semantic_verification(
+                 "EV-A", "在批内比较中，根际土与非根际土的 amoA 丰度差异方向与 nifH 一致")},
             {"evidence_id": "EV-B", "location": {"page": 2},
              "verbatim_quote": "amoA 与 nifH 丰度均被检出。", "checked_scope": "Results"},
             {"evidence_id": "EV-C", "location": {"page": 3},
@@ -295,8 +334,9 @@ class TestChineseComparabilityRegression(unittest.TestCase):
 
     def _link(self, quote):
         return to_evidence_link(
-            {"evidence_id": "E", "location": {"page": 1},
-             "verbatim_quote": quote, "checked_scope": "s"},
+            {"evidence_id": "E", "artifact_ref": "paper.json", "location": {"page": 1},
+             "verbatim_quote": quote, "checked_scope": "s",
+             "semantic_verification": semantic_verification("E", self.PROP)},
             self.PROP, relation="SUPPORT")
 
     def test_supporting_quote_with_extra_context_is_verified(self):
@@ -319,10 +359,11 @@ class TestChineseComparabilityRegression(unittest.TestCase):
 
     def test_latin_text_still_works(self):
         prop = "BioBERT-Large achieved a Macro-F1 score of 0.842"
+        quote = "BioBERT-Large achieved a Macro-F1 score of 0.842 on the test split."
         l = to_evidence_link(
-            {"evidence_id": "E", "location": {"page": 5},
-             "verbatim_quote": "BioBERT-Large achieved a Macro-F1 score of 0.842 on the test split.",
-             "checked_scope": "Table 3"},
+            {"evidence_id": "E", "artifact_ref": "paper.json", "location": {"page": 5},
+             "verbatim_quote": quote, "checked_scope": "Table 3",
+             "semantic_verification": semantic_verification("E", prop)},
             prop, relation="SUPPORT")
         self.assertEqual(l["alignment"], "VERIFIED", l)
 
@@ -364,7 +405,7 @@ class TestCrossLanguageDetection(unittest.TestCase):
 
     def test_mismatch_is_labelled_but_never_upgraded(self):
         l = to_evidence_link(
-            {"evidence_id": "E", "location": {"page": 1},
+            {"evidence_id": "E", "artifact_ref": "paper.json", "location": {"page": 1},
              "verbatim_quote": self.EN_QUOTE, "checked_scope": "全文 11 页"},
             self.PROP, relation="SUPPORT")
         self.assertEqual(l["alignment"], "UNRESOLVED")
@@ -427,8 +468,9 @@ class TestPropositionVariants(unittest.TestCase):
 
     def _link(self, variants, quote=None):
         return to_evidence_link(
-            {"evidence_id": "E", "location": {"page": 3},
-             "verbatim_quote": quote or self.EN_QUOTE, "checked_scope": "全文 11 页"},
+            {"evidence_id": "E", "artifact_ref": "paper.json", "location": {"page": 3},
+             "verbatim_quote": quote or self.EN_QUOTE, "checked_scope": "全文 11 页",
+             "semantic_verification": semantic_verification("E", self.PROP)},
             self.PROP, relation="SUPPORT", variants=variants)
 
     def test_without_variants_cross_language_stays_unresolved(self):
@@ -629,7 +671,8 @@ class TestCandidateConversion(unittest.TestCase):
         """只有带回原文引句的抽取产物才可能升级。"""
         rec = {"evidence_id": "EV-1", "artifact_ref": "extraction_result.json",
                "verbatim_quote": "不同植被配置下土壤细菌群落的相对组成存在系统差异，混植样点与草坪样点显著分离。",
-               "location": {"page": 6, "section": "Results"}, "checked_scope": "Results"}
+               "location": {"page": 6, "section": "Results"}, "checked_scope": "Results",
+               "semantic_verification": semantic_verification("EV-1", self.PROP)}
         out = ingest_returns([rec], self.PROP, relations={"EV-1": "SUPPORT"})
         self.assertEqual(out["counts"]["verified"], 1)
 
@@ -645,7 +688,8 @@ class TestFullHandoffClosure(unittest.TestCase):
     PROP = "城市公园不同植被配置下土壤细菌群落的相对组成存在系统差异"
 
     def test_closure(self):
-        gap = {"gap_id": "G-1", "gap_type": "SEARCH_GAP",
+        gap = {"gap_id": "G-1", "session_id": "S-CLOSURE", "idea_id": "I-CLOSURE",
+               "idea_version": 2, "gap_type": "SEARCH_GAP",
                "target_skill": "literature-discovery-acquisition",
                "question": "植被配置是否影响群落组成", "decision_impact": "决定能否独立归因",
                "scope": {"topic": "urban green space soil bacteria"}, "blocking": "BLOCKING",
@@ -655,8 +699,9 @@ class TestFullHandoffClosure(unittest.TestCase):
         gap["approval"]["scope_fingerprint"] = scope_fingerprint(gap)
         self.assertFalse(prepare_dispatch(gap)["dispatchable"])
 
-        gap["approval"].update(status="CONFIRMED", confirmed_event_id="EV-1")
-        disp = prepare_dispatch(gap)
+        gap["approval"].update(status="CONFIRMED", confirmed_event_id="EV-1",
+                               approved_idea_version=2)
+        disp = prepare_dispatch(gap, session_store=_store_for(gap, event_id="EV-1"))
         self.assertTrue(disp["dispatchable"])
         self.assertIn("executable_query", disp["payload"])
 
@@ -665,8 +710,10 @@ class TestFullHandoffClosure(unittest.TestCase):
         out1 = ingest_returns(recs, self.PROP)
         self.assertEqual(out1["counts"]["verified"], 0)
 
-        recs2 = [{"evidence_id": "EV-X", "verbatim_quote": "不同植被配置下土壤细菌群落的相对组成存在系统差异。",
-                  "location": {"page": 1}, "checked_scope": "s"}]
+        recs2 = [{"evidence_id": "EV-X", "artifact_ref": "paper.json",
+                  "verbatim_quote": "不同植被配置下土壤细菌群落的相对组成存在系统差异。",
+                  "location": {"page": 1}, "checked_scope": "s",
+                  "semantic_verification": semantic_verification("EV-X", self.PROP)}]
         out2 = ingest_returns(recs2, self.PROP, relations={"EV-X": "SUPPORT"})
         self.assertEqual(out2["counts"]["verified"], 1)
 

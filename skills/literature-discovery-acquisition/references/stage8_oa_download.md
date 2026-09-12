@@ -115,8 +115,11 @@ Stage 8 完成并生成本地 PDF 文件与《全文获取台账》后：
    - **禁止凭记忆或假设判定"无注册表"而跳过**（端到端实测曾因该假设漏触发 8B，导致中文库兜底通道整段未启用）；
    - 核验结论（`8B_TRIGGERED` / `NO_ENABLED_SITE` / `CREDENTIAL_MISSING`）必须写入台账。
 
-2. **若台账中存在 `PAYWALLED` 且核实存在已启用站点**：
-   自动进入 **Stage 8B（浏览器辅助兜底下载）**，通过浏览器自动化进入知网/万方/学校代理等站点尝试补充下载。详见 [stage8b_browser_fallback.md](stage8b_browser_fallback.md)。站点所需凭据缺失时按 `CREDENTIAL_MISSING` 跳过该站点，并在台账提示用户"将凭据写入 `.env` 后可重跑 Stage 8B"（绝不追问密码明文）。
+2. **若台账中存在 `PAYWALLED`**：
+   **不进入 Stage 8B**（浏览器兜底为 `NOT_SUPPORTED`，见 `docs/CAPABILITY_STATUS.md` §1）。
+   如实披露 `NO_BROWSER_FALLBACK` 并停止在该处：把 `PAYWALLED` 文献归入待获取缺口清单
+   （Acquisition Gaps），交由用户自行获取。`references/stage8b_browser_fallback.md`
+   仅为存档协议，不构成执行许可。
 
 3. **若台账中无 `PAYWALLED`，或核实确无已启用站点**：
    在台账披露 `NO_ENABLED_SITE` 跳过原因后，直接进入 Quality Gatekeeper 独立审查，输出标准指引：

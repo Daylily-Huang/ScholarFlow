@@ -14,7 +14,7 @@ description: 通用学科科研文献证据可信抽取与事实核验专业技�
 > 
 > 严厉执行总原则：**Quote → Extract → Verify → Interpret**
 > 严厉禁止反模式：**Read → Remember → Guess → Answer**
-> 核心承诺：**没有直接证据时输出 `NR`（Not Reported），严禁捏造看起来合理的参数。**
+> 核心承诺：**严禁捏造看起来合理的参数；仅在已检查原文且作者确实未提供时标注 `not_reported`（`NR`），未查或无全文分别标为 `unchecked` 或 `inaccessible`。**
 >
 > **`NR` 的精确口径（审查 F09）**：`NR` 只表示**原文已检查且作者未报告**。
 > 以下情形**都不等于** `NR`，必须分别标注，不得合并：

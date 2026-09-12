@@ -249,6 +249,117 @@
           }
         }
       }
+    },
+    "artifact_ref": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "本条证据来自哪个产物文件（抽取产物/上游 JSON）。research-idea-debate 入向适配要求非空，否则记 MISSING_ARTIFACT_REF。"
+    },
+    "checked_scope": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "实际检查过的范围（如 'Results 全文' / 'Table 3'）。缺失时无法区分「没找到」与「没查」。"
+    },
+    "idea_version": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
+      "description": "该记录对应的命题版本；语义核验凭据在此版本变化后失效。"
+    },
+    "value_type": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "proportion",
+        "ratio",
+        "percentage",
+        "percent",
+        null
+      ],
+      "description": "数值字段类型声明；只有声明为比例/百分比时才允许 % 与裸比例互认。"
+    },
+    "semantic_verification": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "显式语义核验凭据。research-idea-debate 入向适配只在凭据绑定完整时把引句升级为 VERIFIED；缺凭据一律 UNRESOLVED（默认未决，不默认放行）。",
+      "required": [
+        "status",
+        "semantic_role",
+        "evidence_id",
+        "proposition_fingerprint",
+        "verifier",
+        "verification_ref"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "VERIFIED",
+            "UNRESOLVED",
+            "REJECTED"
+          ]
+        },
+        "semantic_role": {
+          "type": "string",
+          "enum": [
+            "CURRENT_STUDY_RESULT",
+            "CURRENT_STUDY_OBSERVATION"
+          ]
+        },
+        "is_empirical_result": {
+          "type": "boolean"
+        },
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "必须等于本条记录的 evidence_id（防张冠李戴）"
+        },
+        "proposition_fingerprint": {
+          "type": "string",
+          "minLength": 1,
+          "description": "必须等于当前命题指纹；不符即不得升级"
+        },
+        "verifier": {
+          "type": "string",
+          "minLength": 1,
+          "description": "谁做的核验（人或环节标识）"
+        },
+        "verification_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "核验记录引用（审计可追溯）"
+        },
+        "idea_version": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "description": "凭据针对的命题版本；与记录当前版本不一致即失效"
+        },
+        "reasoning": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "verified_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
     }
   }
 }

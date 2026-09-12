@@ -57,7 +57,7 @@ description: >-
 
 ### 阶段 2：用户确认模式后的分支加载策略
 
-#### 🚀 分支 A：用户选择 `Quick Search`（快速探索模式，总加载量 < 15 KB，节约 >90% 上下文）
+#### 🚀 分支 A：用户选择 `Quick Search`（快速探索模式，增量按需加载，精简上下文）
 - **适用**：组会讨论、热点速览、快速获取 10–30 篇顶刊代表作（候选上限 50 篇，全文上限 5 篇）。
 - **允许按需读取（仅 3 篇，随用随读）**：
   1. `references/concept_matrix.md`（仅参考核心概念展开规则）
@@ -85,7 +85,7 @@ description: >-
   - **进入 Stage 4-6 时**：仅在候选文献 $\ge 30$ 篇且确实启动子代理并发打分时，才读取 `references/subagent_screening.md`，否则使用主专家单流打分；
   - **进入 Stage 7 时**：读取 `references/saturation_and_qc.md`，质检时由审查员读取 `role/quality_gatekeeper.md` 与 `references/prisma_s_checklist.md` 执行 PRISMA-S 16 项打分；
   - **进入 Stage 8 时**：仅在需要下载全文且落盘时，才加载 `references/stage8_oa_download.md` 与 `references/zotero_watch_folder.md`；
-  - **进入 Stage 8B 时**（可选）：仅当 Stage 8 台账中 PAYWALLED ≥ 1 篇**且** `site_registry.json` 中存在 `enabled: true` 的站点时，才加载 `references/stage8b_browser_fallback.md`。
+  - **Stage 8B 无执行分支**：浏览器兜底下载为 `NOT_SUPPORTED`，正常路由**不进入**该分支。Stage 8 台账中出现 `PAYWALLED` 时，一律停止在该处并如实归入待获取缺口清单（Acquisition Gaps），不承诺任何自动化补取路径。
 
 #### 🤖 分支 D：若为 `Headless / Agent` 自动化模式（零对话加载，0 KB Markdown）
 - **直接执行脚本**：运行 `python skills/literature-discovery-acquisition/scripts/agent_search.py -q "..." --execution-depth <quick|standard|deep>`（缺失 `--execution-depth` 时退出码 2，返回 `INPUT_REQUIRED`）；
@@ -154,10 +154,7 @@ flowchart TD
     S6 --> S4
     S6 --> S7[Stage 7: 检索饱和度量化收敛 + 缺口披露 + 审计报告]
     S7 --> S8[Stage 8: 开源文献自动下载与文件真实性校验]
-    S8 --> S8B_Check{PAYWALLED 且有已启用站点?}
-    S8B_Check -- 是 --> S8B[Stage 8B: 浏览器辅助兜底下载]
-    S8B_Check -- 否 --> QG
-    S8B --> QG[最终质量审查员 Quality Gatekeeper 独立审查放行]
+    S8 --> QG[最终质量审查员 Quality Gatekeeper 独立审查放行]
 ```
 
 ---
@@ -231,14 +228,19 @@ flowchart TD
 
 ---
 
-### Stage 4：四级渐进式去重流水线 (Deduplication)
+### Stage 4：两级去重流水线（DOI + 标题） (Deduplication)
 
-跨库原始文献统一进入级联去重流水线（详见 [screening_and_chasing.md](references/screening_and_chasing.md)）：
-1. **Level 1**：标准化 DOI 精确匹配；
-2. **Level 2**：PMID / arXiv ID 匹配；
-3. **Level 3**：文本归一化标题（去除标点、转小写、压空格）精确匹配；
-4. **Level 4**：第一作者姓氏 + 出版年 + 标题高相似度匹配；
-5. **记录合并**：命中同一文献时，合并其所有检出库至 `source_databases`，绝不简单粗暴丢弃。
+**当前实现只有两级**（`docs/CAPABILITY_STATUS.md` §1 为准），其余为**规划方案、未实现**，不得计入当前能力：
+
+| 层级 | 规则 | 状态 |
+|---|---|---|
+| **第 1 级** | 标准化 DOI 精确匹配 | **已实现** |
+| **第 2 级** | 文本归一化标题（去标点、转小写、压空格）精确匹配 | **已实现** |
+| 规划项 A | PMID / arXiv ID 匹配 | 未实现 |
+| 规划项 B | 第一作者姓氏 + 出版年 + 标题高相似度匹配 | 未实现 |
+
+**记录合并**：命中同一文献时，合并其所有检出库至 `source_databases`，绝不简单粗暴丢弃。
+详见 [screening_and_chasing.md](references/screening_and_chasing.md)。
 
 ---
 
@@ -295,9 +297,12 @@ flowchart TD
 
 ---
 
-### Stage 8B：浏览器辅助兜底下载 (Browser-Assisted Fallback — 可选)
+### Stage 8B：浏览器辅助兜底下载（已移除的规划分支 / NOT_SUPPORTED）
 
-当 Stage 8 台账中仍存在 `PAYWALLED` 文献，且用户已配置启用站点适配器（`site_registry.json`）时，自动进入本阶段（详见 [stage8b_browser_fallback.md](references/stage8b_browser_fallback.md)）：
+> **正常路由不进入本阶段。** 本节仅存档状态码与协议文本，供审计与未来路线参考；
+> 任何"自动兜底下载"的执行指令均不生效，遇到 `PAYWALLED` 一律停在缺口输出。
+
+> **边界说明**：本阶段当前实现标记为 **`NOT_SUPPORTED`**。Stage 8 中无法通过开源渠道获取的 `PAYWALLED` 文献，系统如实归入待获取缺口清单（Acquisition Gaps），不作为正常自动化交付路径承诺。保留以下规范仅作为未来扩展与状态码定义的协议备忘（详见 [stage8b_browser_fallback.md](references/stage8b_browser_fallback.md)）：
 
 1. **站点匹配**：根据文献语言与类型匹配最高优先级的已启用适配器（CNKI/万方/学校代理等）；
 2. **凭据加载**：从 `.env` 文件读取凭据（**绝不存储、回显或写入任何输出**）；
@@ -336,7 +341,7 @@ flowchart TD
 - [ ] 10. **全文文件真实性**：本地 PDF 均通过 `%PDF-` 魔数与 $\ge 10\text{ KB}$ 体量校验，彻底杜绝 HTML 伪装损坏文件；
 - [ ] 11. **零伪造红线**：无法核验 DOI 标记 `DOI = NR`，严禁从摘要凭空捏造全文实验细节与参数；
 - [ ] 12. **PRISMA-S 标准机审与评分**：对照 [prisma_s_checklist.md](references/prisma_s_checklist.md) 校验适用条目并出具真实评分卡；
-- [ ] 13. **浏览器兜底下载安全与凭据审计**（若执行 Stage 8B）：确认凭据未泄露、`.env` 在 `.gitignore` 中、下载文件通过校验、未下错文献、请求频率合规。
+- [ ] 13. **浏览器兜底下载安全与凭据审计**（仅当未来启用 Stage 8B 时适用；当前无执行路径，清单项不生效）：确认凭据未泄露、`.env` 在 `.gitignore` 中、下载文件通过校验、未下错文献、请求频率合规。
 
 审查员必须在报告末尾签署形式化核验决议（PASS 放行 / REJECT 驳回重修）。
 

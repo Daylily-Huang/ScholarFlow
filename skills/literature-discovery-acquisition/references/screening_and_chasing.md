@@ -1,20 +1,24 @@
 # Stage 4-6: 去重、初筛与引文追踪规程 (Deduplication, Screening & Citation Chasing)
 
-## 一、Stage 4：四级渐进式去重流水线 (Deduplication Pipeline)
+## 一、Stage 4：两级去重流水线 (Deduplication Pipeline)
 
-当来自多个数据源（OpenAlex、PubMed、Web、Europe PMC 等）的文献汇总后，必须执行严格的**多层级级联去重**，并完整保留该条文献的所有检出来源。
+当来自多个数据源（OpenAlex、PubMed、Web、Europe PMC 等）的文献汇总后，必须执行**两级去重**，
+并完整保留该条文献的所有检出来源。
+
+> **当前实现只有两级**：标准化 DOI 精确匹配、标准化标题精确匹配
+> （以 `docs/CAPABILITY_STATUS.md` §1 为准）。
+> 图中的 PMID/arXiv 唯一标识匹配与"作者+年份+标题相似度"匹配属**规划项、未实现**，
+> 不得当作可用能力依赖。
 
 ```mermaid
 flowchart TD
-    Raw[跨库原始文献池] --> L1{Level 1: 标准化 DOI 匹配}
+    Raw[跨库原始文献池] --> L1{第 1 级: 标准化 DOI 精确匹配}
     L1 -- 匹配成功 --> Merge1[合并来源记录并更新多库列表]
-    L1 -- 无 DOI 或未匹配 --> L2{Level 2: 数据库唯一标识匹配 PMID/arXiv}
-    L2 -- 匹配成功 --> Merge2[合并来源记录]
-    L2 -- 未匹配 --> L3{Level 3: 标准化标题模糊匹配}
+    L1 -- 无 DOI 或未匹配 --> L3{第 2 级: 标准化标题精确匹配}
     L3 -- 匹配成功 --> Merge3[合并来源记录]
-    L3 -- 未匹配 --> L4{Level 4: 第一作者姓氏 + 出版年份 + 标题高相似度}
-    L4 -- 匹配成功 --> Merge4[合并来源记录]
-    L4 -- 未匹配 --> Unique[保留为独立唯一样本文献]
+    L3 -- 未匹配 --> Unique[保留为独立唯一样本文献]
+    Planned[规划项: PMID/arXiv 匹配, 作者+年份+标题相似度匹配]:::planned
+    classDef planned stroke-dasharray: 5 5,fill:#eee,color:#666
 ```
 
 ### 1. 标准化预处理规则

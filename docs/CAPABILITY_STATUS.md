@@ -9,6 +9,7 @@
 |---|---|---|
 | `CODE_VERIFIED` | 有实际执行路径，且有行为测试覆盖 | 可直接依赖 |
 | `PARTIAL` | 部分路径已实现；列出的缺口明确未实现 | 只依赖说明中已确认的那部分 |
+| `DEFERRED` | 已判定应做但**本轮明确暂缓**，当前行为保守（宁可阻断） | 不要按"已完成"使用；需要时先排期 |
 | `HOST_EXECUTED` | 只有操作规范与提示词，实际效果取决于宿主 Agent 的遵循程度 | 需抽查产物；不要把规范当成已执行的保证 |
 | `HUMAN_CONFIRMED` | 自动判断不足以保证正确，必须由人最终裁定 | 关键结论必须人工复核 |
 | `NOT_SUPPORTED` | 明确不交付；调用会得到显式缺口或错误 | 不要期待该能力存在 |
@@ -39,6 +40,7 @@
 | 门禁 / 测试 | 覆盖的能力层 |
 |---|---|
 | `tests/test_research_debate_handoff.py` | 授权指纹绑定、范围失效、引句对齐（L2） |
+| `tests/test_four_skill_review_f01_f06.py` | R01–R06 反例回归：语义核验默认未决、数值量纲、可信事件授权、事件先行基底、修复产物契约（L2） |
 | `tests/test_research_debate_session_store.py` | 事件日志恢复、快照一致性、外键修复（L2） |
 | `tests/test_quote_audit_gate.py` / `test_quote_audit.py` | 引句回查与数值锚定门禁（L2） |
 | `tests/test_cross_skill_contract.py` / `test_cross_skill_roundtrip_contract.py` | 跨技能 Envelope 契约（L1） |
@@ -84,6 +86,7 @@
 | 能力 | 状态 | 证据 / 说明 |
 |---|---|---|
 | 逐字引句回查（EXACT/HYPHEN/FUZZY/NOT_FOUND） | `CODE_VERIFIED` | `quote_audit.py`；**不校验页码**，页码来自 Agent 自报 |
+| 数值—引句锚定（含单位与量纲） | `CODE_VERIFIED` | 完整数量解析（符号/数值/指数/单位）后按数值+量纲比较；同量纲按换算因子（2.5 mL == 2500 µL），跨量纲不匹配（百分比 ≠ 长度）；`%` ↔ 裸比例仅在字段声明 `value_type` 时互认；含数字却解析不出数量 → 标待核验并阻断 |
 | 主张—证据对齐硬门禁（A2） | `CODE_VERIFIED` | `claim_alignment.py` 五门禁 + fail-closed |
 | AECE 上下文扩展（单句→相邻句→段落→结构化） | `CODE_VERIFIED` | `context_expansion.py`；`SECTION_CONTEXT` / `CONTEXT_UNIT` 两级未产出 |
 | 长距离拼接拦截 | `CODE_VERIFIED` | 跨页 / 间隔 >1500 字符 / Intro-Results 混拼 |
@@ -135,11 +138,15 @@
 | 想法成熟度守卫（RAW / DEVELOPING / TESTABLE） | `HOST_EXECUTED` | `references/maturation_and_gates.md` |
 | 单轮单问交互协议 | `HOST_EXECUTED` | `references/dialogue_protocol.md` |
 | 独立反例质询与确定性分歧判定 | `CODE_VERIFIED` | `shared/execution/debate_handoff.py: `_compare()` / `compare_evidence_links()`；测试 `tests/test_research_debate_handoff.py` |
-| **查证缺口授权绑定**（指纹 + 确认事件 + 范围/版本） | `CODE_VERIFIED` | `prepare_dispatch()`；缺指纹 → `APPROVAL_BINDING_MISSING`，缺确认事件 → `APPROVAL_CONFIRMATION_UNBOUND`；测试 `tests/test_research_debate_handoff.py` |
-| **缺口派发前门禁** | `CODE_VERIFIED` | 未确认 / 范围变更 / 版本变更 / 未绑定确认事件一律不得派发；覆盖边界：仅校验本会话内绑定，不校验上游文献真实性 |
-| 引句对齐入向适配（`to_evidence_link`） | `CODE_VERIFIED` | `to_evidence_link()`；`text_match` 区分 `EXACT` / `FRAGMENT` / 否定句；覆盖边界：字面与否定检测，**不是**语义蕴含判定 |
-| **会话事件日志与恢复** | `CODE_VERIFIED` | `shared/execution/session_store.py`；坏尾部须显式恢复（F03）、快照比较业务投影（F04）；测试 `tests/test_research_debate_session_store.py` |
-| **外键修复不得制造授权** | `CODE_VERIFIED` | `heal_referential_integrity()` 只生成 `PENDING` 占位，不伪造 `CONFIRMED`（F06）；测试 `tests/test_research_debate_session_store.py` |
+| **查证缺口授权绑定**（指纹 + 确认事件 + 范围/版本） | `CODE_VERIFIED` | `prepare_dispatch()`；**必须提供可信事件上下文**（`SessionStore`），缺上下文即 `CONFIRMATION_CONTEXT_MISSING`；核验事件类型为用户确认类、`execution_kind=USER`、会话/gap/构想/版本/范围指纹逐项匹配；比对 `approved_idea_version` 与 `idea_version`；阻断 `RUNNING` 在途请求。测试 `tests/test_research_debate_handoff.py`、`tests/test_four_skill_review_f01_f06.py` |
+| **缺口派发前门禁** | `CODE_VERIFIED` | 未确认 / 范围变更 / 版本变更 / 未绑定确认事件 / 非用户事件 / 在途执行一律不得派发；`gap._events` 等自述事件不构成授权；覆盖边界：仅校验本会话内绑定，不校验上游文献真实性 |
+| 引句对齐入向适配（`to_evidence_link`） | `CODE_VERIFIED` | `to_evidence_link()`；强制要求 `artifact_ref` 溯源；区分 `EXACT` / `FRAGMENT` / 否定句 |
+| 语义支持核验 | `CODE_VERIFIED` | **默认 `UNRESOLVED`**：模式规则只用于排除（设问/假说/模拟假设/转引/条件/被反驳），未命中不等于已证实；只有绑定完整的显式语义凭据（`evidence_id` + 命题指纹 + `verifier` + `verification_ref`，且命题版本未过期）才允许 `VERIFIED`。覆盖边界：凭据由核验环节写出，本层不生成语义判断 |
+| **反证独立契约迁移（F09）** | `DEFERRED` | 非 SUPPORT 关系（CHALLENGE / BOUNDARY）当前保守记为 `UNRESOLVED` 阻断放行，独立反证分级契约与通道暂缓实施 |
+| **会话事件日志与恢复** | `CODE_VERIFIED` | `shared/execution/session_store.py`；完整追加边界保护（末尾无换行时安全补行分隔）、坏尾部须显式恢复（F03）、快照比较业务投影（F04）；测试 `tests/test_research_debate_session_store.py` |
+| **事件先行可信重放基底** | `PARTIAL` | 新增 `seal_checkpoint()`：封存全量状态 + 事件前缀摘要 + 事件位置，未封存会话一律报 `SNAPSHOT_BASE_UNVERIFIED`；封存后写入事件未覆盖的字段记入 `inherited_fields`。**未完成**：`save_snapshot()` 仍只是调用约定（无法从代码上阻止写入未记录字段），尚无强制事件先行的写入入口 |
+| **契约校验前置到修复路径** | `CODE_VERIFIED` | `heal_referential_integrity()` 生成的占位立即过 `research_debate_gap.schema.json`；不合规输出转入 `repair_proposals` 而非正式 `gap_requests` |
+| **外键修复不得制造授权** | `CODE_VERIFIED` | `heal_referential_integrity()` 只生成 `PENDING` 占位，不伪造 `CONFIRMED`（F06/R06）；占位以 `healed_placeholder=true` 显式标记，Schema 据此放开空关联并强制 `execution_status=NOT_STARTED`；测试 `tests/test_research_debate_session_store.py` |
 | 缺口确认 → 上游返回 → 支持/反证分别回流 → 保存 → 恢复 | `HOST_EXECUTED` | 端到端真实宿主流程**尚未执行** |
 | 讨论对文献质量的独立判断 | `HUMAN_CONFIRMED` | 不得以讨论中的说服力替代证据核验 |
 
@@ -231,6 +238,12 @@
     其端到端真实流程尚未执行，不得呈现为确定性交付。
 11. 「单技能目录复制即可用」不成立——技能依赖 `shared/` 共享运行时；复用性验证在隔离安装
     环境**未补验**（见 §5）。
+12. 把「词面命中 / 数值在文中出现」当作已证实：`text_match` 只回答字面重合，语义支持另有
+    绑定要求；数值必须数值+量纲同时对齐。未提供绑定完整的语义凭据时一律 `UNRESOLVED`。
+13. 把「传了 `confirmed_event_id`」当作已获授权：授权要求可信事件上下文 + 用户来源 +
+    会话/gap/构想/版本/范围逐项绑定（见 §3.5）；只给字符串 ID 不再放行。
+14. 「快照 = 事件重放结果」在未封存检查点时不成立：此时 `consistency_report()` 报
+    `SNAPSHOT_BASE_UNVERIFIED`，不得把 `consistent=true` 当作真源一致性证明。
 
 ---
 

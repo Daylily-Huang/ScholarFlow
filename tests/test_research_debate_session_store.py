@@ -130,15 +130,72 @@ class TestAppendAndReplay(_TmpStoreCase):
 
 
 class TestConsistency(_TmpStoreCase):
-    def test_consistent_when_snapshot_matches_replay(self):
+    def test_consistent_when_snapshot_matches_sealed_checkpoint(self):
+        """快照与"检查点 + 其后事件"的重放一致时才算一致。
+
+        2026-09-13 第二轮核查 P2-4：未封存检查点的会话不再默认判为一致——
+        任意当前快照都可能含事件未记录的修改。
+        """
+        self.store.append_event(self._event("E1", "state", "WAITING_USER"))
+        snap = self.store.load_snapshot()
+        snap["state"] = "WAITING_USER"
+        snap["last_applied_event_id"] = "E1"
+        self.store.seal_checkpoint(snap, expected_revision=1)
+        report = self.store.consistency_report()
+        self.assertTrue(report["consistent"], report)
+        self.assertEqual(report["authoritative_source"], EVENTS_FILENAME)
+        self.assertEqual(report["replay_base"], "checkpoint.json")
+
+    def test_unsealed_session_is_not_claimed_consistent(self):
+        """没有检查点时必须如实报告基底未验证，而不是默认快照可信。"""
         self.store.append_event(self._event("E1", "state", "WAITING_USER"))
         snap = self.store.load_snapshot()
         snap["state"] = "WAITING_USER"
         snap["last_applied_event_id"] = "E1"
         self.store.save_snapshot(snap, expected_revision=1)
         report = self.store.consistency_report()
-        self.assertTrue(report["consistent"], report)
-        self.assertEqual(report["authoritative_source"], EVENTS_FILENAME)
+        self.assertFalse(report["consistent"])
+        self.assertIn("SNAPSHOT_BASE_UNVERIFIED",
+                      [d["kind"] for d in report["divergence"]])
+
+    def test_unlogged_snapshot_field_is_detected_after_sealing(self):
+        """R04 反例：封存后往快照里塞事件未记录的 idea → 必须报差异。"""
+        self.store.append_event(self._event("E1", "state", "WAITING_USER"))
+        snap = self.store.load_snapshot()
+        snap["state"] = "WAITING_USER"
+        snap["last_applied_event_id"] = "E1"
+        self.store.seal_checkpoint(snap, expected_revision=1)
+        unlogged = self.store.load_snapshot()
+        unlogged["ideas"] = [{"idea_id": "UNLOGGED"}]
+        self.store.save_snapshot(unlogged, expected_revision=unlogged["revision"])
+        report = self.store.consistency_report()
+        self.assertFalse(report["consistent"])
+        kinds = [d["kind"] for d in report["divergence"]]
+        self.assertIn("STATE_PROJECTION_MISMATCH", kinds)
+        mismatch = [d for d in report["divergence"]
+                    if d["kind"] == "STATE_PROJECTION_MISMATCH"][0]
+        self.assertIn("ideas", mismatch["fields"])
+
+    def test_sealing_state_that_contradicts_events_is_refused(self):
+        """封存的状态与事件冲突时拒绝——可信基底不能与真源矛盾。"""
+        from shared.execution import ProjectionError
+        self.store.append_event(self._event("E1", "state", "WAITING_USER"))
+        snap = self.store.load_snapshot()
+        snap["state"] = "DISCUSSING"          # 事件说 WAITING_USER
+        snap["last_applied_event_id"] = "E1"
+        with self.assertRaises(ProjectionError):
+            self.store.seal_checkpoint(snap, expected_revision=1)
+
+    def test_checkpoint_records_fields_not_derived_from_events(self):
+        """基底里"不是事件推出来的"字段必须逐项记录，便于审计。"""
+        self.store.append_event(self._event("E1", "state", "WAITING_USER"))
+        snap = self.store.load_snapshot()
+        snap["state"] = "WAITING_USER"
+        snap["last_applied_event_id"] = "E1"
+        self.store.seal_checkpoint(snap, expected_revision=1)
+        checkpoint = self.store.load_checkpoint()
+        self.assertIn("ideas", checkpoint["inherited_fields"])
+        self.assertNotIn("state", checkpoint["inherited_fields"])
 
     def test_mismatch_is_reported_not_silently_resolved(self):
         """快照与事件不一致时必须报告差异，且指明以事件为准。"""

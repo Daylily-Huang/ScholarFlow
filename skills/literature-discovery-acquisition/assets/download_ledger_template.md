@@ -8,7 +8,7 @@
 - **开放获取但反爬拦截 (OA_BOT_BLOCKED，浏览器可免费获取)**：[N_bot] 篇
 - **受限商业数据库付费墙 (Paywalled)**：[N_pay] 篇
 - **下载受阻/网络失败**：[N_fail] 篇
-- **Stage 8B 核验结论**：[8B_TRIGGERED / NO_ENABLED_SITE / CREDENTIAL_MISSING]
+- **兜底下载核验结论**：`NO_BROWSER_FALLBACK`（Stage 8B 为 `NOT_SUPPORTED`，当前无执行路径）
 - **存储目录**：`papers/downloads/`
 
 ---

@@ -24,6 +24,12 @@
 4. **调用上游技能**：`SEARCH_GAP` → `literature-discovery-acquisition`；`EXTRACTION_GAP` → `literature-evidence-extraction`；`SYNTHESIS_REQUEST` → `literature-synthesis`。
    - 只传完成任务所需上下文；**不把整段私有对话写入外部检索式**。
 5. **回流校验**：文件可读、schema 版本、记录引用、命题对应关系。结构合法 ≠ 语义证据有效。
+   - **入向适配默认未决（R01）**：`to_evidence_link()` 只有在记录携带**绑定完整**的
+     `semantic_verification` 凭据（`evidence_id` + 命题指纹 + `verifier` + `verification_ref`，
+     且 `idea_version` 未过期）时才把引句升级为 `VERIFIED`；否则一律 `UNRESOLVED`。
+     未命中"研究问题/假说/转引/条件/被反驳"等排除规则**不等于**已证实。
+   - **数值必须数值 + 量纲同时对齐（R02）**：单位参与比较（`2.5 mL ≠ 2.5 µL`），
+     跨量纲不匹配（百分比 ≠ 长度）；`%` 与裸比例只在字段声明 `value_type` 时互认。
 6. **说明影响**：支持／削弱／限定／无法回答；更新对应版本，再提下一问。
 
 ## 三、授权的产生、失效与幂等
@@ -33,6 +39,14 @@
 - 相同 `gap_id` + 相同指纹的重试**不得重复派发**；已完成任务（`execution_status = COMPLETE`）直接复用 `result_refs`。
 - 用户拒绝查证时 `approval.status = REJECTED`，**缺口保留**在 `open_questions`，可继续讨论不依赖该证据的分支，不因缺证据中止整个会话。
 - **恢复会话不视为新授权**：指纹未变则沿用；指纹缺失或不匹配则回到 `WAITING_GAP_CONFIRMATION`。
+- **指纹不是授权证明（第二轮核查 R05）**：范围指纹只是任务内容摘要。派发前必须提供
+  **可信事件上下文**（`SessionStore`，事件来自会话目录），并逐项核对确认事件：
+  事件类型必须是用户确认类（`GAP_CONFIRMED` / `GAP_APPROVED` / `USER_CONFIRMATION`），
+  `execution_kind` 必须是 `USER`，且事件的 `session_id` / `gap_id` / `idea_id` /
+  `idea_version` / `scope_fingerprint` 必须与当前缺口逐项一致。
+  缺上下文 → `CONFIRMATION_CONTEXT_MISSING`；`gap` 自带的 `_events` 等自述内容不予采信。
+- **在途幂等**：`execution_status = RUNNING / IN_PROGRESS` 时重复请求返回
+  `ALREADY_RUNNING_IN_FLIGHT`（不重复派发）；`COMPLETE` 返回 `ALREADY_COMPLETE_IDEMPOTENT`。
 
 ## 四、与上游既有载荷的映射（新增实现，不是既有接口）
 

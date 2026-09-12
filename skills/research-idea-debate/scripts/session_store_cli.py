@@ -11,6 +11,7 @@
     python session_store_cli.py check    <session_dir>
     python session_store_cli.py recover  <session_dir>
     python session_store_cli.py snapshot <session_dir> --expected-revision N --session-json '<json>'
+    python session_store_cli.py seal     <session_dir> --expected-revision N [--session-json '<json>']
     python session_store_cli.py append-usage <session_dir> --entry-json '<json>'
 
 退出码：0 成功；1 校验/一致性失败（如中段损坏、revision 冲突）；2 输入错误。
@@ -67,7 +68,8 @@ def _parse(text, what):
 def main(argv=None):
     ap = argparse.ArgumentParser(description="research-idea-debate 会话持久化 CLI")
     ap.add_argument("command", choices=[
-        "append", "rebuild", "check", "recover", "snapshot", "append-usage", "read-usage",
+        "append", "rebuild", "check", "recover", "snapshot", "seal", "append-usage",
+        "read-usage",
     ])
     ap.add_argument("session_dir")
     ap.add_argument("--event-json")
@@ -112,6 +114,16 @@ def main(argv=None):
                 session = store.load_snapshot()
             saved = store.save_snapshot(session, args.expected_revision)
             return _emit({"status": "OK", "revision": saved["revision"]})
+
+        if args.command == "seal":
+            # 事件先行：封存可信重放基底（checkpoint.json）+ 快照。
+            if args.expected_revision is None:
+                return _emit({"status": "INPUT_ERROR", "error": "seal 需要 --expected-revision"}, 2)
+            if args.session_json:
+                session = _parse(args.session_json, "--session-json")
+            else:
+                session = store.load_snapshot()
+            return _emit({"status": "OK", **store.seal_checkpoint(session, args.expected_revision)})
 
         if args.command == "append-usage":
             if not args.entry_json:

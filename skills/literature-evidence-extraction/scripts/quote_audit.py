@@ -150,66 +150,230 @@ ALIGNMENT_WINDOW = 200     # chars of source context around the quote location
 #: included: a reaction volume of "999 microliters" against a source saying
 #: "20 microliters" is exactly the mismatched-value failure this layer exists
 #: to catch, and skipping every unit-bearing integer let it through.
-_VALUE_TOKEN_RE = re.compile(
-    r"[+-]?\d+(?:[.,]\d+)?(?:[eE][+-]?\d+)?\s*%|"
-    r"[+-]?\d+\.\d+(?:[eE][+-]?\d+)?\s*(?:%|‰)?|"
-    r"\d+(?:\.\d+)?\s*[-–—~]\s*\d+(?:\.\d+)?|"
-    r"\d+/\d+|"
-    r"\d+(?:\.\d+)?\s*"
-    r"(?:microliters?|µl|μl|ml|milliliters?|liters?|micromolar|mm|cm|nm|µm|μm|"
-    r"mg|kg|ng|µg|μg|celsius|°c|kelvin|minutes?|hours?|seconds?|"
-    r"individuals?|species|samples?|sites?|plots?|reads?|bp|kb|"
-    r"种|科|属|目|只|个|头|份|株|次|分钟|小时|秒|微升|毫升|升|毫克|克|摄氏度)"
+# --------------------------------------------------------------------------
+# R02（第二轮核查）：完整数量解析
+#
+# 旧实现按"字符邻居是不是数字"做词法边界判断，并把数值与单位拆开匹配，于是：
+#   2.5 microliters ➜ 抽成 "2.5"      ➜ 与 2.5 milliliters 互相命中
+#   15.4%           ➜ 抽成 "4%"       ➜ 在 15.4% 内部命中
+#   20.5            ➜ 抽成整数 20     ➜ 与 20.5 互相命中
+#   0.054 meters    ➜ 与 5.4% 互转    ➜ 量纲完全不同却放行
+#   999 mL          ➜ 抽不出 token    ➜ value_checked=0 直接放行
+#
+# 现在改为**先解析完整数量**（符号 + 数值 + 指数 + 单位），再按"数值 + 量纲"比较：
+#   - 单位参与比较，绝不退化为裸数；
+#   - 同一量纲内按换算因子比较（2.5 mL == 2500 µL，但 ≠ 2.5 µL）；
+#   - 量纲不同（百分比 vs 长度）直接判不匹配；
+#   - 含数字却解析不出数量 → 标为待核验，不得算通过。
+# --------------------------------------------------------------------------
+
+#: (量纲, 换算到该量纲基准单位的因子, 可接受写法)
+_UNIT_GROUPS = (
+    ("volume", 1.0, ("l", "L", "liter", "liters", "litre", "litres", "升")),
+    ("volume", 1e-3, ("ml", "mL", "milliliter", "milliliters", "millilitre",
+                      "millilitres", "毫升")),
+    ("volume", 1e-6, ("µl", "μl", "uL", "ul", "microliter", "microliters",
+                      "microlitre", "microlitres", "微升")),
+    ("volume", 1e-9, ("nl", "nL", "nanoliter", "nanoliters", "纳升")),
+    ("length", 1.0, ("m", "meter", "meters", "metre", "metres", "米")),
+    ("length", 1e-2, ("cm", "centimeter", "centimeters", "厘米")),
+    ("length", 1e-3, ("mm", "millimeter", "millimeters", "millimetre",
+                      "millimetres", "毫米")),
+    ("length", 1e-6, ("µm", "μm", "um", "micrometer", "micrometers", "微米")),
+    ("length", 1e-9, ("nm", "nanometer", "nanometers", "纳米")),
+    ("length", 1e3, ("km", "kilometer", "kilometers", "千米", "公里")),
+    ("mass", 1.0, ("g", "gram", "grams", "克")),
+    ("mass", 1e-3, ("mg", "milligram", "milligrams", "毫克")),
+    ("mass", 1e-6, ("µg", "μg", "ug", "microgram", "micrograms", "微克")),
+    ("mass", 1e-9, ("ng", "nanogram", "nanograms", "纳克")),
+    ("mass", 1e3, ("kg", "kilogram", "kilograms", "千克", "公斤")),
+    ("percent", 1.0, ("%", "percent", "percents", "百分比", "百分数")),
+    ("permille", 1.0, ("‰",)),
+    ("temperature", 1.0, ("°c", "°C", "℃", "celsius", "摄氏度")),
+    ("time", 1.0, ("s", "sec", "second", "seconds", "秒")),
+    ("time", 60.0, ("min", "minute", "minutes", "分钟")),
+    ("time", 3600.0, ("h", "hr", "hour", "hours", "小时")),
+    ("count_sample", 1.0, ("sample", "samples", "样本", "份")),
+    ("count_individual", 1.0, ("individual", "individuals", "只", "头", "尾")),
+    ("count_species", 1.0, ("species", "种")),
+    ("count_site", 1.0, ("site", "sites", "plot", "plots", "样地", "样方")),
+    ("count_read", 1.0, ("read", "reads")),
+    ("count_base", 1.0, ("bp", "kb", "mb")),
 )
 
+#: 单位写法 → (量纲, 因子)。**区分大小写**：mL 是毫升而 ML 不是，mm 是毫米而 Mm 不是。
+_UNIT_LOOKUP = {}
+for _dim, _factor, _forms in _UNIT_GROUPS:
+    for _form in _forms:
+        _UNIT_LOOKUP[_form] = (_dim, _factor)
 
-def extract_value_tokens(value: Any) -> List[str]:
-    """Pull comparable quantitative tokens out of an extracted_value."""
+#: 仅对**词形单位**（≥4 个字母）允许忽略大小写，短符号一律区分大小写，
+#: 避免把 Mm（兆米）、ML（兆升）、G（高斯）之类折成毫米/毫升/克。
+_UNIT_WORD_FALLBACK = {k.lower(): v for k, v in _UNIT_LOOKUP.items()
+                       if len(k) >= 4 and k.isalpha()}
+
+_UNIT_MAX_LEN = max(len(k) for k in _UNIT_LOOKUP)
+
+_NUMBER_RE = re.compile(r"(?<![\d.,])(?P<num>\d+(?:[.,]\d+)?)(?:[eE](?P<exp>[+-]?\d+))?(?![\d])")
+
+#: 允许把百分比与裸比例互认的字段类型声明。
+RATIO_FIELD_TYPES = ("proportion", "ratio", "percentage", "percent")
+
+#: 数值相等容差（同量纲换算后比较，避免浮点误差）。
+_NUMERIC_TOLERANCE = 1e-9
+
+
+def _sign_before(text: str, pos: int) -> int:
+    """判断数字前的 +/- 是符号还是区间分隔符，返回 +1 / -1。"""
+    if pos == 0:
+        return 1
+    prev = text[pos - 1]
+    if prev in "+-\u2212":
+        before_sign = text[pos - 2] if pos >= 2 else ""
+        if before_sign == "" or before_sign in " \t(=[,;:（±":
+            return -1 if prev in "-\u2212" else 1
+    return 1
+
+
+def _match_unit(text: str, pos: int):
+    """从 pos 起匹配一个已知单位；返回 (canonical, dimension, factor, end) 或 None。"""
+    i = pos
+    while i < len(text) and text[i] in " \t\u00a0":
+        i += 1
+    if i >= len(text):
+        return None
+    best = None
+    for key, info in _UNIT_LOOKUP.items():
+        if text.startswith(key, i):
+            end = i + len(key)
+            nxt = text[end] if end < len(text) else ""
+            if key[-1].isalpha() and nxt.isalpha():
+                continue                      # 必须整体成词，避免 ml 命中 mlx
+            if best is None or len(key) > len(best[0]):
+                best = (key, info, end)
+    word = re.match(r"[A-Za-z]{%d,%d}" % (4, _UNIT_MAX_LEN + 2), text[i:i + _UNIT_MAX_LEN + 2])
+    if word:
+        token = word.group(0)
+        lower = token.lower()
+        # 只在词形单位上做大小写回退；且不得吞掉更长的精确匹配
+        if lower in _UNIT_WORD_FALLBACK and (best is None or len(token) > len(best[0])):
+            end = i + len(token)
+            nxt = text[end] if end < len(text) else ""
+            if not (nxt.isalpha() or nxt.isdigit()):
+                best = (token, _UNIT_WORD_FALLBACK[lower], end)
+    if best is None:
+        return None
+    canonical, (dimension, factor), end = best
+    return canonical, dimension, factor, end
+
+
+def _to_float(num: str) -> float:
+    return float(num.replace(",", ".").replace(" ", "").replace("\u00a0", ""))
+
+
+def extract_quantities(value: Any) -> List[Dict[str, Any]]:
+    """把 extracted_value 解析为完整数量列表（数值 + 符号 + 指数 + 单位）。"""
     if value is None:
         return []
-    s = str(value)
-    toks = _VALUE_TOKEN_RE.findall(s)
-    out: List[str] = []
-    for t in toks:
-        t = re.sub(r"\s+", "", t).replace(",", ".").lower()
-        if t not in out:
-            out.append(t)
+    text = str(value)
+    out: List[Dict[str, Any]] = []
+    for m in _NUMBER_RE.finditer(text):
+        try:
+            number = _to_float(m.group("num"))
+        except ValueError:
+            continue
+        if m.group("exp"):
+            number *= 10 ** int(m.group("exp"))
+        sign = _sign_before(text, m.start("num"))
+        unit_info = _match_unit(text, m.end())
+        if unit_info is None:
+            canonical, dimension, factor, end = None, None, 1.0, m.end()
+        else:
+            canonical, dimension, factor, end = unit_info
+        out.append({
+            "raw": text[m.start("num"):end],
+            "value": sign * number,
+            "unit": canonical,
+            "dimension": dimension,
+            "factor": factor,
+        })
     return out
 
 
-def _variants(tok: str) -> set:
-    """Acceptable renderings of a numeric token (space-before-unit only).
+def extract_value_tokens(value: Any) -> List[str]:
+    """数量 token 的规范化字符串形式（保留此接口以兼容既有调用与报告）。"""
+    tokens: List[str] = []
+    for q in extract_quantities(value):
+        num = ("%g" % q["value"])
+        token = num + (q["unit"] or "")
+        if token not in tokens:
+            tokens.append(token)
+    return tokens
 
-    A **bare-number** variant used to be added here. That was a correctness bug:
-    "5.4%" then matched the source string "55.4%" as a substring, so a value off
-    by an order of magnitude passed as ALIGNED. Unit-bearing tokens are likewise
-    no longer reducible to their number alone, so "999 microliters" cannot be
-    accepted on the strength of a bare "999" appearing elsewhere.
+
+def _has_digit(value: Any) -> bool:
+    return bool(re.search(r"\d", str(value if value is not None else "")))
+
+
+def _is_ratio_field(rec: Dict[str, Any]) -> bool:
+    declared = str(rec.get("value_type") or rec.get("quantity_type") or "").strip().lower()
+    return declared in RATIO_FIELD_TYPES
+
+
+#: 计数类量纲：抽取值未带单位时，仍可与源文中的计数单位比较（"20" ↔ "20 samples"）。
+_COUNT_DIMENSIONS = ("count_sample", "count_individual", "count_species",
+                     "count_site", "count_read", "count_base")
+
+
+def _dimension_compatible(ext_q: Dict[str, Any], src_q: Dict[str, Any], rec: Dict[str, Any]) -> bool:
+    """量纲是否可比。
+
+    - 同量纲 → 可比（再按换算因子比数值）；
+    - 百分比 ↔ 裸比例 → 仅当字段显式声明为比例/百分比时可比；
+    - 抽取值无单位、源文是计数单位 → 可比（"20" 对 "20 samples"）；
+    - 其余跨量纲组合一律不可比（百分比不能匹配长度，抽取值带单位而源文没有
+      也不能算命中）。
     """
-    v = {tok}
-    m = re.match(r"^([+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)\s*(.*)$", tok)
-    if m and m.group(2):
-        v.add(m.group(1))
-        v.add(m.group(1) + " " + m.group(2))
-    return v
+    ed, sd = ext_q["dimension"], src_q["dimension"]
+    if ed == sd:
+        return True
+    if ed in ("percent", "permille") and sd is None and _is_ratio_field(rec):
+        return True
+    if sd in ("percent", "permille") and ed is None and _is_ratio_field(rec):
+        return True
+    if ed is None and sd in _COUNT_DIMENSIONS:
+        return True
+    return False
 
 
-def _token_present(token: str, folded_text: str) -> bool:
-    """Digit-boundary-aware presence test for a numeric token.
+def _quantities_match(ext_q: Dict[str, Any], src_q: Dict[str, Any], rec: Dict[str, Any]) -> bool:
+    """数值 + 量纲比较：同量纲按换算因子比，跨量纲一律不匹配。"""
+    if not _dimension_compatible(ext_q, src_q, rec):
+        return False
+    if ext_q["dimension"] != src_q["dimension"]:
+        if ("percent" in (ext_q["dimension"], src_q["dimension"])
+                or "permille" in (ext_q["dimension"], src_q["dimension"])):
+            # 比例字段：percent/‰ ↔ 裸比例按 100 / 1000 换算
+            a = ext_q["value"] / 100.0 if ext_q["dimension"] in ("percent", "permille") else ext_q["value"]
+            b = src_q["value"] / 100.0 if src_q["dimension"] in ("percent", "permille") else src_q["value"]
+        else:
+            # 抽取值无单位、源文是计数单位：按原值比较，不做换算
+            a, b = ext_q["value"], src_q["value"]
+    else:
+        a = ext_q["value"] * ext_q["factor"]
+        b = src_q["value"] * src_q["factor"]
+    return abs(a - b) <= _NUMERIC_TOLERANCE * max(1.0, abs(a), abs(b))
 
-    "5.4" must not be satisfied by the tail of "55.4", so a match only counts
-    when the character before and after the token is not a digit.
-    """
-    start = 0
-    while True:
-        i = folded_text.find(token, start)
-        if i < 0:
-            return False
-        before = folded_text[i - 1] if i > 0 else ""
-        after = folded_text[i + len(token): i + len(token) + 1]
-        if before not in "0123456789" and after not in "0123456789":
+
+def _scan_quantities(text: str) -> List[Dict[str, Any]]:
+    return extract_quantities(text)
+
+
+def _present_in(ext_q: Dict[str, Any], text: str, rec: Dict[str, Any]) -> bool:
+    for src_q in _scan_quantities(text):
+        if _quantities_match(ext_q, src_q, rec):
             return True
-        start = i + 1
+    return False
 
 
 def fold_numeric(text: str) -> str:
@@ -221,46 +385,80 @@ def fold_numeric(text: str) -> str:
     keeps its word boundary), so numeric tokens are compared on this stricter
     folding instead. It is scoped to value tokens, never used to match quotes.
     """
-    return re.sub(r"\s+", "", normalize_text(text))
+    folded = re.sub(r"(?<=\d)\s*[·•∙]\s*(?=\d)", ".", normalize_text(text))
+    return re.sub(r"\s+", "", folded)
+
+
+def numeric_view(text: str) -> str:
+    """Numeric scanning view: repair OCR decimal points but KEEP spaces.
+
+    `fold_numeric()` removes all whitespace, which merges "2.5 microliters" into
+    "2.5microlitersin..." and destroys the unit word boundary. Quantity scanning
+    therefore needs its own view: same repair, spaces preserved.
+    """
+    return re.sub(r"(?<=\d)\s*[·•∙]\s*(?=\d)", ".", normalize_text(text))
 
 
 def check_value_alignment(rec: Dict[str, Any], norm_source: str,
                           quote_span: Optional[tuple]) -> Optional[Dict[str, Any]]:
     """
-    Compare extracted_value tokens against the source.
+    Compare extracted quantities against the source.
 
     Verdicts:
       NO_NUMERIC_VALUE  – nothing quantitative to check (not a pass or a fail)
-      ALIGNED           – every token found in the quote window or the source
-      NOT_FOUND_IN_SOURCE – token absent from the WHOLE source (hard fabrication signal)
-      NOT_IN_QUOTE_CONTEXT – token exists somewhere but not near the quote
+      ALIGNED           – every quantity found with the same value and dimension
+      NOT_FOUND_IN_SOURCE – quantity absent from the WHOLE source (fabrication signal)
+      NOT_IN_QUOTE_CONTEXT – quantity exists somewhere but not near the quote
+      UNIT_MISMATCH     – same number, different/incompatible unit or dimension
+      UNPARSEABLE_VALUE – the value contains digits but no quantity could be parsed
     Returns None when there is nothing to check.
     """
-    toks = extract_value_tokens(rec.get("extracted_value"))
-    if not toks:
+    raw_value = rec.get("extracted_value")
+    quantities = extract_quantities(raw_value)
+    if not quantities:
+        if _has_digit(raw_value):
+            # R02：含数字却解析不出数量（例如 "999 foo"）不得当作"没有数值可查"。
+            return {"verdict": "UNPARSEABLE_VALUE", "tokens": [],
+                    "missing_in_source": [], "not_in_context": [],
+                    "unverified": True,
+                    "detail": ("extracted_value=%r contains digits but no parsable "
+                               "quantity (value + unit); it must be reviewed by hand "
+                               "and cannot pass the numeric gate." % (raw_value,))}
         return None
 
-    src_fold = fold_numeric(norm_source)
+    src_fold = numeric_view(norm_source)
     quote = rec.get("verbatim_quote") or ""
-    quote_fold = fold_numeric(quote)
+    quote_fold = numeric_view(quote)
     window_fold = ""
     if quote_span:
         a = max(0, quote_span[0] - ALIGNMENT_WINDOW)
         b = min(len(norm_source), quote_span[1] + ALIGNMENT_WINDOW)
-        window_fold = fold_numeric(norm_source[a:b])
+        window_fold = numeric_view(norm_source[a:b])
 
+    tokens = [("%g" % q["value"]) + (q["unit"] or "") for q in quantities]
     missing_in_source = []
     not_in_context = []
-    for t in toks:
-        vs = _variants(t)
-        if any(_token_present(v, src_fold) for v in vs):
-            if any(_token_present(v, quote_fold) or _token_present(v, window_fold) for v in vs):
+    unit_mismatch = []
+    for q, tok in zip(quantities, tokens):
+        if _present_in(q, src_fold, rec):
+            if _present_in(q, quote_fold, rec) or _present_in(q, window_fold, rec):
                 continue
-            not_in_context.append(t)
-        else:
-            missing_in_source.append(t)
+            not_in_context.append(tok)
+            continue
+        missing_in_source.append(tok)
+        # 数值本身存在、但单位或量纲不同 → 单独指出，避免与"整段缺失"混淆
+        for other in _scan_quantities(src_fold):
+            if abs(abs(other["value"]) - abs(q["value"])) <= _NUMERIC_TOLERANCE * max(
+                    1.0, abs(q["value"])) and other["dimension"] != q["dimension"]:
+                unit_mismatch.append("%s≠%s" % (tok, ("%g" % other["value"]) + (other["unit"] or "")))
+                break
 
-    if missing_in_source:
+    if missing_in_source and unit_mismatch:
+        verdict = "UNIT_MISMATCH"
+        detail = ("Value(s) %s appear in the source with a different unit/dimension (%s). "
+                  "Unit conversion is only honoured inside one dimension, so this needs "
+                  "human adjudication before citing." % (missing_in_source, unit_mismatch))
+    elif missing_in_source:
         verdict = "NOT_FOUND_IN_SOURCE"
         detail = ("Value token(s) %s are not anchored anywhere in the source document. "
                   "Either the value was not taken from this paper (fabrication / wrong "
@@ -275,7 +473,9 @@ def check_value_alignment(rec: Dict[str, Any], norm_source: str,
     else:
         verdict = "ALIGNED"
         detail = "All numeric tokens located in the quote or its local context."
-    return {"verdict": verdict, "tokens": toks,
+    return {"verdict": verdict, "tokens": tokens,
+            "quantities": [{"value": q["value"], "unit": q["unit"],
+                            "dimension": q["dimension"]} for q in quantities],
             "missing_in_source": missing_in_source,
             "not_in_context": not_in_context, "detail": detail}
 
@@ -297,7 +497,8 @@ def audit_evidence(evidence: Dict[str, Any], source_text: str,
     counts = {"exact_match": 0, "hyphen_join": 0, "fuzzy_match": 0,
               "not_found": 0, "skipped_no_quote": 0, "too_short": 0,
               "unverified": 0, "value_aligned": 0, "value_not_found_in_source": 0,
-              "value_not_in_quote_context": 0, "value_checked": 0}
+              "value_not_in_quote_context": 0, "value_unit_mismatch": 0,
+              "value_unparsable": 0, "value_checked": 0}
 
     for rec in evidence.get("evidence_records", []):
         quote = rec.get("verbatim_quote") or ""
@@ -366,17 +567,29 @@ def audit_evidence(evidence: Dict[str, Any], source_text: str,
                 # deliverable as a verified record.
                 entry["unverified"] = True
                 counts["unverified"] += 1
+            elif va["verdict"] == "UNIT_MISMATCH":
+                # R02：数字对上了但单位/量纲不同，同样不是"已验证"。
+                counts["value_unit_mismatch"] += 1
+                entry["unverified"] = True
+                counts["unverified"] += 1
+            elif va["verdict"] == "UNPARSEABLE_VALUE":
+                # R02：含数字却解析不出数量 → 待核验，不得算通过。
+                counts["value_unparsable"] += 1
+                entry["unverified"] = True
+                counts["unverified"] += 1
         entries.append(entry)
 
     total = len(entries)
     unverified = counts["unverified"]
     out_of_context = counts["value_not_in_quote_context"]
+    value_broken = (counts["value_not_found_in_source"]
+                    + counts["value_unit_mismatch"] + counts["value_unparsable"])
     if unverified_policy == UNVERIFIED_FAIL:
         gate = unverified > 0 or counts["not_found"] > 0 or out_of_context > 0
     else:
         # An explicit opt-out of the *quote* policy must not also excuse a value
-        # anchored in the wrong place.
-        gate = counts["not_found"] > 0 or out_of_context > 0
+        # anchored in the wrong place, in the wrong unit, or not parsable at all.
+        gate = counts["not_found"] > 0 or out_of_context > 0 or value_broken > 0
     return {
         "summary": {
             "total_records": total,
@@ -403,6 +616,10 @@ def gate_failed(report: Dict[str, Any], strict: bool = False) -> bool:
     if s.get("value_not_found_in_source", 0) > 0:
         return True
     if s.get("value_not_in_quote_context", 0) > 0:
+        return True
+    if s.get("value_unit_mismatch", 0) > 0:
+        return True
+    if s.get("value_unparsable", 0) > 0:
         return True
     if strict and s["fuzzy_match"] > 0:
         return True

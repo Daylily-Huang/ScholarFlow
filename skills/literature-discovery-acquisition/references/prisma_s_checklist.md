@@ -23,7 +23,7 @@
 | **Item 9** | **全量检索式呈现 (Full Search Strategies)** | 必须完整呈现每个数据库所用的全部、可直接复现的布尔检索式全文。 | ✅ 检查 Stage 2 是否对 Q01–Q04 提供了无折叠的完整检索式。 |
 | **Item 10** | **检索式同行评议 (Peer Review of Strategy)** | 检索策略需经过独立第三方或专业评议（如 PRESS 准则）。 | ✅ **由 Quality Gatekeeper 独立执行布尔语法与漏词审查**。 |
 | **Item 11** | **分库检索命中数 (Records Found per Source)** | 必须汇报每一个检索式在每一个数据库中的原始命中数量（Raw Hits）。 | ✅ 检查检索审计日志（Search Log）中的 Hits 计数。 |
-| **Item 12** | **去重软件与流程 (Managing Records & Deduplication)** | 必须详细说明去重规则（如 DOI 精确匹配、标题归一化模糊匹配）。 | ✅ 检查 Stage 4 四级级联去重算法的执行记录。 |
+| **Item 12** | **去重软件与流程 (Managing Records & Deduplication)** | 必须详细说明去重规则（如 DOI 精确匹配、标题归一化匹配）。 | ✅ 检查 Stage 4 **两级**去重（DOI + 归一化标题）的执行记录；PMID/相似度两级未实现，须在报告中如实披露未做。 |
 | **Item 13** | **检索更新频次 (Updating Searches)** | 若研究周期较长，需说明检索更新与重跑机制。 | ✅ 检查是否支持输入历史去重池进行增量更新。 |
 | **Item 14** | **检索执行日期 (Dates of Searches)** | 必须精确到具体年月日。 | ✅ 检查报告元数据中的执行时间戳。 |
 | **Item 15** | **纳入排除标准一致性 (Eligibility & Screening)** | 纳入与排除标准必须透明，排除文献必须附带标准代码。 | ✅ 检查 Stage 5 初筛是否严格附带分类排除理由。 |
