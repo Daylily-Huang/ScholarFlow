@@ -210,7 +210,9 @@ _UNIT_GROUPS = (
     ("count_read", "1", ("read", "reads")),
     ("count_base", "1", ("bp",)),
     ("count_base", "1000", ("kb",)),
-    ("count_base", "1000000", ("mb",)),
+    # 说明：`mb` 不用——它在基因组学是 megabase、在大气科学是 millibar，
+    # 属"含义不明确的大小写符号"，登记进来会把气压值悄悄换算成碱基数。
+    # 未登记即 UNKNOWN_UNIT 阻断，需要时由字段显式换算。
 )
 
 #: 单位写法 → (量纲, 因子)。**区分大小写**：mL 是毫升而 ML 不是，mm 是毫米而 Mm 不是。
@@ -241,8 +243,22 @@ DIMENSIONLESS_FIELD_TYPES = ("dimensionless", "count", "frequency", "fold")
 _UNIT_SYMBOL_RE = re.compile(r"^(?:[A-Za-zµμ°‰%]{1,5}|[\u4e00-\u9fff]{1,3})$")
 
 
+#: 两个小写字母里常见的英文虚词——避免把 "20 in" / "5 of" 当成单位。
+_TWO_LETTER_STOPWORDS = frozenset((
+    "in", "is", "it", "of", "to", "by", "as", "at", "or", "an", "we", "he", "be",
+    "do", "if", "no", "on", "so", "up", "us", "my", "me", "vs", "eg", "ie", "et",
+    "al", "de", "la", "le", "mr", "dr", "st", "nd", "rd", "th", "pm", "am",
+))
+
+
 def _looks_like_unit_symbol(token: str) -> bool:
-    """判断一个未知 token 是否"像单位符号"（宁缺毋滥，避免把普通单词当单位）。"""
+    """判断一个未知 token 是否"像单位符号"（宁缺毋滥，避免把普通单词当单位）。
+
+    覆盖边界：3 个及以上字母的**小写**未知单位（如 `abc`、`zorks`）在源文一侧不被
+    当作单位——散文里这类词更可能是普通单词。抽取值一侧不设此限（严格模式），
+    因此"抽取值带未知单位"始终会被阻断；只有"抽取值丢了单位、源文用生僻小写单位"
+    这一种组合会漏判，已在能力表标注。
+    """
     if not _UNIT_SYMBOL_RE.match(token):
         return False
     if any(ord(c) > 127 for c in token):
@@ -250,9 +266,11 @@ def _looks_like_unit_symbol(token: str) -> bool:
     if token.isupper() and len(token) <= 4:
         return True                       # Sv, Gy, kPa(3), MeV
     if re.fullmatch(r"[A-Z][a-z]?", token):
-        return True                       # Pa, Gy, Sv, Da, eV 之外的 T/N
+        return True                       # Pa, Gy, Sv, Da（The/Table 因多小写被排除）
     if re.fullmatch(r"[a-z][A-Z]", token):
         return True                       # eV, mW, dB, pH 的反向写法
+    if re.fullmatch(r"[a-z]{2}", token) and token not in _TWO_LETTER_STOPWORDS:
+        return True                       # mb, cd, Gy 小写写法等两字母单位
     return False
 
 #: 复合单位连接符：出现即视为复合单位（本层不做复合量纲换算，如实阻断）。
@@ -303,8 +321,13 @@ def _match_unit(text: str, pos: int):
     return canonical, dimension, factor, end
 
 
-def _unknown_unit_after(text: str, pos: int):
+def _unknown_unit_after(text: str, pos: int, strict: bool = False):
     """检测数字后紧邻的**未知单位**；返回 (raw_token, end) 或 None。
+
+    `strict=True` 用于 `extracted_value`：抽取值本身应当是"数值（+单位）"，
+    因此数字后任何字母 token 都视为单位候选——不认得就阻断，而不是当成普通单词
+    悄悄丢掉（`1 mb`、`999 zorks` 都不能通过）。源文是散文，只能用保守启发式，
+    故默认 `strict=False`。
 
     T03：`5 Gy` 与 `5 Sv` 在旧实现里都被解析成无量纲的 5 而互相命中。未知单位必须
     保留原始 token 并阻断，不能静默丢成"没有单位"。
@@ -328,7 +351,7 @@ def _unknown_unit_after(text: str, pos: int):
         return (token + text[end], end + 1)          # 复合单位：如实当未知单位
     if adjacent:
         return (token, end)
-    if _looks_like_unit_symbol(token):
+    if _looks_like_unit_symbol(token) or (strict and token.isalpha()):
         return (token, end)
     return None
 
@@ -343,8 +366,10 @@ def _decimal(num: str) -> "Decimal":
     return Decimal(cleaned)
 
 
-def extract_quantities(value: Any) -> List[Dict[str, Any]]:
+def extract_quantities(value: Any, strict_units: bool = False) -> List[Dict[str, Any]]:
     """把 extracted_value 解析为完整数量列表（数值 + 符号 + 指数 + 单位）。
+
+    `strict_units=True` 时，数字后的任何字母 token 都按单位处理（不认得即未知单位）。
 
     `dimension` 取值：
       - `None`：显式无单位（例如 `20`、`0.054`）；
@@ -366,7 +391,7 @@ def extract_quantities(value: Any) -> List[Dict[str, Any]]:
         sign = _sign_before(text, m.start("num"))
         unit_info = _match_unit(text, m.end())
         if unit_info is None:
-            unknown = _unknown_unit_after(text, m.end())
+            unknown = _unknown_unit_after(text, m.end(), strict=strict_units)
             if unknown is not None:
                 canonical, dimension, factor, end = unknown[0], "unknown", None, unknown[1]
             else:
@@ -391,7 +416,7 @@ def extract_quantities(value: Any) -> List[Dict[str, Any]]:
 def extract_value_tokens(value: Any) -> List[str]:
     """数量 token 的规范化字符串形式（保留此接口以兼容既有调用与报告）。"""
     tokens: List[str] = []
-    for q in extract_quantities(value):
+    for q in extract_quantities(value, strict_units=True):
         num = _format_decimal(q["value"])
         token = num + (q["unit"] or "")
         if token not in tokens:
@@ -548,7 +573,8 @@ def check_value_alignment(rec: Dict[str, Any], norm_source: str,
     Returns None when there is nothing to check.
     """
     raw_value = rec.get("extracted_value")
-    quantities = extract_quantities(raw_value)
+    # 抽取值按严格模式解析：数字后的陌生 token 不再当成普通单词
+    quantities = extract_quantities(raw_value, strict_units=True)
     if not quantities:
         if _has_digit(raw_value):
             # R02：含数字却解析不出数量（例如 "999 foo"）不得当作"没有数值可查"。

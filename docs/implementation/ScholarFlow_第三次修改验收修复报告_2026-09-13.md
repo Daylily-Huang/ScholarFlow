@@ -129,6 +129,8 @@
 | 4 | `m2` 之类带指数单位同样只取前缀 | 同上 |
 | 5 | 比例字段下 `5%` 与 `50‰` 本应等价却被拒（percent 与 permille 之间没有可比路径） | 两者在比例字段下可比并按各自倍率折算（`5% == 50‰`、`5% ≠ 5‰`） |
 | 6 | 千分位 `1,000 reads` 被解析成 `1.000`，合法抽取会被误拒 | `\d{1,3}(,\d{3})+` 识别为千分位整数；`2,5` 仍按欧洲小数逗号解析 |
+| 7 | 抽取值写成 `1 mb` / `999 zorks` 时，尾部陌生 token 被当成普通单词丢掉，退化为无量纲数字 | 抽取值按**严格模式**解析：数字后任何字母 token 都按单位处理，不认得即 `UNKNOWN_UNIT` 阻断 |
+| 8 | `mb`（megabase / millibar）含义不明确却登记为 1e6 碱基 | 从单位表移除，按未知单位阻断；源文侧新增"两字母小写、非虚词"判据（`mb`/`cd` 等），并登记虚词表避免误判 `20 in` / `5 of` |
 
 自查同时加固了另两条绑定（未被上述矩阵覆盖，但属同类风险）：
 
@@ -139,7 +141,7 @@
   （`SEMANTIC_VERIFICATION_QUOTE_MISMATCH`）；凭据结论与确定性排除规则冲突时**不静默通过**，
   在 `semantic_verification.semantic_warnings` 留痕供人工复核。
 
-以上 8 项均已加入自动回归（`tests/test_third_review_t01_t05.py`、
+以上 10 项均已加入自动回归（`tests/test_third_review_t01_t05.py`、
 `tests/test_four_skill_review_f01_f06.py`），并同步到
 `skills/literature-evidence-extraction/SKILL.md` 与 `role/evidence_auditor.md` 的规程描述。
 
@@ -148,7 +150,8 @@
 | 项 | 结果 |
 |---|---|
 | 全量套件 | `Ran 834 tests ... OK`（本机 0 跳过） |
-| 新增回归 | `tests/test_third_review_t01_t05.py` 29 例（T01 5 / T02 7 / T03 8 / T04 5 / T05 4）+ `tests/test_four_skill_review_f01_f06.py` 追加 5 例自检用例 |
+| 新增回归 | `tests/test_third_review_t01_t05.py` 31 例（T01 5 / T02 7 / T03 10 / T04 5 / T05 4）+ `tests/test_four_skill_review_f01_f06.py` 追加 5 例自检用例 |
+| 自查矩阵 | 数值层 25 条反例/正例（T01–T03 + R02/R03）全部符合预期；会话层 5 条边界（未完成提交/不可解析日志/重复封存/日志截断/前缀改写）全部符合预期 |
 | 旧探针 `probe.py` / `recheck_probe.py` / `independent_r06_probe.py` | 全部反例仍阻断，正例仍通过 |
 | 第三方探针 `third_review_probe.py` | `failed_seal_exception=RevisionConflict`、`checkpoint_after_failed_seal=WAITING_USER`、`empty_checkpoint_divergence=[]`、`nano_tolerance/base_unit_scale/permille_wrong_ratio/unknown_unit` 均 `failed=true`、`conversion_positive/permille_correct_ratio` 均通过 |
 | `scripts/domain_neutrality_linter.py` | PASS |

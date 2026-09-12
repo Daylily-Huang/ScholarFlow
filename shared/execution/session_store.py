@@ -394,6 +394,12 @@ class SessionStore:
                     "import_mode=True 必须同时提供 import_reason 与 import_source，"
                     "否则无法审计这些字段的来源")
 
+        if import_mode:
+            origin = "IMPORT"
+        elif previous is None:
+            origin = "INITIAL_SEAL"
+        else:
+            origin = "RESEAL"
         replayed = self.project(session, events)
         commit_id = self._commit_id(expected_revision, replayed, events)
         checkpoint_payload = {
@@ -403,6 +409,7 @@ class SessionStore:
             "event_count": len(events),
             "event_log_digest": self._event_digest(events),
             "inherited_fields": inherited,
+            "origin": origin,
             "state": replayed,
             "import_mode": bool(import_mode),
             "import_reason": import_reason,
@@ -411,6 +418,8 @@ class SessionStore:
             # 不是事件推导出来的。检查点不是"全部业务状态都由事件证明"的证明。
             "trust_boundary": ("state = event-derived fields + inherited_fields "
                                "(historical state present at seal time)"),
+            # 来源：INITIAL_SEAL=会话首次封存；RESEAL=事件推进后的日常封存；
+            # IMPORT=显式历史导入（必须给出 import_reason/import_source）。
         }
         snapshot_payload = dict(replayed)
         snapshot_payload["revision"] = expected_revision + 1

@@ -89,7 +89,8 @@
 | 逐字引句回查（EXACT/HYPHEN/FUZZY/NOT_FOUND） | `CODE_VERIFIED` | `quote_audit.py`；**不校验页码**，页码来自 Agent 自报 |
 | 数值—引句锚定（含单位与量纲） | `CODE_VERIFIED` | 完整数量解析（符号/数值/指数/单位）后按数值+量纲比较；同量纲按**精确十进制**因子换算（2.5 mL == 2500 µL，1 nL ≠ 2 nL），跨量纲不匹配；`bp/kb/mb` 分列，`%`=1/100、`‰`=1/1000；`%` ↔ 裸比例仅在字段声明 `value_type` 时互认 |
 | 未知/复合单位的诚实阻断 | `CODE_VERIFIED` | 单位不在表内（如 `Gy`、`Sv`、`m/s`、`m2`）→ `dimension="unknown"`、保留原文，判 `UNKNOWN_UNIT` 并阻断；源文扫描**保留大小写**（`Gy` 不会被折成 `gy`），抽取值悄悄丢单位也会被 `UNIT_MISMATCH` 挡住；只有字段声明 `value_type=count/dimensionless` 且另一侧确实无量纲时才按数值比较 |
-| 数值字面量边界 | `CODE_VERIFIED` | 千分位 `1,000` 与欧洲小数逗号 `2,5` 分别解析；`5%` ↔ `50‰` 在比例字段下等价、`5%` ≠ `5‰`；同量纲跨单位换算仅接受已登记倍率 |
+| 数值字面量边界 | `CODE_VERIFIED` | 千分位 `1,000` 与欧洲小数逗号 `2,5` 分别解析；`5%` ↔ `50‰` 在比例字段下等价、`5%` ≠ `5‰`；同量纲跨单位换算仅接受已登记倍率；含义不明确的符号（`mb`）不登记 |
+| 数值核验覆盖边界 | `PARTIAL` | **已覆盖**：抽取值带未知/复合单位、源文未知单位（含大小写符号与两字母小写单位）、量纲错配、未锚定、不可解析。**未覆盖**：源文用 3 个以上字母的**生僻小写**单位、而抽取值又恰好丢了单位——这种组合仍可能通过；需要时把该单位登记进 `_UNIT_GROUPS` |
 | 数值判定边界 | `CODE_VERIFIED` | 含数字却解析不出数量 → `UNPARSEABLE_VALUE`；数字对但单位/量纲不同 → `UNIT_MISMATCH`；距引句过远 → `NOT_IN_QUOTE_CONTEXT`；四类均计入 `unverified` 并触发硬门禁 |
 | 主张—证据对齐硬门禁（A2） | `CODE_VERIFIED` | `claim_alignment.py` 五门禁 + fail-closed |
 | AECE 上下文扩展（单句→相邻句→段落→结构化） | `CODE_VERIFIED` | `context_expansion.py`；`SECTION_CONTEXT` / `CONTEXT_UNIT` 两级未产出 |
@@ -257,7 +258,7 @@
 ## 7. 本表的验证绑定
 
 - **实现提交**：`e331a30`（含自检补漏；T01–T05 主体为 `8a267e2`，前两轮为 `2073350`、`48adfed`）
-- **测试结果**：`Ran 834 tests ... OK`（本机 0 项跳过；跳过 ≠ 通过）
+- **测试结果**：`Ran 836 tests ... OK`（本机 0 项跳过；跳过 ≠ 通过）
 - **报告**：`docs/implementation/ScholarFlow_第三次修改验收修复报告_2026-09-13.md`
   （前两轮：`ScholarFlow_R01-R06第二轮修复报告_2026-09-13.md`、
   `ScholarFlow_四技能审查修复批次报告_2026-09-12.md`，后者已标注"全部验收"表述过度）

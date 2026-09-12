@@ -199,6 +199,20 @@ class TestT03UnknownUnits(unittest.TestCase):
         report = _audit(source, "20 Gy", value_type="count")
         self.assertTrue(quote_audit.gate_failed(report, strict=True), report["summary"])
 
+    def test_extracted_trailing_token_is_treated_as_unit(self):
+        """抽取值按严格模式解析：`1 mb`、`999 zorks` 都不能当成"无量纲数字"。"""
+        for value in ("1 mb", "999 zorks", "5 units"):
+            report = _audit("The count was 5 in the sample.", value)
+            self.assertEqual(_verdict(report), "UNKNOWN_UNIT", value)
+            self.assertTrue(quote_audit.gate_failed(report, strict=True), value)
+
+    def test_ambiguous_lowercase_unit_is_not_silently_dropped(self):
+        """含义不明确的 `mb`（megabase / millibar）不登记，按未知单位阻断。"""
+        same = _audit("The genome size was 1 mb.", "1 mb")
+        self.assertTrue(quote_audit.gate_failed(same, strict=True), same["summary"])
+        dropped = _audit("The genome size was 1 mb.", "1")
+        self.assertTrue(quote_audit.gate_failed(dropped, strict=True), dropped["summary"])
+
     def test_plain_words_are_not_mistaken_for_units(self):
         """普通英文词（The/This/Table）不得被误判成单位。"""
         for source in ("The measured quantity was 20 for this sample.",
