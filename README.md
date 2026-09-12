@@ -46,7 +46,7 @@ graph TD
     User -->|输入明确科学问题 / 种子 DOI| Skill1["<b>1. literature-discovery-acquisition</b><br/>文献系统发现、初筛与全文获取"]
 
     subgraph Ideation ["💡 构想推敲与验证设计 (Idea Maturation)"]
-        Skill0 -->|单轮单问 / 苏格拉底五视角<br/>RAW → DEVELOPING → TESTABLE| Plan["📋 最小判别验证方案 / 阶段小结<br/>Minimal Validation Plan & Checkpoints"]
+        Skill0 -->|单轮单问 / 苏格拉底五视角<br/>RAW / DEVELOPING / TESTABLE| Plan["📋 最小判别验证方案 / 阶段小结<br/>Minimal Validation Plan & Checkpoints"]
     end
 
     subgraph Literature ["📚 文献证据发现与综合闭环 (Literature Loop)"]
@@ -56,9 +56,9 @@ graph TD
         Skill3 -->|驱动产出| Review["📝 争议驱动型叙述性文献综述<br/>Controversy-Driven Narrative Review"]
     end
 
-    Skill0 -.->|查证缺口: 用户确认范围 (SEARCH GAP)| Skill1
-    Skill0 -.->|定向审计: 承重前提核验 (EXTRACTION GAP)| Skill2
-    Skill0 -.->|学派对撞: 跨文献争议请求 (SYNTHESIS REQUEST)| Skill3
+    Skill0 -.->|查证缺口：SEARCH GAP| Skill1
+    Skill0 -.->|定向审计：EXTRACTION GAP| Skill2
+    Skill0 -.->|学派对撞：SYNTHESIS REQUEST| Skill3
 
     Skill3 -.->|闭环反馈: 检索空白| GapSearch["SEARCH GAP Payload"] -.->|补充扩展检索| Skill1
     Skill3 -.->|闭环反馈: 数据冲突| GapExtract["EXTRACTION GAP Payload"] -.->|定向深度审计| Skill2
