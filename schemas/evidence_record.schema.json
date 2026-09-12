@@ -360,6 +360,155 @@
           ]
         }
       }
+    },
+    "relation": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "SUPPORT",
+        "CHALLENGE",
+        "BOUNDARY",
+        "CONTEXT",
+        null
+      ],
+      "description": "该证据与命题的关系方向；非 SUPPORT 关系不得记 alignment=VERIFIED"
+    },
+    "target_claim_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "反证指向的被挑战主张（literature-synthesis 用它对被挑战主张做权重下调）"
+    },
+    "challenge_status": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "UNRESOLVED",
+        "PENDING_HUMAN_CONFIRMATION",
+        "VERIFIED_CHALLENGE",
+        "REJECTED",
+        null
+      ],
+      "description": "RFC-017：反证核验状态，与 alignment 完全独立；只有 VERIFIED_CHALLENGE 参与综合加权"
+    },
+    "challenge_scope": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "MECHANISM",
+        "PREMISE",
+        "SCOPE",
+        "MAGNITUDE",
+        null
+      ],
+      "description": "反证削弱的是命题的哪一层"
+    },
+    "challenge_strength": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "WEAKENS",
+        "REFUTES",
+        null
+      ],
+      "description": "削弱或推翻；REFUTES 必须给出 refutation_basis"
+    },
+    "challenge_verification": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "反证核验凭据；升级为 VERIFIED_CHALLENGE 需要它 + 人工复核绑定",
+      "required": [
+        "status",
+        "challenge_scope",
+        "challenge_strength",
+        "verifier",
+        "verification_ref"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "VERIFIED",
+            "UNRESOLVED",
+            "REJECTED"
+          ]
+        },
+        "challenge_scope": {
+          "type": "string",
+          "enum": [
+            "MECHANISM",
+            "PREMISE",
+            "SCOPE",
+            "MAGNITUDE"
+          ]
+        },
+        "challenge_strength": {
+          "type": "string",
+          "enum": [
+            "WEAKENS",
+            "REFUTES"
+          ]
+        },
+        "refutation_basis": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "challenge_strength=REFUTES 时必填"
+        },
+        "verifier": {
+          "type": "string",
+          "minLength": 1
+        },
+        "verification_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "human_confirmation": {
+          "type": "object",
+          "description": "RFC-017 裁定 1：反证必须有人工复核，且事件须可追溯",
+          "required": [
+            "confirmed_by",
+            "confirmed_event_id"
+          ],
+          "properties": {
+            "confirmed_by": {
+              "type": "string",
+              "enum": [
+                "user"
+              ]
+            },
+            "confirmed_event_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "challenge_basis": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "to_evidence_link 生成的反证绑定快照（artifact/证据/范围/命题指纹/复核事件）"
+    },
+    "challenge_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
     }
   }
 }

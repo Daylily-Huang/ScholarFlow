@@ -1,6 +1,6 @@
 # RFC-017：research-idea-debate 反证（CHALLENGE）通道的核验状态
 
-- **状态**：`PROPOSED`（设计待裁定，**未实现**）
+- **状态**：`IMPLEMENTED`（方案 A；第 6 节四个问题已由用户裁定，见 §7 裁定记录）
 - **目标里程碑**：v0.6.7（提议）
 - **前置**：`docs/implementation/ScholarFlow_四技能完整审查与改进建议_2026-09-12.md` F09（当时判定暂缓）、
   `ScholarFlow_第三次修改独立验收与评分_2026-09-13.md`（确认 F09 仍为 `DEFERRED`）
@@ -110,4 +110,16 @@
 3. 是否需要 `challenge_strength`（削弱/推翻）分级，还是只保留"是否已核验 + 削弱层级"？
 4. 中文命题 + 英文反证的 0.85 覆盖率门槛（见能力表「命题—引句一致性门槛」）是否同样适用于反证？
 
-> 本 RFC 只落设计，不改代码；实施方案需先解决第 6 节四个问题。
+## 7. 裁定记录（2026-09-13，用户答复「都需要」）
+
+| # | 问题 | 裁定 | 落地位置 |
+|---|---|---|---|
+| 1 | 是否必须人工复核 | **必须**。缺复核 → `PENDING_HUMAN_CONFIRMATION`；非用户事件 → `REJECTED`；提供 `SessionStore` 时须能在可信日志核验事件（type ∈ `EVIDENCE_IMPORTED`/`USER_INPUT`/`REVIEW_RETURNED`、`execution_kind=USER`、`applied≠false`） | `_validate_challenge_human_confirmation()` |
+| 2 | 是否参与综合加权 | **参与，但封顶**。`WEAKENS` 0.25 / `REFUTES` 0.5（以单组支持上限 1.0 为单位），同来源组合计 ≤0.5，惩罚只扣被挑战主张、不转移给对立立场；反证记录不计入立场权重 | `controversy_analyzer.apply_verified_challenges()` |
+| 3 | 是否做强度分级 | **做**：`challenge_scope`（MECHANISM/PREMISE/SCOPE/MAGNITUDE）+ `challenge_strength`（WEAKENS/REFUTES）；`REFUTES` 必须给 `refutation_basis` | `evaluate_challenge()` |
+| 4 | 跨语言 0.85 门槛是否同用 | **同用**。反证同样要求溯源/定位/范围/命题指纹绑定；中文命题 + 英文反证仍无法升级（须先确认与原文用词一致的译文） | 复用 `align_against_proposition()` 与绑定检查 |
+
+**实现位置汇总**：`shared/execution/debate_handoff.py`（`evaluate_challenge` / `to_evidence_link`）、
+`schemas/evidence_record.schema.json`（新增字段）、
+`skills/literature-synthesis/scripts/controversy_analyzer.py`（有界加权）、
+`tests/test_rfc017_challenge_channel.py`（22 例）。

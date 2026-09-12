@@ -184,6 +184,59 @@ def load_input_data(filepath: str) -> List[Dict[str, Any]]:
     return data
 
 
+#: RFC-017 裁定 2：**已核验反证参与加权**，但必须封顶，避免"反证多数决"。
+#: 惩罚是"削弱"而不是"投票给对立立场"：它只从被挑战主张的权重里扣，绝不加到 REFUTE 上。
+CHALLENGE_PENALTY = {"WEAKENS": 0.25, "REFUTES": 0.5}
+
+#: 同一独立来源组的反证合计惩罚上限（与"单组支持权重封顶 1.0"同构）。
+CHALLENGE_GROUP_PENALTY_CAP = 0.5
+
+
+def challenge_penalty(challenges: List[Dict[str, Any]]) -> Tuple[float, List[str]]:
+    """计算已核验反证对**被挑战主张**的权重惩罚；返回 `(penalty, factors)`。
+
+    规则（RFC-017 裁定 2）：
+      - 只有 `challenge_status == "VERIFIED_CHALLENGE"` 参与；未核验/待人工确认/被拒一律 0；
+      - `WEAKENS` 扣 0.25、`REFUTES` 扣 0.5（以"一个独立组权重上限 1.0"为单位）；
+      - 惩罚按**反证来源的独立组**合并，单组合计不超过 `CHALLENGE_GROUP_PENALTY_CAP`；
+      - 惩罚只从被挑战主张的权重里扣，**不转移给对立立场**——因此再多反证也无法靠计数
+        把结论翻成 REFUTE，只可能把支持权重压到 0（判为证据不足）。
+    """
+    by_group: Dict[str, float] = defaultdict(float)
+    factors: List[str] = []
+    for ch in challenges or []:
+        if str(ch.get("challenge_status", "")).upper() != "VERIFIED_CHALLENGE":
+            continue
+        strength = str(ch.get("challenge_strength", "")).upper()
+        amount = CHALLENGE_PENALTY.get(strength)
+        if amount is None:
+            continue
+        grp = str(ch.get("independence_group_id") or ch.get("study_id")
+                  or ch.get("paper_id") or "Unknown")
+        by_group[grp] += amount
+    penalty = 0.0
+    for grp, raw_amount in sorted(by_group.items()):
+        capped = min(raw_amount, CHALLENGE_GROUP_PENALTY_CAP)
+        if capped < raw_amount:
+            factors.append("challenge_group_capped(%s: %.2f->%.2f)"
+                           % (grp, raw_amount, capped))
+        penalty += capped
+        factors.append("challenge(%s:-%.2f)" % (grp, capped))
+    return penalty, factors
+
+
+def apply_verified_challenges(weight: float, challenges: List[Dict[str, Any]]
+                              ) -> Tuple[float, List[str]]:
+    """把已核验反证折算为对被挑战主张权重的下调（不低于 0）。"""
+    penalty, factors = challenge_penalty(challenges)
+    if penalty <= 0.0:
+        return float(weight), factors
+    adjusted = max(0.0, float(weight) - penalty)
+    if adjusted == 0.0 < float(weight):
+        factors.append("challenge_zeroed_weight")
+    return adjusted, factors
+
+
 def resolve_evidence_weight(raw: Dict[str, Any]) -> Tuple[float, str, List[str]]:
     """
     Resolve base weight, resolved strength tier, and appraisal adjustment factors.
@@ -503,6 +556,13 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         s = c.get("stance", "NEUTRAL")
         all_papers_by_stance[s].append(c.get("paper_id", "Unknown"))
 
+        # RFC-017：反证记录是"对被挑战主张的削弱"，不是一条独立立场证据。
+        # 若把它当普通 REFUTE 计入，5 条反证就能靠计数压过 2 条支持——那正是
+        # "反证多数决"，与项目的非多数决原则冲突。它只通过 apply_verified_challenges 生效。
+        if str(c.get("relation", "")).upper() == "CHALLENGE" or "challenge_status" in c:
+            excluded_counts["CHALLENGE_EVIDENCE"] += 1
+            continue
+
         # Check eligibility. resolve_evidence_weight() is the single source of
         # truth, so a raw claim carrying only evidence_strength is weighted
         # exactly like a normalized one. Reading a missing "weight" as 0.0
@@ -545,6 +605,36 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
                 excluded_counts[str(reason_key)] += 1
 
     total_eligible_claims = len(eligible_claims)
+
+    # RFC-017 裁定 2：反证参与加权（有上限，且不转移给对立立场）。
+    # 反证记录以 target_claim_id 指向被挑战主张；未核验的反证不参与。
+    challenges_by_target: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    challenge_factors: List[str] = []
+    for ch in claims:
+        if str(ch.get("challenge_status", "")).upper() != "VERIFIED_CHALLENGE":
+            continue
+        target = ch.get("target_claim_id") or ch.get("target_claim") or ch.get("claim_id")
+        if target:
+            challenges_by_target[str(target)].append(ch)
+    if challenges_by_target:
+        adjusted_claims = []
+        for c in eligible_claims:
+            hits = challenges_by_target.get(str(c.get("claim_id")), [])
+            if not hits:
+                adjusted_claims.append(c)
+                continue
+            new_weight, factors = apply_verified_challenges(float(c.get("weight", 0.0)), hits)
+            c = dict(c, weight=new_weight,
+                     challenge_adjustment={"applied": True, "factors": factors,
+                                           "challenges": len(hits)})
+            challenge_factors.extend(factors)
+            if new_weight > 0.0:
+                adjusted_claims.append(c)
+            else:
+                excluded_counts["CHALLENGE_ZEROED"] += 1
+        eligible_claims = adjusted_claims
+        total_eligible_claims = len(eligible_claims)
+
     weights_by_stance = defaultdict(float)
     papers_by_stance = defaultdict(list)
     
@@ -602,6 +692,8 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
             "classification_scope": "CURRENT_EVIDENCE_SET_ONLY",
             "external_consensus_claim": False,
             "papers_by_stance": dict(all_papers_by_stance),
+            "challenge_adjustment": {"factors": challenge_factors,
+                                      "targets": sorted(challenges_by_target)},
             "controversy_diagnosis": {
                 "type": "NO_ELIGIBLE_EVIDENCE",
                 "confidence": "High",
@@ -683,6 +775,9 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         "classification_scope": "CURRENT_EVIDENCE_SET_ONLY",
         "external_consensus_claim": False,
         "papers_by_stance": dict(all_papers_by_stance),
+        "challenge_adjustment": {"factors": challenge_factors,
+                                 "targets": sorted(challenges_by_target),
+                                 "applied": bool(challenges_by_target)},
         "controversy_diagnosis": diagnosis
     }
 

@@ -121,6 +121,7 @@
 | 加权证据评价（directness/independence/risk_of_bias/replication） | `CODE_VERIFIED` | `controversy_analyzer.resolve_evidence_weight` |
 | 独立性组权重封顶 + STRONG 需 ≥2 已验证独立组 | `CODE_VERIFIED` | 实测通过 |
 | 非篇数多数决 | `CODE_VERIFIED` | 8 篇弱反证不敌 1 篇强实证，实测 |
+| 已核验反证的有界加权 | `CODE_VERIFIED` | `controversy_analyzer.apply_verified_challenges()`：`WEAKENS` 0.25 / `REFUTES` 0.5，同来源组封顶 0.5，权重不为负；反证记录**不计入立场权重**（`CHALLENGE_EVIDENCE`），5 条 `REFUTES` 只把支持压到 `INSUFFICIENT_EVIDENCE`，`REFUTE` 权重保持 0；未核验反证零影响。测试 `tests/test_rfc017_challenge_channel.py` |
 | 可比性分层（6 维） | `CODE_VERIFIED` | `comparability.py` |
 | 层内结论与跨层差异分别披露 | `CODE_VERIFIED` | 头条取全量主张；分层方向分歧显式披露，不再以单层代表整体 |
 | Claim ID 可溯源门禁 | `CODE_VERIFIED` | `claim_linter.py` |
@@ -152,7 +153,7 @@
 | 引句对齐入向适配（`to_evidence_link`） | `CODE_VERIFIED` | `to_evidence_link()`；强制要求 `artifact_ref` 溯源；区分 `EXACT` / `FRAGMENT` / 否定句 |
 | **命题—引句一致性门槛** | `PARTIAL` | 引句须覆盖命题比对单元 ≥ **0.85** 才升级。实测：逐字同句 1.000/轻微改写 0.975 → `VERIFIED`；**忠实意译 0.709、中文命题+英文证据 0.575/0.512 → `UNRESOLVED`**。即「用自己的措辞陈述命题」不会升级。用法要求命题用证据语言、按原文用词陈述；跨语言须有与原文用词一致的已确认译文。阈值是设计选择（不降低科学准入），已在 `to_evidence_link` 与 `references/evidence_handoff.md` 写明 |
 | 语义支持核验 | `CODE_VERIFIED` | **默认 `UNRESOLVED`**：模式规则只用于排除（设问/假说/模拟假设/转引/条件/被反驳），未命中不等于已证实；只有绑定完整的显式语义凭据（`evidence_id` + 命题指纹 + `verifier` + `verification_ref`，且命题版本未过期）才允许 `VERIFIED`。覆盖边界：凭据由核验环节写出，本层不生成语义判断 |
-| **反证独立契约迁移（F09）** | `DEFERRED` | 非 SUPPORT 关系（CHALLENGE / BOUNDARY）当前保守记为 `UNRESOLVED` 阻断放行。2026-09-13 真实试跑实测：5 条已逐字核验的反证引句（Pianka 0.86 / 活动节律 0.65 / Jaccard 17.31%）全部无法与背景文本区分。设计方案见 [RFC-017](../rfcs/RFC-017-research-debate-challenge-channel.md)（`PROPOSED`，待裁定 4 个开放问题，未实现） |
+| **反证通道（RFC-017 / F09）** | `CODE_VERIFIED` | 新增独立字段 `challenge_status` / `challenge_scope` / `challenge_strength` / `challenge_basis`，**`alignment` 语义不变**（非 SUPPORT 永远不是 `VERIFIED`）。四项裁定已落代码：①**必须人工复核**（`confirmed_by=user` + 事件可追溯；提供 `SessionStore` 时须在可信日志核验通过）；②**参与综合加权但封顶**（`WEAKENS` 0.25 / `REFUTES` 0.5，同来源组合计 ≤0.5，只扣被挑战主张、**不转移给对立立场** → 反证再多也只能压到证据不足，不会形成反证多数决）；③**强度分级**（`REFUTES` 必须给 `refutation_basis`）；④绑定门槛与 SUPPORT **同级**（溯源/定位/范围/命题指纹）。反例覆盖：支持句冒充反证、无关句、非用户事件、`applied=false`、缺复核、越界枚举。测试 `tests/test_rfc017_challenge_channel.py` |
 | **会话事件日志与恢复** | `CODE_VERIFIED` | `shared/execution/session_store.py`；完整追加边界保护（末尾无换行时安全补行分隔）、坏尾部须显式恢复（F03）、快照比较业务投影（F04）；测试 `tests/test_research_debate_session_store.py` |
 | 授权事件的真实性边界 | `CODE_VERIFIED` | 用户确认事件必须是已生效事件（`applied=false` → `CONFIRMATION_EVENT_NOT_APPLIED`）；同一 `event_id` 出现多次 → `CONFIRMATION_EVENT_AMBIGUOUS`；事件日志损坏 → `CONFIRMATION_CONTEXT_UNREADABLE`（与"没给上下文"区分） |
 | **事件先行可信重放基底** | `PARTIAL` | `seal_checkpoint()`：封存全量状态 + 事件前缀摘要 + `event_count` + `last_event_id`，未封存会话一律报 `SNAPSHOT_BASE_UNVERIFIED`；重放边界以 `event_count` 为准（零事件检查点不会跳过后续事件），并校验前缀摘要/边界一致性。**未完成**：`save_snapshot()` 仍只是调用约定（无法从代码上阻止写入未记录字段），尚无强制事件先行的写入入口 |
@@ -263,7 +264,7 @@
 ## 7. 本表的验证绑定
 
 - **实现提交**：`bc5555f`（含预算映射与 RFC-017；F1/F2 修正 `b091516`；T01–T05 主体 `8a267e2`）
-- **测试结果**：`Ran 849 tests ... OK`（本机 0 项跳过；跳过 ≠ 通过）
+- **测试结果**：`Ran 871 tests ... OK`（本机 0 项跳过；跳过 ≠ 通过）
 - **报告**：`docs/implementation/ScholarFlow_第三次修改验收修复报告_2026-09-13.md`
   （前两轮：`ScholarFlow_R01-R06第二轮修复报告_2026-09-13.md`、
   `ScholarFlow_四技能审查修复批次报告_2026-09-12.md`，后者已标注"全部验收"表述过度）

@@ -38,6 +38,22 @@
      跨量纲不匹配（百分比 ≠ 长度）；`%` 与裸比例只在字段声明 `value_type` 时互认。
 6. **说明影响**：支持／削弱／限定／无法回答；更新对应版本，再提下一问。
 
+## 二·补：反证的回流（RFC-017，已实现）
+
+反证用 `relation = "CHALLENGE"` 回流，状态记在**独立字段**上（`alignment` 语义不变，非 SUPPORT
+永远不是 `VERIFIED`）：
+
+| 状态 | 何时 | 后果 |
+|---|---|---|
+| `VERIFIED_CHALLENGE` | 溯源/定位/范围/命题指纹绑定齐全 + `challenge_verification.status=VERIFIED` + **用户人工复核事件可追溯** | 参与综合加权（`WEAKENS` 0.25 / `REFUTES` 0.5，同来源组封顶 0.5，只扣被挑战主张） |
+| `PENDING_HUMAN_CONFIRMATION` | 缺人工复核、或无可信存储无法核验确认事件 | 权重影响为 0，等待用户复核 |
+| `REJECTED` | 引句实为**支持**命题、与命题无任何共同单元、或确认事件非用户产生 | 不计入任何加权 |
+| `UNRESOLVED` | 缺凭据、缺绑定、`challenge_scope`/`strength` 非法、`REFUTES` 未给 `refutation_basis` | 只作背景记录 |
+
+要点：①`REFUTES`（推翻）必须给出 `refutation_basis`；②反证记录**不充当 REFUTE 立场证据**，
+再多反证也只能把被挑战主张压到"证据不足"，不会靠计数翻成反证多数；③中文命题 + 英文反证
+仍受 0.85 覆盖率门槛限制（见上一条）。
+
 ## 三、授权的产生、失效与幂等
 
 - **授权指纹**覆盖四项：`question`（要回答什么）、`scope`（范围与对象）、`target_skill`（交给谁）、`budget_ref`（资源引用）。

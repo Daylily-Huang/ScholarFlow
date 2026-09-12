@@ -1057,9 +1057,169 @@ _SEMANTIC_EXCLUSION_RULES = (
 )
 
 
+#: 反证（RFC-017）可核验状态。`alignment` 与它完全独立：非 SUPPORT 关系永远不是 VERIFIED。
+CHALLENGE_STATUSES = ("UNRESOLVED", "PENDING_HUMAN_CONFIRMATION",
+                      "VERIFIED_CHALLENGE", "REJECTED")
+
+#: 反证削弱的是命题的哪一层。
+CHALLENGE_SCOPES = ("MECHANISM", "PREMISE", "SCOPE", "MAGNITUDE")
+
+#: 反证强度：削弱 vs 推翻（推翻要求更严的绑定，见 validate_challenge_verification）。
+CHALLENGE_STRENGTHS = ("WEAKENS", "REFUTES")
+
+#: 可作为"人工复核反证"的会话事件类型（actor 必须是用户）。
+CHALLENGE_CONFIRMATION_EVENT_TYPES = ("EVIDENCE_IMPORTED", "USER_INPUT", "REVIEW_RETURNED")
+
+
+def _validate_challenge_human_confirmation(human: Any, session_store: Optional[Any]):
+    """校验反证的人工复核绑定；返回 `(ok, problem_or_None, details)`。
+
+    RFC-017 裁定 1：反证影响更大，**必须有人工复核**。
+    裁定 4：绑定要求与 SUPPORT 同级——同样要求可追溯到真实事件；
+    提供 `session_store` 时必须能在可信事件日志里查到该确认事件。
+    """
+    if not isinstance(human, dict) or not human:
+        return False, "CHALLENGE_HUMAN_CONFIRMATION_MISSING", []
+    if str(human.get("confirmed_by") or "").strip().lower() not in USER_ACTOR_NAMES:
+        return False, "CHALLENGE_HUMAN_CONFIRMATION_NOT_USER", []
+    event_id = str(human.get("confirmed_event_id") or "").strip()
+    if not event_id:
+        return False, "CHALLENGE_HUMAN_CONFIRMATION_UNBOUND", []
+    if session_store is None:
+        # 没有可信上下文 → 只能停在"待人工确认"，不得声称已复核（与派发门禁同构）。
+        return False, "CHALLENGE_HUMAN_CONFIRMATION_UNVERIFIED", [
+            "no trusted event store supplied; cannot verify the confirmation event"]
+    events, problem = _trusted_event_list(session_store)
+    if events is None:
+        return False, "CHALLENGE_HUMAN_CONFIRMATION_UNVERIFIED", [problem or "unreadable store"]
+    match = [e for e in events
+             if (e.get("event_id") or e.get("id")) == event_id]
+    if not match:
+        return False, "CHALLENGE_HUMAN_CONFIRMATION_UNVERIFIED", [
+            "confirmation event %r not found in the trusted log" % event_id]
+    event = match[0]
+    ev_type = event.get("type") or event.get("event_type")
+    if ev_type not in CHALLENGE_CONFIRMATION_EVENT_TYPES:
+        return False, "CHALLENGE_HUMAN_CONFIRMATION_UNVERIFIED", [
+            "event type %r cannot confirm a challenge" % ev_type]
+    if event.get("applied") is False:
+        return False, "CHALLENGE_HUMAN_CONFIRMATION_UNVERIFIED", ["event is applied=false"]
+    if event.get("execution_kind") in NON_USER_EXECUTION_KINDS:
+        return False, "CHALLENGE_HUMAN_CONFIRMATION_NOT_USER", [
+            "execution_kind=%r is not a user action" % event.get("execution_kind")]
+    if event.get("execution_kind") != "USER" and \
+            str(event.get("actor") or "").strip().lower() not in USER_ACTOR_NAMES:
+        return False, "CHALLENGE_HUMAN_CONFIRMATION_NOT_USER", [
+            "actor=%r is not the user" % event.get("actor")]
+    return True, None, []
+
+
+def evaluate_challenge(relation: str, record: Dict[str, Any], quote: str,
+                       proposition: str, problems: List[str],
+                       supported: bool, session_store: Optional[Any] = None,
+                       variants: Optional[List[Dict[str, Any]]] = None
+                       ) -> Dict[str, Any]:
+    """判定反证状态（RFC-017 方案 A：新增独立字段，**不改 `alignment`**）。
+
+    返回 `{"challenge_status", "challenge_scope", "challenge_strength",
+    "challenge_basis", "challenge_reason"}`。
+
+    升级为 `VERIFIED_CHALLENGE` 需要（缺一即降级，绝不默认通过）：
+      1. `relation == "CHALLENGE"`；
+      2. 绑定完整：`artifact_ref`、定位锚点、`checked_scope` 与命题指纹；
+      3. 引句**确实是在挑战**命题：对命题独立判定后**不得是"支持"**
+         （在命题层面支持命题的句子不能被登记为反证）；
+         词面相反的否定句正是反证的典型形态，允许；但不得因此升级 `alignment`
+      4. `challenge_scope` ∈ `CHALLENGE_SCOPES`、`challenge_strength` ∈ `CHALLENGE_STRENGTHS`；
+         `REFUTES` 还要求凭据给出 `refutation_basis`（凭什么说推翻）；
+      5. **人工复核**（裁定 1）：`human_confirmation.confirmed_by=user` + 可追溯事件；
+         提供 `session_store` 时必须在可信事件日志中核验通过。
+    """
+    status = "UNRESOLVED"
+    scope = strength = None
+    reason = ""
+    basis = {
+        "artifact_ref": record.get("artifact_ref") or record.get("source_file") or "",
+        "evidence_id": record.get("evidence_id") or record.get("id") or "",
+        "checked_scope": record.get("checked_scope") or "",
+        "proposition_fingerprint": proposition_fingerprint(proposition),
+    }
+
+    if relation != "CHALLENGE":
+        return {"challenge_status": "UNRESOLVED", "challenge_scope": None,
+                "challenge_strength": None, "challenge_basis": basis,
+                "challenge_reason": "只有 relation=CHALLENGE 才评估反证状态"}
+
+    missing = [p for p in problems
+               if p in ("MISSING_ARTIFACT_REF", "INVALID_LOCATION", "MISSING_CHECKED_SCOPE",
+                        "MISSING_VERBATIM_QUOTE")]
+    if missing:
+        return {"challenge_status": "UNRESOLVED", "challenge_scope": None,
+                "challenge_strength": None, "challenge_basis": basis,
+                "challenge_reason": "绑定不完整：%s" % ",".join(missing)}
+
+    # 独立判定引句对命题的方向与相关性：`to_evidence_link` 只在 SUPPORT 分支算
+    # supported，这里必须自己算一次，否则"拿支持句当反证"会漏过去。
+    if relation == "CHALLENGE":
+        challenge_alignment = align_against_proposition(quote, proposition, variants)
+        supported = bool(challenge_alignment["supported"])
+        # 相关性下限：反证必须至少在命题的某个内容单元上与命题相关，
+        # 否则任何一句无关文本都能挂上"已核验反证"的牌子。
+        shared = _units(quote) & _units(proposition)
+        if supported is False and not shared:
+            return {"challenge_status": "REJECTED", "challenge_scope": None,
+                    "challenge_strength": None, "challenge_basis": basis,
+                    "challenge_reason": "引句与命题没有任何共同单元，不构成针对该命题的反证"}
+
+    explicit = record.get("challenge_verification")
+    if not isinstance(explicit, dict) or explicit.get("status") != "VERIFIED":
+        return {"challenge_status": "UNRESOLVED", "challenge_scope": None,
+                "challenge_strength": None, "challenge_basis": basis,
+                "challenge_reason": "缺少 status=VERIFIED 的反证核验凭据（challenge_verification）"}
+
+    scope = str(explicit.get("challenge_scope") or "").upper() or None
+    strength = str(explicit.get("challenge_strength") or "").upper() or None
+    if scope not in CHALLENGE_SCOPES:
+        return {"challenge_status": "UNRESOLVED", "challenge_scope": scope,
+                "challenge_strength": strength, "challenge_basis": basis,
+                "challenge_reason": "challenge_scope 非法或缺失：%r" % explicit.get("challenge_scope")}
+    if strength not in CHALLENGE_STRENGTHS:
+        return {"challenge_status": "UNRESOLVED", "challenge_scope": scope,
+                "challenge_strength": strength, "challenge_basis": basis,
+                "challenge_reason": "challenge_strength 非法或缺失：%r" % explicit.get("challenge_strength")}
+    if strength == "REFUTES" and not str(explicit.get("refutation_basis") or "").strip():
+        return {"challenge_status": "UNRESOLVED", "challenge_scope": scope,
+                "challenge_strength": strength, "challenge_basis": basis,
+                "challenge_reason": "REFUTES 必须给出 refutation_basis（凭什么说推翻）"}
+    if supported:
+        return {"challenge_status": "REJECTED", "challenge_scope": scope,
+                "challenge_strength": strength, "challenge_basis": basis,
+                "challenge_reason": "该引句在命题层面是**支持**而非挑战，不得记反证"}
+
+    ok, problem, details = _validate_challenge_human_confirmation(
+        explicit.get("human_confirmation"), session_store)
+    if not ok:
+        status = ("PENDING_HUMAN_CONFIRMATION"
+                  if problem in ("CHALLENGE_HUMAN_CONFIRMATION_MISSING",
+                                 "CHALLENGE_HUMAN_CONFIRMATION_UNBOUND",
+                                 "CHALLENGE_HUMAN_CONFIRMATION_UNVERIFIED")
+                  else "REJECTED")
+        return {"challenge_status": status, "challenge_scope": scope,
+                "challenge_strength": strength, "challenge_basis": basis,
+                "challenge_reason": "%s%s" % (problem, ("：" + "; ".join(details)) if details else "")}
+
+    basis["verifier"] = str(explicit.get("verifier") or "")
+    basis["verification_ref"] = str(explicit.get("verification_ref") or "")
+    basis["confirmed_event_id"] = str((explicit.get("human_confirmation") or {}).get("confirmed_event_id") or "")
+    return {"challenge_status": "VERIFIED_CHALLENGE", "challenge_scope": scope,
+            "challenge_strength": strength, "challenge_basis": basis,
+            "challenge_reason": "反证已逐字核验、方向明确并经用户复核"}
+
+
 def to_evidence_link(record: Dict[str, Any], proposition: str,
                      relation: str = "CONTEXT",
-                     variants: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
+                     variants: Optional[List[Dict[str, Any]]] = None,
+                     session_store: Optional[Any] = None) -> Dict[str, Any]:
     """把一条上游证据记录规范化为 `evidence_links` 条目。
 
     **硬规则**：
@@ -1159,6 +1319,11 @@ def to_evidence_link(record: Dict[str, Any], proposition: str,
     is_sem_verified = (sem_verdict.get("status") == "VERIFIED" and sem_verdict.get("is_empirical_result") is True)
     alignment = "VERIFIED" if (relation == "SUPPORT" and supported and is_sem_verified and not problems) else "UNRESOLVED"
 
+    # RFC-017：反证状态与 alignment 完全独立——非 SUPPORT 关系永远不是 VERIFIED。
+    challenge = evaluate_challenge(relation, record, quote, proposition, problems,
+                                   supported, session_store=session_store,
+                                   variants=variants)
+
     return {
         "artifact_ref": artifact_ref,
         "evidence_id": evidence_id or "",
@@ -1173,6 +1338,11 @@ def to_evidence_link(record: Dict[str, Any], proposition: str,
         "variant_status": verdict["variant_status"],
         "language_mismatch": lang_mismatch,
         "semantic_verification": sem_verdict,
+        "challenge_status": challenge["challenge_status"],
+        "challenge_scope": challenge["challenge_scope"],
+        "challenge_strength": challenge["challenge_strength"],
+        "challenge_basis": challenge["challenge_basis"],
+        "challenge_reason": challenge["challenge_reason"],
         "problems": problems,
     }
 

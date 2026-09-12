@@ -26,4 +26,4 @@ Status vocabulary:
 | **RFC-014** | [统一执行深度架构接入操作手册](../implementation/ScholarFlow_统一执行深度接入操作手册.md) | v0.6.5 | `IMPLEMENTED` — 三档 profile、`EXECUTION_DEPTH` 门禁、T01–T20 验收 |
 | **RFC-015** | [执行深度实现审查与详细修改建议（2026-09-10）](../implementation/ScholarFlow_执行深度实现审查与详细修改建议_2026-09-10.md) | v0.6.6 | `IMPLEMENTED` — R01–R12 全部修复，验收见该文档附录 |
 | **RFC-016** | [研究构想与假说推敲技能设计稿](./research-idea-debate-design.md) | 新技能 `research-idea-debate` | `IMPLEMENTED` — M1–M4 全部交付；包含 7 大角色规范、5 大规程、3 个 JSON Schema、单写者事件溯源重放、50 项机械规程硬校验（RV01–RV50）及端到端四技能闭环验证 |
-| **RFC-017** | [research-idea-debate 反证（CHALLENGE）通道的核验状态](./RFC-017-research-debate-challenge-channel.md) | v0.6.7（提议） | `PROPOSED` — 只落设计：新增独立 `challenge_status`，不改 `alignment`；待裁定 4 个开放问题 |
+| **RFC-017** | [research-idea-debate 反证（CHALLENGE）通道的核验状态](./RFC-017-research-debate-challenge-channel.md) | v0.6.7 | `IMPLEMENTED` — 独立 `challenge_status`（不改 `alignment`）+ 人工复核 + 有界加权（不得多数决） |
