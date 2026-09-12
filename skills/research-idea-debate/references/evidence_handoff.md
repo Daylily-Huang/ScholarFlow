@@ -24,6 +24,12 @@
 4. **调用上游技能**：`SEARCH_GAP` → `literature-discovery-acquisition`；`EXTRACTION_GAP` → `literature-evidence-extraction`；`SYNTHESIS_REQUEST` → `literature-synthesis`。
    - 只传完成任务所需上下文；**不把整段私有对话写入外部检索式**。
 5. **回流校验**：文件可读、schema 版本、记录引用、命题对应关系。结构合法 ≠ 语义证据有效。
+   - **命题必须用证据的语言、按原文用词陈述（2026-09-13 实测）**：入向适配要求引句覆盖
+     命题比对单元 ≥ **0.85**。实测「逐字同句 1.000 → 升级」「轻微改写 0.975 → 升级」
+     「忠实意译 0.709 → 不升级」「中文命题 + 英文证据 0.58/0.51 → 不升级」。
+     因此：**不要用自己的措辞去对应引句**；把待证主张写成引句本身或用词一致的命题。
+     中文命题 + 英文证据在缺"与原文用词一致的已确认译文"时一律停在 `UNRESOLVED`，
+     这是设计选择，不是故障。
    - **入向适配默认未决（R01）**：`to_evidence_link()` 只有在记录携带**绑定完整**的
      `semantic_verification` 凭据（`evidence_id` + 命题指纹 + `verifier` + `verification_ref`，
      且 `idea_version` 未过期）时才把引句升级为 `VERIFIED`；否则一律 `UNRESOLVED`。

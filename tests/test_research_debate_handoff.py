@@ -304,6 +304,75 @@ class TestIngestReturns(unittest.TestCase):
         self.assertIn("不因本批而升级", out["note"])
 
 
+class TestPropositionQuoteCoverageBoundary(unittest.TestCase):
+    """命题—引句一致性的 0.85 覆盖率门槛（2026-09-13 真实试跑实测边界）。
+
+    这组用例把"能升级 / 不能升级"的边界钉死，防止有人为了通过验收而放宽阈值，
+    也防止把"忠实意译不能升级"误当故障去修。
+    """
+
+    QUOTE = ("Percentages of shrubs and trees in the diet were lowest in summer and autumn,"
+             "and highest in winter and spring.")
+
+    def _link(self, proposition, quote=None):
+        quote = quote or self.QUOTE
+        rec = {"evidence_id": "E-COV", "artifact_ref": "zheng2007.pdf",
+               "verbatim_quote": quote, "location": {"page": 1},
+               "checked_scope": "全文 7 页", "claim_status": "supported", "idea_version": 2,
+               "semantic_verification": semantic_verification("E-COV", proposition,
+                                                              idea_version=2)}
+        return to_evidence_link(rec, proposition, "SUPPORT")
+
+    def test_verbatim_proposition_upgrades(self):
+        self.assertEqual(self._link(self.QUOTE)["alignment"], "VERIFIED")
+
+    def test_light_rewording_above_threshold_upgrades(self):
+        prop = ("The percentages of shrubs and trees in the diet were lowest in summer and "
+                "autumn and highest in winter and spring.")
+        self.assertEqual(self._link(prop)["alignment"], "VERIFIED")
+
+    def test_faithful_paraphrase_does_not_upgrade(self):
+        """忠实意译（同语言，覆盖率 0.709）不升级——这是设计选择，不是缺陷。"""
+        prop = ("Shrubs and trees made up the smallest share of the diet in summer and autumn "
+                "and the largest share in winter and spring.")
+        link = self._link(prop)
+        self.assertEqual(link["alignment"], "UNRESOLVED")
+        self.assertLess(link["proposition_match_ratio"], 0.85)
+
+    def test_cross_language_paraphrase_does_not_upgrade(self):
+        prop = "黑麂食性存在显著季节性变化：灌木与乔木的取食占比在冬春最高、夏秋最低。"
+        link = self._link(prop)
+        self.assertEqual(link["alignment"], "UNRESOLVED")
+        self.assertEqual(link["quote_match"], "LANGUAGE_MISMATCH")
+
+
+class TestExecutableQueryLanguageSeparation(unittest.TestCase):
+    """发现 F1：中文需求文本不得混进英文检索式（实测 0 命中 → 8 命中）。"""
+
+    def test_chinese_requirement_text_is_not_mixed_into_english_query(self):
+        gap = {"question": "是否存在同地点、同方法、覆盖≥3 季的黑麂×小麂成对食性重叠值（Pianka/Horn/Schoener）？",
+               "reason": "两路评估给出的重叠值（0.86 与 17.31%）区域与方法均不可比",
+               "scope": {"topic": "sympatric black muntjac and Reeve's muntjac diet overlap"}}
+        query = to_executable_query(gap)
+        for bad in ("同地点", "同方法", "重叠值", "是否存在", "黑麂"):
+            self.assertNotIn(bad, query, query)
+        self.assertIn("black muntjac", query)
+        self.assertIn("diet overlap", query)
+
+    def test_chinese_topic_keeps_chinese_terms(self):
+        gap = {"question": "黑麂食性是否存在季节差异？",
+               "scope": {"topic": "黑麂 食性 季节性"}}
+        query = to_executable_query(gap)
+        self.assertIn("黑麂", query)
+        self.assertIn("季节性", query)
+        self.assertNotIn("？", query)
+
+    def test_english_topic_drops_chinese_question(self):
+        gap = {"question": "同域黑麂与小麂的重叠度是多少？",
+               "scope": {"topic": "black muntjac diet overlap"}}
+        self.assertEqual(to_executable_query(gap), "black muntjac diet overlap")
+
+
 class TestQuoteNormalisationParity(unittest.TestCase):
     """引句口径必须与仓库既有 quote_audit.py 一致，否则两个技能会给出不同判断。"""
 
@@ -605,10 +674,18 @@ class TestExecutableQuery(unittest.TestCase):
     """缺口 → 可执行检索式；只从缺口取词，不把对话原文写进检索式。"""
 
     def test_query_built_from_gap_scope_and_question(self):
+        """英文主题 → 纯英文检索式；中文疑问句不再混入（2026-09-13 发现 F1 修正）。"""
         q = to_executable_query({"scope": {"topic": "urban green space soil bacteria"},
                                   "question": "植被配置是否影响群落组成"})
         self.assertIn("urban", q)
-        self.assertIn("植被配置", q)
+        self.assertNotIn("植被配置", q)
+
+    def test_chinese_topic_still_yields_chinese_query(self):
+        """中文主题（面向中文库）仍出中文检索式，不被英文词污染。"""
+        q = to_executable_query({"scope": {"topic": "城市绿地 土壤细菌 植被配置"},
+                                  "question": "是否存在系统差异"})
+        self.assertIn("城市绿地", q)
+        self.assertIn("土壤细菌", q)
 
     def test_duplicates_and_function_words_removed_but_content_kept(self):
         q = to_executable_query({"scope": {"topic": "土壤 细菌 土壤"},

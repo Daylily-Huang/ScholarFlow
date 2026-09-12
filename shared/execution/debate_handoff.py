@@ -149,11 +149,30 @@ def to_upstream_payload(gap: Dict[str, Any]) -> Dict[str, Any]:
     return payload
 
 
+def _is_cjk(text: str) -> bool:
+    return bool(re.search(r"[\u3400-\u4dbf\u4e00-\u9fff]", text))
+
+
+def _latin_terms(text: str) -> List[str]:
+    """抽出可检索的拉丁词/短语（保留连字符与撇号，便于 'Reeve's muntjac'）。"""
+    return re.findall(r"[A-Za-z][A-Za-z0-9'\-]*", text)
+
+
 def to_executable_query(gap: Dict[str, Any], max_terms: int = 12) -> str:
     """把缺口转成可执行检索式（供 headless Discovery 直接消费）。
 
-    **只从缺口本身取词**：主题 + 问题中的实词，**不把对话原文写进检索式**
-    （设计稿 §11.2 第 4 步的硬要求）。已停用词与重复词会被去掉。
+    **2026-09-13 真实试跑修正（发现 F1）**：旧实现把 `question`（中文需求文本）
+    原样拼进检索式，产出
+    `sympatric black muntjac Reeve's diet overlap 同地点 同方法 覆盖≥3 季…`——
+    OpenAlex 直接检索命中 **0** 条，工具退回无关种子的滚雪球。
+    现在按**语言分路**生成：
+
+      - 只用 `scope.topic`（领域主题，通常已是检索语言）与 question/reason 中的
+        **同语言词**；中文需求句不再混进英文检索式；
+      - 主题为纯中文时（面向中文库检索）保留中文词，并不会被英文词污染；
+      - 仍然只从缺口本身取词，**不把对话原文写进检索式**（设计稿 §11.2 第 4 步）。
+
+    返回单行检索式；调用方（宿主）可在此基础上再做同义词扩展。
     """
     stop = {
         "的", "与", "和", "及", "或", "在", "是", "有", "没有", "对", "为", "了",
@@ -161,19 +180,38 @@ def to_executable_query(gap: Dict[str, Any], max_terms: int = 12) -> str:
         "of", "and", "or", "for", "in", "on", "to", "is", "are", "does", "do",
     }
     scope = gap.get("scope") or {}
-    question = gap.get("question") or ""
+    topic = str(scope.get("topic") or "").strip()
+    question = str(gap.get("question") or "")
+    reason = str(gap.get("reason") or "")
     # 疑问句式整体剥离：它们是提问形式，不是检索词
     for pat in ("是否已被系统研究", "是否存在系统差异", "是否存在", "是否影响", "是否",
                 "有哪些", "哪些", "是什么", "什么", "如何", "怎么", "请问"):
         question = question.replace(pat, " ")
-    parts = [scope.get("topic") or "", question]
+        reason = reason.replace(pat, " ")
+
+    topic_is_cjk = _is_cjk(topic)
     tokens: List[str] = []
-    for part in parts:
-        for tok in re.split(r"[\s,，。；;：:、/()（）]+", part):
-            tok = tok.strip()
-            if not tok or tok.lower() in stop or tok in tokens:
-                continue
-            tokens.append(tok)
+
+    def add(tok: str) -> None:
+        tok = tok.strip()
+        if not tok or tok.lower() in stop or tok in tokens:
+            return
+        tokens.append(tok)
+
+    if topic_is_cjk:
+        # 中文主题 → 中文检索式：只取中文词，不混英文
+        for part in (topic, question):
+            for tok in re.split(r"[\s,，。；;：:、/()（）？！?!]+", part):
+                if tok and _is_cjk(tok):
+                    add(tok)
+    else:
+        # 英文主题 → 英文检索式：只取拉丁词，中文需求句一律不进检索式
+        for tok in _latin_terms(topic or question):
+            add(tok)
+        if not tokens:
+            # 主题缺失时退回问题里的拉丁词（仍不混中文）
+            for tok in _latin_terms(question):
+                add(tok)
     return " ".join(tokens[:max_terms])
 
 
@@ -971,6 +1009,22 @@ def to_evidence_link(record: Dict[str, Any], proposition: str,
       - 必须经结构化语义核验（非研究问题/假说/引文/条件/反驳）；
       - **跨语言不得自动升级**：见 `align_against_proposition` 的判定链——
         仅命中一条已确认变体、或只命中未确认变体，一律不升级。
+
+    **命题—引句一致性的实际门槛（2026-09-13 真实试跑实测，发现 F2）**：
+    `_compare()` 要求**引句覆盖命题比对单元的 ≥ `QUOTE_OVERLAP_THRESHOLD`（0.85）**，
+    因此升级要求命题与引句**用词高度一致**。实测：
+
+    | 命题写法 | 覆盖率 | 结果 |
+    |---|---:|---|
+    | 与引句逐字同句 | 1.000 | `VERIFIED` |
+    | 标点归一后同句 | 1.000 | `VERIFIED` |
+    | 轻微改写（同语言） | 0.975 | `VERIFIED` |
+    | 忠实意译（同语言） | 0.709 | `UNRESOLVED` |
+    | 领域术语英译（跨语言） | 0.575 / 0.512 | `UNRESOLVED`（另记 `LANGUAGE_MISMATCH`） |
+
+    **正确用法**：把待证主张**用证据的语言、按原文用词**陈述（或直接引用原句作为命题），
+    不要用分析者自己的措辞去"对应"引句。命题是中文而证据是英文时，本函数**不会**升级，
+    这是设计选择而非缺陷；需要跨语言支持时，先由用户确认与原文用词一致的译文变体。
 
     `variants` 为可选的命题变体列表（不同语言的表述），`alignment` 只认其中
     `approval.status == CONFIRMED` 且 `confirmed_by == "user"` 的条目。
