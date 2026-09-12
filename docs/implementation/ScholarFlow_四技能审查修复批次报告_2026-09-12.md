@@ -68,7 +68,7 @@
 | 项 | 结果 |
 |---|---|
 | 全量套件（修复前基线） | `Ran 709 tests ... OK (skipped=4)` |
-| 全量套件（修复后） | `Ran 735 tests in 13.7s ... OK` |
+| 全量套件（修复后，提交 `48adfed`） | `Ran 735 tests in 13.7s ... OK` |
 | 新增回归 | `tests/test_four_skill_review_f01_f06.py`：26 用例全通过（F01 6 / F02 4 / F03 4 / F04 2 / F05 5 / F06 5） |
 | 领域中立性 linter | `python3 scripts/domain_neutrality_linter.py` 通过 |
 | 打包资产校验 | `python3 scripts/verify_package_assets.py` 通过 |
