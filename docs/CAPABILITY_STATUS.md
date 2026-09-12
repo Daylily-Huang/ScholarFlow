@@ -249,8 +249,9 @@
 
 ## 7. 本表的验证绑定
 
-- **实现提交**：`48adfed`（四技能审查 F01–F10 修复；反例回归见 `tests/test_four_skill_review_f01_f06.py`）
-- **测试结果**：`Ran 735 tests ... OK`（跳过项见批次报告；跳过 ≠ 通过）
-- **批次报告**：`docs/implementation/ScholarFlow_四技能审查修复批次报告_2026-09-12.md`
+- **实现提交**：`2073350`（R01–R06 第二轮修复；上一轮为 `48adfed`）
+- **测试结果**：`Ran 800 tests ... OK`（本机 0 项跳过；跳过 ≠ 通过）
+- **报告**：`docs/implementation/ScholarFlow_R01-R06第二轮修复报告_2026-09-13.md`
+  （上一轮批次报告 `ScholarFlow_四技能审查修复批次报告_2026-09-12.md` 已标注其"全部验收"表述过度）
 
 > 本表的 `CODE_VERIFIED` 仅覆盖上表 L1/L2 层，且只对该提交有效；实现变更后须重新核对本表。
