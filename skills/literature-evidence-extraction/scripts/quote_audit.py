@@ -36,6 +36,7 @@ import argparse
 import hashlib
 import json
 import re
+from decimal import Decimal, InvalidOperation
 import sys
 import unicodedata
 from pathlib import Path
@@ -167,38 +168,45 @@ ALIGNMENT_WINDOW = 200     # chars of source context around the quote location
 #   - 含数字却解析不出数量 → 标为待核验，不得算通过。
 # --------------------------------------------------------------------------
 
-#: (量纲, 换算到该量纲基准单位的因子, 可接受写法)
+#: (量纲, 换算到该量纲基准单位的**精确十进制**因子, 可接受写法)
+#:
+#: 因子用字符串给出，比较时走 `decimal.Decimal` 定点运算：浮点二进制表示会把
+#: "1 nL vs 2 nL" 这类真实差异压到容差之下（第三轮核查 T01），也让换算结果
+#: 依赖字面写法。十进制定点比较是精确的，不需要"宽容差"来掩盖。
 _UNIT_GROUPS = (
-    ("volume", 1.0, ("l", "L", "liter", "liters", "litre", "litres", "升")),
-    ("volume", 1e-3, ("ml", "mL", "milliliter", "milliliters", "millilitre",
-                      "millilitres", "毫升")),
-    ("volume", 1e-6, ("µl", "μl", "uL", "ul", "microliter", "microliters",
-                      "microlitre", "microlitres", "微升")),
-    ("volume", 1e-9, ("nl", "nL", "nanoliter", "nanoliters", "纳升")),
-    ("length", 1.0, ("m", "meter", "meters", "metre", "metres", "米")),
-    ("length", 1e-2, ("cm", "centimeter", "centimeters", "厘米")),
-    ("length", 1e-3, ("mm", "millimeter", "millimeters", "millimetre",
-                      "millimetres", "毫米")),
-    ("length", 1e-6, ("µm", "μm", "um", "micrometer", "micrometers", "微米")),
-    ("length", 1e-9, ("nm", "nanometer", "nanometers", "纳米")),
-    ("length", 1e3, ("km", "kilometer", "kilometers", "千米", "公里")),
-    ("mass", 1.0, ("g", "gram", "grams", "克")),
-    ("mass", 1e-3, ("mg", "milligram", "milligrams", "毫克")),
-    ("mass", 1e-6, ("µg", "μg", "ug", "microgram", "micrograms", "微克")),
-    ("mass", 1e-9, ("ng", "nanogram", "nanograms", "纳克")),
-    ("mass", 1e3, ("kg", "kilogram", "kilograms", "千克", "公斤")),
-    ("percent", 1.0, ("%", "percent", "percents", "百分比", "百分数")),
-    ("permille", 1.0, ("‰",)),
-    ("temperature", 1.0, ("°c", "°C", "℃", "celsius", "摄氏度")),
-    ("time", 1.0, ("s", "sec", "second", "seconds", "秒")),
-    ("time", 60.0, ("min", "minute", "minutes", "分钟")),
-    ("time", 3600.0, ("h", "hr", "hour", "hours", "小时")),
-    ("count_sample", 1.0, ("sample", "samples", "样本", "份")),
-    ("count_individual", 1.0, ("individual", "individuals", "只", "头", "尾")),
-    ("count_species", 1.0, ("species", "种")),
-    ("count_site", 1.0, ("site", "sites", "plot", "plots", "样地", "样方")),
-    ("count_read", 1.0, ("read", "reads")),
-    ("count_base", 1.0, ("bp", "kb", "mb")),
+    ("volume", "1", ("l", "L", "liter", "liters", "litre", "litres", "升")),
+    ("volume", "0.001", ("ml", "mL", "milliliter", "milliliters", "millilitre",
+                         "millilitres", "毫升")),
+    ("volume", "0.000001", ("µl", "µL", "μl", "μL", "uL", "ul", "microliter",
+                            "microliters", "microlitre", "microlitres", "微升")),
+    ("volume", "0.000000001", ("nl", "nL", "nanoliter", "nanoliters", "纳升")),
+    ("volume", "0.000000000001", ("pl", "pL", "picoliter", "picoliters", "皮升")),
+    ("length", "1", ("m", "meter", "meters", "metre", "metres", "米")),
+    ("length", "0.01", ("cm", "centimeter", "centimeters", "厘米")),
+    ("length", "0.001", ("mm", "millimeter", "millimeters", "millimetre",
+                         "millimetres", "毫米")),
+    ("length", "0.000001", ("µm", "μm", "um", "micrometer", "micrometers", "微米")),
+    ("length", "0.000000001", ("nm", "nanometer", "nanometers", "纳米")),
+    ("length", "1000", ("km", "kilometer", "kilometers", "千米", "公里")),
+    ("mass", "1", ("g", "gram", "grams", "克")),
+    ("mass", "0.001", ("mg", "milligram", "milligrams", "毫克")),
+    ("mass", "0.000001", ("µg", "μg", "ug", "microgram", "micrograms", "微克")),
+    ("mass", "0.000000001", ("ng", "nanogram", "nanograms", "纳克")),
+    ("mass", "1000", ("kg", "kilogram", "kilograms", "千克", "公斤")),
+    ("percent", "0.01", ("%", "percent", "percents", "百分比", "百分数")),
+    ("permille", "0.001", ("‰",)),
+    ("temperature", "1", ("°c", "°C", "℃", "celsius", "摄氏度")),
+    ("time", "1", ("s", "sec", "second", "seconds", "秒")),
+    ("time", "60", ("min", "minute", "minutes", "分钟")),
+    ("time", "3600", ("h", "hr", "hour", "hours", "小时")),
+    ("count_sample", "1", ("sample", "samples", "样本", "份")),
+    ("count_individual", "1", ("individual", "individuals", "只", "头", "尾")),
+    ("count_species", "1", ("species", "种")),
+    ("count_site", "1", ("site", "sites", "plot", "plots", "样地", "样方")),
+    ("count_read", "1", ("read", "reads")),
+    ("count_base", "1", ("bp",)),
+    ("count_base", "1000", ("kb",)),
+    ("count_base", "1000000", ("mb",)),
 )
 
 #: 单位写法 → (量纲, 因子)。**区分大小写**：mL 是毫升而 ML 不是，mm 是毫米而 Mm 不是。
@@ -219,8 +227,32 @@ _NUMBER_RE = re.compile(r"(?<![\d.,])(?P<num>\d+(?:[.,]\d+)?)(?:[eE](?P<exp>[+-]
 #: 允许把百分比与裸比例互认的字段类型声明。
 RATIO_FIELD_TYPES = ("proportion", "ratio", "percentage", "percent")
 
-#: 数值相等容差（同量纲换算后比较，避免浮点误差）。
-_NUMERIC_TOLERANCE = 1e-9
+#: 明确声明为无量纲 / 计数时，才允许把带未知单位或无量纲的抽取值按数值比较。
+DIMENSIONLESS_FIELD_TYPES = ("dimensionless", "count", "frequency", "fold")
+
+#: 未知单位里"像单位符号"的形态（用于把 `5 Gy` 判为带单位，而不是无量纲 5）。
+#: SI 符号多为「大写开头 + 至多一个小写」（Gy/Sv/Pa/Hz/Da）或全大写（kPa→首字母大写
+#: 但含两个小写，故另加长度 ≤3 的全小写前导判断）；普通英文词（The/Table/This）
+#: 因小写字母过多被排除，不会被误当单位。
+_UNIT_SYMBOL_RE = re.compile(r"^(?:[A-Za-zµμ°‰%]{1,5}|[\u4e00-\u9fff]{1,3})$")
+
+
+def _looks_like_unit_symbol(token: str) -> bool:
+    """判断一个未知 token 是否"像单位符号"（宁缺毋滥，避免把普通单词当单位）。"""
+    if not _UNIT_SYMBOL_RE.match(token):
+        return False
+    if any(ord(c) > 127 for c in token):
+        return True                       # µ/° / 汉字单位
+    if token.isupper() and len(token) <= 4:
+        return True                       # Sv, Gy, kPa(3), MeV
+    if re.fullmatch(r"[A-Z][a-z]?", token):
+        return True                       # Pa, Gy, Sv, Da, eV 之外的 T/N
+    if re.fullmatch(r"[a-z][A-Z]", token):
+        return True                       # eV, mW, dB, pH 的反向写法
+    return False
+
+#: 复合单位连接符：出现即视为复合单位（本层不做复合量纲换算，如实阻断）。
+_COMPOUND_UNIT_CHARS = "/·*^*×⋅"
 
 
 def _sign_before(text: str, pos: int) -> int:
@@ -267,27 +299,68 @@ def _match_unit(text: str, pos: int):
     return canonical, dimension, factor, end
 
 
-def _to_float(num: str) -> float:
-    return float(num.replace(",", ".").replace(" ", "").replace("\u00a0", ""))
+def _unknown_unit_after(text: str, pos: int):
+    """检测数字后紧邻的**未知单位**；返回 (raw_token, end) 或 None。
+
+    T03：`5 Gy` 与 `5 Sv` 在旧实现里都被解析成无量纲的 5 而互相命中。未知单位必须
+    保留原始 token 并阻断，不能静默丢成"没有单位"。
+
+    判定"像单位"的条件之一即可（避免把 `20 samples were…` 里的普通单词当单位）：
+      - 与数字**紧贴**（无空白），或
+      - 以空白分隔但形态像单位符号（短、全大写或含 µ/°/‰ 等符号、或 1–3 个汉字）。
+    """
+    adjacent = pos < len(text) and text[pos] not in " \t\u00a0"
+    i = pos
+    while i < len(text) and text[i] in " \t\u00a0":
+        i += 1
+    if i >= len(text):
+        return None
+    m = re.match(r"[A-Za-zµμ°‰%\u4e00-\u9fff]+", text[i:])
+    if not m:
+        return None
+    token = m.group(0)
+    end = i + len(token)
+    if _COMPOUND_UNIT_CHARS and end < len(text) and text[end] in _COMPOUND_UNIT_CHARS:
+        return (token + text[end], end + 1)          # 复合单位：如实当未知单位
+    if adjacent:
+        return (token, end)
+    if _looks_like_unit_symbol(token):
+        return (token, end)
+    return None
+
+
+def _decimal(num: str) -> "Decimal":
+    return Decimal(num.replace(",", ".").replace(" ", "").replace("\u00a0", ""))
 
 
 def extract_quantities(value: Any) -> List[Dict[str, Any]]:
-    """把 extracted_value 解析为完整数量列表（数值 + 符号 + 指数 + 单位）。"""
+    """把 extracted_value 解析为完整数量列表（数值 + 符号 + 指数 + 单位）。
+
+    `dimension` 取值：
+      - `None`：显式无单位（例如 `20`、`0.054`）；
+      - 量纲名：已知单位（`volume` / `length` / `percent` / `count_base` …）；
+      - `"unknown"`：带未知或复合单位（如 `5 Sv`、`2 m/s`）——保留 `unit` 原文，
+        比较时必须单位完全一致，并由门禁标为待核验。
+    """
     if value is None:
         return []
     text = str(value)
     out: List[Dict[str, Any]] = []
     for m in _NUMBER_RE.finditer(text):
         try:
-            number = _to_float(m.group("num"))
-        except ValueError:
+            number = _decimal(m.group("num"))
+        except (InvalidOperation, ValueError):
             continue
         if m.group("exp"):
-            number *= 10 ** int(m.group("exp"))
+            number *= Decimal(10) ** int(m.group("exp"))
         sign = _sign_before(text, m.start("num"))
         unit_info = _match_unit(text, m.end())
         if unit_info is None:
-            canonical, dimension, factor, end = None, None, 1.0, m.end()
+            unknown = _unknown_unit_after(text, m.end())
+            if unknown is not None:
+                canonical, dimension, factor, end = unknown[0], "unknown", None, unknown[1]
+            else:
+                canonical, dimension, factor, end = None, None, None, m.end()
         else:
             canonical, dimension, factor, end = unit_info
         out.append({
@@ -304,20 +377,34 @@ def extract_value_tokens(value: Any) -> List[str]:
     """数量 token 的规范化字符串形式（保留此接口以兼容既有调用与报告）。"""
     tokens: List[str] = []
     for q in extract_quantities(value):
-        num = ("%g" % q["value"])
+        num = _format_decimal(q["value"])
         token = num + (q["unit"] or "")
         if token not in tokens:
             tokens.append(token)
     return tokens
 
 
+def _format_decimal(value: "Decimal") -> str:
+    """人类可读的十进制写法（去掉无意义的尾随零）。"""
+    normalized = value.normalize()
+    text = format(normalized, "f")
+    return text
+
+
 def _has_digit(value: Any) -> bool:
     return bool(re.search(r"\d", str(value if value is not None else "")))
 
 
+def _declared_field_type(rec: Dict[str, Any]) -> str:
+    return str(rec.get("value_type") or rec.get("quantity_type") or "").strip().lower()
+
+
 def _is_ratio_field(rec: Dict[str, Any]) -> bool:
-    declared = str(rec.get("value_type") or rec.get("quantity_type") or "").strip().lower()
-    return declared in RATIO_FIELD_TYPES
+    return _declared_field_type(rec) in RATIO_FIELD_TYPES
+
+
+def _allows_dimensionless(rec: Dict[str, Any]) -> bool:
+    return _declared_field_type(rec) in DIMENSIONLESS_FIELD_TYPES
 
 
 #: 计数类量纲：抽取值未带单位时，仍可与源文中的计数单位比较（"20" ↔ "20 samples"）。
@@ -329,12 +416,18 @@ def _dimension_compatible(ext_q: Dict[str, Any], src_q: Dict[str, Any], rec: Dic
     """量纲是否可比。
 
     - 同量纲 → 可比（再按换算因子比数值）；
+    - 未知/复合单位 → 只有**单位原文完全一致**时才可比，且仍由门禁标待核验；
     - 百分比 ↔ 裸比例 → 仅当字段显式声明为比例/百分比时可比；
     - 抽取值无单位、源文是计数单位 → 可比（"20" 对 "20 samples"）；
     - 其余跨量纲组合一律不可比（百分比不能匹配长度，抽取值带单位而源文没有
       也不能算命中）。
     """
     ed, sd = ext_q["dimension"], src_q["dimension"]
+    if ed == "unknown" or sd == "unknown":
+        if ed == "unknown" and sd == "unknown":
+            return ext_q["unit"] == src_q["unit"]
+        # 一侧未知单位、另一侧无量纲：只有字段显式声明为无量纲/计数时才按数值比较
+        return _allows_dimensionless(rec)
     if ed == sd:
         return True
     if ed in ("percent", "permille") and sd is None and _is_ratio_field(rec):
@@ -343,26 +436,42 @@ def _dimension_compatible(ext_q: Dict[str, Any], src_q: Dict[str, Any], rec: Dic
         return True
     if ed is None and sd in _COUNT_DIMENSIONS:
         return True
+    if ed is None and sd is not None and _allows_dimensionless(rec):
+        return True
     return False
 
 
 def _quantities_match(ext_q: Dict[str, Any], src_q: Dict[str, Any], rec: Dict[str, Any]) -> bool:
-    """数值 + 量纲比较：同量纲按换算因子比，跨量纲一律不匹配。"""
+    """数值 + 量纲比较：同量纲按精确十进制换算因子比，跨量纲一律不匹配。
+
+    T01：比较用 `Decimal` 定点值直接相等判定，不设"宽松绝对容差"——容差会把
+    `1 nL` 与 `2 nL`（换算后差 1e-9 L）判成相等。解析与换算本身是十进制定点、
+    不含浮点误差，因此无需容差来掩盖。
+    """
     if not _dimension_compatible(ext_q, src_q, rec):
         return False
-    if ext_q["dimension"] != src_q["dimension"]:
-        if ("percent" in (ext_q["dimension"], src_q["dimension"])
-                or "permille" in (ext_q["dimension"], src_q["dimension"])):
-            # 比例字段：percent/‰ ↔ 裸比例按 100 / 1000 换算
-            a = ext_q["value"] / 100.0 if ext_q["dimension"] in ("percent", "permille") else ext_q["value"]
-            b = src_q["value"] / 100.0 if src_q["dimension"] in ("percent", "permille") else src_q["value"]
+    ed, sd = ext_q["dimension"], src_q["dimension"]
+    if ed == "unknown" or sd == "unknown":
+        # 量纲可比性已由 _dimension_compatible 判定（同未知单位，或声明无量纲）
+        return ext_q["value"] == src_q["value"]
+    if ed != sd:
+        if "percent" in (ed, sd) or "permille" in (ed, sd):
+            # 比例字段：percent/‰ 按各自倍率折算成裸比例
+            a = _to_base(ext_q) if ext_q["factor"] is not None else ext_q["value"]
+            b = _to_base(src_q) if src_q["factor"] is not None else src_q["value"]
         else:
-            # 抽取值无单位、源文是计数单位：按原值比较，不做换算
+            # 抽取值无单位、源文是计数单位 / 声明无量纲：按原值比较
             a, b = ext_q["value"], src_q["value"]
     else:
-        a = ext_q["value"] * ext_q["factor"]
-        b = src_q["value"] * src_q["factor"]
-    return abs(a - b) <= _NUMERIC_TOLERANCE * max(1.0, abs(a), abs(b))
+        a, b = _to_base(ext_q), _to_base(src_q)
+    return a == b
+
+
+def _to_base(q: Dict[str, Any]) -> "Decimal":
+    """换算到量纲基准单位（精确十进制乘法）。"""
+    if q["factor"] is None:
+        return q["value"]
+    return q["value"] * Decimal(q["factor"])
 
 
 def _scan_quantities(text: str) -> List[Dict[str, Any]]:
@@ -410,6 +519,7 @@ def check_value_alignment(rec: Dict[str, Any], norm_source: str,
       NOT_FOUND_IN_SOURCE – quantity absent from the WHOLE source (fabrication signal)
       NOT_IN_QUOTE_CONTEXT – quantity exists somewhere but not near the quote
       UNIT_MISMATCH     – same number, different/incompatible unit or dimension
+      UNKNOWN_UNIT      – the value carries a unit/dimension this layer does not support
       UNPARSEABLE_VALUE – the value contains digits but no quantity could be parsed
     Returns None when there is nothing to check.
     """
@@ -435,7 +545,24 @@ def check_value_alignment(rec: Dict[str, Any], norm_source: str,
         b = min(len(norm_source), quote_span[1] + ALIGNMENT_WINDOW)
         window_fold = numeric_view(norm_source[a:b])
 
-    tokens = [("%g" % q["value"]) + (q["unit"] or "") for q in quantities]
+    tokens = [_format_decimal(q["value"]) + (q["unit"] or "") for q in quantities]
+
+    # T03：带未知/复合单位的数量一律不得当通过——本层不支持该量纲换算，
+    # 除非字段显式声明为无量纲/计数（此时按数值比较）。
+    unsupported = [tok for q, tok in zip(quantities, tokens)
+                   if q["dimension"] == "unknown" and not _allows_dimensionless(rec)]
+    if unsupported:
+        return {"verdict": "UNKNOWN_UNIT", "tokens": tokens,
+                "quantities": [{"value": _format_decimal(q["value"]), "unit": q["unit"],
+                                "dimension": q["dimension"]} for q in quantities],
+                "missing_in_source": [], "not_in_context": [],
+                "unverified": True,
+                "detail": ("Value(s) %s carry a unit this auditor does not support "
+                           "(no dimension/scale registered). It cannot be converted or "
+                           "compared, so it must be reviewed by hand: add the unit to "
+                           "the table, or declare value_type=dimensionless/count if that "
+                           "is the real contract." % unsupported)}
+
     missing_in_source = []
     not_in_context = []
     unit_mismatch = []
@@ -448,9 +575,9 @@ def check_value_alignment(rec: Dict[str, Any], norm_source: str,
         missing_in_source.append(tok)
         # 数值本身存在、但单位或量纲不同 → 单独指出，避免与"整段缺失"混淆
         for other in _scan_quantities(src_fold):
-            if abs(abs(other["value"]) - abs(q["value"])) <= _NUMERIC_TOLERANCE * max(
-                    1.0, abs(q["value"])) and other["dimension"] != q["dimension"]:
-                unit_mismatch.append("%s≠%s" % (tok, ("%g" % other["value"]) + (other["unit"] or "")))
+            if abs(other["value"]) == abs(q["value"])                     and other["dimension"] != q["dimension"]:
+                unit_mismatch.append("%s≠%s" % (
+                    tok, _format_decimal(other["value"]) + (other["unit"] or "")))
                 break
 
     if missing_in_source and unit_mismatch:
@@ -474,7 +601,7 @@ def check_value_alignment(rec: Dict[str, Any], norm_source: str,
         verdict = "ALIGNED"
         detail = "All numeric tokens located in the quote or its local context."
     return {"verdict": verdict, "tokens": tokens,
-            "quantities": [{"value": q["value"], "unit": q["unit"],
+            "quantities": [{"value": _format_decimal(q["value"]), "unit": q["unit"],
                             "dimension": q["dimension"]} for q in quantities],
             "missing_in_source": missing_in_source,
             "not_in_context": not_in_context, "detail": detail}
@@ -498,7 +625,7 @@ def audit_evidence(evidence: Dict[str, Any], source_text: str,
               "not_found": 0, "skipped_no_quote": 0, "too_short": 0,
               "unverified": 0, "value_aligned": 0, "value_not_found_in_source": 0,
               "value_not_in_quote_context": 0, "value_unit_mismatch": 0,
-              "value_unparsable": 0, "value_checked": 0}
+              "value_unknown_unit": 0, "value_unparsable": 0, "value_checked": 0}
 
     for rec in evidence.get("evidence_records", []):
         quote = rec.get("verbatim_quote") or ""
@@ -572,6 +699,11 @@ def audit_evidence(evidence: Dict[str, Any], source_text: str,
                 counts["value_unit_mismatch"] += 1
                 entry["unverified"] = True
                 counts["unverified"] += 1
+            elif va["verdict"] == "UNKNOWN_UNIT":
+                # T03：本层不支持该单位 -> 待核验，不得算通过。
+                counts["value_unknown_unit"] += 1
+                entry["unverified"] = True
+                counts["unverified"] += 1
             elif va["verdict"] == "UNPARSEABLE_VALUE":
                 # R02：含数字却解析不出数量 → 待核验，不得算通过。
                 counts["value_unparsable"] += 1
@@ -583,7 +715,8 @@ def audit_evidence(evidence: Dict[str, Any], source_text: str,
     unverified = counts["unverified"]
     out_of_context = counts["value_not_in_quote_context"]
     value_broken = (counts["value_not_found_in_source"]
-                    + counts["value_unit_mismatch"] + counts["value_unparsable"])
+                    + counts["value_unit_mismatch"] + counts["value_unknown_unit"]
+                    + counts["value_unparsable"])
     if unverified_policy == UNVERIFIED_FAIL:
         gate = unverified > 0 or counts["not_found"] > 0 or out_of_context > 0
     else:
@@ -618,6 +751,8 @@ def gate_failed(report: Dict[str, Any], strict: bool = False) -> bool:
     if s.get("value_not_in_quote_context", 0) > 0:
         return True
     if s.get("value_unit_mismatch", 0) > 0:
+        return True
+    if s.get("value_unknown_unit", 0) > 0:
         return True
     if s.get("value_unparsable", 0) > 0:
         return True

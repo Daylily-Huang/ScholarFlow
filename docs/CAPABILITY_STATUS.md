@@ -41,6 +41,7 @@
 |---|---|
 | `tests/test_research_debate_handoff.py` | 授权指纹绑定、范围失效、引句对齐（L2） |
 | `tests/test_four_skill_review_f01_f06.py` | R01–R06 反例回归：语义核验默认未决、数值量纲、可信事件授权、事件先行基底、修复产物契约（L2） |
+| `tests/test_third_review_t01_t05.py` | T01–T05 反例与正例：十进制相等、单位倍率/千分比、未知单位阻断、封存原子性与中断识别、零事件检查点重放（L2） |
 | `tests/test_research_debate_session_store.py` | 事件日志恢复、快照一致性、外键修复（L2） |
 | `tests/test_quote_audit_gate.py` / `test_quote_audit.py` | 引句回查与数值锚定门禁（L2） |
 | `tests/test_cross_skill_contract.py` / `test_cross_skill_roundtrip_contract.py` | 跨技能 Envelope 契约（L1） |
@@ -86,7 +87,9 @@
 | 能力 | 状态 | 证据 / 说明 |
 |---|---|---|
 | 逐字引句回查（EXACT/HYPHEN/FUZZY/NOT_FOUND） | `CODE_VERIFIED` | `quote_audit.py`；**不校验页码**，页码来自 Agent 自报 |
-| 数值—引句锚定（含单位与量纲） | `CODE_VERIFIED` | 完整数量解析（符号/数值/指数/单位）后按数值+量纲比较；同量纲按换算因子（2.5 mL == 2500 µL），跨量纲不匹配（百分比 ≠ 长度）；`%` ↔ 裸比例仅在字段声明 `value_type` 时互认；含数字却解析不出数量 → 标待核验并阻断 |
+| 数值—引句锚定（含单位与量纲） | `CODE_VERIFIED` | 完整数量解析（符号/数值/指数/单位）后按数值+量纲比较；同量纲按**精确十进制**因子换算（2.5 mL == 2500 µL，1 nL ≠ 2 nL），跨量纲不匹配；`bp/kb/mb` 分列，`%`=1/100、`‰`=1/1000；`%` ↔ 裸比例仅在字段声明 `value_type` 时互认 |
+| 未知/复合单位的诚实阻断 | `CODE_VERIFIED` | 单位不在表内（如 `Gy`、`Sv`、`m/s`）→ `dimension="unknown"`、保留原文，判 `UNKNOWN_UNIT` 并阻断；只有字段声明 `value_type=count/dimensionless` 时才按数值比较。**不支持的单位不会静默当成无量纲数字** |
+| 数值判定边界 | `CODE_VERIFIED` | 含数字却解析不出数量 → `UNPARSEABLE_VALUE`；数字对但单位/量纲不同 → `UNIT_MISMATCH`；距引句过远 → `NOT_IN_QUOTE_CONTEXT`；四类均计入 `unverified` 并触发硬门禁 |
 | 主张—证据对齐硬门禁（A2） | `CODE_VERIFIED` | `claim_alignment.py` 五门禁 + fail-closed |
 | AECE 上下文扩展（单句→相邻句→段落→结构化） | `CODE_VERIFIED` | `context_expansion.py`；`SECTION_CONTEXT` / `CONTEXT_UNIT` 两级未产出 |
 | 长距离拼接拦截 | `CODE_VERIFIED` | 跨页 / 间隔 >1500 字符 / Intro-Results 混拼 |
@@ -144,7 +147,9 @@
 | 语义支持核验 | `CODE_VERIFIED` | **默认 `UNRESOLVED`**：模式规则只用于排除（设问/假说/模拟假设/转引/条件/被反驳），未命中不等于已证实；只有绑定完整的显式语义凭据（`evidence_id` + 命题指纹 + `verifier` + `verification_ref`，且命题版本未过期）才允许 `VERIFIED`。覆盖边界：凭据由核验环节写出，本层不生成语义判断 |
 | **反证独立契约迁移（F09）** | `DEFERRED` | 非 SUPPORT 关系（CHALLENGE / BOUNDARY）当前保守记为 `UNRESOLVED` 阻断放行，独立反证分级契约与通道暂缓实施 |
 | **会话事件日志与恢复** | `CODE_VERIFIED` | `shared/execution/session_store.py`；完整追加边界保护（末尾无换行时安全补行分隔）、坏尾部须显式恢复（F03）、快照比较业务投影（F04）；测试 `tests/test_research_debate_session_store.py` |
-| **事件先行可信重放基底** | `PARTIAL` | 新增 `seal_checkpoint()`：封存全量状态 + 事件前缀摘要 + 事件位置，未封存会话一律报 `SNAPSHOT_BASE_UNVERIFIED`；封存后写入事件未覆盖的字段记入 `inherited_fields`。**未完成**：`save_snapshot()` 仍只是调用约定（无法从代码上阻止写入未记录字段），尚无强制事件先行的写入入口 |
+| **事件先行可信重放基底** | `PARTIAL` | `seal_checkpoint()`：封存全量状态 + 事件前缀摘要 + `event_count` + `last_event_id`，未封存会话一律报 `SNAPSHOT_BASE_UNVERIFIED`；重放边界以 `event_count` 为准（零事件检查点不会跳过后续事件），并校验前缀摘要/边界一致性。**未完成**：`save_snapshot()` 仍只是调用约定（无法从代码上阻止写入未记录字段），尚无强制事件先行的写入入口 |
+| 检查点信任边界与历史导入 | `CODE_VERIFIED` | 检查点自述 `inherited_fields` + `trust_boundary` + `import_mode/reason/source`；已有检查点后引入新的、事件未记录的业务字段必须显式 `import_mode=True` 并给出理由与来源，否则拒绝封存。**不得宣称"全部业务状态由事件证明"** |
+| 两文件一致提交与中断识别 | `CODE_VERIFIED` | 封存前完成 revision 校验（失败时快照与检查点均不变）；快照与检查点经 `commit_journal.json` 一致提交，中断留下提交日志 → `consistency_report()` 报 `INCOMPLETE_COMMIT`，`recover_commit()` 完成或回滚；CLI `seal` 支持 `--import-mode/--import-reason/--import-source` |
 | **契约校验前置到修复路径** | `CODE_VERIFIED` | `heal_referential_integrity()` 生成的占位立即过 `research_debate_gap.schema.json`；不合规输出转入 `repair_proposals` 而非正式 `gap_requests` |
 | **外键修复不得制造授权** | `CODE_VERIFIED` | `heal_referential_integrity()` 只生成 `PENDING` 占位，不伪造 `CONFIRMED`（F06/R06）；占位以 `healed_placeholder=true` 显式标记，Schema 据此放开空关联并强制 `execution_status=NOT_STARTED`；测试 `tests/test_research_debate_session_store.py` |
 | 缺口确认 → 上游返回 → 支持/反证分别回流 → 保存 → 恢复 | `HOST_EXECUTED` | 端到端真实宿主流程**尚未执行** |

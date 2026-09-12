@@ -31,6 +31,7 @@ _ABSENT = object()
 
 EVENTS_FILENAME = "events.jsonl"
 CHECKPOINT_FILENAME = "checkpoint.json"
+COMMIT_JOURNAL_FILENAME = "commit_journal.json"
 SESSION_FILENAME = "session.json"
 LEDGER_FILENAME = "usage_ledger.jsonl"
 
@@ -72,6 +73,8 @@ class SessionStore:
         self.session_dir = session_dir
         self.events_path = os.path.join(session_dir, EVENTS_FILENAME)
         self.checkpoint_path = os.path.join(self.session_dir, CHECKPOINT_FILENAME)
+        self.commit_journal_path = os.path.join(self.session_dir,
+                                                COMMIT_JOURNAL_FILENAME)
         self.session_path = os.path.join(session_dir, SESSION_FILENAME)
         self.ledger_path = os.path.join(session_dir, LEDGER_FILENAME)
 
@@ -318,16 +321,47 @@ class SessionStore:
                               for e in events)
         return "sha256:" + hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
-    def seal_checkpoint(self, session: Dict[str, Any], expected_revision: int) -> Dict[str, Any]:
+    def _current_revision(self) -> int:
+        if not os.path.isfile(self.session_path):
+            return 0
+        with open(self.session_path, "r", encoding="utf-8") as fh:
+            return json.load(fh).get("revision", 0)
+
+    def pending_commit(self) -> Optional[Dict[str, Any]]:
+        """读取未完成的提交日志（两文件一致提交协议的中断证据）。"""
+        if not os.path.isfile(self.commit_journal_path):
+            return None
+        try:
+            with open(self.commit_journal_path, "r", encoding="utf-8") as fh:
+                return json.load(fh)
+        except (OSError, json.JSONDecodeError):
+            return {"commit_id": None, "unreadable": True}
+
+    def seal_checkpoint(self, session: Dict[str, Any], expected_revision: int,
+                        import_mode: bool = False,
+                        import_reason: Optional[str] = None,
+                        import_source: Optional[str] = None) -> Dict[str, Any]:
         """把当前状态封存为**可信重放基底**（Event-First Protocol）。
 
         事件日志是唯一真源；快照只是物化视图。只有封存过的检查点才能作为重放的
-        可信起点——否则"快照里多出来的字段"无法与"事件未记录的修改"区分
-        （第二轮核查 P2-4）。
+        可信起点——否则"快照里多出来的字段"无法与"事件未记录的修改"区分。
 
-        封存条件：传入状态必须与**全部事件重放结果**的业务投影一致，否则拒绝封存
-        （不能把未经事件解释的状态固化成可信基底）。封存同时写入快照。
+        **信任边界（第三轮核查）**：事件从未定义的字段（`inherited_fields`）会随
+        基底一起被信任。首次初始化/历史导入可以这样做，但**已有检查点之后不得
+        无审计地接纳新的业务字段**：那种情况必须显式传 `import_mode=True` 并给出
+        `import_reason` / `import_source`，随后写入检查点供审计。
+
+        **提交协议（T04）**：revision 校验在任何写入之前完成；快照与检查点通过
+        `commit_journal.json` 做两文件一致提交——中断会留下提交日志，
+        `consistency_report()` 报 `INCOMPLETE_COMMIT`，`recover_commit()` 完成或回滚。
         """
+        # ① 先校验 revision，再考虑任何写入（旧实现先写检查点、后由 save_snapshot
+        #    抛 RevisionConflict，导致 revision 冲突时却已覆盖 checkpoint.json）。
+        current_revision = self._current_revision()
+        if current_revision != expected_revision:
+            raise RevisionConflict(
+                "快照 revision 冲突：期望 %r，当前 %r" % (expected_revision, current_revision))
+
         read = self._read_events()
         if read["quarantined_tail"]:
             raise CorruptEventLog(
@@ -335,9 +369,6 @@ class SessionStore:
                 {"path": self.events_path, "reason": "RECOVERY_REQUIRED",
                  "quarantined_tail": read["quarantined_tail"]})
         events = read["events"]
-        # 可信基底必须是"纯粹由事件解释"的状态：从空基底重放，再与传入状态在
-        # 可投影字段上逐项比对。直接在传入状态上重放会原样保留事件未记录的字段，
-        # 那样等于把"未记录修改"固化成可信基底（第二轮核查 P2-4 反例）。
         from_events = self.project({}, events)
         event_fields = [f for f in PROJECTABLE_FIELDS if f in from_events]
         conflicts = [f for f in event_fields
@@ -345,30 +376,117 @@ class SessionStore:
         if conflicts:
             raise ProjectionError(
                 "拒绝封存与事件重放冲突的状态：字段 %s 与事件不一致" % sorted(conflicts))
-        # 事件从未定义的字段由封存时的状态承载（作为可信基底的一部分），
-        # 但必须在检查点里逐项记录，便于审计"基底里有哪些不是事件推出来的"。
         inherited = sorted(f for f in PROJECTABLE_FIELDS
                            if f in session and f not in from_events)
+
+        previous = self.load_checkpoint()
+        if previous is not None:
+            known = set(previous.get("inherited_fields") or [])
+            new_inherited = [f for f in inherited if f not in known]
+            if new_inherited and not import_mode:
+                raise ProjectionError(
+                    "已有检查点，但本次封存引入了事件未记录的新业务字段 %s："
+                    "如属首次初始化或历史导入，请显式传 import_mode=True 并给出 "
+                    "import_reason / import_source（会记入检查点审计字段）"
+                    % sorted(new_inherited))
+            if new_inherited and import_mode and not (import_reason and import_source):
+                raise ProjectionError(
+                    "import_mode=True 必须同时提供 import_reason 与 import_source，"
+                    "否则无法审计这些字段的来源")
+
         replayed = self.project(session, events)
-        payload = {
+        commit_id = self._commit_id(expected_revision, replayed, events)
+        checkpoint_payload = {
             "schema_version": "0.1",
+            "commit_id": commit_id,
             "last_event_id": replayed.get("last_applied_event_id"),
             "event_count": len(events),
             "event_log_digest": self._event_digest(events),
             "inherited_fields": inherited,
             "state": replayed,
+            "import_mode": bool(import_mode),
+            "import_reason": import_reason,
+            "import_source": import_source,
+            # 信任边界自述：inherited_fields 里的字段是"封存那一刻就存在"的历史状态，
+            # 不是事件推导出来的。检查点不是"全部业务状态都由事件证明"的证明。
+            "trust_boundary": ("state = event-derived fields + inherited_fields "
+                               "(historical state present at seal time)"),
         }
-        self._atomic_write_json(self.checkpoint_path, payload)
-        saved = self.save_snapshot(replayed, expected_revision)
-        return {"checkpoint": self.checkpoint_path, "event_count": len(events),
-                "last_event_id": payload["last_event_id"], "snapshot": saved}
+        snapshot_payload = dict(replayed)
+        snapshot_payload["revision"] = expected_revision + 1
+
+        journal = {"schema_version": "0.1", "commit_id": commit_id,
+                   "expected_revision": expected_revision,
+                   "snapshot": snapshot_payload, "checkpoint": checkpoint_payload}
+        self._atomic_write_json(self.commit_journal_path, journal)
+        self._atomic_write_json(self.session_path, snapshot_payload)
+        self._atomic_write_json(self.checkpoint_path, checkpoint_payload)
+        try:
+            os.remove(self.commit_journal_path)
+        except OSError:
+            pass
+        return {"checkpoint": self.checkpoint_path, "commit_id": commit_id,
+                "event_count": len(events), "last_event_id": checkpoint_payload["last_event_id"],
+                "inherited_fields": inherited, "snapshot_revision": expected_revision + 1}
+
+    @staticmethod
+    def _commit_id(expected_revision: int, state: Dict[str, Any],
+                   events: List[Dict[str, Any]]) -> str:
+        material = json.dumps({"revision": expected_revision + 1, "state": state,
+                               "events": [e.get("event_id") for e in events]},
+                              ensure_ascii=False, sort_keys=True)
+        return "commit-" + hashlib.sha256(material.encode("utf-8")).hexdigest()[:12]
+
+    def recover_commit(self) -> Dict[str, Any]:
+        """完成或回滚未完成的两文件提交；返回恢复简报。"""
+        journal = self.pending_commit()
+        if journal is None:
+            return {"status": "NO_PENDING_COMMIT"}
+        if journal.get("unreadable") or not isinstance(journal.get("snapshot"), dict):
+            os.remove(self.commit_journal_path)
+            return {"status": "JOURNAL_DISCARDED",
+                    "detail": "提交日志不可解析，已删除；两个文件保持原状"}
+        self._atomic_write_json(self.session_path, journal["snapshot"])
+        self._atomic_write_json(self.checkpoint_path, journal["checkpoint"])
+        os.remove(self.commit_journal_path)
+        return {"status": "COMMIT_COMPLETED", "commit_id": journal.get("commit_id"),
+                "revision": journal["snapshot"].get("revision")}
 
     def _replay_from_checkpoint(self, checkpoint: Dict[str, Any], read: Dict[str, Any]) -> Dict[str, Any]:
-        """从检查点重放其后的事件；返回 `(projected, divergences)`。"""
+        """从检查点重放其后的事件；返回 `(projected, divergences)`。
+
+        T05：边界**以已核验的 `event_count` 为准**，不再靠"找 last_event_id 的下标"。
+        零事件检查点的 `last_event_id` 是 None，旧实现把 tail 取成 `events[len(events):]`，
+        于是之后追加的事件被全部跳过（重放停在封存时的状态）。
+        """
         events = read["events"]
         divergences: List[Dict[str, Any]] = []
         count = checkpoint.get("event_count")
-        prefix = events[:count] if isinstance(count, int) and count >= 0 else []
+        if not isinstance(count, int) or count < 0:
+            # 旧格式兼容：没有 event_count 时退回按 last_event_id 定位
+            recorded_id = checkpoint.get("last_event_id")
+            count = 0
+            for idx, ev in enumerate(events):
+                if ev.get("event_id") == recorded_id:
+                    count = idx + 1
+                    break
+            divergences.append({
+                "kind": "CHECKPOINT_EVENT_COUNT_MISSING",
+                "detail": "检查点缺少 event_count，已按 last_event_id 推断边界；建议重新封存",
+                "inferred_count": count,
+            })
+
+        state = checkpoint.get("state") or {}
+        if count > len(events):
+            divergences.append({
+                "kind": "CHECKPOINT_EVENT_COUNT_AHEAD",
+                "detail": "检查点声明的 event_count 超过当前事件日志长度：日志被截断，"
+                          "可信基底不再成立。",
+                "checkpoint_events": count, "log_events": len(events),
+            })
+            return dict(state), divergences
+
+        prefix = events[:count]
         if self._event_digest(prefix) != checkpoint.get("event_log_digest"):
             divergences.append({
                 "kind": "CHECKPOINT_EVENT_PREFIX_CHANGED",
@@ -377,20 +495,15 @@ class SessionStore:
                 "checkpoint_events": count,
             })
         recorded_id = checkpoint.get("last_event_id")
-        position = None
-        for idx, ev in enumerate(events):
-            if ev.get("event_id") == recorded_id:
-                position = idx
-                break
-        if recorded_id is not None and position is None:
+        prefix_last = prefix[-1].get("event_id") if prefix else None
+        if prefix_last != recorded_id:
             divergences.append({
-                "kind": "CHECKPOINT_EVENT_MISSING",
-                "detail": "检查点记录的 last_event_id 已不在事件日志中",
-                "last_event_id": recorded_id,
+                "kind": "CHECKPOINT_EVENT_BOUNDARY_MISMATCH",
+                "detail": "检查点边界不一致：event_count 指向的事件与 last_event_id 不符",
+                "event_count": count, "last_event_id": recorded_id,
+                "prefix_last_event_id": prefix_last,
             })
-            return dict(checkpoint.get("state") or {}), divergences
-        tail = events[(position + 1) if position is not None else len(events):]
-        state = checkpoint.get("state") or {}
+        tail = events[count:]
         return self.project(state, tail), divergences
 
     def consistency_report(self, session: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -399,6 +512,18 @@ class SessionStore:
         read = self._read_events()
         checkpoint = self.load_checkpoint()
         checkpoint_divergences: List[Dict[str, Any]] = []
+        journal_divergences: List[Dict[str, Any]] = []
+        journal = self.pending_commit()
+        if journal is not None:
+            # T04：两文件一致提交被中断（进程在写完日志后、删日志前退出）。
+            # 只读诊断如实报告，并指出可用 recover_commit() 完成提交。
+            journal_divergences.append({
+                "kind": "INCOMPLETE_COMMIT",
+                "detail": ("检测到未完成的提交日志：快照与检查点可能不同步。"
+                           "请运行 recover_commit() 完成或回滚该次提交。"),
+                "commit_id": journal.get("commit_id"),
+                "expected_revision": journal.get("expected_revision"),
+            })
         if checkpoint is None:
             # R04/P2-4：没有封存检查点时，快照只是"当前状态"，无法证明它就是
             # 事件重放的合法起点。如实报告，而不是默认它可信。
@@ -412,7 +537,7 @@ class SessionStore:
             projected, checkpoint_divergences = self._replay_from_checkpoint(checkpoint, read)
         snap_last = session.get("last_applied_event_id")
         replay_last = projected.get("last_applied_event_id")
-        divergence = list(checkpoint_divergences)
+        divergence = list(checkpoint_divergences) + journal_divergences
         if snap_last != replay_last:
             divergence.append({
                 "kind": "LAST_APPLIED_EVENT_MISMATCH",
@@ -450,6 +575,9 @@ class SessionStore:
             "authoritative_source": EVENTS_FILENAME,
             "replay_base": (CHECKPOINT_FILENAME if checkpoint is not None
                             else "snapshot(unverified)"),
+            "pending_commit_id": (journal or {}).get("commit_id") if journal else None,
+            "checkpoint_inherited_fields": list((checkpoint or {}).get("inherited_fields") or []),
+            "checkpoint_import_mode": bool((checkpoint or {}).get("import_mode")),
         }
 
     @staticmethod

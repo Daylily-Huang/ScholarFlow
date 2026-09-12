@@ -76,6 +76,10 @@ def main(argv=None):
     ap.add_argument("--session-json")
     ap.add_argument("--entry-json")
     ap.add_argument("--expected-revision", type=int)
+    ap.add_argument("--import-mode", action="store_true",
+                    help="首次初始化/历史导入：允许检查点承载事件未记录的业务字段")
+    ap.add_argument("--import-reason")
+    ap.add_argument("--import-source")
     args = ap.parse_args(argv)
 
     try:
@@ -123,7 +127,9 @@ def main(argv=None):
                 session = _parse(args.session_json, "--session-json")
             else:
                 session = store.load_snapshot()
-            return _emit({"status": "OK", **store.seal_checkpoint(session, args.expected_revision)})
+            return _emit({"status": "OK", **store.seal_checkpoint(
+                session, args.expected_revision, import_mode=args.import_mode,
+                import_reason=args.import_reason, import_source=args.import_source)})
 
         if args.command == "append-usage":
             if not args.entry_json:
