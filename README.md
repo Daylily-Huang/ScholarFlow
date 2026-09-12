@@ -1,8 +1,8 @@
 # 🎓 ScholarFlow
 
 <p align="center">
-  <b>面向严谨科研的智能体文献全生命周期工作流套件</b><br>
-  <i>An evidence-grounded AI research workflow for literature discovery, evidence extraction, and controversy-aware synthesis.</i>
+  <b>面向严谨科研的智能体全生命周期工作流套件</b><br>
+  <i>An evidence-grounded AI research workflow for hypothesis scrutiny, literature discovery, evidence extraction, and controversy-aware synthesis.</i>
 </p>
 
 <p align="center">
@@ -17,15 +17,16 @@
 
 ## 📖 简介 (Introduction)
 
-**ScholarFlow** 是为 AI 编程助手与自主智能体（Claude Code、Google Antigravity、Codex、Cursor 等）量身定制的**全生命周期科研文献调研智能体技能套件（Agent Skills Suite）**。
+**ScholarFlow** 是为 AI 编程助手与自主智能体（Claude Code、Google Antigravity、Codex、Cursor 等）量身定制的**全生命周期科研构想推敲与文献调研智能体技能套件（Agent Skills Suite）**。
 
 与常见的“喂一篇 PDF 做泛读总结”的浅层工具不同，ScholarFlow 吸收了 **FutureHouse `PaperQA2`**、**Stanford `STORM`**、**`GPT-Researcher`** 等前沿理念，严格恪守高水平科研出版与学位论文的严谨性标准：
 
-1. **防幻觉设计（Grounding-by-Design）**：核心数据必须锚定带页码的原文逐字引用与上下文协同校验。
-2. **拒绝流水账（Controversy-Driven）**：综述绝非“张三做了 A、李四做了 B”，而是以科学冲突、方法论根因与适用边界为主线。
-3. **拒绝文献民主投票（Weighted Evidence）**：严禁简单比拼文献篇数多数决，单篇高精度独立复现研究可一票降权粗放旧成果。
-4. **全生命周期闭环（Upstream Gap Loop）**：综合分析发现文献断裂或数据模糊时，自动生成结构化任务载荷驱动上游补充检索与精准核验。
-5. **轻量与零强制第三方依赖（Zero Mandatory Third-Party Runtime Dependencies）**：所有核心业务逻辑与 CLI 脚本均基于 Python 3 标准库构建，可选依赖（如 `pypdf`）通过 `pip install "scholarflow[pdf]"` 按需启用。
+1. **构想推敲搭档（Thinking Partner by Socratic Scrutiny）**：从一句模糊直觉或既有论断出发，通过五类苏格拉底视角与学者逐轮交互，严格恪守单轮单焦点提问与防过早否定机制，推敲承重前提与改判条件，推导最小可验证方案。
+2. **防幻觉设计（Grounding-by-Design）**：核心数据必须锚定带页码的原文逐字引用与上下文协同校验。
+3. **拒绝流水账（Controversy-Driven）**：综述绝非“张三做了 A、李四做了 B”，而是以科学冲突、方法论根因与适用边界为主线。
+4. **拒绝文献民主投票（Weighted Evidence）**：严禁简单比拼文献篇数多数决，单篇高精度独立复现研究可一票降权粗放旧成果。
+5. **全生命周期闭环（Upstream Gap Loop & Handoff）**：构想推敲中遇到经验事实缺口、或综合分析发现文献断裂时，自动生成结构化任务载荷驱动上游补充检索与精准核验。
+6. **轻量与零强制第三方依赖（Zero Mandatory Third-Party Runtime Dependencies）**：所有核心业务逻辑与 CLI 脚本均基于 Python 3 标准库构建，可选依赖（如 `pypdf`）通过 `pip install "scholarflow[pdf]"` 按需启用。
 
 ### 🌟 核心设计信条 (Core Epistemic Principles)
 - **Principle 1: Domain-neutral core, domain-aware execution (核心学科中立，视角按需注入)**：核心协议与证据纪律保持全学科中立，领域特有概念与风险点通过按需加载的 Domain Lens 动态注入。
@@ -37,25 +38,37 @@
 
 ## 🏗️ 架构总览 (System Architecture)
 
-ScholarFlow 由三个高度模块化、既可独立运行又可无缝协同的 Agent 技能构成：
+ScholarFlow 由四个高度模块化、既可独立运行又可无缝协同的 Agent 技能构成：
 
 ```mermaid
 graph TD
-    User([科研学者 / 课题组 / 论文作者]) -->|输入科学问题或种子DOI| Skill1["<b>1. literature-discovery-acquisition</b><br/>文献系统发现、初筛与全文获取"]
-    
-    Skill1 -->|OpenAlex 跨库检索<br/>双向引用滚雪球 Snowballing<br/>PRISMA-S 流程审计 / OA PDF 获取| Skill2["<b>2. literature-evidence-extraction</b><br/>证据可信抽取、事实核验与声明审计"]
-    
-    Skill2 -->|Quote-First 铁律<br/>0-10相关性前置剪枝<br/>E1-E4 证据分层 / 审稿人四象限| Skill3["<b>3. literature-synthesis</b><br/>学术争议发掘、学派谱系与边界共识"]
-    
-    Skill3 -->|自动生成| Vis["🌐 Mermaid 论证拓扑图<br/>Argument Graph Visualizer"]
-    Skill3 -->|驱动产出| Review["📝 争议驱动型叙述性文献综述<br/>Controversy-Driven Narrative Review"]
-    
+    User([科研学者 / 课题组 / 论文作者]) -->|输入模糊直觉 / 既有论断 / 初始假说| Skill0["<b>0. research-idea-debate</b><br/>研究构想与假说推敲 (Thinking Partner)"]
+    User -->|输入明确科学问题 / 种子 DOI| Skill1["<b>1. literature-discovery-acquisition</b><br/>文献系统发现、初筛与全文获取"]
+
+    subgraph Ideation ["💡 构想推敲与验证设计 (Idea Maturation)"]
+        Skill0 -->|单轮单问 / 苏格拉底五视角<br/>RAW → DEVELOPING → TESTABLE| Plan["📋 最小判别验证方案 / 阶段小结<br/>Minimal Validation Plan & Checkpoints"]
+    end
+
+    subgraph Literature ["📚 文献证据发现与综合闭环 (Literature Loop)"]
+        Skill1 -->|OpenAlex 跨库检索<br/>双向引用滚雪球 Snowballing<br/>PRISMA-S 流程审计 / OA PDF 获取| Skill2["<b>2. literature-evidence-extraction</b><br/>证据可信抽取、事实核验与声明审计"]
+        Skill2 -->|Quote-First 铁律<br/>0-10相关性前置剪枝<br/>E1-E4 证据分层 / 审稿人四象限| Skill3["<b>3. literature-synthesis</b><br/>学术争议发掘、学派谱系与边界共识"]
+        Skill3 -->|自动生成| Vis["🌐 Mermaid 论证拓扑图<br/>Argument Graph Visualizer"]
+        Skill3 -->|驱动产出| Review["📝 争议驱动型叙述性文献综述<br/>Controversy-Driven Narrative Review"]
+    end
+
+    Skill0 -.->|查证缺口: 用户确认范围 (SEARCH GAP)| Skill1
+    Skill0 -.->|定向审计: 承重前提核验 (EXTRACTION GAP)| Skill2
+    Skill0 -.->|学派对撞: 跨文献争议请求 (SYNTHESIS REQUEST)| Skill3
+
     Skill3 -.->|闭环反馈: 检索空白| GapSearch["SEARCH GAP Payload"] -.->|补充扩展检索| Skill1
     Skill3 -.->|闭环反馈: 数据冲突| GapExtract["EXTRACTION GAP Payload"] -.->|定向深度审计| Skill2
+    Skill3 -.->|争议地图 / 适用边界回流| Skill0
 
+    style Skill0 fill:#f0f5ff,stroke:#2f54eb,stroke-width:2px;
     style Skill1 fill:#e6f4ff,stroke:#1890ff,stroke-width:2px;
     style Skill2 fill:#f6ffed,stroke:#52c41a,stroke-width:2px;
     style Skill3 fill:#fff7e6,stroke:#fa8c16,stroke-width:2px;
+    style Plan fill:#f6ffed,stroke:#73d13d,stroke-width:2px;
     style Vis fill:#f9f0ff,stroke:#722ed1,stroke-width:2px;
     style Review fill:#fff0f6,stroke:#eb2f96,stroke-width:2px;
 ```
@@ -70,10 +83,10 @@ graph TD
    - **五层来源递进解析**：按优先级依次提取当前提示词 (`current_user`)、对话历史 (`conversation`)、任务附件 (`current_attachments`)、上游技能产物 (`upstream_outputs`)，仅在必要时针对未决变量按需查询项目资料 (`project_search`)；
    - **正交过滤与已知要素确认**：启用跨学科正交防泄漏过滤，已知约束自动确认为 `RESOLVED`（标记 `[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]`），呈现《现有科研上下文确认简报》，严禁对已知要素重复发问；
    - **同级冲突检测**：检测到无时间戳的同级资料矛盾时，标记 `UNRESOLVED_CONFLICT` 提交学者仲裁。
-2. **Stage 0B：自适应科研决策追问 (Adaptive Research Grill-Me)**：
-   - **只问未决高影响变量**：仅针对上下文未覆盖的 `CRITICAL` 与 `HIGH_IMPACT` 维度动态筛选 **3~4 个** 核心追问；
-   - **每题必带推荐**：提供带有明确依据的 `(Recommended)` 选项与置信度标签；次要 `DEFAULTABLE` 维度自动应用学科透镜默认值；
-   - **严格交互硬门禁 (STOP Rule)**：Agent 输出提问清单后，**必须立即终止当前回复，进入静默等待状态**，严禁自问自答或在同一轮次中偷跑下游工具。
+2. **Stage 0B：自适应科研决策追问 (Adaptive Research Grill-Me / Single-Question Gate)**：
+   - **文献调研三技能（Multi-Question Gate）**：仅针对上下文未覆盖的 `CRITICAL` 与 `HIGH_IMPACT` 维度动态筛选 **3~4 个** 核心追问，每题必带推荐选项与置信度；次要 `DEFAULTABLE` 维度自动应用学科透镜默认值；
+   - **构想推敲技能（Single-Question Gate）**：严格遵循单轮单问交互原则，仅提出**一个**配置问题（资源深度档位），附推荐值与依据，支持一句话覆盖或回复“按推荐”；
+   - **严格交互硬门禁 (STOP Rule)**：Agent 输出提问清单或配置问题后，**必须立即终止当前回复，进入静默等待状态**，严禁自问自答或在同一轮次中偷跑下游工具。
 3. **Stage 0C：协议快照生成与执行放行 (Protocol Snapshot & Execution Gate)**：
    - **低摩擦快捷回复**：支持一键全盘采纳（`按推荐` / `全部按推荐`）、紧凑选项（`1A 2B 3C`）与自然语言局部覆盖；
    - **全量来源可信追溯**：确认通过后输出带来源追溯（`[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）的【Stage 0 Protocol Snapshot】，解锁下游实质执行。
@@ -103,7 +116,34 @@ graph TD
 
 ---
 
-## 🧩 三大核心技能详解 (Skills Breakdown)
+## 🧩 四大核心技能详解 (Skills Breakdown)
+
+### 0. `research-idea-debate` (研究构想与假说推敲)
+> **定位**：面向模糊直觉或已有论断的苏格拉底式人机交互思考搭档（Thinking Partner），严守“用户每轮参与、单焦点提问、防过早否定、分歧交回用户裁决”底线。
+
+- **双模式自适应启动 (Explore vs. Examine) `[PROTOCOL]`**：
+  - **探索模式 (`explore`)**：从一句模糊直觉、零星观察或未解困惑出发，逐步收敛为清晰的候选研究问题与初步解释；
+  - **推敲模式 (`examine`)**：针对已有具体假说、论断或技术提案，系统排查承重前提、竞争解释与改判条件。允许没有任何文献时启动。
+- **五大苏格拉底视角 + 两个职能角色 `[PROTOCOL]`**：
+  - 🔍 **概念澄清者 (`concept_clarifier`)**：聚焦词义、对象范围与对照基准（`CLARIFICATION`）；
+  - ⚖️ **前提与证据审查者 (`premise_evidence_examiner`)**：审查承重前提、推理跳跃与最强反例（`PREMISE_EVIDENCE`）；
+  - 🎯 **推论与验证者 (`implication_validator`)**：推导可观察预测、区分条件与最小判别设计草案（`IMPLICATION`）；
+  - 🔄 **替代解释探索者 (`alternative_explorer`)**：提出竞争假设并寻找可区分观测（`COMPARISON`）；
+  - 💡 **观点修订引导者 (`reflection_facilitator`)**：梳理立场更迭，沉淀保留/修改/未决清单（`REFLECTION`）；
+  - 🎛️ **协调与质检职能**：主持人 (`moderator`) 执行 P0–P6 动态优先级调度；质量审查员 (`quality_gatekeeper`) 恪守 12 项合规硬门禁。
+- **单轮对话严格契约 (Single-Focus Protocol) `[PROTOCOL + SPEC-CHECK]`**：
+  - 每一轮严格恪守骨架：“回应 (≤2句) + 视角标签 + 实质贡献 (标明来源) + 单一焦点问题 + 静默等待”，严禁自问自答或偷塞并列子问题。
+- **想法成熟度守卫 (Maturation Guard: RAW → DEVELOPING → TESTABLE) `[DETERMINISTIC]`**：
+  - 严格防过早否定：`RAW` 直觉阶段必须先累积至少 2 个发展信号，方可进入 P3 验证设计；反对意见必须定性为 `FATAL`（附致命反例证据）、`ADJUSTABLE`（**必须给具体改法**）或 `UNRESOLVED`，严禁因未成形而粗暴否定构想。
+- **混合 Agent 独立评估与确定性分歧判定 `[HYBRID + DETERMINISTIC]`**：
+  - 在重大方向分歧或收敛前，主 Agent 派发子 Agent 背对背独立评估（严格输入白名单）；
+  - 评估结论由 Python 确定性程序计算分歧（`LOW_DIVERGENCE` / `HIGH_DIVERGENCE`）；高分歧时如实陈示双方最强理由并交回学者决断，严禁 AI 多数决投票。
+- **查证缺口受控交接 (Evidence Handoff Gate) `[PROTOCOL + DETERMINISTIC]`**：
+  - 讨论遇到必须由外部经验事实决定的缺口时，主持人明确说明缺口与影响，**等待用户确认（`approval.status = CONFIRMED`）后**方可调用上游检索、抽取或综合技能；回流证据执行命题级硬对齐校验（`alignment = VERIFIED`），严禁共现误升格。
+- **单写者事件溯源与自愈恢复 CLI `[CODE_VERIFIED]`**：
+  - 会话状态基于 `events.jsonl` 追加真源与原子快照 `session.json` 构建，配套 CLI 工具箱（`session_store_cli.py` 与 `validate_session.py`）提供完整的事件回放恢复、引用完整性自愈与 50 项机械规则（RV01–RV50）合规核验。
+
+---
 
 ### 1. `literature-discovery-acquisition` (文献系统发现与全文获取)
 > **定位**：高召回、可审计的文献检索、商业库人机协同摄取、PRISMA 双盲初筛与开源全文获取管道。
@@ -165,8 +205,9 @@ graph TD
 
 | 特性维度 | 传统 Agent / 通用 Prompt | GPT-Researcher | ChatPaper | Stanford STORM | **ScholarFlow (本项目)** |
 |:---|:---:|:---:|:---:|:---:|:---:|
-| **核心定位** | 泛化问答 / 代码辅写 | 互联网自动化研报生成 | 单篇 PDF 快速泛读总结 | 维基百科式长文条目编纂 | **全生命周期可审计科研调研、争议对决与可溯源综述** |
-| **启动交互** | 盲目启动，易发散 | 单一搜索框 | 上传 PDF 直接读 | 多专家虚拟对话 | **Stage 0 Grill-Me 四级交互门禁** |
+| **核心定位** | 泛化问答 / 代码辅写 | 互联网自动化研报生成 | 单篇 PDF 快速泛读总结 | 维基百科式长文条目编纂 | **全生命周期科研构想推敲、文献调研、争议对决与可溯源综述** |
+| **构想推敲** | 倾向附和，缺乏批判 | 无 | 无 | 多视角讨论但无成熟度保护 | **苏格拉底五视角 + 成熟度守卫 (RAW→TESTABLE) + 确定性反例质询** |
+| **启动交互** | 盲目启动，易发散 | 单一搜索框 | 上传 PDF 直接读 | 多专家虚拟对话 | **Stage 0 Grill-Me 四级交互门禁（文献调研多题 / 构想单题）** |
 | **数据源支持** | 依赖通用搜索引擎 | 互联网搜索 API | 仅单篇本地 PDF | 维基式多轮检索 | **自动化开放库 (OpenAlex/PubMed) + 商业库无缝摄取 (CNKI/WoS)** |
 | **引文扩展** | 仅依赖关键词搜索 | 搜索引擎扩展 | 无 | 维基式多轮检索 | **双向引用滚雪球 (OpenAlex Snowballing)** |
 | **相关度剪枝** | 无剪枝，全量读 | 启发式过滤 | 无 | 大纲树剪枝 | **0–10 分 Relevance Gatekeeper (<6分剪枝)** |
@@ -183,7 +224,7 @@ graph TD
 
 ### 1. 一键安装到您的 Agent 系统
 
-克隆本仓库并执行安装脚本，自动将三大技能安装至全局环境（支持 Claude Code、Antigravity 与通用 Agent）：
+克隆本仓库并执行安装脚本，自动将四大技能安装至全局环境（支持 Claude Code、Antigravity 与通用 Agent）：
 
 #### Windows (PowerShell)
 ```powershell
@@ -205,6 +246,9 @@ chmod +x ./scripts/install.sh
 ### 2. 在 Agent 中直接唤醒与使用
 
 只要您的 Agent 支持标准 `SKILL.md` 规范，输入如下指令即可直接激活对应能力，ScholarFlow 会根据课题自适应加载对应的学科透镜（Domain Lens）：
+
+#### 💡 科学假说推敲与构想生成 (Research Idea Debate)
+> *“我有一个模糊直觉：‘在端侧低算力设备上，动态稀疏注意力机制可能因为显存访存不规则反倒比稠密注意力更慢’。请调用 `research-idea-debate` 帮我从概念澄清与承重前提开始推敲，每轮只问我一个焦点问题，推导可区分的最小验证方案。”*
 
 #### 💻 计算机科学 / AI (Computer Science Lens)
 > *“请使用 `literature-discovery-acquisition` 帮我针对‘大语言模型 KV-Cache 动态剪枝与长文本评测基准’开展系统检索，通过 Stage 0 决策门禁锁定包含开源仓库与消融实验的纳入标准。”*
@@ -228,12 +272,15 @@ chmod +x ./scripts/install.sh
 ScholarFlow 严格拒绝“同一个大模型换角色念台词的伪独立审查”，以学术诚信为底线清晰划分质检层级：
 - **Level-1 启发式角色自检 (In-Context Persona Audit)**：在单会话内通过 Quality Gatekeeper / Devil's Advocate 角色扮演打破思维惯性并核验清单。本质属于模型自省（Self-Consistency），不具有统计学外部独立性，签发的 PASS 声明为内部自检放行；
 - **Level-2 确定性程序级硬审计 (Deterministic Programmatic Audit)**：由纯 Python 确定性脚本对事实与数据进行程序级验真，杜绝大模型幻觉与偏见：
+  - `validate_session.py`：构想推敲会话 50 项机械规程规则（RV01–RV50）与引用完整性程序级硬核验；
+  - `session_store.py` / `session_store_cli.py`：构想推敲单写者事件真源重放与一致性自愈；
+  - `debate_handoff.py`：查证缺口授权指纹防重与命题直接对齐判定（A2-D）；
   - `download_oa_papers.py`：PDF 二进制 `%PDF-` 魔数核验，拦截 403 伪装 HTML；
   - `ingest_external_records.py`：知网/万方/WoS 外部导出题录 Schema 硬解析与四级去重；
   - `calculate_screening_agreement.py`：双评阅人 Cohen's $\kappa$ 数学统计检验与分歧自动剥离；
   - `audit_claims.py`：正文局部上下文协同共现校验与 PDF 文本解析质量审计，辅助定位候选证据并拦截伪匹配；
   - `controversy_analyzer.py`：多维评价因子加权数学验算、定性共识梯队划分与 `NOT_REPORTED` 绝对零权重隔离；
-- **Level-3 物理隔离子智能体审计 (Isolated SubAgent Execution)**：在支持多智能体并发调度的平台中，Gatekeeper 与 Screening Reviewers 均通过无共享上下文的独立 SubAgent 会话执行，实现真正的背对背双盲审议。
+- **Level-3 物理隔离子智能体审计 (Isolated SubAgent Execution)**：在支持多智能体并发调度的平台中，Gatekeeper、Review Batch 与 Screening Reviewers 均通过无共享上下文的独立 SubAgent 会话执行，实现真正的背对背双盲审议。
 
 ---
 
@@ -242,22 +289,29 @@ ScholarFlow 严格拒绝“同一个大模型换角色念台词的伪独立审�
 ScholarFlow 配套的 Python 脚本均为纯标准库实现，支持独立作为命令行工具使用：
 
 ```bash
-# 1. 知网 (CNKI) / 万方 / WoS / Scopus 题录一键极速摄取与去重
+# 1. 构想推敲会话事件追加、快照生成与断点重放恢复
+python skills/research-idea-debate/scripts/session_store_cli.py append runs/run_01/research-debate/sess_01 --event-json '{"event_type": "SESSION_INITIALIZED", ...}'
+python skills/research-idea-debate/scripts/session_store_cli.py recover runs/run_01/research-debate/sess_01
+
+# 2. 构想推敲会话 50 项机械规程合规性校验与自愈修复
+python skills/research-idea-debate/scripts/validate_session.py runs/run_01/research-debate/sess_01 --heal-referential-integrity
+
+# 3. 知网 (CNKI) / 万方 / WoS / Scopus 题录一键极速摄取与去重
 python skills/literature-discovery-acquisition/scripts/ingest_external_records.py -i cnki_theses.txt -o candidates.json --source CNKI
 
-# 2. PRISMA 2020 Item 8 双评阅人背对背初筛一致性检验 (计算 Cohen's Kappa 并输出仲裁表)
+# 4. PRISMA 2020 Item 8 双评阅人背对背初筛一致性检验 (计算 Cohen's Kappa 并输出仲裁表)
 python skills/literature-discovery-acquisition/scripts/calculate_screening_agreement.py -a rev_a.json -b rev_b.json -o report.md --csv audit.csv
 
-# 3. 基于核心论文 DOI 发起双向引用滚雪球追溯
+# 5. 基于核心论文 DOI 发起双向引用滚雪球追溯
 python skills/literature-discovery-acquisition/scripts/agent_search.py --snowball "10.1016/j.biocon.2020.108581" --limit 20 -o snowball.json
 
-# 4. 对论文执行 0-10 分前置相关性剪枝评估与声明核验
+# 6. 对论文执行 0-10 分前置相关性剪枝评估与声明核验
 python skills/literature-evidence-extraction/scripts/audit_claims.py -i paper.pdf -r "fecal DNA microsatellite snow leopard" --claim "PID-sibs was 0.0004"
 
-# 5. 运行争议诊断分析并生成 Mermaid 论证拓扑图
+# 7. 运行争议诊断分析并生成 Mermaid 论证拓扑图
 python skills/literature-synthesis/scripts/controversy_analyzer.py -i claims.json -f markdown -o controversy_report.md
 
-# 6. 运行学派谱系与范式演进聚类分析
+# 8. 运行学派谱系与范式演进聚类分析
 python skills/literature-synthesis/scripts/school_clustering.py -i studies.json -f markdown -o school_report.md
 ```
 
@@ -268,7 +322,7 @@ python skills/literature-synthesis/scripts/school_clustering.py -i studies.json 
 ```text
 ScholarFlow/
 ├── shared/                                     # 跨技能共享引擎（Python 标准库，零强制依赖）
-│   ├── execution/                             # 统一执行深度：档位预设、运行配置、预算总账、RunContext
+│   ├── execution/                             # 统一执行深度：档位预设、运行配置、预算总账、查证交接、RunContext
 │   ├── grill_me/                              # Stage 0 自适应追问引擎与维度定义
 │   ├── context_resolution/                    # 上下文解析层（五层来源递进）
 │   ├── domain_lenses/                         # 9 大学科透镜
@@ -279,6 +333,9 @@ ScholarFlow/
 │   ├── execution_profile.schema.json         # 运行级执行配置契约（RunExecutionConfig）
 │   ├── comparison_record.schema.json         # 跨文献可比性分层记录
 │   ├── claim_evidence_matrix.schema.json     # 主张—证据矩阵契约
+│   ├── research_debate_session.schema.json   # 构想推敲会话与成熟度契约
+│   ├── research_debate_event.schema.json     # 会话事件溯源日志契约
+│   ├── research_debate_gap.schema.json       # 查证缺口与交接契约
 │   ├── discovery_result.schema.json          # 检索输出 Envelope 顶层契约
 │   ├── literature_record.schema.json         # 候选文献记录标准 Schema
 │   ├── extraction_result.schema.json         # 结构化抽取 Envelope 顶层契约
@@ -286,7 +343,14 @@ ScholarFlow/
 │   ├── claim_record.schema.json              # 综述断言与多维证据评价 Schema
 │   └── synthesis_record.schema.json          # 争议诊断与共识梯队 Schema
 │
-├── skills/                                    # 三大核心技能规范与资产
+├── skills/                                    # 四大核心技能规范与资产
+│   ├── research-idea-debate/                  # 研究构想与假说推敲
+│   │   ├── SKILL.md                          # 技能规范入口
+│   │   ├── role/                             # 概念澄清、前提审查、推论验证、替代解释、观点修订、主持人、审查员
+│   │   ├── scripts/                          # validate_session.py, session_store_cli.py
+│   │   ├── references/                       # 单轮协议、成熟度守卫、独立评估、查证交接、收敛与恢复
+│   │   └── assets/                           # 会话小结模板、验证方案模板
+│   │
 │   ├── literature-discovery-acquisition/      # 文献系统发现与全文获取
 │   │   ├── SKILL.md                          # 技能规范入口
 │   │   ├── scripts/                          # agent_search.py, download_oa_papers.py,
@@ -313,6 +377,9 @@ ScholarFlow/
 │
 ├── tests/                                     # 机械门禁、对抗用例与跨技能契约测试套件
 │   ├── fixtures/                             # 真实格式题录与数据样本
+│   ├── test_research_debate_session_store.py # 单写者事件存储与自愈重放测试
+│   ├── test_research_debate_handoff.py       # 查证缺口双向交接与对齐测试
+│   ├── test_research_debate_rule_registry.py # 50 项机械规程规则注册与执行深度测试
 │   ├── test_claim_linter.py                  # 综述 Claim ID 溯源门禁测试
 │   ├── test_quote_audit.py                   # 原文引用机械对齐门禁测试
 │   ├── test_screening_agreement.py           # 双评阅人 Cohen's Kappa 数学校验测试
@@ -340,15 +407,15 @@ ScholarFlow 明确区分两层分发界面，保障按需使用与依赖极简�
 - **自适应 Grill-Me 与动态推荐引擎**：`shared.grill_me` (含 `recommender.py`)
 - **不可信内容安全与脱敏层**：`shared.security`
 - **规范版本与契约元数据**：`shared.version`
-- **统一执行深度与预算引擎**：`shared.execution`（档位预设、运行配置、预算总账、运行上下文、产物持久化）
+- **统一执行深度与预算引擎**：`shared.execution`（档位预设、运行配置、预算总账、查证交接、运行上下文、产物持久化）
 - **跨技能契约与证据原则**：`shared.core`
 - **跨学科视角静态资产**：内置 9 个领域 Lens（通过 `importlib.resources` 访问 `shared.domain_lenses/*.md`）
 
 ### 2. 全量科研技能套件 (`git clone` / GitHub Release Archive)
 面向 Agent 工作区、论文作者与课题组，提供端到端科研智能体体系：
-- **三大技能完整 Manifest**：`skills/`（Discovery、Extraction、Synthesis 的 `SKILL.md`）
+- **四大技能完整 Manifest**：`skills/`（Debate、Discovery、Extraction、Synthesis 的 `SKILL.md`）
 - **规范化 JSON Schemas**：`schemas/*.schema.json`（含双层契约与 Envelope 定义）
-- **方法论参考与角色提示词**：`references/` 与 `role/`（如 Gatekeeper、Devil's Advocate 协议）
+- **方法论参考与角色提示词**：`references/` 与 `role/`（如 Moderator、Gatekeeper、Devil's Advocate 协议）
 - **多领域案例与对抗夹具**：`examples/` 与 `benchmarks/data/`
 - **科研回归基准与中立性 Linter**：`benchmarks/` 与 `scripts/`
 
@@ -366,6 +433,9 @@ python -m unittest discover -s tests -v
 ```
 
 覆盖范围：
+- **构想规程机械门禁**：`validate_session.py`（RV01–RV50 共 50 项规程规则程序化硬核验与引用完整性自愈）；
+- **单写者事件真源重放**：`test_research_debate_session_store.py`（并发写入冲突拦截、版本演进与快照重放一致性）；
+- **查证缺口受控交接与对齐**：`test_research_debate_handoff.py`（授权指纹防重、任务包双向转换与严格命题直接对齐）；
 - **统计学闭式解**：双评阅人 Cohen's $\kappa$ 数学统计检验（闭式解验证）；
 - **外部题录硬解析**：知网 CNKI Refworks、RIS、EndNote `.enw` 与 CSV 四格式解析；
 - **机械审计门禁**：引句回查校验门（`quote_audit.py`）与 Claim ID 可溯源门禁（`claim_linter.py`）；
@@ -397,7 +467,7 @@ python benchmarks/run_benchmarks.py
 
 ## 🧭 能力状态表 (Capability Status)
 
-每一分钟投入前，建议先读 [`docs/CAPABILITY_STATUS.md`](docs/CAPABILITY_STATUS.md)：它把三个 Skill 的每项能力标注为四种状态之一——
+每一分钟投入前，建议先读 [`docs/CAPABILITY_STATUS.md`](docs/CAPABILITY_STATUS.md)：它把四个 Skill 的每项能力标注为四种状态之一——
 
 | 状态 | 含义 |
 |---|---|
@@ -417,6 +487,9 @@ python benchmarks/run_benchmarks.py
 
 | 核心能力模块 (Capability) | 当前成熟度与验证级别 (Current Status) | 备注说明 |
 |:---|:---:|:---|
+| 构想推敲事件存储与自愈恢复 (Debate Store) | `LEVEL 1 — UNIT-TESTED` | 追加真源、原子快照、引用完整性自愈与断点重放验证通过 |
+| 构想推敲机械规程合规核验 (Debate Conformance) | `LEVEL 1 — UNIT-TESTED` | RV01–RV50 共 50 项机械规则与单轮单问契约覆盖 |
+| 构想查证缺口交接与对齐 (Debate Handoff) | `LEVEL 1 — UNIT-TESTED` | 授权指纹防重、任务包双向转换与严格命题对齐通过 |
 | OpenAlex 元数据检索与解析 | `LEVEL 1 — UNIT-TESTED` | 标准库 HTTP 请求与 JSON 解析已全面覆盖 |
 | 双向引用滚雪球 (Snowballing) | `LEVEL 1 — UNIT-TESTED` | 前向与后向引文追踪算法闭环验证通过 |
 | 商业库人机协同导出清洗 | `LEVEL 1 — UNIT-TESTED` | CNKI、RIS、EndNote、CSV 硬解析闭式验证通过 |
