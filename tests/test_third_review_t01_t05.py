@@ -128,6 +128,26 @@ class TestT02UnitScales(unittest.TestCase):
                         value_type="proportion")
         self.assertFalse(quote_audit.gate_failed(report, strict=True), report["summary"])
 
+    def test_percent_and_permille_cross_conversion(self):
+        """`5%` == `50‰`（同一比例），但 `5%` ≠ `5‰`。"""
+        ok = _audit("The proportion was 5% in the sample.", "50‰",
+                    value_type="proportion")
+        self.assertFalse(quote_audit.gate_failed(ok, strict=True), ok["summary"])
+        bad = _audit("The proportion was 5% in the sample.", "5‰",
+                     value_type="proportion")
+        self.assertTrue(quote_audit.gate_failed(bad, strict=True), bad["summary"])
+
+    def test_thousands_separator_and_decimal_comma(self):
+        """`1,000 reads` 是千分位；`2,5 mL` 是欧洲小数逗号——两者都不能被误解析。"""
+        thousands = _audit("The sample had 1,000 reads in total.", "1000 reads")
+        self.assertFalse(quote_audit.gate_failed(thousands, strict=True),
+                         thousands["summary"])
+        decimal_comma = _audit("The value was 2,5 mL in the sample.", "2,5 mL")
+        self.assertFalse(quote_audit.gate_failed(decimal_comma, strict=True),
+                         decimal_comma["summary"])
+        mismatch = _audit("The sample had 1,000 reads in total.", "1 reads")
+        self.assertTrue(quote_audit.gate_failed(mismatch, strict=True), mismatch["summary"])
+
 
 class TestT03UnknownUnits(unittest.TestCase):
     """T03：未知单位必须保留原文并阻断，不得退化为无单位数字。"""
@@ -157,6 +177,27 @@ class TestT03UnknownUnits(unittest.TestCase):
         source = "The count was 5 in the sample."
         report = _audit(source, "5 Gy", value_type="count")
         self.assertFalse(quote_audit.gate_failed(report, strict=True), report["summary"])
+
+    def test_source_side_unknown_unit_blocks_unitless_extraction(self):
+        """自检补漏：源文 `5 Gy`、抽取值写成无量纲 `5` —— 单位被悄悄丢掉也要阻断。"""
+        source = "The dose was 5 Gy in the sample."
+        report = _audit(source, "5")
+        self.assertTrue(quote_audit.gate_failed(report, strict=True), report["summary"])
+
+    def test_compound_units_are_blocked(self):
+        """复合/带指数单位本层不做换算：`m/s`、`m2` 一律未知单位阻断。"""
+        for source, value in (("The speed was 2 m/s in the test.", "2 m/s"),
+                              ("The speed was 2 m/s in the test.", "2 m"),
+                              ("The area was 5 m2 in the plot.", "5 m2")):
+            report = _audit(source, value)
+            self.assertTrue(quote_audit.gate_failed(report, strict=True),
+                            "%s vs %s -> %s" % (source, value, report["summary"]))
+
+    def test_unknown_unit_does_not_match_known_count_dimension(self):
+        """声明 count 也不能让未知单位撞上计数单位。"""
+        source = "The study included 20 samples."
+        report = _audit(source, "20 Gy", value_type="count")
+        self.assertTrue(quote_audit.gate_failed(report, strict=True), report["summary"])
 
     def test_plain_words_are_not_mistaken_for_units(self):
         """普通英文词（The/This/Table）不得被误判成单位。"""

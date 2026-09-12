@@ -88,7 +88,8 @@
 |---|---|---|
 | 逐字引句回查（EXACT/HYPHEN/FUZZY/NOT_FOUND） | `CODE_VERIFIED` | `quote_audit.py`；**不校验页码**，页码来自 Agent 自报 |
 | 数值—引句锚定（含单位与量纲） | `CODE_VERIFIED` | 完整数量解析（符号/数值/指数/单位）后按数值+量纲比较；同量纲按**精确十进制**因子换算（2.5 mL == 2500 µL，1 nL ≠ 2 nL），跨量纲不匹配；`bp/kb/mb` 分列，`%`=1/100、`‰`=1/1000；`%` ↔ 裸比例仅在字段声明 `value_type` 时互认 |
-| 未知/复合单位的诚实阻断 | `CODE_VERIFIED` | 单位不在表内（如 `Gy`、`Sv`、`m/s`）→ `dimension="unknown"`、保留原文，判 `UNKNOWN_UNIT` 并阻断；只有字段声明 `value_type=count/dimensionless` 时才按数值比较。**不支持的单位不会静默当成无量纲数字** |
+| 未知/复合单位的诚实阻断 | `CODE_VERIFIED` | 单位不在表内（如 `Gy`、`Sv`、`m/s`、`m2`）→ `dimension="unknown"`、保留原文，判 `UNKNOWN_UNIT` 并阻断；源文扫描**保留大小写**（`Gy` 不会被折成 `gy`），抽取值悄悄丢单位也会被 `UNIT_MISMATCH` 挡住；只有字段声明 `value_type=count/dimensionless` 且另一侧确实无量纲时才按数值比较 |
+| 数值字面量边界 | `CODE_VERIFIED` | 千分位 `1,000` 与欧洲小数逗号 `2,5` 分别解析；`5%` ↔ `50‰` 在比例字段下等价、`5%` ≠ `5‰`；同量纲跨单位换算仅接受已登记倍率 |
 | 数值判定边界 | `CODE_VERIFIED` | 含数字却解析不出数量 → `UNPARSEABLE_VALUE`；数字对但单位/量纲不同 → `UNIT_MISMATCH`；距引句过远 → `NOT_IN_QUOTE_CONTEXT`；四类均计入 `unverified` 并触发硬门禁 |
 | 主张—证据对齐硬门禁（A2） | `CODE_VERIFIED` | `claim_alignment.py` 五门禁 + fail-closed |
 | AECE 上下文扩展（单句→相邻句→段落→结构化） | `CODE_VERIFIED` | `context_expansion.py`；`SECTION_CONTEXT` / `CONTEXT_UNIT` 两级未产出 |
@@ -147,6 +148,7 @@
 | 语义支持核验 | `CODE_VERIFIED` | **默认 `UNRESOLVED`**：模式规则只用于排除（设问/假说/模拟假设/转引/条件/被反驳），未命中不等于已证实；只有绑定完整的显式语义凭据（`evidence_id` + 命题指纹 + `verifier` + `verification_ref`，且命题版本未过期）才允许 `VERIFIED`。覆盖边界：凭据由核验环节写出，本层不生成语义判断 |
 | **反证独立契约迁移（F09）** | `DEFERRED` | 非 SUPPORT 关系（CHALLENGE / BOUNDARY）当前保守记为 `UNRESOLVED` 阻断放行，独立反证分级契约与通道暂缓实施 |
 | **会话事件日志与恢复** | `CODE_VERIFIED` | `shared/execution/session_store.py`；完整追加边界保护（末尾无换行时安全补行分隔）、坏尾部须显式恢复（F03）、快照比较业务投影（F04）；测试 `tests/test_research_debate_session_store.py` |
+| 授权事件的真实性边界 | `CODE_VERIFIED` | 用户确认事件必须是已生效事件（`applied=false` → `CONFIRMATION_EVENT_NOT_APPLIED`）；同一 `event_id` 出现多次 → `CONFIRMATION_EVENT_AMBIGUOUS`；事件日志损坏 → `CONFIRMATION_CONTEXT_UNREADABLE`（与"没给上下文"区分） |
 | **事件先行可信重放基底** | `PARTIAL` | `seal_checkpoint()`：封存全量状态 + 事件前缀摘要 + `event_count` + `last_event_id`，未封存会话一律报 `SNAPSHOT_BASE_UNVERIFIED`；重放边界以 `event_count` 为准（零事件检查点不会跳过后续事件），并校验前缀摘要/边界一致性。**未完成**：`save_snapshot()` 仍只是调用约定（无法从代码上阻止写入未记录字段），尚无强制事件先行的写入入口 |
 | 检查点信任边界与历史导入 | `CODE_VERIFIED` | 检查点自述 `inherited_fields` + `trust_boundary` + `import_mode/reason/source`；已有检查点后引入新的、事件未记录的业务字段必须显式 `import_mode=True` 并给出理由与来源，否则拒绝封存。**不得宣称"全部业务状态由事件证明"** |
 | 两文件一致提交与中断识别 | `CODE_VERIFIED` | 封存前完成 revision 校验（失败时快照与检查点均不变）；快照与检查点经 `commit_journal.json` 一致提交，中断留下提交日志 → `consistency_report()` 报 `INCOMPLETE_COMMIT`，`recover_commit()` 完成或回滚；CLI `seal` 支持 `--import-mode/--import-reason/--import-source` |
@@ -254,8 +256,8 @@
 
 ## 7. 本表的验证绑定
 
-- **实现提交**：`8a267e2`（第三次验收 T01–T05 修复；前两轮为 `2073350`、`48adfed`）
-- **测试结果**：`Ran 824 tests ... OK`（本机 0 项跳过；跳过 ≠ 通过）
+- **实现提交**：`8a267e2` + 自检补漏（第三次验收 T01–T05；前两轮为 `2073350`、`48adfed`）
+- **测试结果**：`Ran 834 tests ... OK`（本机 0 项跳过；跳过 ≠ 通过）
 - **报告**：`docs/implementation/ScholarFlow_第三次修改验收修复报告_2026-09-13.md`
   （前两轮：`ScholarFlow_R01-R06第二轮修复报告_2026-09-13.md`、
   `ScholarFlow_四技能审查修复批次报告_2026-09-12.md`，后者已标注"全部验收"表述过度）

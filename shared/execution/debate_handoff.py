@@ -187,34 +187,32 @@ NON_USER_EXECUTION_KINDS = ("SYSTEM", "ROLE_SWITCH", "INDEPENDENT_AGENT", "SELF_
 USER_ACTOR_NAMES = ("user", "human", "用户", "研究者", "学者", "researcher")
 
 
-def _trusted_event_list(session_store: Optional[Any]) -> Optional[List[Dict[str, Any]]]:
-    """从可信存储读取事件列表；无存储或不可读时返回 None（调用方须失败关闭）。
+def _trusted_event_list(session_store: Optional[Any]):
+    """从可信存储读取事件列表；返回 `(events, problem)`。
+
+    - 没有存储 / 存储不提供读取接口 → `problem="CONFIRMATION_CONTEXT_MISSING"`；
+    - 存储存在但读取失败（如日志中段损坏）→ `problem="CONFIRMATION_CONTEXT_UNREADABLE"`，
+      与"没给上下文"区分开，避免把损坏误报成缺参。
 
     R05：只接受外部存储对象（`SessionStore` / 任何带 `read_events()` 或
     `_read_events()` 的对象）。`gap` 自带的 `_events` / `_session_store` 是调用方
     自述内容，不构成授权证据，故不再支持。
     """
     if session_store is None:
-        return None
+        return None, "CONFIRMATION_CONTEXT_MISSING"
     reader = getattr(session_store, "read_events", None)
-    if callable(reader):
-        try:
-            parsed = reader()
-        except Exception:
-            return None
-    else:
+    if not callable(reader):
         reader = getattr(session_store, "_read_events", None)
-        if not callable(reader):
-            return None
-        try:
-            parsed = reader()
-        except Exception:
-            return None
-    if isinstance(parsed, dict):
-        events = parsed.get("events")
-    else:
-        events = parsed
-    return events if isinstance(events, list) else None
+    if not callable(reader):
+        return None, "CONFIRMATION_CONTEXT_MISSING"
+    try:
+        parsed = reader()
+    except Exception as exc:  # noqa: BLE001 - 任何读取失败都必须失败关闭
+        return None, "CONFIRMATION_CONTEXT_UNREADABLE:%s" % type(exc).__name__
+    events = parsed.get("events") if isinstance(parsed, dict) else parsed
+    if not isinstance(events, list):
+        return None, "CONFIRMATION_CONTEXT_UNREADABLE:no-event-list"
+    return events, None
 
 
 def _validate_confirmation_event(event: Dict[str, Any], gap: Dict[str, Any],
@@ -236,6 +234,11 @@ def _validate_confirmation_event(event: Dict[str, Any], gap: Dict[str, Any],
         return {"reason": "CONFIRMATION_EVENT_NOT_USER",
                 "details": ["actor=%r, execution_kind=%r: a user-sourced event is required"
                             % (event.get("actor"), exec_kind)]}
+
+    if event.get("applied") is False:
+        return {"reason": "CONFIRMATION_EVENT_NOT_APPLIED",
+                "details": ["The confirmation event is marked applied=false; an event that "
+                            "was never applied cannot authorise a dispatch."]}
 
     payload = event.get("payload") if isinstance(event.get("payload"), dict) else {}
 
@@ -380,16 +383,26 @@ def prepare_dispatch(gap: Dict[str, Any], session_store: Optional[Any] = None) -
                 "must_reconfirm": False, "idempotent_replay": True}
 
     # R05: 授权上下文必须是外部可信存储；调用方自述的 gap._events 不予采信。
-    event_list = _trusted_event_list(session_store)
+    event_list, context_problem = _trusted_event_list(session_store)
     if event_list is None:
-        return {"dispatchable": False, "reason": "CONFIRMATION_CONTEXT_MISSING",
+        reason, _, detail = (context_problem or "CONFIRMATION_CONTEXT_MISSING").partition(":")
+        return {"dispatchable": False, "reason": reason,
                 "payload": None, "fingerprint": current_fp,
                 "must_reconfirm": True, "idempotent_replay": False,
-                "details": ["A trusted SessionStore is required: a fingerprint is a summary "
-                            "of the task, not proof that the user approved it."]}
+                "details": [detail or ("A trusted SessionStore is required: a fingerprint is "
+                                       "a summary of the task, not proof that the user "
+                                       "approved it.")]}
 
-    matching_event = next((e for e in event_list
-                           if (e.get("event_id") or e.get("id")) == confirmed_event), None)
+    matches = [e for e in event_list
+               if (e.get("event_id") or e.get("id")) == confirmed_event]
+    if len(matches) > 1:
+        # 同一 event_id 出现多次：无法确定哪一条是用户确认，失败关闭。
+        return {"dispatchable": False, "reason": "CONFIRMATION_EVENT_AMBIGUOUS",
+                "payload": None, "fingerprint": current_fp,
+                "must_reconfirm": True, "idempotent_replay": False,
+                "details": ["event_id %r appears %d times in the trusted log"
+                            % (confirmed_event, len(matches))]}
+    matching_event = matches[0] if matches else None
     if not matching_event:
         return {"dispatchable": False, "reason": "CONFIRMATION_EVENT_NOT_FOUND",
                 "payload": None, "fingerprint": current_fp,
@@ -570,6 +583,11 @@ def variant_fingerprint(variant: Dict[str, Any]) -> str:
     payload = {"source_text": normalize_text(variant.get("source_text") or "")}
     blob = json.dumps(payload, ensure_ascii=False, sort_keys=True)
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]
+
+
+def quote_fingerprint(quote: str) -> str:
+    """引句指纹：用于让语义核验凭据绑定到**具体引句**，而不是整条证据。"""
+    return "qf-" + hashlib.sha256(normalize_text(quote).encode("utf-8")).hexdigest()[:16]
 
 
 def proposition_fingerprint(proposition: str) -> str:
@@ -758,7 +776,7 @@ def verify_semantic_support(
     """
     explicit = record.get("semantic_verification")
     if isinstance(explicit, dict) and explicit.get("status"):
-        return _validate_explicit_semantic_record(explicit, proposition, record)
+        return _validate_explicit_semantic_record(explicit, proposition, record, quote)
 
     # 记录自带的角色标注：只用于排除。
     sem_role = record.get("semantic_role") or record.get("source_role")
@@ -796,7 +814,7 @@ def verify_semantic_support(
 
 
 def _validate_explicit_semantic_record(explicit: Dict[str, Any], proposition: str,
-                                       record: Dict[str, Any]
+                                       record: Dict[str, Any], quote: str
                                        ) -> Tuple[Dict[str, Any], Optional[str]]:
     """校验显式语义核验凭据的绑定完整性；不完整或过期一律不得升级。"""
     role = explicit.get("semantic_role") or "UNKNOWN"
@@ -835,6 +853,14 @@ def _validate_explicit_semantic_record(explicit: Dict[str, Any], proposition: st
         bound["reasoning"] = ("语义角色 %r 不是当前研究的实证发现" % role)
         return bound, "SEMANTIC_ROLE_NOT_RESULT"
 
+    # 引句绑定：凭据若声明 quote_fingerprint，必须与当前引句一致（防止凭据被挪用到
+    # 同一证据下的另一句引文）。
+    claimed_quote = explicit.get("quote_fingerprint")
+    if claimed_quote is not None and claimed_quote != quote_fingerprint(quote):
+        bound["reasoning"] = ("语义核验凭据绑定的引句与当前引句不一致（%r ≠ %r）"
+                              % (claimed_quote, quote_fingerprint(quote)))
+        return bound, "SEMANTIC_VERIFICATION_QUOTE_MISMATCH"
+
     # 命题版本过期检查：凭据声明版本与当前记录版本不一致即失效。
     claimed_ver = explicit.get("idea_version")
     current_ver = record.get("idea_version")
@@ -842,6 +868,14 @@ def _validate_explicit_semantic_record(explicit: Dict[str, Any], proposition: st
         bound["reasoning"] = ("语义核验凭据针对 idea_version=%r，当前为 %r，须重新核验"
                               % (claimed_ver, current_ver))
         return bound, "SEMANTIC_VERIFICATION_STALE"
+
+    # 确定性排除规则与凭据冲突时：凭据仍可判定（如"we tested whether…，结果…"这类
+    # 同时含设问与结果的句子），但冲突必须留痕，供人工复核，不得静默通过。
+    conflict = _exclusion_semantic_role(quote)
+    if conflict is not None:
+        bound["semantic_warnings"] = [conflict[1]]
+        bound["reasoning"] = (bound["reasoning"] + " ｜ 注意：确定性规则判为 %s，"
+                              "与凭据结论不一致，请人工复核" % conflict[1])
 
     bound["is_empirical_result"] = True
     bound["verified_at"] = explicit.get("verified_at")

@@ -117,12 +117,38 @@
 
 ---
 
+## 自检补漏（提交 T01–T05 之后自查发现并修复）
+
+首轮修复后自查构造反例矩阵，发现 5 个仍然放行的漏洞——**首轮并未做全**，在此如实记录：
+
+| # | 漏洞 | 现状 |
+|---|---|---|
+| 1 | 源文 `5 Gy`、抽取值写成无量纲 `5`：源文扫描先用 `normalize_text()` 转小写，`Gy` 变成 `gy` 后不再"像单位"，于是静默降级为无量纲 5 并通过 | 源文数量扫描改为**保留大小写**（`numeric_view(..., fold_case=False)`），现判 `UNIT_MISMATCH` 阻断 |
+| 2 | 声明 `value_type=count` 后，未知单位 `20 Gy` 能与 `20 samples` 撞上 | 未知单位一侧只在**另一侧确实无量纲**时才允许按声明比较，与已知量纲一律不可比 |
+| 3 | 复合单位 `2 m/s` 只匹配到前缀 `m`，当成"2 米"通过 | 已知单位后紧跟连接符/数字（`/ · * ^ ×`、指数位）→ 整体按未知单位 `UNKNOWN_UNIT` 阻断 |
+| 4 | `m2` 之类带指数单位同样只取前缀 | 同上 |
+| 5 | 比例字段下 `5%` 与 `50‰` 本应等价却被拒（percent 与 permille 之间没有可比路径） | 两者在比例字段下可比并按各自倍率折算（`5% == 50‰`、`5% ≠ 5‰`） |
+| 6 | 千分位 `1,000 reads` 被解析成 `1.000`，合法抽取会被误拒 | `\d{1,3}(,\d{3})+` 识别为千分位整数；`2,5` 仍按欧洲小数逗号解析 |
+
+自查同时加固了另两条绑定（未被上述矩阵覆盖，但属同类风险）：
+
+- **授权事件真实性**：`applied=false` 的确认事件 → `CONFIRMATION_EVENT_NOT_APPLIED`；
+  同一 `event_id` 出现多次 → `CONFIRMATION_EVENT_AMBIGUOUS`；事件日志损坏 →
+  `CONFIRMATION_CONTEXT_UNREADABLE`（与"没给上下文"区分，避免把损坏误报成漏参）。
+- **语义凭据绑定**：凭据可携带 `quote_fingerprint` 绑定到具体引句，不符即拒
+  （`SEMANTIC_VERIFICATION_QUOTE_MISMATCH`）；凭据结论与确定性排除规则冲突时**不静默通过**，
+  在 `semantic_verification.semantic_warnings` 留痕供人工复核。
+
+以上 8 项均已加入自动回归（`tests/test_third_review_t01_t05.py`、
+`tests/test_four_skill_review_f01_f06.py`），并同步到
+`skills/literature-evidence-extraction/SKILL.md` 与 `role/evidence_auditor.md` 的规程描述。
+
 ## 测试与检查
 
 | 项 | 结果 |
 |---|---|
-| 全量套件 | `Ran 824 tests ... OK`（本机 0 跳过） |
-| 新增回归 | `tests/test_third_review_t01_t05.py`：24 例（T01 5 / T02 5 / T03 5 / T04 5 / T05 4） |
+| 全量套件 | `Ran 834 tests ... OK`（本机 0 跳过） |
+| 新增回归 | `tests/test_third_review_t01_t05.py` 29 例（T01 5 / T02 7 / T03 8 / T04 5 / T05 4）+ `tests/test_four_skill_review_f01_f06.py` 追加 5 例自检用例 |
 | 旧探针 `probe.py` / `recheck_probe.py` / `independent_r06_probe.py` | 全部反例仍阻断，正例仍通过 |
 | 第三方探针 `third_review_probe.py` | `failed_seal_exception=RevisionConflict`、`checkpoint_after_failed_seal=WAITING_USER`、`empty_checkpoint_divergence=[]`、`nano_tolerance/base_unit_scale/permille_wrong_ratio/unknown_unit` 均 `failed=true`、`conversion_positive/permille_correct_ratio` 均通过 |
 | `scripts/domain_neutrality_linter.py` | PASS |

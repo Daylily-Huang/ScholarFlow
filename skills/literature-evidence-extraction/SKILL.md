@@ -241,7 +241,8 @@ python skills/literature-evidence-extraction/scripts/extraction_pipeline.py -i <
   - `scripts/audit_claims.py`：既有 Claim 事实核查反查比对工具
   - `scripts/quote_audit.py`：引句回查硬校验门——证据 JSON 每条 verbatim_quote 必须回查源文献定位（EXACT/HYPHEN_JOIN/FUZZY），NOT_FOUND 即门禁失败，零模型判断。
     2026-09-11 起另含三项（此前缺失，实测被利用为逃逸通道）：
-    ① **值—引文对齐**：对 `extracted_value` 中的数值 token 回查其是否锚定在引文或其 ±200 字符上下文，**不在全文中出现即判失败**（堵住"引文真、取值假"的证据洗白）；
+    ① **值—引文对齐**：把 `extracted_value` 解析为**完整数量**（符号 + 数值 + 指数 + 单位）后，回查其是否锚定在引文或其 ±200 字符上下文，**不在全文中出现即判失败**（堵住"引文真、取值假"的证据洗白）。单位参与比较，且按**精确十进制**换算：同为体积时 `2.5 mL == 2500 µL`，但 `1 nL ≠ 2 nL`（无"宽容差"）；跨量纲不匹配（百分比 ≠ 长度）；`bp/kb/mb` 分列；`%`=1/100、`‰`=1/1000，且 `%`↔裸比例只在记录声明 `value_type=proportion/ratio/...` 时互认。
+    ①b **未知/复合单位诚实阻断**：单位不在受支持表内（`Gy`、`Sv`、`m/s`、`m2`）时保留单位原文并判 `UNKNOWN_UNIT`、计入 `gate_failed`；`UNIT_MISMATCH`（数字撞上但单位/量纲不同）、`UNPARSEABLE_VALUE`（含数字却解析不出数量）同样阻断。**不支持的单位不会被静默当成无量纲数字。**
     ② **未核验记录不再静默放行**：空引文 / 短于 `--min-quote-len` / 引文未定位，默认计入 `gate_failed`；确需放行须显式 `--unverified-policy list|ignore`；
     ③ **源文件溯源**：输出 `-s` 的 sha256/size，可用 `--source-pins` 绑定并在被替换时失败（实测向源文追加 184 字节即可翻转判定）。
     数值比对使用独立的空白不敏感折叠（`4 · 8` = `4.8`），并把 U+2219「∙」等 PDF 排版小数点归一化，避免把真实值误判为伪造。

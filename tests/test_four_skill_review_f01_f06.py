@@ -808,6 +808,38 @@ class TestR01SemanticSupportGate(unittest.TestCase):
         self.assertEqual(link["alignment"], "VERIFIED", link)
         self.assertEqual(link["problems"], [])
 
+    def test_credential_quote_binding_mismatch_is_refused(self):
+        """自检补漏：凭据声明了 quote_fingerprint 但与当前引句不符 → 拒绝。"""
+        from shared.execution.debate_handoff import quote_fingerprint
+        prop = "roads reduce gene flow"
+        quote = "Our experimental results demonstrated that roads reduce gene flow."
+        record = {"evidence_id": "E-QF", "artifact_ref": "paper.json",
+                  "verbatim_quote": quote, "location": {"page": 3},
+                  "checked_scope": "results",
+                  "semantic_verification": semantic_verification(
+                      "E-QF", prop, quote_fingerprint="qf-deadbeef")}
+        link = to_evidence_link(record, prop, "SUPPORT")
+        self.assertEqual(link["alignment"], "UNRESOLVED")
+        self.assertIn("SEMANTIC_VERIFICATION_QUOTE_MISMATCH", link["problems"])
+        # 绑对了就应通过
+        record["semantic_verification"] = semantic_verification(
+            "E-QF", prop, quote_fingerprint=quote_fingerprint(quote))
+        self.assertEqual(to_evidence_link(record, prop, "SUPPORT")["alignment"],
+                         "VERIFIED")
+
+    def test_credential_conflict_with_deterministic_rule_is_flagged(self):
+        """凭据与确定性排除规则冲突时不静默通过：保留结论但留痕告警。"""
+        prop = "roads reduce gene flow"
+        quote = "We tested whether roads reduce gene flow; they did."
+        record = {"evidence_id": "E-CF", "artifact_ref": "paper.json",
+                  "verbatim_quote": quote, "location": {"page": 3},
+                  "checked_scope": "results",
+                  "semantic_verification": semantic_verification("E-CF", prop)}
+        link = to_evidence_link(record, prop, "SUPPORT")
+        self.assertEqual(link["alignment"], "VERIFIED")
+        self.assertIn("RESEARCH_QUESTION_NOT_RESULT",
+                      link["semantic_verification"].get("semantic_warnings", []))
+
     def test_missing_artifact_ref_fails_closed(self):
         record = {
             "evidence_id": "E5",
@@ -1091,6 +1123,43 @@ class TestR05AuthorizationTruth(unittest.TestCase):
         res = prepare_dispatch(gap, session_store=self._store(gap))
         self.assertTrue(res["dispatchable"], res)
         self.assertEqual(res["reason"], "OK")
+
+    # --- 自检补漏（2026-09-13）---
+
+    def test_unapplied_event_is_not_authorization(self):
+        """applied=false 的确认事件从未生效，不构成授权。"""
+        gap = self._gap()
+        store = self._store(gap)
+        with open(store.events_path, "r", encoding="utf-8") as fh:
+            event = json.loads(fh.readline())
+        event["applied"] = False
+        with open(store.events_path, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(event, ensure_ascii=False) + "\n")
+        res = prepare_dispatch(gap, session_store=store)
+        self.assertFalse(res["dispatchable"])
+        self.assertEqual(res["reason"], "CONFIRMATION_EVENT_NOT_APPLIED")
+
+    def test_duplicate_event_id_is_ambiguous(self):
+        """同一 event_id 出现在日志多次 → 无法确定哪条是授权，失败关闭。"""
+        gap = self._gap()
+        store = self._store(gap)
+        with open(store.events_path, "r", encoding="utf-8") as fh:
+            event = json.loads(fh.readline())
+        with open(store.events_path, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(dict(event, seq=2), ensure_ascii=False) + "\n")
+        res = prepare_dispatch(gap, session_store=store)
+        self.assertFalse(res["dispatchable"])
+        self.assertEqual(res["reason"], "CONFIRMATION_EVENT_AMBIGUOUS")
+
+    def test_corrupt_event_log_is_not_reported_as_missing_context(self):
+        """日志损坏要与"没给上下文"区分开，避免误判为调用方漏参。"""
+        gap = self._gap()
+        store = self._store(gap)
+        with open(store.events_path, "a", encoding="utf-8") as fh:
+            fh.write('{"event_id": "EV-X"}\n{"broken\n{"event_id": "EV-Y"}\n')
+        res = prepare_dispatch(gap, session_store=store)
+        self.assertFalse(res["dispatchable"])
+        self.assertEqual(res["reason"], "CONFIRMATION_CONTEXT_UNREADABLE")
 
 
 class TestR06HealedGapSchemaValidation(unittest.TestCase):

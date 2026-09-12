@@ -13,7 +13,7 @@
 在严谨实证科研中，必须杜绝“同模型单线程自我粉饰”：
 1. **Level-1 启发式角色自检 (In-Context Persona Audit)**：在同一会话中由模型代入 Auditor 视角进行 16 项清单排查，属于**模型内部自查机制 (Self-Consistency)**。在单智能体环境下签发的 PASS 属于自检放行，不具备统计学外部独立性；
 2. **Level-2 确定性程序级硬审计 (Deterministic Programmatic Audit)**：抽取证据的核心防线由确定性 Python 脚本保障：
-   - 必须运行 `scripts/quote_audit.py` 对提取的 Verbatim Quotes 进行**正文字面级子串匹配校验**（EXACT / HYPHEN_JOIN / FUZZY / NOT_FOUND），并对 `extracted_value` 做**值—引文锚定校验**；NOT_FOUND、取值在源文中不存在、以及任何未核验记录（空引文/短引文）均判 `gate_failed`，杜绝大模型伪造引文与"引文真、取值假"；
+   - 必须运行 `scripts/quote_audit.py` 对提取的 Verbatim Quotes 进行**正文字面级子串匹配校验**（EXACT / HYPHEN_JOIN / FUZZY / NOT_FOUND），并对 `extracted_value` 做**值—引文锚定校验**；NOT_FOUND、取值在源文中不存在、以及任何未核验记录（空引文/短引文）均判 `gate_failed`，杜绝大模型伪造引文与"引文真、取值假"。值—引文锚定按**完整数量 + 精确十进制 + 量纲**判定：单位参与比较、同量纲按十进制倍率换算（`2.5 mL == 2500 µL`，`1 nL ≠ 2 nL`），跨量纲不匹配，`bp/kb/mb` 分列、`%`=1/100、`‰`=1/1000；单位不在受支持表内（`Gy`/`Sv`/`m/s`）或数字撞上但量纲不同时判 `UNKNOWN_UNIT` / `UNIT_MISMATCH` / `UNPARSEABLE_VALUE` 并阻断，**不得静默降级为无量纲数字**；
      - 修正记录（2026-09-11）：此处原写 `scripts/audit_claims.py`，但该脚本是**既有 Claim 的候选定位器**，不做引文回查；引文回查门禁为 `quote_audit.py`。文档指向错误脚本会让 Level-2 防线名存实亡。
      - 另需以 `--source-pins` 绑定源文 sha256，并对 `extraction_pipeline.py -i <result.json> --evidence-chain` 校验审计交接覆盖度；
 3. **Level-3 隔离子智能体审计 (Isolated SubAgent Execution)**：在支持多智能体的编排平台中，Auditor 应以独立的 SubAgent 实例唤起，不继承抽取专员的中间思考过程，实现独立的盲审复核。

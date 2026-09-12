@@ -87,13 +87,17 @@ CONFUSABLE_TABLE = {
 }
 
 
-def normalize_text(text: str) -> str:
-    """NFC + confusable-character mapping + whitespace collapse + lowercase."""
+def normalize_text(text: str, fold_case: bool = True) -> str:
+    """NFC + confusable-character mapping + whitespace collapse (+ lowercase).
+
+    `fold_case=False` 保留原大小写，供**数量扫描**使用：单位符号区分大小写
+    （`Gy` 与 `gy`、`Sv` 与 `sv` 含义不同），按小写扫描会漏掉未知单位。
+    """
     t = unicodedata.normalize("NFC", text)
     for src, dst in CONFUSABLE_TABLE.items():
         t = t.replace(src, dst)
-    t = re.sub(r"\s+", " ", t).strip().lower()
-    return t
+    t = re.sub(r"\s+", " ", t).strip()
+    return t.lower() if fold_case else t
 
 
 def join_hyphen_breaks(text: str) -> str:
@@ -330,7 +334,13 @@ def _unknown_unit_after(text: str, pos: int):
 
 
 def _decimal(num: str) -> "Decimal":
-    return Decimal(num.replace(",", ".").replace(" ", "").replace("\u00a0", ""))
+    """把数字字面量解析成 Decimal；区分千分位逗号与欧洲小数逗号。"""
+    cleaned = num.replace(" ", "").replace("\u00a0", "")
+    if re.fullmatch(r"\d{1,3}(?:,\d{3})+", cleaned):
+        cleaned = cleaned.replace(",", "")           # 1,000 = 一千
+    else:
+        cleaned = cleaned.replace(",", ".")          # 2,5 = 2.5
+    return Decimal(cleaned)
 
 
 def extract_quantities(value: Any) -> List[Dict[str, Any]]:
@@ -363,6 +373,11 @@ def extract_quantities(value: Any) -> List[Dict[str, Any]]:
                 canonical, dimension, factor, end = None, None, None, m.end()
         else:
             canonical, dimension, factor, end = unit_info
+            # T03：复合/带指数单位（m/s、m2、kg·ha）本层不做量纲换算，
+            # 统一按未知单位处理并阻断，避免只取到前缀单位就当作命中。
+            if end < len(text) and (text[end] in _COMPOUND_UNIT_CHARS or text[end].isdigit()):
+                cont = re.match(r"\S*", text[end:]).group(0)
+                canonical, dimension, factor, end = canonical + cont, "unknown", None, end + len(cont)
         out.append({
             "raw": text[m.start("num"):end],
             "value": sign * number,
@@ -426,10 +441,15 @@ def _dimension_compatible(ext_q: Dict[str, Any], src_q: Dict[str, Any], rec: Dic
     if ed == "unknown" or sd == "unknown":
         if ed == "unknown" and sd == "unknown":
             return ext_q["unit"] == src_q["unit"]
-        # 一侧未知单位、另一侧无量纲：只有字段显式声明为无量纲/计数时才按数值比较
-        return _allows_dimensionless(rec)
+        # 一侧未知单位、另一侧**无量纲**：只有字段显式声明为无量纲/计数时才按数值比较。
+        # 另一侧是已知量纲（如 count_sample）时不可比——那是"数值撞上、含义不同"。
+        if (ed is None or sd is None) and _allows_dimensionless(rec):
+            return True
+        return False
     if ed == sd:
         return True
+    if {ed, sd} <= {"percent", "permille"} and _is_ratio_field(rec):
+        return True                                      # 5% 与 50‰ 都是比例
     if ed in ("percent", "permille") and sd is None and _is_ratio_field(rec):
         return True
     if sd in ("percent", "permille") and ed is None and _is_ratio_field(rec):
@@ -498,18 +518,22 @@ def fold_numeric(text: str) -> str:
     return re.sub(r"\s+", "", folded)
 
 
-def numeric_view(text: str) -> str:
+def numeric_view(text: str, fold_case: bool = True) -> str:
     """Numeric scanning view: repair OCR decimal points but KEEP spaces.
 
     `fold_numeric()` removes all whitespace, which merges "2.5 microliters" into
     "2.5microlitersin..." and destroys the unit word boundary. Quantity scanning
     therefore needs its own view: same repair, spaces preserved.
+
+    `fold_case=False` 用于**源文**扫描：单位符号大小写有意义，不能先转小写
+    （否则 `5 Gy` 会被当成无量纲 5，抽取值悄悄丢掉单位也能通过）。
     """
-    return re.sub(r"(?<=\d)\s*[·•∙]\s*(?=\d)", ".", normalize_text(text))
+    return re.sub(r"(?<=\d)\s*[·•∙]\s*(?=\d)", ".", normalize_text(text, fold_case=fold_case))
 
 
 def check_value_alignment(rec: Dict[str, Any], norm_source: str,
-                          quote_span: Optional[tuple]) -> Optional[Dict[str, Any]]:
+                          quote_span: Optional[tuple],
+                          raw_source: Optional[str] = None) -> Optional[Dict[str, Any]]:
     """
     Compare extracted quantities against the source.
 
@@ -536,11 +560,22 @@ def check_value_alignment(rec: Dict[str, Any], norm_source: str,
                                "and cannot pass the numeric gate." % (raw_value,))}
         return None
 
-    src_fold = numeric_view(norm_source)
+    # 源文扫描保留大小写：单位符号有意义，先转小写会把 `5 Gy` 当成无量纲 5。
+    src_fold = numeric_view(raw_source if raw_source is not None else norm_source,
+                            fold_case=raw_source is None)
     quote = rec.get("verbatim_quote") or ""
-    quote_fold = numeric_view(quote)
+    quote_fold = numeric_view(quote, fold_case=False)
     window_fold = ""
-    if quote_span:
+    raw_quote_span = None
+    if raw_source:
+        pos = raw_source.find(quote)
+        if pos >= 0:
+            raw_quote_span = (pos, pos + len(quote))
+    if raw_quote_span:
+        a = max(0, raw_quote_span[0] - ALIGNMENT_WINDOW)
+        b = min(len(raw_source), raw_quote_span[1] + ALIGNMENT_WINDOW)
+        window_fold = numeric_view(raw_source[a:b], fold_case=False)
+    elif quote_span:
         a = max(0, quote_span[0] - ALIGNMENT_WINDOW)
         b = min(len(norm_source), quote_span[1] + ALIGNMENT_WINDOW)
         window_fold = numeric_view(norm_source[a:b])
@@ -677,7 +712,7 @@ def audit_evidence(evidence: Dict[str, Any], source_text: str,
                                    "(quote unverified -> treat as UNSUPPORTED until human-confirmed)."}
 
         # F1b: value–quote alignment runs on every record that carries a quote.
-        va = check_value_alignment(rec, norm_source, span)
+        va = check_value_alignment(rec, norm_source, span, source_text)
         if va is not None:
             counts["value_checked"] += 1
             entry["value_alignment"] = va
