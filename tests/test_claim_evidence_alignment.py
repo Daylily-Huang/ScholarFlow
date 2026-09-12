@@ -451,13 +451,26 @@ class TestProtocolAndDocumentationIntegrity(unittest.TestCase):
         self.assertIn("铁律 9", content)
         self.assertIn("Mention / Co-occurrence ≠ Relation", content)
 
-    def test_evidence_auditor_contains_15_items(self):
+    def test_evidence_auditor_contains_16_items(self):
+        """清单项数以文档正文为准 = 16。
+
+        2026-09-11: 该断言原写作 15，而 evidence_auditor.md 的标题写 15、
+        正文清单与签署模板写 16（SKILL.md 亦同时出现 15/16），文档自相矛盾。
+        现统一为 16 项（属性 14 项 + 第 15 项主张—证据对齐 + 第 16 项上下文充分性），
+        断言随权威口径更新，而不是把文档退回矛盾状态。
+        """
         auditor_file = REPO_ROOT / "skills" / "literature-evidence-extraction" / "role" / "evidence_auditor.md"
         content = auditor_file.read_text(encoding="utf-8")
-        self.assertIn("15 项审计清单", content)
-        self.assertIn("15-Point Audit Checklist", content)
+        self.assertIn("16 项审计清单", content)
+        self.assertIn("16-Point Audit Checklist", content)
+        self.assertNotIn("15 项审计清单", content)
         self.assertIn("主张—证据对齐审计", content)
+        self.assertIn("上下文充分性审计", content)
         self.assertIn("Target claim explicitly identified", content)
+        # 清单必须真的是 16 行
+        import re as _re
+        rows = _re.findall(r"^\| \*\*(\d+)\*\* \|", content, _re.M)
+        self.assertEqual(len(rows), 16, "清单行数应为 16，实际 %d" % len(rows))
 
     def test_reference_file_exists_and_complete(self):
         ref_file = REPO_ROOT / "skills" / "literature-evidence-extraction" / "references" / "claim_evidence_alignment.md"

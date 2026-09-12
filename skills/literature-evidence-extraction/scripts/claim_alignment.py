@@ -23,8 +23,18 @@ Role Definition:
   6. Rejects mere co-occurrence / co-measurement from being promoted to confirmed relations.
 """
 
+import sys
 import re
 from typing import Dict, List, Any, Optional, Tuple, Set
+
+# Ensure UTF-8 output on Windows consoles
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 
 
 class ExtractionSemantics:
@@ -69,8 +79,19 @@ CONFIRMED_ELIGIBLE_STATUSES = {
 CLAIM_INTENT_PATTERNS = [
     r"(是否|怎样|如何)?(影响|导致|促成|抑制|降低|提高|增加|诱发|调控|优于|胜过|超越|取食|捕食)",
     r"(相关|关联|相伴|协同|因果|机制|依赖|支持|反驳|证实|证伪|交互|作用于|控制)",
+    # Relation cues that carry a relational assertion without a verb from the
+    # lists above. Measured 2026-09-11: "黑麂偏好三尖杉，因此更倾向利用针叶林"
+    # was classified ATTRIBUTE (no match) because only "取食" was in the table —
+    # yet it asserts a preference AND a causal link to habitat use. Downstream the
+    # A2 alignment gate was then skipped entirely for a relation-shaped claim.
+    r"(偏好|喜食偏好|嗜好|倾向|趋向|喜好|偏食|取食偏好)",
+    r"(解释|归因|源于|取决于|决定了|印证|说明了|证明|反映了)",
+    r"(因此|因而|从而|进而|由此可见|这表明|这意味着|据此)",
+    # Explicit comparison/degree markers imply a relational comparison.
+    r"((更加|更为|明显更|显著更|相对更|更)(倾向|偏好|喜欢|依赖|适应|利用))",
     r"(affect|cause|reduce|increase|inhibit|promote|regulate|outperform|surpass)",
     r"(correlat|associat|depend|interact|mediat|support|refut|impact|superior)",
+    r"(prefer|preference|explain|attribute|therefore|thus|hence|thereby|drives|determines)",
     r"(feed|prey|compet|symbio|normative|jurisprudence|holding|reject)",
 ]
 
@@ -155,11 +176,20 @@ def _check_entity_presence(entity_str: str, text: str) -> bool:
 
 def _check_predicate_grounding(predicate: str, text: str) -> bool:
     """Check if a relational predicate is grounded in evidence text across disciplines.
-    
+
     Supports root matching for common relational terms without an exhaustive rigid enum.
+
+    NOTE (fixed 2026-09-11): an EMPTY predicate used to return True, i.e. vacuously
+    grounded. Measured consequence: the relational claim
+    "黑麂偏好三尖杉，因此更倾向利用针叶林" submitted with no subject/predicate/object
+    came back SUPPORTED / is_confirmed_eligible=true, because gate3 passed on an
+    unbound predicate and gates 1 and 5 only inspect predicate/object when present.
+    A claim that is *shaped* like a relation but carries no bound predicate must
+    fail closed — that is the whole point of the A2 gate. Callers that legitimately
+    verify a pure attribute value should pass `claim_is_relational=False`.
     """
     if not predicate:
-        return True
+        return False
     pred_lower = predicate.strip().lower()
     text_lower = text.lower()
 
@@ -206,7 +236,8 @@ def verify_claim_alignment(
     evidence_text: str,
     evidence_context: Optional[Dict[str, Any]] = None,
     table_bundle: Optional[Dict[str, Any]] = None,
-    is_cross_context: bool = False
+    is_cross_context: bool = False,
+    claim_is_relational: Optional[bool] = None,
 ) -> Dict[str, Any]:
     """Execute the 5 Claim-Evidence Alignment Gates on a target claim and its candidate evidence.
 
@@ -217,6 +248,10 @@ def verify_claim_alignment(
     - Mere co-occurrence or co-measurement is prevented from entering confirmed output.
     """
     ctx = evidence_context or {}
+    if claim_is_relational is None:
+        claim_is_relational = (
+            detect_extraction_semantics(target_claim.get("text", "")) == ExtractionSemantics.CLAIM_RELATION
+        )
     # P1: Fail-closed default on source_role
     source_role = ctx.get("source_role", SourceRole.UNKNOWN)
     section = (ctx.get("location") or "").lower()
@@ -249,6 +284,29 @@ def verify_claim_alignment(
             "source_role": source_role,
             "audit_verdict": "REJECT_EMPTY_CLAIM",
             "notes": "Empty target claim."
+        }
+
+    # ----------------------------------------------------
+    # Gate 1b: Unbound relation predicate (fail-closed)
+    # ----------------------------------------------------
+    # A relation/claim-shaped assertion without a bound predicate cannot be
+    # aligned to anything. Without this check the gate returns SUPPORTED with
+    # note "predicate '' bound", which is invisible to a reader skimming status.
+    if claim_is_relational and not predicate:
+        gate_results["gate1_identity"] = False
+        violations.append(
+            "Claim is relational but carries no bound predicate; cannot verify that "
+            "the evidence supports the asserted relation.")
+        return {
+            "status": RelationStatus.AMBIGUOUS,
+            "is_confirmed_eligible": False,
+            "gate_results": gate_results,
+            "violations": violations,
+            "source_role": source_role,
+            "audit_verdict": "REJECT_UNBOUND_RELATION_PREDICATE",
+            "notes": "Fail-closed: relational claim submitted without a predicate triple "
+                     "(subject/predicate/object). Bind the predicate or reclassify the "
+                     "task as ATTRIBUTE."
         }
 
     # ----------------------------------------------------
@@ -580,3 +638,110 @@ def calculate_alignment_metrics(evaluation_records: List[Dict[str, Any]]) -> Dic
         "unsupported_predicate_insertion_rate": round(predicate_insertion_rate, 4),
         "meets_target": (false_relation_rate == 0.0 and predicate_insertion_rate == 0.0)
     }
+
+
+def main() -> None:
+    """CLI entry point for the Claim-Evidence Alignment Gate.
+
+    Added 2026-09-11: SKILL.md §六 listed this module as a helper tool, but it had
+    no `__main__` and no argparse, so A2 could only be invoked by importing it from
+    another Python program. A gate that cannot be run from a shell is not
+    operationally enforceable — the multi-agent test had to wrap it by hand.
+
+    Usage:
+      python claim_alignment.py -c claim.json --evidence evidence.txt \
+             [--section "Results"] [--cross-context] [-o report.json]
+
+      python claim_alignment.py --claim-text "黑麂偏好三尖杉" \
+             --evidence-text "...(verbatim context)..." --evidence-role CURRENT_STUDY_RESULT
+
+      echo '{"text": "...", "subject": "...", "predicate": "...", "object": "..."}' \
+        | python claim_alignment.py --claim-stdin --evidence evidence.txt
+    """
+    import argparse
+    import json
+    from pathlib import Path
+
+    ap = argparse.ArgumentParser(
+        description="Run the 5 Claim-Evidence Alignment Gates on a target claim")
+    src = ap.add_mutually_exclusive_group(required=True)
+    src.add_argument("-c", "--claim", help="target claim JSON file")
+    src.add_argument("--claim-text", help="target claim as a bare string (subject/predicate/object left empty)")
+    src.add_argument("--claim-stdin", action="store_true", help="read the target claim JSON from stdin")
+
+    ev = ap.add_mutually_exclusive_group(required=True)
+    ev.add_argument("-e", "--evidence", help="evidence/context text file (verbatim)")
+    ev.add_argument("--evidence-text", help="evidence context as a bare string")
+
+    ap.add_argument("--section", default=None, help="section heading the evidence sits under")
+    ap.add_argument("--evidence-role", default=None,
+                    help="semantic role of the evidence (default UNKNOWN -> fail-closed)")
+    ap.add_argument("--cross-context", action="store_true",
+                    help="the quote stitches together more than one evidence context")
+    ap.add_argument("--semantics", default=None,
+                    help="force extraction semantics (ATTRIBUTE / CLAIM_RELATION); default = auto-detect")
+    ap.add_argument("--subject", default=None, help="subject entity of the relational claim")
+    ap.add_argument("--predicate", default=None, help="relational predicate linking subject and object")
+    ap.add_argument("--object", default=None, help="object entity or comparator of the relational claim")
+    ap.add_argument("--direction", default=None, help="direction of relation (e.g. POSITIVE, HIGHER_IS_BETTER)")
+    ap.add_argument("-o", "--output", help="write the full JSON result here")
+    a = ap.parse_args()
+
+    if a.claim_stdin:
+        claim = json.loads(sys.stdin.read())
+    elif a.claim:
+        claim = json.loads(Path(a.claim).read_text(encoding="utf-8"))
+    else:
+        claim = {"text": a.claim_text}
+
+    if a.subject is not None:
+        claim["subject"] = a.subject
+    if a.predicate is not None:
+        claim["predicate"] = a.predicate
+    if a.object is not None:
+        claim["object"] = a.object
+    if a.direction is not None:
+        claim["direction"] = a.direction
+
+    evidence_text = a.evidence_text if a.evidence_text is not None else Path(a.evidence).read_text(encoding="utf-8")
+
+    ctx = {}
+    if a.section:
+        ctx["location"] = a.section
+    if a.evidence_role:
+        ctx["source_role"] = a.evidence_role
+
+    semantics = a.semantics or detect_extraction_semantics(claim.get("text", ""))
+    result = verify_claim_alignment(claim, evidence_text, evidence_context=ctx,
+                                    is_cross_context=a.cross_context)
+
+    if a.output:
+        Path(a.output).parent.mkdir(parents=True, exist_ok=True)
+        Path(a.output).write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+        print("Report saved to: %s" % a.output)
+
+    status = result.get("status") or result.get("relation_status") or result.get("claim_status")
+    eligible = result.get("is_confirmed_eligible", result.get("eligible_for_confirmed_output", result.get("eligible", False)))
+    print("=" * 58)
+    print(" Claim-Evidence Alignment Gate")
+    print("=" * 58)
+    print(" claim            : %s" % claim.get("text", "")[:80])
+    print(" semantics        : %s" % semantics)
+    print(" status           : %s" % status)
+    print(" confirmed output : %s" % eligible)
+    for g in result.get("gates", []) or []:
+        print("   gate%-2s %-22s %s" % (g.get("gate", "?"), g.get("name", ""),
+                                        "PASS" if g.get("passed") else "FAIL"))
+    for note in (result.get("rationale"), result.get("notes")):
+        if note:
+            print(" note             : %s" % str(note)[:160])
+    print("=" * 58)
+
+    # A blocked claim is a legitimate outcome, not a CLI error: exit 0 when the
+    # gate reaches a decision, 1 when the claim may NOT enter confirmed output.
+    raise SystemExit(0 if eligible else 1)
+
+
+if __name__ == "__main__":
+    main()
+

@@ -1,4 +1,4 @@
-# 证据链独立核验审查员契约与 15 项审计清单 (Evidence Auditor Contract)
+# 证据链独立核验审查员契约与 16 项审计清单 (Evidence Auditor Contract)
 
 ## 一、角色定位、一票否决权与独立性声明
 
@@ -11,14 +11,16 @@
 
 ### 📢 审查独立性与双层审计架构说明 (Audit Hierarchy & Independence Disclaimer)
 在严谨实证科研中，必须杜绝“同模型单线程自我粉饰”：
-1. **Level-1 启发式角色自检 (In-Context Persona Audit)**：在同一会话中由模型代入 Auditor 视角进行 15 项清单排查，属于**模型内部自查机制 (Self-Consistency)**。在单智能体环境下签发的 PASS 属于自检放行，不具备统计学外部独立性；
+1. **Level-1 启发式角色自检 (In-Context Persona Audit)**：在同一会话中由模型代入 Auditor 视角进行 16 项清单排查，属于**模型内部自查机制 (Self-Consistency)**。在单智能体环境下签发的 PASS 属于自检放行，不具备统计学外部独立性；
 2. **Level-2 确定性程序级硬审计 (Deterministic Programmatic Audit)**：抽取证据的核心防线由确定性 Python 脚本保障：
-   - 必须运行 `scripts/audit_claims.py` 对提取的 Verbatim Quotes 进行**正文字面级子串匹配校验**，计算精确字符对齐率；一旦发现原句与原文差异超过 OCR 噪声容限，脚本将直接报警阻断，杜绝大模型伪造引文；
+   - 必须运行 `scripts/quote_audit.py` 对提取的 Verbatim Quotes 进行**正文字面级子串匹配校验**（EXACT / HYPHEN_JOIN / FUZZY / NOT_FOUND），并对 `extracted_value` 做**值—引文锚定校验**；NOT_FOUND、取值在源文中不存在、以及任何未核验记录（空引文/短引文）均判 `gate_failed`，杜绝大模型伪造引文与"引文真、取值假"；
+     - 修正记录（2026-09-11）：此处原写 `scripts/audit_claims.py`，但该脚本是**既有 Claim 的候选定位器**，不做引文回查；引文回查门禁为 `quote_audit.py`。文档指向错误脚本会让 Level-2 防线名存实亡。
+     - 另需以 `--source-pins` 绑定源文 sha256，并对 `extraction_pipeline.py -i <result.json> --evidence-chain` 校验审计交接覆盖度；
 3. **Level-3 隔离子智能体审计 (Isolated SubAgent Execution)**：在支持多智能体的编排平台中，Auditor 应以独立的 SubAgent 实例唤起，不继承抽取专员的中间思考过程，实现独立的盲审复核。
 
 ---
 
-## 二、终审必须机械式执行的 16 项质量审计清单 (16-Point Audit Checklist / 15-Point Audit Checklist 强化扩展)
+## 二、终审必须机械式执行的 16 项质量审计清单 (16-Point Audit Checklist)
 
 在签署任何放行令前，必须逐一核对以下 16 项硬指标：
 
@@ -73,7 +75,7 @@
 - **审查文档**：[Paper Title / Filename]
 - **审计执行层级 (Audit Tier)**：
   - [x] Level-1 启发式角色自检 (In-Context 16-Point Checklist)
-  - [x] Level-2 确定性脚本硬检 (audit_claims.py / context_expansion.py 对齐率: 100%)
+  - [x] Level-2 确定性脚本硬检 (quote_audit.py 引文回查+值锚定 / context_expansion.py 对齐率: 100%)
   - [ ] Level-3 独立子智能体盲审 (Isolated SubAgent Review)
 - **核验字段总数**：[N] 项
   - E1 (EXPLICIT 明示)：[N1] 项

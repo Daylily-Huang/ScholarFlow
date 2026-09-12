@@ -50,3 +50,7 @@ test_output/
 # Local credential file (never commit)
 pathtoken.txt
 .git-askpass
+
+# Local end-to-end stress test runs and artifacts (never commit)
+端到端真实跑/
+

@@ -38,7 +38,7 @@ RUN_CONFIG_PROFILE_VERSION = "depth-v1"
 SELECTION_STATUSES = ("confirmed", "pending", "rejected")
 
 #: Pipeline stages a configuration can authorise.
-PIPELINE_STAGES = ("discovery", "extraction", "synthesis", "full_pipeline")
+PIPELINE_STAGES = ("discovery", "extraction", "synthesis", "research-debate", "full_pipeline")
 
 
 class StageScope(str, Enum):

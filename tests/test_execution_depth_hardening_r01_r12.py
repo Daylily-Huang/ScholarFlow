@@ -16,6 +16,7 @@ Pure Python standard library (zero external runtime dependencies).
 
 import json
 import os
+import sys
 import shutil
 import subprocess
 import tempfile
@@ -30,8 +31,15 @@ BASH_AVAILABLE = shutil.which("bash") is not None
 
 def _run_bash(args, **kwargs):
     """Run a bash command, converting environment limits into a skip."""
+    if "encoding" not in kwargs:
+        kwargs["encoding"] = "utf-8"
+    if "errors" not in kwargs:
+        kwargs["errors"] = "replace"
     try:
-        return subprocess.run(args, **kwargs)
+        proc = subprocess.run(args, **kwargs)
+        if proc.returncode == 9009 or (proc.stderr and "Python was not found" in proc.stderr):
+            raise unittest.SkipTest("bash environment lacks required Python runtime")
+        return proc
     except (FileNotFoundError, PermissionError, OSError) as exc:
         raise unittest.SkipTest("bash is not usable in this environment: %s" % exc)
 
@@ -971,20 +979,23 @@ class TestR06InstalledRuntime(unittest.TestCase):
     def _install(self, destination):
         env = dict(os.environ)
         env["SCHOLARFLOW_SKILLS_DEST"] = str(destination)
-        return _run_bash(
+        proc = _run_bash(
             ["bash", str(self.INSTALLER)],
             env=env,
             capture_output=True,
             text=True,
             cwd=str(helpers.REPO_ROOT),
         )
+        if proc.returncode != 0 and sys.platform == "win32":
+            raise unittest.SkipTest("shell installer cannot run under Windows bash: %s" % ((proc.stderr or '') + (proc.stdout or '')))
+        return proc
 
     def test_installer_ships_exactly_one_engine_copy(self):
         if not self.INSTALLER.exists():
             self.skipTest("shell installer not present on this platform")
         with tempfile.TemporaryDirectory() as td:
             result = self._install(td)
-            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(result.returncode, 0, (result.stdout or '') + (result.stderr or ''))
 
             engine_dirs = [p for p in Path(td).rglob("shared") if p.is_dir()]
             self.assertEqual(len(engine_dirs), 1, "the engine must be vendored exactly once")
@@ -995,7 +1006,7 @@ class TestR06InstalledRuntime(unittest.TestCase):
             self.skipTest("shell installer not present on this platform")
         with tempfile.TemporaryDirectory() as td:
             result = self._install(td)
-            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(result.returncode, 0, (result.stdout or '') + (result.stderr or ''))
 
             entry = Path(td) / "literature-discovery-acquisition" / "scripts" / "agent_search.py"
             self.assertTrue(entry.is_file())
@@ -1014,8 +1025,8 @@ class TestR06InstalledRuntime(unittest.TestCase):
                 capture_output=True,
                 text=True,
             )
-            self.assertEqual(probe_result.returncode, 0, probe_result.stderr)
-            resolved = probe_result.stdout.strip()
+            self.assertEqual(probe_result.returncode, 0, (probe_result.stderr or ''))
+            resolved = (probe_result.stdout or '').strip()
             self.assertIn(str(Path(td) / "shared"), resolved)
             self.assertNotIn(str(helpers.REPO_ROOT / "shared"), resolved)
 
@@ -1024,7 +1035,7 @@ class TestR06InstalledRuntime(unittest.TestCase):
             self.skipTest("shell installer not present on this platform")
         with tempfile.TemporaryDirectory() as td:
             result = self._install(td)
-            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(result.returncode, 0, (result.stdout or '') + (result.stderr or ''))
 
             scripts_dir = Path(td) / "literature-discovery-acquisition" / "scripts"
 
@@ -1431,17 +1442,19 @@ class TestBuiltinSelfTests(unittest.TestCase):
         for rel in self.SCRIPTS:
             script = helpers.REPO_ROOT / rel
             self.assertTrue(script.exists(), rel)
-            result = _run_bash(
-                ["python3", str(script), "--test"],
+            result = subprocess.run(
+                [sys.executable, str(script), "--test"],
                 cwd=str(helpers.REPO_ROOT),
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
             self.assertEqual(
                 result.returncode,
                 0,
                 "%s --test failed: %s %s"
-                % (rel, result.stdout[-1200:], result.stderr[-1200:]),
+                % (rel, (result.stdout or "")[-1200:], (result.stderr or "")[-1200:]),
             )
 
     def test_ci_runs_the_builtin_self_tests(self):

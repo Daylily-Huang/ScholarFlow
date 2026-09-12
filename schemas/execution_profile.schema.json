@@ -16,19 +16,38 @@
     "enforcement"
   ],
   "properties": {
-    "schema_version": { "type": "string", "const": "1.0" },
-    "profile_version": { "type": "string", "const": "depth-v1" },
-    "run_id": { "type": "string", "minLength": 1 },
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "profile_version": {
+      "type": "string",
+      "const": "depth-v1"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
     "depth": {
       "type": "string",
-      "enum": ["quick", "standard", "deep"]
+      "enum": [
+        "quick",
+        "standard",
+        "deep"
+      ]
     },
     "execution_depth": {
       "type": "string",
-      "enum": ["quick", "standard", "deep"],
+      "enum": [
+        "quick",
+        "standard",
+        "deep"
+      ],
       "description": "Alias of `depth`, emitted for downstream convenience; both must agree."
     },
-    "name_zh": { "type": "string" },
+    "name_zh": {
+      "type": "string"
+    },
     "selection_source": {
       "type": "string",
       "enum": [
@@ -41,9 +60,20 @@
     "selection": {
       "type": "object",
       "description": "Auditable record of how the depth for this run was chosen (R04/R07).",
-      "required": ["status", "source", "scope"],
+      "required": [
+        "status",
+        "source",
+        "scope"
+      ],
       "properties": {
-        "status": { "type": "string", "enum": ["confirmed", "pending", "rejected"] },
+        "status": {
+          "type": "string",
+          "enum": [
+            "confirmed",
+            "pending",
+            "rejected"
+          ]
+        },
         "source": {
           "type": "string",
           "enum": [
@@ -53,26 +83,66 @@
             "CONTEXT_RESOLVED"
           ]
         },
-        "scope": { "type": "string", "enum": ["stage", "pipeline"] },
-        "selected_value": {
-          "type": ["string", "null"],
-          "enum": ["quick", "standard", "deep", null]
+        "scope": {
+          "type": "string",
+          "enum": [
+            "stage",
+            "pipeline"
+          ]
         },
-        "confirmed_by": { "type": "string" },
-        "confirmed_at": { "type": ["string", "null"] },
-        "intent": { "type": "string" },
-        "reason": { "type": "string" },
-        "notes": { "type": "string" }
+        "selected_value": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "quick",
+            "standard",
+            "deep",
+            null
+          ]
+        },
+        "confirmed_by": {
+          "type": "string"
+        },
+        "confirmed_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "intent": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
       },
       "additionalProperties": false
     },
-    "interaction_mode": { "type": "string", "enum": ["interactive", "headless"] },
+    "interaction_mode": {
+      "type": "string",
+      "enum": [
+        "interactive",
+        "headless"
+      ]
+    },
     "stages": {
       "type": "array",
       "items": {
         "type": "string",
-        "enum": ["discovery", "extraction", "synthesis", "full_pipeline"]
-      }
+        "enum": [
+          "discovery",
+          "extraction",
+          "synthesis",
+          "research-debate",
+          "full_pipeline"
+        ]
+      },
+      "description": "Authorised pipeline stages for this run. `research-debate` is the idea-development stage (RFC-016); it sits beside the literature stages and is not a prerequisite for them."
     },
     "budgets": {
       "type": "object",
@@ -85,13 +155,37 @@
         "max_model_requests"
       ],
       "properties": {
-        "max_search_candidates": { "type": "integer", "minimum": 1 },
-        "snowball_rounds": { "type": "integer", "minimum": 0 },
-        "concept_expansion_rounds": { "type": "integer", "minimum": 0 },
-        "extraction_unit_limit": { "type": "integer", "minimum": 1 },
-        "max_active_seconds": { "type": "integer", "minimum": 1 },
-        "max_model_requests": { "type": "integer", "minimum": 1 },
-        "max_token_ceiling": { "type": ["integer", "null"], "minimum": 1 }
+        "max_search_candidates": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "snowball_rounds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "concept_expansion_rounds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "extraction_unit_limit": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_active_seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_model_requests": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_token_ceiling": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        }
       },
       "additionalProperties": false
     },
@@ -99,23 +193,53 @@
       "type": "object",
       "description": "Methodological capability switches granted to this run.",
       "properties": {
-        "ocr_scan_policy": { "type": "string" },
-        "figure_table_verification": { "type": "string" },
-        "cross_validation_budget": { "type": "integer", "minimum": 0 },
-        "spot_check_rate": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
-        "devils_advocate_mode": { "type": "string" }
+        "ocr_scan_policy": {
+          "type": "string"
+        },
+        "figure_table_verification": {
+          "type": "string"
+        },
+        "cross_validation_budget": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "spot_check_rate": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "devils_advocate_mode": {
+          "type": "string"
+        }
       },
       "additionalProperties": false
     },
     "enforcement": {
       "type": "string",
-      "enum": ["best_effort", "hard"],
+      "enum": [
+        "best_effort",
+        "hard"
+      ],
       "default": "best_effort"
     },
-    "created_at": { "type": "string" },
-    "updated_at": { "type": "string" },
-    "parent_run_id": { "type": ["string", "null"] },
-    "limitations": { "type": "array", "items": { "type": "string" } }
+    "created_at": {
+      "type": "string"
+    },
+    "updated_at": {
+      "type": "string"
+    },
+    "parent_run_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
   },
   "additionalProperties": false
 }

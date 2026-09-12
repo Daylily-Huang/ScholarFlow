@@ -59,15 +59,35 @@ class TestAuditEvidence(unittest.TestCase):
         self.assertEqual(rep["summary"]["not_found"], 1)
         self.assertTrue(rep["summary"]["gate_failed"])
 
-    def test_empty_quote_is_skipped_not_failed(self):
+    def test_empty_quote_fails_gate_by_default(self):
+        """空引句必须默认拦住。
+
+        `quote_audit.py` 的未验证策略已收紧为默认 `UNVERIFIED_FAIL`：旧行为
+        （空引句只计数、不影响门禁）等于给"把引句留空"开了一个免费逃生门，
+        而留空恰恰是 E4/NR 记录的既定形态。这里把新口径固化下来。
+        """
         ev = _evidence([_rec("F1", "", level="E4_NR")])
         rep = qa.audit_evidence(ev, SOURCE_TEXT)
         self.assertEqual(rep["summary"]["skipped_no_quote"], 1)
+        self.assertTrue(rep["summary"]["gate_failed"])
+        self.assertEqual(rep["summary"]["unverified_policy"], qa.UNVERIFIED_FAIL)
+
+    def test_empty_quote_passes_only_with_explicit_opt_out(self):
+        """要放行必须显式选 `list` 策略，不能靠默认值溜过去。"""
+        ev = _evidence([_rec("F1", "", level="E4_NR")])
+        rep = qa.audit_evidence(ev, SOURCE_TEXT, unverified_policy=qa.UNVERIFIED_LIST)
+        self.assertEqual(rep["summary"]["skipped_no_quote"], 1)
         self.assertFalse(rep["summary"]["gate_failed"])
 
-    def test_too_short_quote_flagged(self):
+    def test_too_short_quote_flagged_and_fails_gate_by_default(self):
         ev = _evidence([_rec("F1", "55°C")])
         rep = qa.audit_evidence(ev, SOURCE_TEXT)
+        self.assertEqual(rep["summary"]["too_short"], 1)
+        self.assertTrue(rep["summary"]["gate_failed"])
+
+    def test_too_short_quote_passes_with_explicit_opt_out(self):
+        ev = _evidence([_rec("F1", "55°C")])
+        rep = qa.audit_evidence(ev, SOURCE_TEXT, unverified_policy=qa.UNVERIFIED_LIST)
         self.assertEqual(rep["summary"]["too_short"], 1)
         self.assertFalse(rep["summary"]["gate_failed"])
 

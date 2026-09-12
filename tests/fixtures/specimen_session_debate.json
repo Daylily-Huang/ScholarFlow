@@ -1,0 +1,900 @@
+{
+  "specimen_note": "本文件是 RFC-016 设计稿的规格样本（specimen），用于校验文档声明的规则是否可执行。内容为**虚构演示场景**，不构成真实研究证据：其中的人名、单位、年份、数据、文献与结论均为编写示例所需而虚构。",
+  "schema_version": "0.1",
+  "session_id": "SESS-DEBATE-SPECIMEN-001",
+  "run_id": "sf-run-20260912-001",
+  "revision": 14,
+  "mode": "explore",
+  "state": "CHECKPOINT",
+  "original_prompt": "林下补植的栎类更新一直起不来，我觉得不是郁闭度的问题，但导师说是土壤压实。",
+  "current_question": "在把'郁闭度上升导致栎类更新失败'当作结论之前，能否用现有固定样地数据加一次 UAV 调查区分'光限制'与'土壤压实'两个解释？",
+  "execution": {
+    "depth": "standard",
+    "selection_status": "confirmed",
+    "source": "RUN_PROFILE_INHERITED",
+    "budget": {
+      "max_rounds": 18,
+      "max_review_batches": 2,
+      "max_subtasks_per_batch": 2,
+      "max_active_seconds": 1800,
+      "max_events": 400
+    },
+    "usage": {
+      "rounds_used": 18,
+      "review_batches_used": 2,
+      "active_seconds_used": 942,
+      "active_seconds_metering": "MEASURED",
+      "events_written": 137,
+      "tokens_observed": null,
+      "tokens_metering": "UNAVAILABLE"
+    }
+  },
+  "context": {
+    "known_constraints": [
+      {
+        "text": "2019 永久样地：每样地 10 个 1m×1m 小样方，调查更新时间约 12 人日",
+        "origin": "USER"
+      },
+      {
+        "text": "2021 年补植过一批栎类苗木，补植区与未补植区相邻",
+        "origin": "USER"
+      },
+      {
+        "text": "UAV 仅能在 4 月至 5 月展叶前飞行",
+        "origin": "USER"
+      },
+      {
+        "text": "土壤测量须解冻后、雨季前完成",
+        "origin": "USER"
+      },
+      {
+        "text": "现有遥感数据仅到 2022 年，分辨率不足以提取林下更新",
+        "origin": "PROJECT"
+      },
+      {
+        "text": "2019 郁闭度用冠层照度计（densiometer）测，非 UAV 反演",
+        "origin": "USER"
+      }
+    ]
+  },
+  "ideas": [
+    {
+      "idea_id": "IDEA-OAK-REGEN",
+      "maturation": "TESTABLE",
+      "versions": [
+        {
+          "version": 1,
+          "parent_version": null,
+          "proposition": "林下补植的栎类更新起不来，不只是郁闭度的问题。",
+          "origin": "USER",
+          "epistemic_status": "INTUITION",
+          "disposition": "REVISED",
+          "revision_reason": "第 1 轮：'起不来'缺少可测口径，拆成存活率与高生长两件事。",
+          "assumptions": [],
+          "open_questions": []
+        },
+        {
+          "version": 2,
+          "parent_version": 1,
+          "proposition": "在永久样地内，随冠层郁闭度上升，补植栎类的存活率与高生长同时下降。",
+          "origin": "USER",
+          "epistemic_status": "HYPOTHESIS",
+          "disposition": "REVISED",
+          "revision_reason": "第 5 轮：'郁闭度'存在三种口径（照度计读数、UAV 冠层覆盖度、LiDAR 间隙率），命题需要绑定具体口径；第 7 轮进一步发现 2019 与本次口径不可通约。",
+          "assumptions": [
+            {
+              "text": "2019 与 2023 的更新调查可以采用相同的抽样强度与统计口径",
+              "type": "METHODOLOGICAL",
+              "verification_status": "CONTRADICTED",
+              "source_refs": [
+                "USER-2021-REPLANTING"
+              ],
+              "note": "2021 补植后样方布设与记录口径改变，两年份更新数据不同质地比较。"
+            },
+            {
+              "text": "土壤压实水平在地块间没有系统差异",
+              "type": "EMPIRICAL",
+              "verification_status": "UNVERIFIED",
+              "source_refs": [],
+              "note": "由外部意见提出后正式登记为待验证前提。"
+            }
+          ],
+          "open_questions": [
+            "照度计读数与 UAV 冠层覆盖度之间的对应关系未知，可能本身就是量测尺度伪影。"
+          ]
+        },
+        {
+          "version": 3,
+          "parent_version": 2,
+          "proposition": "在永久样地内，随 UAV 冠层覆盖度上升，补植栎类的存活率与高生长同时下降，且无性系更新同步减少。",
+          "origin": "USER",
+          "epistemic_status": "HYPOTHESIS",
+          "disposition": "RETAINED",
+          "revision_reason": "第 9 轮用户决定吸收外部意见的两项替代解释（土壤压实、无性系竞争），并采纳 UAV 冠层覆盖度作为统一口径；评估结果未能区分两个解释，用户决定保留本版本不改。",
+          "assumptions": [
+            {
+              "text": "2019 与 2023 的更新调查可以采用相同的抽样强度与统计口径",
+              "type": "METHODOLOGICAL",
+              "verification_status": "CONTRADICTED",
+              "source_refs": [
+                "USER-2021-REPLANTING"
+              ],
+              "note": "2021 补植后样方布设与记录口径改变，两年份更新数据不同质地比较。"
+            },
+            {
+              "text": "土壤压实水平在地块间没有系统差异",
+              "type": "EMPIRICAL",
+              "verification_status": "UNVERIFIED",
+              "source_refs": [],
+              "note": "由外部意见提出后正式登记为待验证前提。"
+            }
+          ],
+          "open_questions": [
+            "光照限制与土壤压实贡献的相对大小仍未解决：评估未能区分，用户明确不修改本版本。"
+          ]
+        }
+      ],
+      "predictions": [
+        {
+          "id": "P1",
+          "text": "冠层覆盖度建立对应关系后，存活率仍出现明显下降区间",
+          "origin": "AI建议",
+          "distinguishes_from": [
+            "ALT-COMPACTION"
+          ]
+        },
+        {
+          "id": "P2",
+          "text": "若主要是压实限制，仅在覆盖度低但贯入阻力高的补植带出现更新失败",
+          "origin": "AI建议",
+          "distinguishes_from": [
+            "MAIN-LIGHT"
+          ]
+        }
+      ],
+      "evidence_links": [
+        {
+          "artifact_ref": "USER-FIELD-NOTE-2023",
+          "evidence_id": "EV-FIELD-TRACE-01",
+          "relation": "CONTEXT",
+          "alignment": "UNRESOLVED",
+          "reason": "用户陈述'固定样地内未见野猪拱痕'；属用户观察，样本范围有限，不足以排除野猪干扰。",
+          "checked_scope": "仅用户固定样地，未做样地外踏查"
+        }
+      ],
+      "decisions": [
+        {
+          "id": "D1",
+          "idea_version": 1,
+          "action": "REVISE",
+          "reason": "把'起不来'拆成存活率与高生长，使其可测。",
+          "author": "USER",
+          "triggered_by": "ROLE_QUESTION",
+          "user_confirmation": true
+        },
+        {
+          "id": "D2",
+          "idea_version": 2,
+          "action": "ADD_ASSUMPTION",
+          "reason": "承认 2019 与 2023 更新调查口径不同，登记为已被记录质疑的方法学前提。",
+          "author": "AI建议",
+          "triggered_by": "ROLE_QUESTION",
+          "user_confirmation": true
+        },
+        {
+          "id": "D3",
+          "idea_version": 2,
+          "action": "RECORD_CONSTRAINT",
+          "reason": "UAV 仅 4–5 月可飞；土壤测量须解冻后、雨季前完成。",
+          "author": "USER",
+          "triggered_by": "ROLE_QUESTION",
+          "user_confirmation": true
+        },
+        {
+          "id": "D4",
+          "idea_version": 2,
+          "action": "DEFER_COMPARISON",
+          "reason": "完整双因素设计在本季不可行，按年度分两步推进。",
+          "author": "USER",
+          "triggered_by": "ROLE_QUESTION",
+          "user_confirmation": true
+        },
+        {
+          "id": "D5",
+          "idea_version": 3,
+          "action": "ADD_ALTERNATIVE",
+          "reason": "把土壤压实登记为竞争解释，需与光限制一并考虑。",
+          "author": "USER",
+          "triggered_by": "EXTERNAL_OPINION",
+          "user_confirmation": true
+        },
+        {
+          "id": "D6",
+          "idea_version": 3,
+          "action": "ADOPT_SCOPE",
+          "reason": "统一采用 UAV 冠层覆盖度作为'郁闭度'口径。",
+          "author": "USER",
+          "triggered_by": "ROLE_QUESTION",
+          "user_confirmation": true
+        },
+        {
+          "id": "D7",
+          "idea_version": 3,
+          "action": "RETAIN_PROPOSITION",
+          "reason": "评估未能区分两个解释，用户决定不改写命题，接受其在当前证据下未决。",
+          "author": "USER",
+          "triggered_by": "INDEPENDENT_REVIEW",
+          "user_confirmation": true
+        },
+        {
+          "id": "D8",
+          "idea_version": 3,
+          "action": "CLOSE_SESSION",
+          "reason": "连续两轮无进展信号，进入检查点并由用户决定收尾。",
+          "author": "USER",
+          "triggered_by": "CHECKPOINT",
+          "user_confirmation": true
+        }
+      ],
+      "maturity_history": [
+        {
+          "from": "RAW",
+          "to": "DEVELOPING",
+          "round": 1
+        },
+        {
+          "from": "DEVELOPING",
+          "to": "TESTABLE",
+          "round": 11
+        }
+      ]
+    }
+  ],
+  "external_inputs": [
+    {
+      "id": "EXT-ADVISOR-01",
+      "kind": "EXTERNAL_OPINION",
+      "source": "导师（虚构人物）",
+      "text": "问题可能主要在土壤压实，建议加测贯入阻力。",
+      "stated_reason": "补植时机械作业可能造成压实。",
+      "authority": "EXTERNAL_OPINION",
+      "not_user_decision": true
+    }
+  ],
+  "progress_signals": [
+    {
+      "signal": "INTUITION_FORMULATED",
+      "round": 1,
+      "evidence": "命题 v1 落为可陈述句"
+    },
+    {
+      "signal": "QUESTION_SHARPENED",
+      "round": 1,
+      "evidence": "问题收窄为存活率与高生长两个可测口径"
+    },
+    {
+      "signal": "PREMISE_SURFACED",
+      "round": 2,
+      "evidence": "两年份可比性前提被显式登记"
+    },
+    {
+      "signal": "DISCRIMINATION_ADDED",
+      "round": 5,
+      "evidence": "郁闭度三种口径及其不同后果"
+    },
+    {
+      "signal": "PREMISE_CONTRADICTED",
+      "round": 7,
+      "evidence": "2019 照度计与 UAV 反演不可通约"
+    },
+    {
+      "signal": "ALTERNATIVE_ADDED",
+      "round": 9,
+      "evidence": "土壤压实与无性系竞争进入候选集"
+    },
+    {
+      "signal": "DISCRIMINATION_ADDED",
+      "round": 12,
+      "evidence": "P1/P2 两条可区分预测"
+    },
+    {
+      "signal": "DISPOSITION_DECIDED",
+      "round": 12,
+      "evidence": "成熟度升为 TESTABLE，进入验证设计"
+    },
+    {
+      "signal": "GAP_CONFIRMED",
+      "round": 15,
+      "evidence": "接受两项范围调整（口径对照 + 压实效应检索）"
+    }
+  ],
+  "stopped_questions": [
+    {
+      "question_id": "Q-09",
+      "obstacle": "光照限制与土壤压实的相对贡献",
+      "known": "用户明确不修改命题；评估未能区分两者；完整双因素设计本季不可行。",
+      "stop_rule": "S1",
+      "carried_to": [
+        "open_questions",
+        "next_session"
+      ],
+      "stopped_at_round": 17
+    }
+  ],
+  "open_questions": [
+    "照度计读数与 UAV 冠层覆盖度之间的对应关系（影响 2019 与本次数据能否衔接）。",
+    "土壤压实是否在补植带与未补植带之间存在系统差异（原始数据未记录机械作业范围）。",
+    "2021 补植后调查口径变化对更新数据的影响幅度。",
+    "光照限制与土壤压实的相对贡献：评估未能区分，已挂为未决。"
+  ],
+  "budget_exhausted_at_round": 24,
+  "post_budget_rounds": [
+    26,
+    27
+  ],
+  "post_budget_note": "第 24 轮达到 max_rounds=18 的实质轮次上限并输出待办；其后第 26、27 轮为预算耗尽检查点后用户选择继续的轮次，仍计资源但不重置上限。",
+  "stop_reason": "NO_PROGRESS",
+  "review_batches": [
+    {
+      "batch_id": "RB-01",
+      "rounds": [
+        16,
+        17
+      ],
+      "subtasks": [
+        {
+          "task_id": "T1",
+          "idea_id": "IDEA-OAK-REGEN",
+          "input_version": 3,
+          "lens": "premise_evidence_examiner",
+          "status": "COMPLETE"
+        },
+        {
+          "task_id": "T2",
+          "idea_id": "IDEA-OAK-REGEN",
+          "input_version": 3,
+          "lens": "alternative_explorer",
+          "status": "COMPLETE"
+        }
+      ],
+      "verdicts": {
+        "T1": "BOUNDED",
+        "T2": "INSUFFICIENT"
+      },
+      "counterexample_overlap": "NONE",
+      "disagreement_signal": "HIGH_DIVERGENCE",
+      "computed_by": "deterministic_program",
+      "resolution": "ESCALATED_TO_GAP",
+      "escalated_gap_id": "GAP-003",
+      "user_decision": "MAINTAIN_PROPOSITION_UNRESOLVED",
+      "counterexample_types": {
+        "T1": "MEASUREMENT_ARTIFACT",
+        "T2": "ALTERNATIVE_MECHANISM"
+      },
+      "premise_overlap_label": "PARTIAL"
+    },
+    {
+      "batch_id": "RB-02",
+      "rounds": [
+        18
+      ],
+      "subtasks": [
+        {
+          "task_id": "T3",
+          "idea_id": "IDEA-OAK-REGEN",
+          "input_version": 3,
+          "lens": "implication_validator",
+          "status": "UNAVAILABLE"
+        }
+      ],
+      "verdicts": {},
+      "counterexample_overlap": "NOT_APPLICABLE",
+      "disagreement_signal": "NOT_APPLICABLE",
+      "computed_by": "deterministic_program",
+      "degraded": true,
+      "execution_kind": "SELF_CHECK",
+      "degradation_note": "第二个评估任务因工具不可用返回 UNAVAILABLE；本批判为降级，不得用于满足'收敛前独立评估'前提。",
+      "counterexample_types": {},
+      "premise_overlap_label": "NOT_APPLICABLE"
+    }
+  ],
+  "gap_requests": [
+    {
+      "gap_id": "GAP-001",
+      "idea_id": "IDEA-OAK-REGEN",
+      "idea_version": 2,
+      "gap_type": "SEARCH_GAP",
+      "target_skill": "literature-discovery-acquisition",
+      "question": "照度计读数与 UAV 冠层覆盖度之间是否存在可用的对应关系？",
+      "reason": "若两者不可通约，则 2019 与本次调查不能直接衔接。",
+      "decision_impact": "决定'郁闭度上升导致更新失败'能否用两个年份的数据比较。",
+      "blocking": "BLOCKING",
+      "scope": {
+        "topic": "canopy closure densiometer versus UAV-derived canopy cover comparability"
+      },
+      "approval": {
+        "status": "CONFIRMED",
+        "confirmed_event_id": "EV-GAP-001",
+        "scope_fingerprint": "fp-gap-001-v1"
+      },
+      "execution_status": "REFUSED_BY_USER",
+      "result_refs": []
+    },
+    {
+      "gap_id": "GAP-002",
+      "idea_id": "IDEA-OAK-REGEN",
+      "idea_version": 2,
+      "gap_type": "EXTRACTION_GAP",
+      "target_skill": "literature-evidence-extraction",
+      "question": "补植区与未补植区的机械作业范围与贯入阻力是否记录？",
+      "reason": "判断土壤压实前提是否可验证。",
+      "decision_impact": "决定压实解释能否被排除或保留。",
+      "blocking": "RECORDED",
+      "scope": {
+        "target_papers": [
+          "USER-PROJECT-ARCHIVE"
+        ],
+        "required_fields": [
+          "mechanical_operation_extent",
+          "penetration_resistance"
+        ]
+      },
+      "approval": {
+        "status": "REJECTED",
+        "confirmed_event_id": null,
+        "scope_fingerprint": "fp-gap-002-v1"
+      },
+      "execution_status": "NOT_STARTED",
+      "result_refs": []
+    },
+    {
+      "gap_id": "GAP-003",
+      "idea_id": "IDEA-OAK-REGEN",
+      "idea_version": 2,
+      "gap_type": "SEARCH_GAP",
+      "target_skill": "literature-discovery-acquisition",
+      "question": "2019 与 2023 更新调查的抽样强度与统计口径差异是否影响结论？",
+      "reason": "评估未能区分光限制与土壤压实，需要一个判别性的外部证据。",
+      "decision_impact": "决定当前命题在现有数据下是否可判定。",
+      "blocking": "BLOCKING",
+      "scope": {
+        "topic": "understory regeneration sampling intensity comparability"
+      },
+      "approval": {
+        "status": "PENDING",
+        "confirmed_event_id": null,
+        "scope_fingerprint": "fp-gap-003-v1"
+      },
+      "execution_status": "NOT_STARTED",
+      "result_refs": []
+    },
+    {
+      "gap_id": "GAP-004",
+      "idea_id": "IDEA-OAK-REGEN",
+      "idea_version": 3,
+      "gap_type": "SEARCH_GAP",
+      "target_skill": "literature-discovery-acquisition",
+      "question": "采伐或整地导致的土壤压实对栎类更新的影响是否普遍大于光照限制的直接效应？",
+      "reason": "用户在第 20 轮补充要求。",
+      "decision_impact": "若普遍更大，则需要重新评估命题重心。",
+      "blocking": "RECORDED",
+      "scope": {
+        "topic": "soil compaction versus light limitation on Quercus regeneration"
+      },
+      "approval": {
+        "status": "INVALIDATED",
+        "confirmed_event_id": null,
+        "scope_fingerprint": "fp-gap-004-v1"
+      },
+      "execution_status": "NOT_STARTED",
+      "result_refs": [],
+      "invalidation_reason": "用户在第 24 轮把范围扩大到包含整地方式对比，与确认时的指纹不符。"
+    }
+  ],
+  "review_requests": [
+    {
+      "request_id": "RR-01",
+      "round": 15,
+      "batch_id": "RB-01",
+      "idea_id": "IDEA-OAK-REGEN",
+      "input_version": 3,
+      "purpose": "评估当前命题的逻辑结构与两个竞争解释的可区分性。",
+      "input_whitelist": [
+        "IDEA-OAK-REGEN@v3 逐字命题",
+        "USER 约束：UAV 4–5 月、土壤测量窗口",
+        "EV-FIELD-TRACE-01",
+        "assigned_lens"
+      ],
+      "excluded": [
+        "主持人倾向与预期答案",
+        "其他评估者结果",
+        "历史总结与措辞",
+        "用户偏好表述"
+      ],
+      "submitted_separately": true,
+      "cross_talk_rounds": 0
+    },
+    {
+      "request_id": "RR-02",
+      "round": 18,
+      "batch_id": "RB-02",
+      "idea_id": "IDEA-OAK-REGEN",
+      "input_version": 3,
+      "purpose": "检查第三版命题是否具备可检验形式。",
+      "input_whitelist": [
+        "IDEA-OAK-REGEN@v3 逐字命题",
+        "assigned_lens"
+      ],
+      "excluded": [
+        "主持人倾向",
+        "其他评估者结果"
+      ],
+      "submitted_separately": true,
+      "cross_talk_rounds": 0
+    }
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "kind": "SUBSTANTIVE",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 1,
+      "role": "concept_clarifier",
+      "question_type": "CLARIFICATION",
+      "trigger": "P1",
+      "intent": "把'起不来'拆成可测口径",
+      "question": "你说的'更新起不来'，更接近补植苗木活不下来，还是活下来但长不起来？",
+      "user_answer": "其实两种都有，我没分开记过。",
+      "signals": [
+        "INTUITION_FORMULATED",
+        "QUESTION_SHARPENED"
+      ]
+    },
+    {
+      "round": 2,
+      "kind": "SUBSTANTIVE",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 1,
+      "role": "premise_evidence_examiner",
+      "question_type": "PREMISE_EVIDENCE",
+      "trigger": "P2",
+      "intent": "检查两年份数据可比性",
+      "question": "你打算用 2019 和 2023 两次调查比较，那两年份的抽样强度和记录口径是否一致？",
+      "user_answer": "不完全一致。2021 年补植之后小样方布设和记录都改过。",
+      "signals": [
+        "PREMISE_SURFACED"
+      ]
+    },
+    {
+      "round": 3,
+      "kind": "SUBSTANTIVE",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 1,
+      "role": "alternative_explorer",
+      "question_type": "COMPARISON",
+      "trigger": "P4",
+      "intent": "找出与光限制竞争的机制",
+      "question": "这个林场里除了光照，还有哪一类因素是你亲眼见过能压住更新的？",
+      "user_answer": "野猪拱地。不过我们固定样地里没见过拱痕。",
+      "signals": [
+        "ALTERNATIVE_ADDED"
+      ]
+    },
+    {
+      "round": 4,
+      "kind": "SUBSTANTIVE",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 1,
+      "role": "concept_clarifier",
+      "question_type": "CLARIFICATION",
+      "trigger": "P1",
+      "intent": "把'郁闭度'绑定到可比较的口径",
+      "question": "你说的'郁闭度'，是指 2019 年那种照度计读数，还是无人机反演的冠层覆盖度？",
+      "user_answer": "我其实没细想过，两种说法我都在用。",
+      "signals": [
+        "DISCRIMINATION_ADDED"
+      ]
+    },
+    {
+      "round": 5,
+      "kind": "SUBSTANTIVE",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 2,
+      "role": "implication_validator",
+      "question_type": "IMPLICATION",
+      "trigger": "P3",
+      "intent": "把命题变成可观察预测",
+      "question": "如果光限制解释成立，你预期在冠层覆盖度升高的样地上还应该看到哪一类同步变化？",
+      "user_answer": "存活率和高生长都下来，无性系更新也会少。",
+      "signals": [
+        "DISCRIMINATION_ADDED"
+      ]
+    },
+    {
+      "round": 6,
+      "kind": "EXTERNAL_INPUT",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 2,
+      "role": "moderator",
+      "question_type": "CONFIGURATION",
+      "trigger": "P0",
+      "intent": "处理外部意见",
+      "question": "导师提出主因可能是土壤压实并建议加测贯入阻力。要把这条登记为竞争解释，还是只记为一条意见？",
+      "user_answer": "登记为竞争解释吧，我同意它值得一起考虑。",
+      "external_input_ref": "EXT-ADVISOR-01",
+      "signals": [
+        "ALTERNATIVE_ADDED"
+      ]
+    },
+    {
+      "round": 7,
+      "kind": "SUBSTANTIVE",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 2,
+      "role": "premise_evidence_examiner",
+      "question_type": "PREMISE_EVIDENCE",
+      "trigger": "P2",
+      "intent": "检验口径可比性前提",
+      "question": "既然 2019 是照度计、这次要用 UAV 反演，你手上有没有两者之间的对应关系？",
+      "user_answer": "没有，这个我没查过。",
+      "signals": [
+        "PREMISE_CONTRADICTED"
+      ]
+    },
+    {
+      "round": 8,
+      "kind": "SUBSTANTIVE",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 2,
+      "role": "implication_validator",
+      "question_type": "IMPLICATION",
+      "trigger": "P3",
+      "intent": "确定检验口径",
+      "question": "建立对应关系之后，你预期存活率随覆盖度的关系是连续下降，还是存在一个明显下降区间？",
+      "user_answer": "我觉得是下降区间更容易看出来，连续下降在样地数少的时候看不出。",
+      "signals": [
+        "DISCRIMINATION_ADDED"
+      ]
+    },
+    {
+      "round": 9,
+      "kind": "SUBSTANTIVE",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 2,
+      "role": "alternative_explorer",
+      "question_type": "COMPARISON",
+      "trigger": "P4",
+      "intent": "扩大候选解释集",
+      "question": "除了压实，还有哪一类机制能解释'清过灌但仍不更新'？",
+      "user_answer": "无性系竞争？萌芽更新一直有，实生苗可能抢不过。",
+      "signals": [
+        "ALTERNATIVE_ADDED"
+      ]
+    },
+    {
+      "round": 10,
+      "kind": "SUBSTANTIVE",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 2,
+      "role": "premise_evidence_examiner",
+      "question_type": "PREMISE_EVIDENCE",
+      "trigger": "P2",
+      "intent": "澄清'清过灌仍不更新'的证据地位",
+      "question": "这条'清过灌仍不更新'，是护林员的说法，还是你自己在样地里核过？",
+      "user_answer": "护林员说的，我没有在样地里专门核过。",
+      "signals": []
+    },
+    {
+      "round": 11,
+      "kind": "CONFIGURATION",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 2,
+      "role": "moderator",
+      "question_type": "CONFIGURATION",
+      "trigger": "P0",
+      "intent": "约束验证设计",
+      "question": "UAV 只能在 4 至 5 月展叶前飞，土壤测量要在解冻后、雨季前完成。这两次测量能在同一个生长季完成吗？",
+      "user_answer": "不能。4 月土壤还没解冻，5 月又要飞 UAV，两边撞在一起。",
+      "signals": []
+    },
+    {
+      "round": 12,
+      "kind": "SUBSTANTIVE",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 2,
+      "role": "implication_validator",
+      "question_type": "IMPLICATION",
+      "trigger": "P3",
+      "intent": "给出可行范围内的判别办法",
+      "question": "既然两季不能同时测，你希望先拿到哪一个：一次全样地的 UAV 覆盖度，还是补植带与未补植带的贯入阻力对比？",
+      "user_answer": "先 UAV 覆盖度。贯入阻力我放到明年去做。",
+      "signals": [
+        "DISCRIMINATION_ADDED",
+        "DISPOSITION_DECIDED"
+      ]
+    },
+    {
+      "round": 13,
+      "kind": "SUBSTANTIVE",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 2,
+      "role": "implication_validator",
+      "question_type": "IMPLICATION",
+      "trigger": "P3",
+      "intent": "把设计落到相对比较上",
+      "question": "如果把 2021 补植带和相邻未补植带的同覆盖度样地两两比较，你预期哪一组存活率更高？",
+      "user_answer": "我猜差不多，因为压实主要发生在补植带。",
+      "signals": [
+        "DISCRIMINATION_ADDED"
+      ]
+    },
+    {
+      "round": 14,
+      "kind": "CONFIGURATION",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 2,
+      "role": "moderator",
+      "question_type": "CONFIGURATION",
+      "trigger": "P0",
+      "intent": "确认外审条件",
+      "question": "我准备就'现行数据能否支持这个命题'启动一轮独立评估，两个任务、计入评审批次，是否现在启动？",
+      "user_answer": "启动。",
+      "signals": []
+    },
+    {
+      "round": 15,
+      "kind": "REVIEW_SUBMISSION",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 3,
+      "role": "premise_evidence_examiner",
+      "question_type": "PREMISE_EVIDENCE",
+      "trigger": "P5",
+      "intent": "把分歧交回用户",
+      "question": "评估没能区分光限制与压实：你是要改写命题把压实限定为待排除项，还是保留现在的表述？",
+      "user_answer": "先保留，但我知道它现在还是未决的。",
+      "review_batch_id": "RB-01",
+      "disagreement_signal": "HIGH_DIVERGENCE",
+      "signals": [
+        "DISPOSITION_DECIDED"
+      ]
+    },
+    {
+      "round": 16,
+      "kind": "SUBSTANTIVE",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 3,
+      "role": "reflection_facilitator",
+      "question_type": "REFLECTION",
+      "trigger": "P6",
+      "intent": "回看立场变化",
+      "question": "从最初那句直觉到现在，你自己觉得哪一部分变了？",
+      "user_answer": "我原来只想着驳倒导师，现在至少知道要先把两种测量对上。",
+      "signals": []
+    },
+    {
+      "round": 17,
+      "kind": "SUBSTANTIVE",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 3,
+      "role": "reflection_facilitator",
+      "question_type": "REFLECTION",
+      "trigger": "P6",
+      "intent": "尝试形成下一步",
+      "question": "调查之外，你今年还想动手做点什么？",
+      "user_answer": "今年先不动了，等数据回来再说。",
+      "signals": []
+    },
+    {
+      "round": 18,
+      "kind": "REVIEW_SUBMISSION",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 3,
+      "role": "implication_validator",
+      "question_type": "IMPLICATION",
+      "trigger": "P5",
+      "intent": "补充第三版的可检验性检查",
+      "question": "第三版命题加上了无性系更新，你希望一并评估它的可检验性吗？",
+      "user_answer": "可以，不过主要看存活率那部分。",
+      "review_batch_id": "RB-02",
+      "disagreement_signal": "NOT_APPLICABLE",
+      "degraded": true,
+      "signals": []
+    },
+    {
+      "round": 19,
+      "kind": "CONFIGURATION",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 3,
+      "role": "moderator",
+      "question_type": "CONFIGURATION",
+      "trigger": "P0",
+      "intent": "确认两项查证范围",
+      "question": "评估把'口径对照关系'和'压实效应检索'两项列为阻塞缺口，是否按这个范围查？",
+      "user_answer": "按这个范围查。",
+      "gap_refs": [
+        "GAP-001",
+        "GAP-002"
+      ],
+      "signals": [
+        "GAP_CONFIRMED"
+      ]
+    },
+    {
+      "round": 20,
+      "kind": "SUBSTANTIVE",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 3,
+      "role": "premise_evidence_examiner",
+      "question_type": "PREMISE_EVIDENCE",
+      "trigger": "P2",
+      "intent": "登记新增待验证前提",
+      "question": "补植时机械作业的范围有没有记录？",
+      "user_answer": "没有记录，只有老护林员的回忆。",
+      "gap_refs": [
+        "GAP-002"
+      ],
+      "signals": [
+        "PREMISE_SURFACED"
+      ]
+    },
+    {
+      "round": 21,
+      "kind": "CONFIGURATION",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 3,
+      "role": "moderator",
+      "question_type": "CONFIGURATION",
+      "trigger": "P0",
+      "intent": "处理用户追加请求",
+      "question": "你追加的'压实效应检索'要并入刚才已确认的范围，还是作为一项新任务单独确认？",
+      "user_answer": "单独确认，先并入原来那个。",
+      "gap_refs": [
+        "GAP-004"
+      ],
+      "signals": []
+    },
+    {
+      "round": 22,
+      "kind": "SUBSTANTIVE",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 3,
+      "role": "premise_evidence_examiner",
+      "question_type": "PREMISE_EVIDENCE",
+      "trigger": "P2",
+      "intent": "承接被打断的线索",
+      "question": "回到护林员那条说法：你打算怎么在样地里核它？",
+      "user_answer": "我还没想好。",
+      "signals": []
+    },
+    {
+      "round": 23,
+      "kind": "CHECKPOINT",
+      "idea_id": "IDEA-OAK-REGEN",
+      "target_version": 3,
+      "role": "moderator",
+      "question_type": "CONFIGURATION",
+      "trigger": "P6",
+      "intent": "阶段收尾",
+      "question": "连续两轮没有新的前提、解释或证据，卡点是没有独立口径去区分光照与压实。要生成阶段小结并收尾吗？",
+      "user_answer": "收尾。",
+      "stop_reason": "NO_PROGRESS",
+      "signals": []
+    }
+  ],
+  "summary": {
+    "current_question": "能否用现有固定样地数据加一次 UAV 调查区分'光限制'与'土壤压实'两个解释。",
+    "rounds": 23,
+    "substantive_rounds": 18,
+    "review_batches": 2,
+    "signals_logged": 9,
+    "no_progress_rounds_at_end": 2,
+    "stop_reason": "NO_PROGRESS",
+    "delivered": [
+      "阶段小结（含未决项与最小验证方案草案）"
+    ],
+    "not_delivered": [
+      "独立评估的收敛性结论（评估未能区分，未虚构通过）"
+    ],
+    "budget_exhausted_at_round": 24
+  }
+}

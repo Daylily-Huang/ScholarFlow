@@ -82,6 +82,32 @@ EVIDENCE_WEIGHTS = {
 
 VALID_STANCES = {"SUPPORT", "REFUTE", "CONDITIONAL", "NEUTRAL"}
 
+# The synthesis_coordinator role contract (role/synthesis_coordinator.md, 职责 2)
+# mandates a SIX-value direction vocabulary. The canonical ClaimRecord schema
+# (schemas/claim_record.schema.json) permits FOUR. A Claim Mapper agent that
+# follows its own contract therefore emits values this analyzer does not know,
+# and normalize_claim() used to coerce every unknown value to NEUTRAL -- so an
+# OPPOSE claim silently stopped counting as opposition and 2 OPPOSE + 1 SUPPORT
+# was scored as 3 claims leaning the same way. That is a silent inversion of the
+# synthesis, produced purely by two roles disagreeing about a vocabulary.
+#
+# Direction-MAPPING (not direction-dropping): every contract value is translated
+# into the canonical equivalent, and the original label is preserved on the claim
+# so the translation is auditable. Mapping rationale:
+#   OPPOSE  -> REFUTE     : direct negation is exactly what REFUTE means
+#   NULL    -> NEUTRAL    : no detected effect is not evidence in either direction
+#   MIXED   -> NEUTRAL    : non-monotonic / internally inconsistent claims cannot
+#                           be assigned a single direction; they must not be
+#                           counted as support for either side
+#   NOT_TESTED -> NEUTRAL : the author did not test it, so it is not evidence
+#   CONDITIONAL          : shared by both vocabularies, unchanged
+CONTRACT_DIRECTION_MAP = {
+    "OPPOSE": "REFUTE",
+    "NULL": "NEUTRAL",
+    "MIXED": "NEUTRAL",
+    "NOT_TESTED": "NEUTRAL",
+}
+
 
 
 def parse_args():
@@ -241,7 +267,11 @@ def resolve_evidence_weight(raw: Dict[str, Any]) -> Tuple[float, str, List[str]]
 def normalize_claim(raw: Dict[str, Any]) -> Dict[str, Any]:
     """Ensure standard fields and sensible defaults with support_type / evidence_strength decoupling."""
     topic = raw.get("topic") or raw.get("target_question") or "General Research Theme"
-    stance = str(raw.get("stance", "NEUTRAL")).upper().strip()
+    raw_stance = str(raw.get("stance", "NEUTRAL")).upper().strip()
+    # Translate the coordinator contract's six-value vocabulary into the canonical
+    # four-value one instead of discarding the direction (see CONTRACT_DIRECTION_MAP).
+    stance = CONTRACT_DIRECTION_MAP.get(raw_stance, raw_stance)
+    direction_was_mapped = stance != raw_stance
     if stance not in VALID_STANCES:
         stance = "NEUTRAL"
     
@@ -258,9 +288,20 @@ def normalize_claim(raw: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "topic": topic.strip(),
         "paper_id": raw.get("paper_id") or raw.get("source_citation") or "Unknown",
+        # Carry the entity and the outcome metric through normalization: the
+        # comparability layer needs them, and dropping them here made every claim
+        # fall back to the shared topic string, so a cross-species claim looked
+        # like the same subject as the target species.
+        "subject": raw.get("subject") or raw.get("entity"),
+        "metric": raw.get("metric") or raw.get("metric_name") or raw.get("outcome"),
+        "unit": raw.get("unit"),
         "year": raw.get("year"),
         "claim": raw.get("claim") or raw.get("statement") or raw.get("claim_text") or "",
         "stance": stance,
+        "stance_original": raw_stance,
+        "stance_was_mapped": direction_was_mapped,
+        "direction_provenance": ("mapped from contract vocabulary" if direction_was_mapped
+                                 else "canonical"),
         "method": raw.get("method") or "Unspecified Method",
         "metric_value": raw.get("metric_value"),
         "confidence_interval": raw.get("confidence_interval"),
@@ -277,6 +318,63 @@ def normalize_claim(raw: Dict[str, Any]) -> Dict[str, Any]:
         "evidence_ids": raw.get("evidence_ids", []),
     }
 
+
+
+# Consensus levels defined by references/consensus_levels_and_boundaries.md that
+# this script can never assign. `EMERGING_VIEW` requires a judgement about whether
+# recent frontier work is CONVERGING on a new answer -- claim counts and weights
+# cannot express convergence, and the schema's enum does not carry the level, so
+# assigning it by rule would be a category error. It stays an explicit human /
+# agent-analyst decision rather than being silently unreachable.
+CONSENSUS_LEVELS_REQUIRING_HUMAN_ASSIGNMENT = ["EMERGING_VIEW"]
+
+# Translation from this script's internal diagnosis labels to the 9-Type taxonomy
+# in references/controversy_taxonomy_9types.md.
+#
+# The script used to emit "Type D" for scale/context/space-time discrepancies, but
+# the taxonomy defines Type D as Taxon/System dependency (分类群与生境依赖型分歧)
+# and assigns scale/space-time dependency to Type C. Same letter, different
+# concept -- so a Controversy Analyst role that read this label and wrote it into
+# a Controversy Map mislabelled every scale-driven finding. Labels are now
+# translated explicitly and the taxonomy letter is carried separately.
+TAXONOMY_TYPE_TRANSLATION = {
+    "Type D (Scale/Context Discrepancy)":
+        ("Type C", "尺度/情境依赖型分歧，对应争议分类体系 Type C"),
+    "Type D (Scale/Space-Time Dependence)":
+        ("Type C", "时空尺度依赖型分歧，对应争议分类体系 Type C"),
+    "Type B Candidate (Method-associated disagreement)":
+        ("Type B", "方法/模型依赖型分歧（本脚本只能给出候选，需人工确认）"),
+    "Candidate Type A (Large metric discrepancy)":
+        ("Type A", "指标差异超过 2 倍（候选，尚未确认测量可比性）"),
+    "Candidate Type A (Direct claim disagreement)":
+        ("Type A", "直接主张对立（候选，分歧来源未裁定）"),
+}
+
+# Types the script can never conclude on its own -- they require the human/agent
+# analyst working from the taxonomy document.
+TAXONOMY_TYPES_NOT_CODE_DETECTABLE = [
+    "Type E (响应指标依赖型分歧)",
+    "Type F (概念基础定义分歧)",
+    "Type G (统计范式分歧)",
+    "Type H (历史技术代际更替分歧)",
+    "Type I (表面矛盾实则互补/伪争议)",
+]
+
+
+def annotate_taxonomy_type(diagnosis: Dict[str, Any]) -> Dict[str, Any]:
+    """Attach the taxonomy type letter and an explicit ambiguity note."""
+    label = str(diagnosis.get("type", ""))
+    if label in TAXONOMY_TYPE_TRANSLATION:
+        letter, note = TAXONOMY_TYPE_TRANSLATION[label]
+        diagnosis["taxonomy_type"] = letter
+        diagnosis["taxonomy_note"] = note
+    elif label == "No Active Disagreement":
+        diagnosis["taxonomy_note"] = (
+            "脚本判定本证据集内无对立方向；但这不等于不存在分歧 —— "
+            "分歧可能因证据无资格、方向词表不一致或分层而被隐藏，需人工复核。"
+        )
+    diagnosis["taxonomy_types_requiring_human_review"] = TAXONOMY_TYPES_NOT_CODE_DETECTABLE
+    return diagnosis
 
 
 def diagnose_controversy_type(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -383,6 +481,17 @@ def diagnose_controversy_type(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Compute evidence-weighted metrics and consensus level for a cluster of claims."""
+    # This function is reachable directly with RAW claims (it is part of the
+    # module's public surface and is called that way by tests and by downstream
+    # roles), so it must apply the same contract-vocabulary translation that
+    # normalize_claim() does. Doing the mapping only in normalize_claim() left a
+    # second, quieter path on which OPPOSE silently scored as zero.
+    claims = [
+        (dict(c, stance=CONTRACT_DIRECTION_MAP.get(
+            str(c.get("stance", "")).upper().strip(), c.get("stance")))
+         if str(c.get("stance", "")).upper().strip() in CONTRACT_DIRECTION_MAP else c)
+        for c in claims
+    ]
     total_claims = len(claims)
     
     # Determine consensus eligibility for each claim
@@ -393,14 +502,22 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
     for c in claims:
         s = c.get("stance", "NEUTRAL")
         all_papers_by_stance[s].append(c.get("paper_id", "Unknown"))
-        
-        # Check eligibility
+
+        # Check eligibility. resolve_evidence_weight() is the single source of
+        # truth, so a raw claim carrying only evidence_strength is weighted
+        # exactly like a normalized one. Reading a missing "weight" as 0.0
+        # silently discarded every such claim.
+        styp = str(c.get("support_type", "")).upper().strip()
+        resolved_weight, resolved_strength, _ = resolve_evidence_weight(c)
+        if "weight" in c and c.get("weight") is not None:
+            wt = float(c.get("weight", 0.0))
+        else:
+            wt = resolved_weight
+        strn = c.get("evidence_strength") or c.get("evidence_tier") or c.get("evidence_level") or resolved_strength
+
         if "consensus_eligible" in c:
             eligible = bool(c["consensus_eligible"])
         else:
-            strn = c.get("evidence_strength") or c.get("evidence_tier") or c.get("evidence_level") or "UNKNOWN"
-            styp = str(c.get("support_type", "")).upper().strip()
-            wt = float(c.get("weight", 0.0))
             eligible = (
                 strn not in {"UNKNOWN", "NOT_REPORTED", "AMBIGUOUS_LEGACY_TIER"}
                 and styp not in {"NOT_REPORTED", "NR"}
@@ -408,6 +525,11 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
             )
         
         if eligible:
+            # Pin the resolved weight so the per-group capping loop below cannot
+            # fall back to a missing "weight" field.
+            if "weight" not in c or c.get("weight") is None:
+                c = dict(c)
+                c["weight"] = wt
             eligible_claims.append(c)
         else:
             reason_key = c.get("evidence_strength") or c.get("support_type") or "UNKNOWN"
@@ -417,7 +539,7 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
                 excluded_counts["AMBIGUOUS_LEGACY_TIER"] += 1
             elif reason_key == "UNKNOWN":
                 excluded_counts["UNKNOWN"] += 1
-            elif float(c.get("weight", 0.0)) <= 0.0:
+            elif wt <= 0.0:
                 excluded_counts["ZERO_WEIGHT"] += 1
             else:
                 excluded_counts[str(reason_key)] += 1
@@ -443,9 +565,17 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
             weights_by_stance[s] += w * scaling
         for item in grp_items:
             papers_by_stance[item.get("stance", "NEUTRAL")].append(item.get("paper_id", "Unknown"))
-        
+
     total_weight = sum(weights_by_stance.values())
-    
+
+    # Counted before the early return so that INSUFFICIENT_EVIDENCE is auditable:
+    # a caller must be able to tell "no eligible evidence" apart from
+    # "one study only", which are different limitations.
+    distinct_independence_groups = {
+        c.get("independence_group_id") or c.get("study_id") or c.get("paper_id", "Unknown")
+        for c in eligible_claims
+    }
+
     # Zero weight or zero eligible claims strictly yields INSUFFICIENT_EVIDENCE
     if total_weight <= 0.0 or total_eligible_claims == 0:
         return {
@@ -453,6 +583,7 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
             "consensus_eligible_claims": 0,
             "excluded_from_consensus": dict(excluded_counts),
             "total_evidence_weight": 0.0,
+            "distinct_independence_group_count": len(distinct_independence_groups),
             "stance_weights": {k: round(v, 2) for k, v in weights_by_stance.items()},
             "heuristic_balance_score": {
                 "SUPPORT": 0.0,
@@ -499,9 +630,16 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         for c in support_claims
     )
 
+    # Replication requires distinct independence groups, not distinct claims.
+    # N claims from ONE study are one measurement: they cannot establish a
+    # consensus on their own. Without this guard a single group splitting its
+    # result into several claim rows reached STRONG/MODERATE_CONSENSUS
+    # (Level 1/2), which reads as replicated evidence when nothing was replicated.
+    single_independence_group = len(distinct_independence_groups) < 2
+
     # Qualitative Consensus Classification (replacing mechanical majority voting)
     # Never claim "Universal Consensus"
-    if total_weight < 1.0 or total_eligible_claims < 2:
+    if total_weight < 1.0 or total_eligible_claims < 2 or single_independence_group:
         consensus_classification = "INSUFFICIENT_EVIDENCE"
         consensus_level = "Level 6 (Nascent / Insufficient Evidence Frontier)"
     elif (support_ratio >= 0.40 and refute_ratio >= 0.40) or (0.30 <= support_ratio <= 0.70 and 0.30 <= refute_ratio <= 0.70):
@@ -520,7 +658,8 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         consensus_classification = "CONDITIONAL_CONSENSUS"
         consensus_level = "Level 4 (Method-Dependent Convergence)"
         
-    diagnosis = diagnose_controversy_type(eligible_claims if eligible_claims else claims)
+    diagnosis = annotate_taxonomy_type(
+        diagnose_controversy_type(eligible_claims if eligible_claims else claims))
     
     heuristic_balance = {
         "SUPPORT": round(support_ratio * 100, 1),
@@ -534,6 +673,8 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         "consensus_eligible_claims": total_eligible_claims,
         "excluded_from_consensus": dict(excluded_counts),
         "total_evidence_weight": round(total_weight, 2),
+        "distinct_independence_group_count": len(distinct_independence_groups),
+        "single_independence_group": single_independence_group,
         "stance_weights": {k: round(v, 2) for k, v in weights_by_stance.items()},
         "heuristic_balance_score": heuristic_balance,
         "stance_percentages": heuristic_balance,  # Backward compatibility
@@ -630,6 +771,12 @@ def analyze(claims: List[Dict[str, Any]], topic_filter: Optional[str] = None, ta
                 "is reported and the split itself remains a comparability finding."
                 % len(strata_analysis)
             )
+            if all(s.get("consensus_classification") == "INSUFFICIENT_EVIDENCE"
+                   for s in strata_analysis.values()):
+                cross_stratum["disclosure"] += (
+                    " No stratum reaches a determinate verdict on its own, so the strata must "
+                    "not be pooled and no topic-level verdict is issued."
+                )
 
         headline_analysis = dict(overall_analysis)
         headline_analysis["claims"] = t_claims
@@ -640,6 +787,85 @@ def analyze(claims: List[Dict[str, Any]], topic_filter: Optional[str] = None, ta
         headline_analysis["cross_stratum_analysis"] = cross_stratum
         headline_analysis["uncomparable_claims"] = uncomp
         headline_analysis["comparability_records"] = strat_res.get("pairwise_comparisons", [])
+
+        # ------------------------------------------------------------------
+        # The headline must not outrank the strata it is built from.
+        # compute_topic_consensus() over the pooled set cannot see the
+        # stratification: it re-pools claims that were split precisely because
+        # they are not commensurable, then reads the number of independence
+        # groups as replication. That produced "STRONG_CONSENSUS / Level 1
+        # (Replicated Evidence)" across two methodologically incompatible
+        # one-study strata -- a pooled number standing in for a topic it does
+        # not describe.
+        #
+        # The headline is withheld only when it would describe something the
+        # evidence does not contain:
+        #   (a) the strata lean the same way AND no stratum reaches a determinate
+        #       verdict, so any pooled number was manufactured by pooling; or
+        #   (b) the strata lean the same way but at least one stratum is
+        #       internally BALANCED, i.e. the "replication" is a between-stratum
+        #       vote rather than a repeated measurement.
+        # A genuine directional disagreement between incomparable strata is NOT
+        # withheld: that disagreement is itself the reported finding (and the
+        # caveat that it may be method-associated is disclosed alongside it).
+        # Withholding it would have replaced "no disagreement" with "no verdict"
+        # and hidden a real split either way.
+        if len(strata_analysis) > 1:
+            determinate_strata = [
+                k for k, s in strata_analysis.items()
+                if s.get("consensus_classification") != "INSUFFICIENT_EVIDENCE"
+            ]
+            no_determinate = not determinate_strata
+            manufactured_replication = (
+                any(v["direction"] == "BALANCED"
+                    for v in per_stratum_directions.values())
+            )
+            if (not cross_stratum["has_cross_stratum_difference"]
+                    and (no_determinate or manufactured_replication)):
+                pooled_level = headline_analysis.get("consensus_level")
+                pooled_class = headline_analysis.get("consensus_classification")
+                headline_analysis["pooled_consensus_classification"] = pooled_class
+                headline_analysis["consensus_classification"] = "INSUFFICIENT_EVIDENCE"
+                headline_analysis["consensus_level"] = \
+                    "Level 6 (Nascent / Insufficient Evidence Frontier)"
+                headline_analysis["headline_withheld_reason"] = (
+                    "claims split into %d methodologically non-comparable strata that "
+                    "lean the same way; %s. The pooled figure (%s / %s) must not be "
+                    "reported as the topic-level consensus -- a between-stratum vote is "
+                    "not a replication of the same measurement."
+                    % (len(strata_analysis),
+                       "no single stratum reaches a determinate verdict on its own"
+                       if no_determinate else
+                       "at least one stratum is internally balanced, so pooling "
+                       "manufactures the appearance of replication",
+                       pooled_class, pooled_level)
+                )
+                headline_analysis["controversy_diagnosis"] = {
+                    "type": "NO_POOLABLE_VERDICT_ACROSS_STRATA",
+                    "confidence": "High",
+                    "reason": (
+                        "Comparability stratification separated the claims into %d strata "
+                        "that cannot be pooled. %s A within-stratum verdict is required; "
+                        "the per-stratum results are reported in `strata`."
+                        % (len(strata_analysis),
+                           "No stratum reaches a determinate verdict on its own."
+                           if no_determinate else
+                           "Each stratum is internally balanced and therefore carries "
+                           "no determinate verdict of its own.")
+                    ),
+                    "strata_checked": len(strata_analysis),
+                    "determinate_strata": determinate_strata,
+                }
+            elif no_determinate:
+                # Headline kept because the strata point opposite ways -- but the
+                # reader must still be told that no stratum can carry it alone.
+                headline_analysis["headline_caveat"] = (
+                    "headline kept because the strata disagree in direction; note that no "
+                    "single stratum reaches a determinate verdict on its own, so the "
+                    "disagreement is between incomparable strata and is NOT established "
+                    "as a substantive scientific contradiction."
+                )
+
         results[t] = headline_analysis
         
     return results
@@ -754,7 +980,32 @@ def format_markdown_report(results: Dict[str, Any]) -> str:
         lines.append(f"- **共识层级**：`{data['consensus_level']}`")
         lines.append(f"- **争议诊断**：`{data['controversy_diagnosis']['type']}` (置信度: {data['controversy_diagnosis']['confidence']})")
         lines.append(f"- **诊断溯源**：{data['controversy_diagnosis']['reason']}")
+        # A withheld headline is a finding, not a blank: say so where the reader
+        # looks first, and say what the pooled number would have been.
+        if data.get("headline_withheld_reason"):
+            lines.append(
+                "- 🚫 **头条结论已撤回（分层不可合并）**：%s"
+                % data["headline_withheld_reason"]
+            )
+            if data.get("pooled_consensus_classification"):
+                lines.append(
+                    "- （未撤回时按全量合并会得到 `%s`，该数字不代表本议题，仅留作审计）"
+                    % data["pooled_consensus_classification"]
+                )
+        elif data.get("headline_caveat"):
+            lines.append("- ⚠️ **头条结论保留但受限**：%s" % data["headline_caveat"])
         lines.append(f"- **证据权重分布**：SUPPORT: {data['stance_percentages']['SUPPORT']}% | REFUTE: {data['stance_percentages']['REFUTE']}% | CONDITIONAL: {data['stance_percentages']['CONDITIONAL']}% (总权重: {data['total_evidence_weight']})")
+        # Replication must be auditable in the rendered report: a Level-6 verdict
+        # caused by "one study only" looks identical to "no usable evidence"
+        # unless the group count is printed.
+        grp_count = data.get("distinct_independence_group_count")
+        if grp_count is not None:
+            lines.append(f"- **独立证据单元数**（independence_group 去重后）：{grp_count}")
+        if data.get("single_independence_group"):
+            lines.append(
+                "- ⚠️ **只有一个独立研究组**：多条主张来自同一研究单元，"
+                "不构成重复验证，已按证据不足处理（INSUFFICIENT_EVIDENCE）。"
+            )
         lines.append("")
         
         # Comparability disclosure: a method-level split must be visible in the
@@ -770,7 +1021,10 @@ def format_markdown_report(results: Dict[str, Any]) -> str:
             )
             primary = data.get("primary_stratum")
             if primary:
-                lines.append("- **头条结论所在层**：`%s`（其余层结论见下表，**不可用以代表整体**）" % primary)
+                lines.append(
+                    "- **本次比较的基准层**：`%s`（由元数据完备度与方法学表征最高的基准主张决定基准层，"
+                    "不代表该层证据最强；其余层结论见下表，**不可用以代表整体**）" % primary
+                )
             lines.append("")
             lines.append("| 分层 | 主张数 | 倾向 | 层内共识 |")
             lines.append("|---|---:|---|---|")
@@ -803,13 +1057,50 @@ def format_markdown_report(results: Dict[str, Any]) -> str:
             )
             lines.append("")
 
-        lines.append("### 证据链条明细对决表")
+        lines.append("### 证据链条明细对决表（已纳入综合）")
         lines.append("")
-        lines.append("| 来源文献 | 立场 (Stance) | 证据等级 (Tier) | 核心主张 | 关键方法 | 适用边界 |")
-        lines.append("|---|---|---|---|---|---|")
-        for c in data["claims"]:
-            lines.append(f"| {c['paper_id']} ({c.get('year', 'N/A')}) | `{c['stance']}` | `{c['evidence_tier']}` | {c['claim']} | {c['method']} | {c['boundary']} |")
+        # The study organism is printed per row: without it a cross-species claim
+        # (e.g. sika deer) sitting in the same topic block is indistinguishable
+        # from a target-species fact when the report is read on its own.
+        has_subject = any((c.get("subject") or "") not in ("", c.get("topic"))
+                          for c in data["claims"])
+        uncomparable_ids = {id(c) for c in (data.get("uncomparable_claims") or [])}
+        comparable = [c for c in data["claims"] if id(c) not in uncomparable_ids]
+        if has_subject:
+            lines.append("| 来源文献 | 研究对象 | 立场 (Stance) | 证据等级 (Tier) | 核心主张 | 关键方法 | 适用边界 |")
+            lines.append("|---|---|---|---|---|---|---|")
+            for c in comparable:
+                lines.append(
+                    f"| {c['paper_id']} ({c.get('year', 'N/A')}) | {c.get('subject') or '未声明'} "
+                    f"| `{c['stance']}` | `{c['evidence_tier']}` | {c['claim']} | {c['method']} | {c['boundary']} |"
+                )
+        else:
+            lines.append("| 来源文献 | 立场 (Stance) | 证据等级 (Tier) | 核心主张 | 关键方法 | 适用边界 |")
+            lines.append("|---|---|---|---|---|---|")
+            for c in comparable:
+                lines.append(f"| {c['paper_id']} ({c.get('year', 'N/A')}) | `{c['stance']}` | `{c['evidence_tier']}` | {c['claim']} | {c['method']} | {c['boundary']} |")
         lines.append("")
+
+        # Uncomparable claims are listed separately and explicitly: a subject or
+        # metric mismatch means they are NOT evidence about this topic, and
+        # printing them inside the main table let them be read as if they were.
+        uncomparable = data.get("uncomparable_claims") or []
+        if uncomparable:
+            lines.append("### 🚫 不可比主张（已排除出综合，不得作为本命题证据）")
+            lines.append("")
+            lines.append("| 来源文献 | 研究对象 | 立场 | 证据等级 | 主张 | 排除理由 |")
+            lines.append("|---|---|---|---|---|---|")
+            for c in uncomparable:
+                reason = ""
+                for rec in data.get("comparability_records", []):
+                    if rec.get("claim_id_b") == c.get("claim_id") or rec.get("claim_id_a") == c.get("claim_id"):
+                        reason = "%s (%s)" % (rec.get("status"), rec.get("rationale", "")[:60])
+                        break
+                lines.append(
+                    f"| {c['paper_id']} ({c.get('year', 'N/A')}) | {c.get('subject') or '未声明'} "
+                    f"| `{c['stance']}` | `{c['evidence_tier']}` | {c['claim']} | {reason} |"
+                )
+            lines.append("")
         lines.append("### 🌐 学术论证拓扑图 (Argument Graph)")
         lines.append("")
         lines.append(generate_mermaid_argument_graph(topic, data["claims"]))

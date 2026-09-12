@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research_debate_event.schema.json",
+  "title": "ResearchDebateEvent",
+  "description": "research-idea-debate 追加式事件记录（events.jsonl 的每一行）。events.jsonl 是会话真源，session.json 是检查点快照；冲突时以事件重放为准并显式报告差异。schema_version 固定 0.1。",
+  "type": "object",
+  "required": [
+    "schema_version", "event_id", "session_id", "seq", "type",
+    "actor", "execution_kind", "payload", "created_at"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "0.1" },
+    "event_id": { "type": "string", "minLength": 1 },
+    "session_id": { "type": "string", "minLength": 1 },
+    "seq": { "type": "integer", "minimum": 1 },
+    "type": {
+      "type": "string",
+      "enum": [
+        "USER_INPUT", "ROLE_RESPONSE", "QUESTION_ASKED", "SELECTION_REASON",
+        "PROGRESS_SIGNAL", "IDEA_REVISED", "REVIEW_REQUESTED", "REVIEW_RETURNED",
+        "DISAGREEMENT_ASSESSED", "DEGRADED_REVIEW", "GAP_PROPOSED", "GAP_CONFIRMED",
+        "GAP_REJECTED", "EVIDENCE_IMPORTED", "STOPPED_QUESTION", "CHECKPOINT", "PAUSED"
+      ]
+    },
+    "actor": { "type": "string", "minLength": 1 },
+    "execution_kind": {
+      "type": "string",
+      "enum": ["USER", "ROLE_SWITCH", "INDEPENDENT_AGENT", "SELF_CHECK", "SYSTEM"],
+      "description": "INDEPENDENT_AGENT 仅用于真实子 agent；降级自检必须记 SELF_CHECK"
+    },
+    "payload": { "type": "object" },
+    "source_refs": { "type": "array", "items": { "type": "string" } },
+    "reply_to_question_id": { "type": ["string", "null"] },
+    "created_at": { "type": ["string", "null"] },
+    "applied": { "type": "boolean", "default": true }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "const": "QUESTION_ASKED" } }, "required": ["type"] },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "required": ["question_id", "text", "role_id", "question_type"],
+            "properties": {
+              "question_id": { "type": "string" },
+              "text": { "type": "string" },
+              "role_id": {
+                "type": "string",
+                "enum": ["concept_clarifier", "premise_evidence_examiner", "implication_validator",
+                          "alternative_explorer", "reflection_facilitator", "moderator"]
+              },
+              "question_type": {
+                "type": "string",
+                "enum": ["CLARIFICATION", "PREMISE_EVIDENCE", "IMPLICATION",
+                          "COMPARISON", "REFLECTION", "CONFIGURATION"]
+              },
+              "trigger": { "type": ["string", "null"] },
+              "intent": { "type": ["string", "null"] },
+              "selection_reason": { "type": ["string", "null"] },
+              "target_idea_id": { "type": ["string", "null"] },
+              "target_version": { "type": ["integer", "null"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "REVIEW_RETURNED" } }, "required": ["type"] },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "required": ["task_id", "input_idea_version", "status", "verdict", "change_condition"],
+            "properties": {
+              "task_id": { "type": "string" },
+              "input_idea_version": { "type": "integer" },
+              "status": { "type": "string", "enum": ["COMPLETE", "PARTIAL", "FAILED", "UNAVAILABLE"] },
+              "verdict": {
+                "type": ["string", "null"],
+                "enum": ["SUPPORTED", "CHALLENGED", "BOUNDED", "INSUFFICIENT", null]
+              },
+              "load_bearing_premises": { "type": "array", "items": { "type": "object" } },
+              "strongest_counterexample": { "type": ["string", "null"] },
+              "discriminating_evidence": { "type": ["string", "null"] },
+              "change_condition": {
+                "type": ["string", "null"],
+                "description": "必填；为空视为输出不合格（status = PARTIAL）"
+              },
+              "evidence_refs": { "type": "array", "items": { "type": "string" } },
+              "limitations": { "type": ["string", "null"] },
+              "degraded": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "DISAGREEMENT_ASSESSED" } }, "required": ["type"] },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "required": ["batch_id", "disagreement_signal", "computed_by"],
+            "properties": {
+              "batch_id": { "type": "string" },
+              "verdicts": { "type": "object" },
+              "premise_overlap": { "type": ["string", "null"] },
+              "counterexample_overlap": { "type": ["string", "null"] },
+              "disagreement_signal": {
+                "type": "string",
+                "enum": ["LOW_DIVERGENCE", "HIGH_DIVERGENCE", "NOT_APPLICABLE"]
+              },
+              "computed_by": {
+                "type": "string",
+                "const": "deterministic_program",
+                "description": "分歧判定必须由确定性程序给出，不得填模型标识"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "PROGRESS_SIGNAL" } }, "required": ["type"] },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "required": ["signal"],
+            "properties": {
+              "signal": {
+                "type": "string",
+                "enum": ["INTUITION_FORMULATED", "QUESTION_SHARPENED", "PREMISE_SURFACED",
+                          "PREMISE_VERIFIED", "PREMISE_CONTRADICTED", "DISCRIMINATION_ADDED",
+                          "ALTERNATIVE_ADDED", "DISPOSITION_DECIDED", "DECISION_RECORDED",
+                          "GAP_CONFIRMED", "EVIDENCE_IMPORTED"]
+              },
+              "round": { "type": ["integer", "null"] },
+              "evidence": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "IDEA_REVISED" } }, "required": ["type"] },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "required": ["idea_id", "from_version", "to_version", "revision_reason"],
+            "properties": {
+              "idea_id": { "type": "string" },
+              "from_version": { "type": "integer" },
+              "to_version": { "type": "integer" },
+              "revision_reason": { "type": "string" },
+              "change_condition": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": true
+}

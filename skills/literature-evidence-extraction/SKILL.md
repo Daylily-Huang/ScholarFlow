@@ -170,6 +170,18 @@ flowchart TD
 ### 2. 伴生落盘结构化 JSON 文件
 每篇提取结果必须在工作区生成同名伴生 JSON（如 `<Paper_Slug>_evidence.json`），严格通过 `schemas/extraction_result.schema.json`（及其引用的 `schemas/evidence_record.schema.json`）结构验证。
 
+**执行点（2026-09-11 补齐）**：该契约此前**没有任何代码执行校验**——`extraction_pipeline.py` 的 docstring 自称 validating，但函数体直接 return，全仓生产路径不 import `jsonschema`。现在：
+```bash
+# 校验任意 extraction_result JSON；非零退出即违约
+python skills/literature-evidence-extraction/scripts/extraction_pipeline.py -i <result.json> --evidence-chain
+```
+- `shared/validation/schema_gate.py`：有 `jsonschema` 时走 Draft 2020-12 + `$ref` 解析；无则退化为 stdlib 结构校验（模式标为 `structural-fallback`），**不会静默不校验**。
+- `build_extraction_result(..., validate=True)` 默认校验，违约即抛 `SchemaGateError`。
+- `--evidence-chain` 校验**审计交接完整性**：auditor 裁决必须带 evidence id 且覆盖全部记录。实测四环节 record_id 交集为 0（specialist `SF2-A1-…` / auditor `'G1 T105'` / merge `R3-A-01`），导致报告中任一证据无法反查原始记录。
+- **schema 不能替代值核验**：`extracted_value` 为字符串类型，`"95.4%"` 与 `"55.4%"` 在 schema 眼里同构；忠实性由 `quote_audit.py` 的值—引文对齐负责。
+
+**契约一致性（2026-09-11 修复）**：`claim_evidence_alignment.md` §九 定义 10 个关系主张状态标签，而 `evidence_record.schema.json` 的 `claim_status`/`status` 只允许 6 个，`BACKGROUND_ONLY`/`CONTEXT_ONLY`/`OTHER_ENTITY_CONTEXT`/`REFERENCED_ONLY`/`NOT_REPORTED`/`DERIVED` 无处可放，合规记录反而被判违约。现已补齐为协议全集（属性事实 6 + 关系主张 6）。另新增 `claim_components[]`，用于表达"数值成分可证、关系成分不可证"的部分可证主张——单一 `claim_status` 无法干净表达该情形。
+
 ### 3. HTML 可视化报告（全中文，便于直接阅读与归档）
 由 `scripts/evidence_matrix_html.py -i <evidence.json> -o <report.html>` 自动渲染：全中文表头与色标徽章、统计面板、审计裁决框、
 派生计算与未报告记录的特殊视觉标记。自包含单文件（内联 CSS、无 CDN、无 JS），离线双击即可阅读。HTML 是 Markdown 底稿的呈现层，
@@ -189,7 +201,7 @@ flowchart TD
 - **角色规范 (`role/`)**：
   - [specialist_role.md](./role/specialist_role.md)：主导抽取专员契约与 9 大硬铁律
   - [context_modeler.md](./role/context_modeler.md)：上下文隔离与动态 Schema 建模助手
-  - [evidence_auditor.md](./role/evidence_auditor.md)：独立证据链核验员与 15 项清单一票否决审计
+  - [evidence_auditor.md](./role/evidence_auditor.md)：独立证据链核验员与 16 项清单一票否决审计
 - **核心规程 (`references/`)**：
   - [claim_evidence_alignment.md](./references/claim_evidence_alignment.md)：全学科通用主张—证据对齐协议与关系硬门禁
   - [stage0_grill_me.md](./references/stage0_grill_me.md)：Stage 0 模式选择与动态 Schema 交互规程
@@ -200,8 +212,24 @@ flowchart TD
   - [interpretation_boundary.md](./references/interpretation_boundary.md)：事实抽取与科学解释边界隔离指南
 - **辅助工具 (`scripts/`)**：
   - `scripts/pdf_evidence_locator.py`：PDF 页面与精准原句定位器（含特殊符号与 OCR 噪声检测）
+  - `scripts/context_expansion.py`：AECE 上下文扩展与语义角色分类。2026-09-11 补中文线索：
+    `classify_semantic_role` 原为**纯英文规则**，实测中文 5/5 返回 `UNKNOWN`，
+    连英文 `"This suggests that…"`（Discussion 推测）也落 `UNKNOWN`——"严禁将 Discussion 推测记为结论"
+    这条铁律在中文语料上完全未被执行。现补 CJK 线索（结果/方法/讨论/局限/引用/定义）并前移
+    Discussion 判定（"…showed X, suggesting Y" 不得被记成结果）；仍对无关文本 fail-closed 为 `UNKNOWN`。
+  - `scripts/claim_alignment.py`：A2 主张—证据对齐门禁（5 大门禁）。2026-09-11 补 `__main__`/argparse：
+    `python claim_alignment.py --claim-text "…" --evidence-text "…" --evidence-role CURRENT_STUDY_RESULT`；
+    关系型主张退出码 1 表示**不得进入 Confirmed Output**。同批修复 fail-closed 破口：
+    `_check_predicate_grounding` 对**空谓词**原返回 True，导致不带 subject/predicate/object 的关系型主张
+    被判 `SUPPORTED / is_confirmed_eligible=true`（A2 门禁形同虚设）；现改为 fail-closed
+    （`REJECT_UNBOUND_RELATION_PREDICATE`），纯属性抽取可显式传 `claim_is_relational=False`。
   - `scripts/audit_claims.py`：既有 Claim 事实核查反查比对工具
-  - `scripts/quote_audit.py`：引句回查硬校验门——证据 JSON 每条 verbatim_quote 必须回查源文献定位（EXACT/HYPHEN_JOIN/FUZZY），NOT_FOUND 即门禁失败，零模型判断
+  - `scripts/quote_audit.py`：引句回查硬校验门——证据 JSON 每条 verbatim_quote 必须回查源文献定位（EXACT/HYPHEN_JOIN/FUZZY），NOT_FOUND 即门禁失败，零模型判断。
+    2026-09-11 起另含三项（此前缺失，实测被利用为逃逸通道）：
+    ① **值—引文对齐**：对 `extracted_value` 中的数值 token 回查其是否锚定在引文或其 ±200 字符上下文，**不在全文中出现即判失败**（堵住"引文真、取值假"的证据洗白）；
+    ② **未核验记录不再静默放行**：空引文 / 短于 `--min-quote-len` / 引文未定位，默认计入 `gate_failed`；确需放行须显式 `--unverified-policy list|ignore`；
+    ③ **源文件溯源**：输出 `-s` 的 sha256/size，可用 `--source-pins` 绑定并在被替换时失败（实测向源文追加 184 字节即可翻转判定）。
+    数值比对使用独立的空白不敏感折叠（`4 · 8` = `4.8`），并把 U+2219「∙」等 PDF 排版小数点归一化，避免把真实值误判为伪造。
   - `scripts/evidence_matrix_html.py`：证据 JSON → 全中文自包含 HTML 报告渲染器（色标徽章/统计面板/NR 视觉防护/派生公式高亮，零依赖离线可读）
 - **资产与模板 (`assets/`)**：
   - **Canonical Schemas**：提取与证据产物遵循 [`schemas/extraction_result.schema.json`](../../schemas/extraction_result.schema.json) 与 [`schemas/evidence_record.schema.json`](../../schemas/evidence_record.schema.json)（统一单一真源，Skill assets 内不保留重复 executable schema）

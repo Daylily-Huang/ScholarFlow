@@ -12,6 +12,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 SKILLS_SRC="$REPO_ROOT/skills"
 SHARED_SRC="$REPO_ROOT/shared"
+SCHEMAS_SRC="$REPO_ROOT/schemas"
 
 if [ ! -d "$SKILLS_SRC" ]; then
     echo "[-] skills directory not found: $SKILLS_SRC"
@@ -50,6 +51,17 @@ for dest in "${DESTINATIONS[@]}"; do
     rm -rf "$dest/shared"
     cp -r "$SHARED_SRC" "$dest/shared"
     find "$dest/shared" -name '__pycache__' -type d -prune -exec rm -rf {} + 2>/dev/null || true
+
+    # Canonical schemas live at the repository root; skill scripts resolve them
+    # relative to the installed tree, so they must ship alongside `shared`.
+    if [ -d "$SCHEMAS_SRC" ]; then
+        echo "  -> Installing canonical schemas (single copy)..."
+        rm -rf "$dest/schemas"
+        cp -r "$SCHEMAS_SRC" "$dest/schemas"
+        find "$dest/schemas" -name '__pycache__' -type d -prune -exec rm -rf {} + 2>/dev/null || true
+    else
+        echo "  [!] schemas directory not found: $SCHEMAS_SRC"
+    fi
 done
 
 # Post-install verification: the engine must resolve from an isolated
@@ -80,9 +92,10 @@ fi
 
 echo ""
 echo "[SUCCESS] ScholarFlow skills installed successfully!"
-echo "Engine location(s):"
+echo "Engine and schema location(s):"
 for dest in "${DESTINATIONS[@]}"; do
     echo "  - $dest/shared"
+    echo "  - $dest/schemas"
 done
 echo "Available skills:"
 for skill_dir in "$SKILLS_SRC"/*/; do

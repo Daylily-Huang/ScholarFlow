@@ -738,6 +738,32 @@ def classify_semantic_role(
     text_lower = context_text.lower()
     sec_lower = (section_heading or "").lower()
 
+    # --- CJK cue patterns -------------------------------------------------
+    # Measured 2026-09-11: this classifier returned UNKNOWN for 5/5 Chinese
+    # paragraphs, including "本研究采用粪便显微组织学分析方法。" (method) and
+    # "黑麂的食物，主要是种子植物的枝叶。在33个胃中…" (result). The skill's rule
+    # "严禁将 Discussion 推测记为结论" was therefore unenforced on the corpus it
+    # was built for. These patterns give the Chinese side parity with English.
+    cjk_ref = re.compile(
+        r"\[\d+\]|［\d+］|转引|引自|参见|见文献|前人|已有研究|已有报道|"
+        r"研究表明|研究显示|据.{0,8}报道|欧善华|盛和林|郑荣泉|等人")
+    cjk_discussion = re.compile(
+        r"推测|推断|猜测|可能|或许|也许|提示|暗示|说明|表明|意味着|"
+        r"我们认为|本研究认为|据此|因而|因此|可见|由此可见|"
+        r"原因可能是|这可能与|有助于解释|有待|尚需|仍需")
+    cjk_method = re.compile(
+        r"本研究(采用|使用|选取|设置|布设|采集|测定|调查|进行)|"
+        r"采用.{0,12}(法|方法|技术|分析|鉴定)|使用.{0,12}(法|仪|试剂|引物)|"
+        r"实验方法|研究方法|材料与方法|样方|采样|测序|扩增|引物")
+    cjk_result = re.compile(
+        r"共(鉴定|记录|采集|获得|发现|统计)|鉴定出|记录到|结果表明|结果显示|"
+        r"研究结果|相对丰度|(出现|取食|采食|摄食)频次|占比|比例达|"
+        r"最高的是|最多的是|为(主|食)|共\d|有\d+个胃")
+    cjk_limitation = re.compile(
+        r"局限|不足|偏差|误差|样本量(小|较少|有限)|难以|无法(确认|确定|定量)|"
+        r"有待进一步|尚不能|未能确证|存在一定")
+    cjk_definition = re.compile(r"是指|定义为|即为|所谓|指的是")
+
     # 1. External Citation / Referenced Work
     if (
         is_external_citation
@@ -745,35 +771,56 @@ def classify_semantic_role(
         or "background" in sec_lower
         or "related" in sec_lower
         or re.search(r"\b(?:et\s+al\.?|\[\d+\]|\(\d{4}\)|previously\s+reported|prior\s+studies|previous\s+work)\b", text_lower)
+        or cjk_ref.search(context_text)
     ):
         if "result" not in sec_lower:
-            if re.search(r"\b(?:previous|prior|reported|suggested|showed|earlier)\b", text_lower):
+            if re.search(r"\b(?:previous|prior|reported|suggested|showed|earlier)\b", text_lower) \
+                    or re.search(r"转引|引自|参见|见文献|据.{0,8}报道|前人|已有(研究|报道)", context_text):
                 return SemanticRole.REFERENCED_WORK, "Candidate describes prior literature citation in background context"
             return SemanticRole.BACKGROUND, "Candidate is located in introductory/background text"
 
     # 2. Limitation
-    if re.search(r"\b(limitation|limitations|caveat|drawback|potential\s+bias|sample\s+size\s+was\s+small)\b", text_lower):
+    if re.search(r"\b(limitation|limitations|caveat|drawback|potential\s+bias|sample\s+size\s+was\s+small)\b", text_lower) \
+            or cjk_limitation.search(context_text):
         return SemanticRole.LIMITATION, "Candidate explicitly discusses a research limitation"
 
     # 3. Method / Procedure
-    if is_method or "method" in sec_lower or "materials" in sec_lower or "procedure" in sec_lower or "protocol" in sec_lower:
+    # An explicit self-referential method statement ("本研究采用…", "we used …") is
+    # sufficient on its own; it must not require a Methods heading, or method text
+    # quoted without its heading (the usual case for extracted records) is lost.
+    if is_method or cjk_method.search(context_text) or re.search(
+            r"\b(we\s+(used|applied|conducted|collected|sampled|extracted|amplified|measured))\b",
+            text_lower):
+        return SemanticRole.CURRENT_STUDY_METHOD, "Candidate specifies experimental methodology or setup"
+    if "method" in sec_lower or "materials" in sec_lower or "procedure" in sec_lower or "protocol" in sec_lower:
         if re.search(r"\b(were\s+performed|was\s+measured|protocol|assay|sequencing|synthesized|recruited)\b", text_lower):
             return SemanticRole.CURRENT_STUDY_METHOD, "Candidate specifies experimental methodology or setup"
 
     # 4. Discussion Speculation
-    if is_speculation or ("discuss" in sec_lower and re.search(r"\b(we\s+hypothesize|we\s+speculate|it\s+is\s+tempting\s+to|might\s+suggest|future\s+work)\b", text_lower)):
-        return SemanticRole.DISCUSSION_INTERPRETATION, "Candidate is an interpretive speculation in discussion"
+    # NOTE ordering: a Discussion sentence often contains result verbs ("...showed
+    # that X, suggesting Y"). Interpretation cues must therefore be tested before
+    # the empirical-result branch, or the speculation is silently filed as a result
+    # — the exact confusion the skill's interpretation_boundary rule forbids.
+    en_speculation = re.search(
+        r"\b(we\s+hypothesize|we\s+speculate|it\s+is\s+tempting\s+to|might\s+suggest|"
+        r"may\s+(?:suggest|indicate|reflect|be\s+due)|suggest(?:s|ing)?\s+that|"
+        r"indicat(?:es|ing)\s+that|impl(?:ies|ying)\s+that|presumably|arguably|"
+        r"future\s+work|our\s+interpretation)\b", text_lower)
+    if is_speculation or en_speculation or cjk_discussion.search(context_text):
+        return SemanticRole.DISCUSSION_INTERPRETATION, "Candidate is an interpretive statement (speculation/mechanism)"
 
     # 5. Definition / Theoretical Argument
-    if re.search(r"\b(is\s+defined\s+as|we\s+define|refers\s+to|herein\s+termed)\b", text_lower):
+    if re.search(r"\b(is\s+defined\s+as|we\s+define|refers\s+to|herein\s+termed)\b", text_lower) \
+            or cjk_definition.search(context_text):
         return SemanticRole.DEFINITION, "Candidate provides a formal conceptual definition"
 
     # 6. Current Study Result / Observation
     empirical_result_pattern = re.compile(
-        r"\b(we\s+observed|we\s+found|showed|demonstrated|increased|decreased|reduced|reduces|increases|decreases|yielded|yields|measured|detected|identified|completed|achieved|attained|reached|obtained|scored|reported|table|figure)\b|显著|降低|提高|增加|减少|发现|达到",
+        r"\b(we\s+observed|we\s+found|showed|demonstrated|increased|decreased|reduced|reduces|increases|decreases|yielded|yields|measured|detected|identified|completed|achieved|attained|reached|obtained|scored|reported|table|figure)\b",
         re.IGNORECASE,
     )
-    if "result" in sec_lower or "finding" in sec_lower or empirical_result_pattern.search(text_lower):
+    if "result" in sec_lower or "finding" in sec_lower \
+            or empirical_result_pattern.search(text_lower) or cjk_result.search(context_text):
         return SemanticRole.CURRENT_STUDY_RESULT, "Candidate reports direct empirical findings of the study"
 
     # 7. Background
@@ -1165,7 +1212,20 @@ def promote_candidate_to_evidence(
 
     # Assemble EvidenceRecord
     evidence_id = f"EV_{ccr.get('candidate_id', '001')}"
-    verbatim_quote = ccr.get("context_expansion", {}).get("evidence_span", {}).get("text") or ccr.get("context_expansion", {}).get("context_text", ccr.get("hit", {}).get("text", ""))
+    raw_quote = ccr.get("context_expansion", {}).get("evidence_span", {}).get("text") or ccr.get("context_expansion", {}).get("context_text", ccr.get("hit", {}).get("text", ""))
+    loc_page = ccr.get("locator", {}).get("page")
+    loc_section = ccr.get("locator", {}).get("section")
+    if isinstance(raw_quote, dict):
+        q_text = raw_quote.get("text") or raw_quote.get("quote") or raw_quote.get("verbatim_quote") or str(raw_quote)
+        if loc_page is None and "page" in raw_quote:
+            loc_page = raw_quote["page"]
+        if loc_section is None and "section" in raw_quote:
+            loc_section = raw_quote["section"]
+        verbatim_quote = str(q_text)
+    elif raw_quote is None:
+        verbatim_quote = ""
+    else:
+        verbatim_quote = str(raw_quote)
 
     align_status = ccr.get("alignment", {}).get("status")
     if align_status == AlignmentStatus.ALIGNED:
@@ -1233,8 +1293,8 @@ def promote_candidate_to_evidence(
         "source_tin_id": ccr.get("target_information_need_id"),
         "source_target_claim": source_target_claim,
         "location": {
-            "page": ccr.get("locator", {}).get("page"),
-            "section": ccr.get("locator", {}).get("section"),
+            "page": loc_page,
+            "section": loc_section,
             # Preserved from the structured locator so a table/figure provenance
             # survives promotion instead of being flattened to null.
             "table_or_figure_id": structured_locator.get("table_or_figure_id"),

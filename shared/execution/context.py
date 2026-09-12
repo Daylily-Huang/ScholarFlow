@@ -46,9 +46,12 @@ class BudgetLimitError(Exception):
 
 
 class StageKind(str, Enum):
+    #: Ordered as the canonical pipeline; RESEARCH_DEBATE is the
+    #: idea-development stage that sits beside (not after) the literature stages.
     DISCOVERY = "discovery"
     EXTRACTION = "extraction"
     SYNTHESIS = "synthesis"
+    RESEARCH_DEBATE = "research-debate"
 
 
 #: Ledger A phase plan: how each stage is expected to spend the run budget.
@@ -70,6 +73,16 @@ _STAGE_PROFILE_FIELDS = {
         "cross_validation_budget",
         "devils_advocate_mode",
         "spot_check_rate",
+    ),
+    #: research-debate 的阶段计划只用**既有** budget/capabilities 字段表述，
+    #: 因此无需改动 `execution_profile.schema.json`（其 budgets/capabilities
+    #: 都是 additionalProperties:false）。会话自身的轮次/评审批次/事件上限由
+    #: session.execution.budget 单独承载（见 references/convergence_and_recovery.md §7）。
+    #: 只列**本运行配置真正携带**且与会话相关的字段。会话自身的轮次/评审批次/事件上限
+    #: 属于 `session.execution.budget`（见 references/convergence_and_recovery.md §7），
+    #: 不在 run 级信封里，故此处不列——避免计划里出现永远不生效的装饰性字段。
+    StageKind.RESEARCH_DEBATE: (
+        "max_active_seconds",
     ),
 }
 
@@ -104,6 +117,10 @@ class RunContext:
         },
         StageKind.EXTRACTION: {"extraction_unit_limit"},
         StageKind.SYNTHESIS: set(),
+        #: The debate session's own round / review-batch / event caps live in
+        #: `session.execution.budget`; the run-level envelope only bounds active
+        #: time, which the debate runtime does enforce.
+        StageKind.RESEARCH_DEBATE: {"max_active_seconds"},
     }
 
     #: Capability switches that are recorded in the plan but not enforced by any

@@ -1,0 +1,1067 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research_debate_session.schema.json",
+  "title": "ResearchDebateSession",
+  "description": "research-idea-debate 会话记录（单一真源）。schema_version 固定 0.1。缺少科学信息允许 null 或显式待补；缺少结构字段则验证失败。本 schema 只约束结构，不判断科学真伪。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "session_id",
+    "run_id",
+    "mode",
+    "state",
+    "original_prompt",
+    "current_question",
+    "execution"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "parent_session_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "explore",
+        "examine"
+      ]
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "CONTEXT_RESOLUTION",
+        "WAITING_DEPTH",
+        "DISCUSSING",
+        "WAITING_USER",
+        "INDEPENDENT_REVIEW",
+        "WAITING_GAP_CONFIRMATION",
+        "WAITING_EVIDENCE",
+        "CHECKPOINT",
+        "PAUSED",
+        "CLOSED"
+      ]
+    },
+    "original_prompt": {
+      "type": "string"
+    },
+    "current_question": {
+      "type": "string"
+    },
+    "stop_reason": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "USER_CLOSED",
+        "CHECKPOINT_REACHED",
+        "NO_PROGRESS",
+        "BUDGET_EXHAUSTED",
+        "PAUSED",
+        "USER_SWITCHED_MODE",
+        null
+      ]
+    },
+    "execution": {
+      "type": "object",
+      "required": [
+        "depth",
+        "selection_status",
+        "budget",
+        "usage"
+      ],
+      "properties": {
+        "depth": {
+          "type": "string",
+          "enum": [
+            "quick",
+            "standard",
+            "deep"
+          ]
+        },
+        "selection_status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "confirmed",
+            "rejected"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "EXPLICIT_ARG",
+            "INTERACTIVE_CONFIRMED",
+            "RUN_PROFILE_INHERITED",
+            "CONTEXT_RESOLVED"
+          ]
+        },
+        "budget": {
+          "type": "object",
+          "description": "硬约束：必须可测量。token 不得出现在此处。",
+          "required": [
+            "max_rounds",
+            "max_review_batches",
+            "max_subtasks_per_batch",
+            "max_active_seconds",
+            "max_events"
+          ],
+          "properties": {
+            "max_rounds": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max_review_batches": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "max_subtasks_per_batch": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max_active_seconds": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max_events": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "usage": {
+          "type": "object",
+          "properties": {
+            "rounds_used": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "review_batches_used": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "active_seconds_used": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "active_seconds_metering": {
+              "type": "string",
+              "enum": [
+                "MEASURED",
+                "ESTIMATED",
+                "UNAVAILABLE"
+              ]
+            },
+            "events_written": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "tokens_observed": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "tokens_metering": {
+              "type": "string",
+              "enum": [
+                "MEASURED",
+                "ESTIMATED",
+                "UNAVAILABLE"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "known_constraints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "text",
+              "origin"
+            ],
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "origin": {
+                "type": "string",
+                "enum": [
+                  "USER",
+                  "CONTEXT",
+                  "UPSTREAM",
+                  "PROJECT",
+                  "INFERRED",
+                  "DEFAULTED",
+                  "SYSTEM_RULE"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "upstream_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "skill",
+          "artifact_path"
+        ],
+        "properties": {
+          "skill": {
+            "type": "string"
+          },
+          "artifact_path": {
+            "type": "string"
+          },
+          "schema_version": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "record_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "content_fingerprint": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "external_inputs": {
+      "type": "array",
+      "description": "外部意见（导师、同行等）。不作证据、不作决定。",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "source",
+          "text",
+          "authority",
+          "not_user_decision"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "EXTERNAL_OPINION",
+              "USER_OBSERVATION",
+              "OTHER"
+            ]
+          },
+          "source": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "stated_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "authority": {
+            "type": "string",
+            "const": "EXTERNAL_OPINION"
+          },
+          "not_user_decision": {
+            "type": "boolean",
+            "const": true
+          }
+        }
+      }
+    },
+    "ideas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "idea_id",
+          "maturation",
+          "versions"
+        ],
+        "properties": {
+          "idea_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "maturation": {
+            "type": "string",
+            "enum": [
+              "RAW",
+              "DEVELOPING",
+              "TESTABLE"
+            ]
+          },
+          "maturity_history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "from",
+                "to"
+              ],
+              "properties": {
+                "from": {
+                  "type": "string",
+                  "enum": [
+                    "RAW",
+                    "DEVELOPING",
+                    "TESTABLE"
+                  ]
+                },
+                "to": {
+                  "type": "string",
+                  "enum": [
+                    "RAW",
+                    "DEVELOPING",
+                    "TESTABLE"
+                  ]
+                },
+                "round": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "versions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "version",
+                "proposition",
+                "origin",
+                "epistemic_status",
+                "disposition",
+                "revision_reason"
+              ],
+              "properties": {
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "parent_version": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "proposition": {
+                  "type": "string"
+                },
+                "origin": {
+                  "type": "string"
+                },
+                "epistemic_status": {
+                  "type": "string",
+                  "enum": [
+                    "INTUITION",
+                    "HYPOTHESIS",
+                    "EVIDENCE_SUPPORTED",
+                    "EVIDENCE_CHALLENGED",
+                    "UNRESOLVED"
+                  ]
+                },
+                "disposition": {
+                  "type": "string",
+                  "enum": [
+                    "ACTIVE",
+                    "RETAINED",
+                    "REVISED",
+                    "REJECTED",
+                    "DEFERRED"
+                  ]
+                },
+                "revision_reason": {
+                  "type": "string"
+                },
+                "assumptions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "text",
+                      "type",
+                      "verification_status"
+                    ],
+                    "properties": {
+                      "text": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "EMPIRICAL",
+                          "DEFINITIONAL",
+                          "METHODOLOGICAL",
+                          "VALUE"
+                        ]
+                      },
+                      "verification_status": {
+                        "type": "string",
+                        "enum": [
+                          "UNVERIFIED",
+                          "VERIFIED",
+                          "CONTRADICTED"
+                        ]
+                      },
+                      "source_refs": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "decided_by": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "description": "type=VALUE 时必填：价值取舍只能由用户决定"
+                      },
+                      "note": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "open_questions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "predictions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "text"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "origin": {
+                  "type": "string"
+                },
+                "distinguishes_from": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "evidence_links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "artifact_ref",
+                "evidence_id",
+                "relation",
+                "alignment",
+                "reason",
+                "checked_scope"
+              ],
+              "properties": {
+                "artifact_ref": {
+                  "type": "string"
+                },
+                "evidence_id": {
+                  "type": "string"
+                },
+                "relation": {
+                  "type": "string",
+                  "enum": [
+                    "SUPPORT",
+                    "CHALLENGE",
+                    "BOUNDARY",
+                    "CONTEXT"
+                  ]
+                },
+                "alignment": {
+                  "type": "string",
+                  "enum": [
+                    "VERIFIED",
+                    "UNRESOLVED"
+                  ]
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "checked_scope": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "本次核对覆盖的范围，用于区分'没找到'与'没查'"
+                },
+                "quote_match": {
+                  "type": "string",
+                  "description": "引句匹配方式：EXACT/OVERLAP/KEYWORD_ONLY/VARIANT_AGREEMENT/VARIANT_NEEDS_SECOND_OPINION/VARIANT_DISAGREEMENT/VARIANT_UNCONFIRMED/LANGUAGE_MISMATCH"
+                },
+                "proposition_match_ratio": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "variant_ref": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "本次判定实际使用的已确认变体"
+                },
+                "variant_status": {
+                  "type": "string",
+                  "enum": [
+                    "ALIGNED",
+                    "PENDING_CONFIRMATION",
+                    "NOT_APPLICABLE"
+                  ]
+                },
+                "language_mismatch": {
+                  "type": "boolean",
+                  "description": "引句与命题分属不同书写系统且无可用的已确认变体：属机制上无法判定，不等于判定为不支持"
+                },
+                "problems": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "decisions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "action",
+                "reason",
+                "author",
+                "triggered_by",
+                "user_confirmation"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "idea_version": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "action": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "author": {
+                  "type": "string"
+                },
+                "triggered_by": {
+                  "type": "string",
+                  "enum": [
+                    "ROLE_QUESTION",
+                    "EXTERNAL_OPINION",
+                    "INDEPENDENT_REVIEW",
+                    "EVIDENCE",
+                    "CHECKPOINT",
+                    "USER_INITIATIVE"
+                  ]
+                },
+                "user_confirmation": {
+                  "type": "boolean"
+                },
+                "event_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "variants": {
+            "type": "array",
+            "description": "命题的不同语言表述（跨语言对齐用）。**只有 approval.status=CONFIRMED 且 confirmed_by='user' 的变体可参与对齐判定**；AI 不得自我确认译法。变体不是新命题：它必须与原命题同义，且不改变原命题的成熟度与认知地位。",
+            "items": {
+              "type": "object",
+              "required": [
+                "variant_ref",
+                "lang",
+                "text",
+                "source_text",
+                "approval"
+              ],
+              "properties": {
+                "variant_ref": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "变体标识，用于在 evidence_link 中标注使用了哪一条"
+                },
+                "lang": {
+                  "type": "string",
+                  "minLength": 2,
+                  "description": "语言标签（如 zh / en）。仅供人读；脚本判定按书写系统而非该标签"
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "source_text": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "所翻译的原命题文本；原命题改动后本变体自动失效"
+                },
+                "proposed_by": {
+                  "type": "string",
+                  "description": "提出者（ai / user / 文献）"
+                },
+                "approval": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "PENDING",
+                        "CONFIRMED",
+                        "REJECTED",
+                        "INVALIDATED"
+                      ]
+                    },
+                    "confirmed_by": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "enum": [
+                        "user",
+                        null
+                      ],
+                      "description": "只有 'user' 算确认；AI 自我确认无效"
+                    },
+                    "confirmed_event_id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "scope_fingerprint": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "覆盖 source_text 的指纹；与当前命题不一致即失效"
+                    },
+                    "invalidation_reason": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "pending_question": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "question_id": {
+          "type": "string"
+        },
+        "role_id": {
+          "type": "string"
+        },
+        "question_type": {
+          "type": "string",
+          "enum": [
+            "CLARIFICATION",
+            "PREMISE_EVIDENCE",
+            "IMPLICATION",
+            "COMPARISON",
+            "REFLECTION",
+            "CONFIGURATION"
+          ]
+        },
+        "trigger": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "intent": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "selection_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "target_idea_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "target_version": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      }
+    },
+    "progress_signals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "signal"
+        ],
+        "properties": {
+          "signal": {
+            "type": "string",
+            "enum": [
+              "INTUITION_FORMULATED",
+              "QUESTION_SHARPENED",
+              "PREMISE_SURFACED",
+              "PREMISE_VERIFIED",
+              "PREMISE_CONTRADICTED",
+              "DISCRIMINATION_ADDED",
+              "ALTERNATIVE_ADDED",
+              "DISPOSITION_DECIDED",
+              "DECISION_RECORDED",
+              "GAP_CONFIRMED",
+              "EVIDENCE_IMPORTED"
+            ]
+          },
+          "round": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "event_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "evidence": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "stopped_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "question_id",
+          "obstacle",
+          "stop_rule"
+        ],
+        "properties": {
+          "question_id": {
+            "type": "string"
+          },
+          "obstacle": {
+            "type": "string"
+          },
+          "known": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "stop_rule": {
+            "type": "string",
+            "enum": [
+              "S1",
+              "S2",
+              "S3"
+            ]
+          },
+          "stopped_at_round": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "carried_to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "review_requests": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "review_batches": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "gap_requests": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "rounds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "round",
+          "kind",
+          "role",
+          "question_type",
+          "question",
+          "user_answer"
+        ],
+        "properties": {
+          "round": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "SUBSTANTIVE",
+              "EXTERNAL_INPUT",
+              "CONFIGURATION",
+              "REVIEW_SUBMISSION",
+              "CHECKPOINT"
+            ]
+          },
+          "idea_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "target_version": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "concept_clarifier",
+              "premise_evidence_examiner",
+              "implication_validator",
+              "alternative_explorer",
+              "reflection_facilitator",
+              "moderator"
+            ]
+          },
+          "question_type": {
+            "type": "string",
+            "enum": [
+              "CLARIFICATION",
+              "PREMISE_EVIDENCE",
+              "IMPLICATION",
+              "COMPARISON",
+              "REFLECTION",
+              "CONFIGURATION"
+            ]
+          },
+          "trigger": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "intent": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "question": {
+            "type": "string"
+          },
+          "user_answer": {
+            "type": "string"
+          },
+          "signals": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "stop_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "review_batch_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "disagreement_signal": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "external_input_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "spec_violation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "budget_exhausted_at_round": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "post_budget_rounds": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    },
+    "summary": {
+      "type": "object"
+    },
+    "last_applied_event_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

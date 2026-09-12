@@ -33,12 +33,16 @@ REQUIRED_SCHEMAS = [
     "claim_evidence_matrix.schema.json",
     "synthesis_record.schema.json",
     "execution_profile.schema.json",
+    "research_debate_session.schema.json",
+    "research_debate_event.schema.json",
+    "research_debate_gap.schema.json",
 ]
 
 REQUIRED_SKILLS = [
     "literature-discovery-acquisition/SKILL.md",
     "literature-evidence-extraction/SKILL.md",
     "literature-synthesis/SKILL.md",
+    "research-idea-debate/SKILL.md",
 ]
 
 

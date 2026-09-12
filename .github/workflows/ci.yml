@@ -27,6 +27,8 @@ jobs:
         run: |
           python skills/literature-evidence-extraction/scripts/context_expansion.py --test
           python skills/literature-discovery-acquisition/scripts/calculate_screening_agreement.py --test
+          python skills/research-idea-debate/scripts/validate_session.py --self-check
+          python skills/research-idea-debate/scripts/session_store_cli.py --help >/dev/null
 
   contract-validation:
     runs-on: ubuntu-latest

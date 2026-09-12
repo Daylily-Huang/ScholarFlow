@@ -49,13 +49,77 @@ def _clean_str(val: Any) -> str:
     return str(val).strip().lower()
 
 
-def evaluate_dimension_subject(claim_a: Dict[str, Any], claim_b: Dict[str, Any]) -> str:
+# A Latin binomial (Genus species / Genus sp. / Genus spp.) or a full
+# trinomial. Used to decide whether two claims are even about the same organism,
+# independently of which language the subject label happens to be written in.
+_BINOMIAL_RE = re.compile(r"\b([A-Z][a-z]{2,})\s+([a-z]{3,})\b")
+_BINOMIAL_STOPWORDS = {
+    "the", "and", "for", "with", "from", "using", "based", "study", "diet",
+    "dietary", "species", "中国", "保护", "研究",
+}
+
+
+def _species_signature(claim: Dict[str, Any]) -> Optional[Tuple[str, str]]:
+    """
+    Best-effort (genus, species) signature for the organism a claim is about.
+
+    Looks first at the declared subject/entity, then at the topic and the claim
+    text. Returning None means "no species-level identification available",
+    which must NOT be read as a mismatch.
+    """
+    for field in ("subject", "entity", "target_entity", "target_subject", "concept", "topic", "paper_id", "claim", "text"):
+        value = claim.get(field)
+        if not value:
+            continue
+        for m in _BINOMIAL_RE.finditer(str(value)):
+            genus, epithet = m.group(1).lower(), m.group(2).lower()
+            if genus in _BINOMIAL_STOPWORDS or epithet in _BINOMIAL_STOPWORDS:
+                continue
+            if epithet in {"sp", "spp", "var", "subsp", "cf", "aff"}:
+                continue
+            return genus, epithet
+    return None
+
+
+def evaluate_dimension_subject(
+    claim_a: Dict[str, Any],
+    claim_b: Dict[str, Any],
+    target: Optional[Dict[str, Any]] = None,
+) -> str:
     """Evaluate whether subject/target entity between claim A and B are comparable."""
-    sub_a = _clean_str(claim_a.get("subject") or claim_a.get("entity") or claim_a.get("topic"))
-    sub_b = _clean_str(claim_b.get("subject") or claim_b.get("entity") or claim_b.get("topic"))
+    sub_a = _clean_str(
+        claim_a.get("subject")
+        or claim_a.get("entity")
+        or claim_a.get("target_entity")
+        or claim_a.get("target_subject")
+        or claim_a.get("concept")
+        or claim_a.get("topic")
+    )
+    sub_b = _clean_str(
+        claim_b.get("subject")
+        or claim_b.get("entity")
+        or claim_b.get("target_entity")
+        or claim_b.get("target_subject")
+        or claim_b.get("concept")
+        or claim_b.get("topic")
+    )
+
+    if not sub_a and not sub_b and target:
+        tgt_sub = _clean_str(target.get("target_entity") or target.get("subject") or target.get("topic"))
+        if tgt_sub:
+            sub_a = sub_b = tgt_sub
 
     if not sub_a or not sub_b:
         return DimensionStatus.UNKNOWN
+
+    # Species identity outranks the literal subject string: two claims that share
+    # a topic but concern different organisms are about different entities, and
+    # pooling them would assert one species' diet as another's fact. Checked
+    # before the string comparison so that a shared topic cannot mask it.
+    sig_a = _species_signature(claim_a)
+    sig_b = _species_signature(claim_b)
+    if sig_a and sig_b and sig_a != sig_b:
+        return DimensionStatus.DISCREPANT
 
     if sub_a == sub_b:
         return DimensionStatus.MATCH
@@ -76,6 +140,45 @@ def evaluate_dimension_subject(claim_a: Dict[str, Any], claim_b: Dict[str, Any])
     return DimensionStatus.DISCREPANT
 
 
+# Method families whose measurements are not mutually interchangeable and must
+# therefore be stratified before pooling. Each family is matched on either its
+# English or its Chinese label: ScholarFlow's corpus is heavily Chinese-language
+# (中文核心期刊 / 学位论文), and an English-only token list silently collapsed e.g.
+# 样线法 and 红外相机法 into one DIRECTLY_COMPARABLE stratum, which in turn
+# suppressed the cross-stratum disclosure entirely. Only the labels are
+# bilingual -- the classification rule itself is unchanged.
+METHOD_FAMILIES = {
+    "method_paradigm": [
+        (
+            {"in vitro", "cell line", "assay", "体外", "细胞系"},
+            {"in vivo", "clinical", "patient", "population", "field", "体内", "临床", "野外", "活体"},
+        ),
+        (
+            {"transect", "direct count", "line transect", "样线", "样带", "直接计数", "直接观察"},
+            {"secr", "spatial capture", "camera trap", "红外相机", "红外触发", "相机陷阱", "自动相机"},
+        ),
+        (
+            {"simulation", "modeled", "synthetic", "模拟", "模型推算"},
+            {"empirical", "field survey", "observation", "实测", "野外调查", "实地观测"},
+        ),
+        # Composition-of-diet measurement paradigms. Microhistological /
+        # anatomical identification of ingested fragments yields frequency or
+        # relative-density of identifiable particles; molecular metabarcoding
+        # yields relative read abundance. The two are not on a common scale and
+        # carry different taxonomic-resolution and detection biases, so their
+        # percentages must not be pooled as if they measured the same quantity.
+        (
+            {"microhistolog", "fecal analysis", "faecal analysis", "rumen content",
+             "stomach content", "epidermal fragment",
+             "显微组织学", "显微鉴定", "粪便显微", "胃内容物", "瘤胃内容物"},
+            {"metabarcod", "dna barcod", "high-throughput sequencing",
+             "high throughput sequencing", "amplicon sequencing", "dietary dna",
+             "宏条形码", "条形码", "高通量测序", "宏基因组", "食性dna"},
+        ),
+    ],
+}
+
+
 def evaluate_dimension_method(claim_a: Dict[str, Any], claim_b: Dict[str, Any]) -> Tuple[str, Optional[str]]:
     """Evaluate methodological compatibility and determine if stratification is needed."""
     m_a = _clean_str(claim_a.get("method"))
@@ -88,19 +191,14 @@ def evaluate_dimension_method(claim_a: Dict[str, Any], claim_b: Dict[str, Any]) 
         return DimensionStatus.MATCH, None
 
     # Known method incompatibility patterns requiring stratification (e.g. in vitro vs in vivo, survey vs capture-recapture)
-    incompatible_pairs = [
-        ({"in vitro", "cell line", "assay"}, {"in vivo", "clinical", "patient", "population", "field"}),
-        ({"transect", "direct count", "line transect"}, {"secr", "spatial capture", "camera trap"}),
-        ({"simulation", "modeled", "synthetic"}, {"empirical", "field survey", "observation"}),
-    ]
-
-    for set1, set2 in incompatible_pairs:
-        a_in_1 = any(term in m_a for term in set1)
-        b_in_2 = any(term in m_b for term in set2)
-        a_in_2 = any(term in m_a for term in set2)
-        b_in_1 = any(term in m_b for term in set1)
-        if (a_in_1 and b_in_2) or (a_in_2 and b_in_1):
-            return DimensionStatus.INCOMPATIBLE, f"method_paradigm:{m_a}_vs_{m_b}"
+    for stratum_prefix, incompatible_pairs in METHOD_FAMILIES.items():
+        for set1, set2 in incompatible_pairs:
+            a_in_1 = any(term in m_a for term in set1)
+            b_in_2 = any(term in m_b for term in set2)
+            a_in_2 = any(term in m_a for term in set2)
+            b_in_1 = any(term in m_b for term in set1)
+            if (a_in_1 and b_in_2) or (a_in_2 and b_in_1):
+                return DimensionStatus.INCOMPATIBLE, f"{stratum_prefix}:{m_a}_vs_{m_b}"
 
     # Default to compatible if no fundamental conflict detected
     return DimensionStatus.COMPATIBLE, None
@@ -183,7 +281,7 @@ def evaluate_claim_comparability(
     h = hashlib.sha256(f"{id_a}:{id_b}".encode("utf-8")).hexdigest()[:8]
     comp_id = f"CMP-{h}"
 
-    subj_eval = evaluate_dimension_subject(claim_a, claim_b)
+    subj_eval = evaluate_dimension_subject(claim_a, claim_b, target=target)
     meth_eval, meth_stratum = evaluate_dimension_method(claim_a, claim_b)
     metric_eval, transform_rule = evaluate_dimension_metric(claim_a, claim_b)
     bnd_eval, bnd_stratum = evaluate_dimension_boundary(claim_a, claim_b)
@@ -265,8 +363,19 @@ def stratify_claims_by_comparability(
             "pairwise_comparisons": [],
         }
 
-    # Reference claim is the first claim or highest-strength claim
-    ref_claim = claims[0]
+    # Reference claim is chosen by metadata completeness rather than arbitrary first index
+    def _claim_completeness(cl: Dict[str, Any]) -> int:
+        score = 0
+        if cl.get("subject") or cl.get("entity") or cl.get("target_entity"):
+            score += 2
+        if cl.get("method") or cl.get("intervention_or_method"):
+            score += 1
+        if cl.get("metric") or cl.get("outcome_metric"):
+            score += 1
+        return score
+
+    ref_idx = max(range(len(claims)), key=lambda i: _claim_completeness(claims[i]))
+    ref_claim = claims[ref_idx]
     comparisons = []
     strata: Dict[str, List[Dict[str, Any]]] = {}
     uncomparable: List[Dict[str, Any]] = []
@@ -275,7 +384,9 @@ def stratify_claims_by_comparability(
     default_key = "core_stratum"
     strata[default_key] = [ref_claim]
 
-    for c in claims[1:]:
+    for idx, c in enumerate(claims):
+        if idx == ref_idx:
+            continue
         comp = evaluate_claim_comparability(ref_claim, c, target=target)
         comparisons.append(comp)
 

@@ -13,28 +13,67 @@
     "claim_status"
   ],
   "properties": {
-    "schema_version": { "type": "string" },
-    "evidence_id": { "type": "string" },
-    "record_id": { "type": "string" },
+    "schema_version": {
+      "type": "string"
+    },
+    "evidence_id": {
+      "type": "string"
+    },
+    "record_id": {
+      "type": "string"
+    },
     "context_unit": {
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "properties": {
-        "context_id": { "type": "string" },
-        "context_type": { "type": "string" }
+        "context_id": {
+          "type": "string"
+        },
+        "context_type": {
+          "type": "string"
+        }
       }
     },
-    "analysis_unit_id": { "type": ["string", "null"] },
-    "field": { "type": "string" },
-    "field_id": { "type": "string" },
-    "field_name": { "type": "string" },
-    "extracted_value": { "type": ["string", "number", "null"] },
+    "analysis_unit_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "field": {
+      "type": "string"
+    },
+    "field_id": {
+      "type": "string"
+    },
+    "field_name": {
+      "type": "string"
+    },
+    "extracted_value": {
+      "type": [
+        "string",
+        "number",
+        "null"
+      ],
+      "description": "Value as extracted. NOTE: schema validation cannot check that this is faithful to verbatim_quote — '95.4%' and '55.4%' are both valid strings. Numeric anchoring is enforced by scripts/quote_audit.py (value_alignment), not here."
+    },
     "support_type": {
       "type": "string",
-      "enum": ["EXPLICIT", "DERIVED", "REFERENCED", "NOT_REPORTED"],
+      "enum": [
+        "EXPLICIT",
+        "DERIVED",
+        "REFERENCED",
+        "NOT_REPORTED"
+      ],
       "description": "How the field value is anchored in this paper text."
     },
     "evidence_strength": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "enum": [
         "DIRECT_EMPIRICAL",
         "MODELED_EMPIRICAL",
@@ -51,44 +90,101 @@
       "enum": [
         "SUPPORTED",
         "PARTIALLY_SUPPORTED",
+        "DERIVED",
         "UNSUPPORTED",
         "CONTRADICTORY",
         "AMBIGUOUS",
-        "OCR_UNCERTAIN"
-      ]
+        "OCR_UNCERTAIN",
+        "BACKGROUND_ONLY",
+        "CONTEXT_ONLY",
+        "OTHER_ENTITY_CONTEXT",
+        "REFERENCED_ONLY",
+        "NOT_REPORTED"
+      ],
+      "description": "Attribute-claim statuses (SUPPORTED/UNSUPPORTED/CONTRADICTORY/AMBIGUOUS/OCR_UNCERTAIN) plus relation-claim statuses defined in references/claim_evidence_alignment.md §九 (PARTIALLY_SUPPORTED/DERIVED/BACKGROUND_ONLY/CONTEXT_ONLY/OTHER_ENTITY_CONTEXT/REFERENCED_ONLY/NOT_REPORTED). Before 2026-09-11 the two enums listed only 6 values while the protocol mandated 10, so four legal tags could not be emitted at all."
     },
     "status": {
       "type": "string",
       "enum": [
         "SUPPORTED",
         "PARTIALLY_SUPPORTED",
+        "DERIVED",
         "UNSUPPORTED",
         "CONTRADICTORY",
         "AMBIGUOUS",
-        "OCR_UNCERTAIN"
+        "OCR_UNCERTAIN",
+        "BACKGROUND_ONLY",
+        "CONTEXT_ONLY",
+        "OTHER_ENTITY_CONTEXT",
+        "REFERENCED_ONLY",
+        "NOT_REPORTED"
       ]
     },
-    "verbatim_quote": { "type": "string" },
+    "verbatim_quote": {
+      "type": "string"
+    },
     "source_type": {
       "type": "string",
-      "enum": ["Text", "Table", "Figure", "Supplement", "NR"]
+      "enum": [
+        "Text",
+        "Table",
+        "Figure",
+        "Supplement",
+        "NR"
+      ]
     },
     "location": {
       "type": "object",
       "properties": {
-        "page": { "type": ["integer", "null"] },
-        "section": { "type": ["string", "null"] },
-        "table_or_figure_id": { "type": ["string", "null"] }
+        "page": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "section": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "table_or_figure_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     },
-    "notes": { "type": ["string", "null"] },
-    "candidate_context_id": { "type": ["string", "null"] },
+    "notes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "candidate_context_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "context_sufficiency": {
-      "type": ["string", "null"],
-      "enum": ["SUFFICIENT", "PARTIALLY_SUFFICIENT", "INSUFFICIENT", null]
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "SUFFICIENT",
+        "PARTIALLY_SUFFICIENT",
+        "INSUFFICIENT",
+        null
+      ]
     },
     "semantic_role": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "enum": [
         "CURRENT_STUDY_METHOD",
         "CURRENT_STUDY_RESULT",
@@ -105,6 +201,54 @@
         "UNKNOWN",
         null
       ]
+    },
+    "claim_components": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "description": "Decomposition of a composite claim so that a partly-verifiable assertion does not have to be collapsed into one status. Added 2026-09-11: measured failure was a claim whose numeric component was verifiable while its relational component ('preference') was not — no single enum value expressed that, and reviewers could not see which part carried evidence.",
+      "items": {
+        "type": "object",
+        "required": [
+          "component",
+          "status"
+        ],
+        "properties": {
+          "component": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "SUPPORTED",
+              "PARTIALLY_SUPPORTED",
+              "DERIVED",
+              "UNSUPPORTED",
+              "CONTRADICTORY",
+              "AMBIGUOUS",
+              "OCR_UNCERTAIN",
+              "BACKGROUND_ONLY",
+              "CONTEXT_ONLY",
+              "OTHER_ENTITY_CONTEXT",
+              "REFERENCED_ONLY",
+              "NOT_REPORTED"
+            ]
+          },
+          "verbatim_quote": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
     }
   }
 }

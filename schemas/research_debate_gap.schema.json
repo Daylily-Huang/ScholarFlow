@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research_debate_gap_request.schema.json",
+  "title": "ResearchDebateGapRequest",
+  "description": "research-idea-debate 的查证缺口请求与授权记录。注意：上游三个技能现有的任务包载荷只有 gap_type / target_skill / reason / suggested_query / date_range / mode（抽取任务包为 target_paper / required_fields），没有 gap_id、approval 与范围指纹；本结构是本技能新增的，须经适配层单向映射后交给上游，并保留原始记录。schema_version 固定 0.1。",
+  "type": "object",
+  "required": [
+    "schema_version", "gap_id", "idea_id", "idea_version", "gap_type",
+    "target_skill", "question", "reason", "decision_impact", "blocking",
+    "scope", "approval", "execution_status", "result_refs"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "0.1" },
+    "gap_id": { "type": "string", "minLength": 1 },
+    "idea_id": { "type": "string", "minLength": 1 },
+    "idea_version": { "type": "integer", "minimum": 1 },
+    "gap_type": {
+      "type": "string",
+      "enum": ["SEARCH_GAP", "EXTRACTION_GAP", "SYNTHESIS_REQUEST"],
+      "description": "SYNTHESIS_REQUEST 是本技能内部请求类型，不声称上游综合 schema 已定义"
+    },
+    "target_skill": {
+      "type": "string",
+      "enum": ["literature-discovery-acquisition", "literature-evidence-extraction", "literature-synthesis"]
+    },
+    "question": {
+      "type": "string",
+      "minLength": 1,
+      "description": "要回答什么。即使被用户拒绝，也必须保留本字段"
+    },
+    "reason": { "type": "string" },
+    "decision_impact": {
+      "type": "string",
+      "description": "结果会改变哪个判断；映射到上游载荷的 reason"
+    },
+    "blocking": {
+      "type": "string",
+      "enum": ["BLOCKING", "RECORDED"],
+      "description": "BLOCKING=当前判断依赖它；RECORDED=只影响确定性，不阻塞讨论"
+    },
+    "scope": {
+      "type": "object",
+      "description": "只填与 gap_type 相关的字段，无关字段不填",
+      "properties": {
+        "topic": { "type": "string" },
+        "time_range": { "type": ["string", "null"] },
+        "target_papers": { "type": "array", "items": { "type": "string" } },
+        "required_fields": { "type": "array", "items": { "type": "string" } },
+        "evidence_refs": { "type": "array", "items": { "type": "string" } },
+        "target_claim": { "type": ["string", "null"] }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "required": ["status", "scope_fingerprint"],
+      "properties": {
+        "status": { "type": "string", "enum": ["PENDING", "CONFIRMED", "REJECTED", "INVALIDATED"] },
+        "confirmed_event_id": { "type": ["string", "null"] },
+        "scope_fingerprint": {
+          "type": "string",
+          "minLength": 1,
+          "description": "覆盖 question / scope / target_skill / budget_ref 四项的指纹；任一改变即须失效旧确认"
+        },
+        "budget_ref": { "type": ["string", "null"] },
+        "invalidation_reason": { "type": ["string", "null"] }
+      }
+    },
+    "execution_status": {
+      "type": "string",
+      "enum": ["NOT_STARTED", "RUNNING", "COMPLETE", "PARTIAL", "FAILED", "REFUSED_BY_USER"],
+      "description": "approval 非 CONFIRMED 时只能是 NOT_STARTED 或 REFUSED_BY_USER"
+    },
+    "result_refs": { "type": "array", "items": { "type": "string" } },
+    "scope_changed": {
+      "type": "boolean",
+      "description": "范围发生实质改变；为 true 时 approval.status 不得仍为 CONFIRMED"
+    },
+    "upstream_payload": {
+      "type": ["object", "null"],
+      "description": "经适配层映射后交给上游的任务包；保留原始记录，不反向覆盖上游文件"
+    },
+    "upstream_payload_notes": { "type": ["string", "null"] }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "approval": { "properties": { "status": { "const": "CONFIRMED" } },
+                                            "required": ["status"] } },
+              "required": ["approval"] },
+      "then": {
+        "properties": {
+          "approval": { "properties": { "confirmed_event_id": { "type": "string", "minLength": 1 } },
+                        "required": ["confirmed_event_id"] },
+          "execution_status": { "enum": ["NOT_STARTED", "RUNNING", "COMPLETE", "PARTIAL", "FAILED"] }
+        }
+      }
+    }
+  ],
+  "additionalProperties": true
+}

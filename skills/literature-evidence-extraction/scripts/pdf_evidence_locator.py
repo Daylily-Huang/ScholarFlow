@@ -46,22 +46,51 @@ def extract_pages_from_pdf(pdf_path: str) -> List[Dict[str, Any]]:
                 pages.append({"page": idx + 1, "text": text})
             return pages
         except Exception as e:
-            sys.stderr.write(f"[WARN] PyPDF extraction error: {e}. Attempting basic stream scan.\n")
+            sys.stderr.write(f"[WARN] PyPDF extraction error: {e}. Attempting fallback extractor.\n")
 
-    # Basic fallback: read binary stream and scan uncompressed text blocks
+    # 回退：纯标准库提取器（解压 FlateDecode 内容流 + 解析交叉引用流）。
+    # 旧实现在此直接把整个 PDF 以 latin-1 解码后过滤可打印字符，
+    # 对压缩内容流只能得到二进制噪声，却会报出很大的 total_character_count，
+    # 把「没有提取到文本」伪装成「提取到了文本、只是关键词没命中」（见该模块 docstring）。
     try:
-        with open(pdf_path, "rb") as f:
-            content = f.read().decode("latin-1", errors="ignore")
-        # Find stream objects
-        streams = re.findall(r"stream[\r\n]+(.*?)[\r\n]+endstream", content, re.DOTALL)
-        combined_text = " ".join(streams)
-        # Filter printable ASCII and symbols
-        clean_text = re.sub(r"[^\x20-\x7E\r\n\t]", " ", combined_text)
-        pages.append({"page": 1, "text": clean_text})
+        try:
+            from extract_pdf_text import extract_pdf_pages
+        except ImportError:
+            # 以文件路径直接执行时脚本目录不一定在 sys.path 上
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+            from extract_pdf_text import extract_pdf_pages
+        result = extract_pdf_pages(pdf_path)
+        warnings = result.get("warnings") or []
+        if warnings:
+            sys.stderr.write("[WARN] fallback extractor warnings: %s\n" % "; ".join(warnings))
+        if result.get("pages"):
+            pages = [
+                {"page": p["page"], "text": p["text"],
+                 "extraction_engine": result.get("engine"),
+                 "degraded": result.get("degraded", True),
+                 "warnings": list(warnings)}
+                for p in result["pages"]
+            ]
+            # 「一个字符都没提取到」必须显式标注：否则调用方会把工具性失败
+            # 当成「文献里没有这句话」（真实闭环中就是这么误判的）。
+            if not any(p["text"] for p in pages):
+                pages[0]["warnings"].append("TEXT_UNAVAILABLE")
+                sys.stderr.write(
+                    "[ERROR] 该 PDF 未提取到任何文本（疑似扫描版或 CID 编码）。"
+                    "必须改用 OCR，不得把空文本当作「关键词未命中」。\n"
+                )
+            return pages
     except Exception as e:
-        sys.stderr.write(f"[ERROR] Failed to extract text from {pdf_path}: {e}\n")
-        pages.append({"page": 1, "text": ""})
+        sys.stderr.write(f"[WARN] fallback extractor unavailable: {e}\n")
 
+    # 最后兜底：解压失败时**显式标空**，并告知调用方文本不可用，
+    # 不再返回二进制噪声冒充正文。
+    sys.stderr.write(
+        "[ERROR] 无法从该 PDF 提取文本（无 pypdf 且回退提取器失败）。"
+        "若为扫描版请改用 OCR；不要把空文本当成「关键词未命中」。\n"
+    )
+    pages.append({"page": 1, "text": "", "extraction_engine": "none",
+                  "degraded": True, "warnings": ["TEXT_UNAVAILABLE"]})
     return pages
 
 
