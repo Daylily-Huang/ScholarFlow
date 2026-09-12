@@ -228,7 +228,21 @@ _UNIT_WORD_FALLBACK = {k.lower(): v for k, v in _UNIT_LOOKUP.items()
 
 _UNIT_MAX_LEN = max(len(k) for k in _UNIT_LOOKUP)
 
-_NUMBER_RE = re.compile(r"(?<![\d.,])(?P<num>\d+(?:[.,]\d+)?)(?:[eE](?P<exp>[+-]?\d+))?(?![\d])")
+#: 数字字面量：支持多组千分位（1,234,567 / 1.234.567）与小数（1,234.56 / 1.234,56）。
+#: 2026-09-13 集群测试 P0：旧正则只吃一组分隔，`1,234,567` 被截成 `1,234`，
+#: 于是伪造值 `1,234` 被判定 ALIGNED。
+_NUMBER_RE = re.compile(
+    r"(?<![\d.,])(?P<num>\d{1,3}(?:[.,]\d{3})+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)"
+    r"(?:[eE](?P<exp>[+-]?\d+))?(?![\d])")
+
+#: 比较符/不确定度标记：它们是数值语义的一部分，比较时必须一致。
+_COMPARATOR_BEFORE = re.compile(r"(<=|>=|≤|≥|<|>|=|±|\+/-|~|≈)\s*$")
+_COMPARATOR_AFTER = re.compile(r"^\s*(<=|>=|≤|≥|<|>|±|\+/-|~|≈)")
+_COMPARATOR_CANON = {"<=": "<=", "≤": "<=", ">=": ">=", "≥": ">=", "<": "<", ">": ">",
+                     "=": "=", "±": "approx", "+/-": "approx", "~": "approx", "≈": "approx"}
+
+#: 引句长度上限：整篇论文当引句会让"数值在引句内"恒真（P0）。
+MAX_QUOTE_LEN = 2000
 
 #: 允许把百分比与裸比例互认的字段类型声明。
 RATIO_FIELD_TYPES = ("proportion", "ratio", "percentage", "percent")
@@ -357,12 +371,22 @@ def _unknown_unit_after(text: str, pos: int, strict: bool = False):
 
 
 def _decimal(num: str) -> "Decimal":
-    """把数字字面量解析成 Decimal；区分千分位逗号与欧洲小数逗号。"""
+    """把数字字面量解析成 Decimal；区分千分位与小数分隔（两种 locale 都支持）。"""
     cleaned = num.replace(" ", "").replace("\u00a0", "")
-    if re.fullmatch(r"\d{1,3}(?:,\d{3})+", cleaned):
-        cleaned = cleaned.replace(",", "")           # 1,000 = 一千
-    else:
-        cleaned = cleaned.replace(",", ".")          # 2,5 = 2.5
+    has_comma, has_dot = "," in cleaned, "." in cleaned
+    if has_comma and has_dot:
+        # 1,234.56（英式）或 1.234,56（欧式）：最后出现的那个是小数点
+        decimal_sep = "," if cleaned.rfind(",") > cleaned.rfind(".") else "."
+        thousand_sep = "." if decimal_sep == "," else ","
+        cleaned = cleaned.replace(thousand_sep, "").replace(decimal_sep, ".")
+    elif has_comma:
+        cleaned = (cleaned.replace(",", "")
+                   if re.fullmatch(r"\d{1,3}(?:,\d{3})+", cleaned)
+                   else cleaned.replace(",", "."))   # 1,000 = 一千；2,5 = 2.5
+    elif has_dot and re.fullmatch(r"\d{1,3}(?:\.\d{3}){2,}", cleaned):
+        # 仅当**≥2 组**点分千位时才按千位读（1.234.567）。
+        # 单组 `0.005` / `1.234` 在科学文献里几乎总是小数，不能吞成整数。
+        cleaned = cleaned.replace(".", "")
     return Decimal(cleaned)
 
 
@@ -379,7 +403,9 @@ def extract_quantities(value: Any, strict_units: bool = False) -> List[Dict[str,
     """
     if value is None:
         return []
-    text = str(value)
+    # P0 修复：抽取值一侧也做 confusable/全角归一化（源文侧已做，路径不对称会让
+    # 照抄 PDF 的全角写法被判失败，也会让全角小数点把值拆成两个数）。
+    text = normalize_text(str(value), fold_case=False)
     out: List[Dict[str, Any]] = []
     for m in _NUMBER_RE.finditer(text):
         try:
@@ -389,6 +415,15 @@ def extract_quantities(value: Any, strict_units: bool = False) -> List[Dict[str,
         if m.group("exp"):
             number *= Decimal(10) ** int(m.group("exp"))
         sign = _sign_before(text, m.start("num"))
+        comparator = None
+        before = text[:m.start("num")].rstrip()
+        m_before = _COMPARATOR_BEFORE.search(before)
+        if m_before:
+            comparator = _COMPARATOR_CANON[m_before.group(1)]
+        else:
+            m_after = _COMPARATOR_AFTER.match(text[m.end():])
+            if m_after and m_after.group(1) in _COMPARATOR_CANON:
+                comparator = _COMPARATOR_CANON[m_after.group(1)]
         unit_info = _match_unit(text, m.end())
         if unit_info is None:
             unknown = _unknown_unit_after(text, m.end(), strict=strict_units)
@@ -409,6 +444,7 @@ def extract_quantities(value: Any, strict_units: bool = False) -> List[Dict[str,
             "unit": canonical,
             "dimension": dimension,
             "factor": factor,
+            "comparator": comparator,
         })
     return out
 
@@ -418,7 +454,7 @@ def extract_value_tokens(value: Any) -> List[str]:
     tokens: List[str] = []
     for q in extract_quantities(value, strict_units=True):
         num = _format_decimal(q["value"])
-        token = num + (q["unit"] or "")
+        token = ((q.get("comparator") or "") + num) + (q["unit"] or "")
         if token not in tokens:
             tokens.append(token)
     return tokens
@@ -494,6 +530,9 @@ def _quantities_match(ext_q: Dict[str, Any], src_q: Dict[str, Any], rec: Dict[st
     不含浮点误差，因此无需容差来掩盖。
     """
     if not _dimension_compatible(ext_q, src_q, rec):
+        return False
+    # 比较符/不确定度必须一致：`>0.05` 与 `<0.05` 语义相反，不得互相命中。
+    if (ext_q.get("comparator") or None) != (src_q.get("comparator") or None):
         return False
     ed, sd = ext_q["dimension"], src_q["dimension"]
     if ed == "unknown" or sd == "unknown":
@@ -573,6 +612,17 @@ def check_value_alignment(rec: Dict[str, Any], norm_source: str,
     Returns None when there is nothing to check.
     """
     raw_value = rec.get("extracted_value")
+    quote_text = rec.get("verbatim_quote") or ""
+
+    # P0 修复（2026-09-13 集群测试）：把整篇论文当引句会让"数值在引句内"恒真。
+    # 引句必须是**最小充分上下文**，超过上限即判待核验，不进入数值锚定。
+    if len(quote_text) > MAX_QUOTE_LEN:
+        return {"verdict": "QUOTE_TOO_LONG", "tokens": [],
+                "missing_in_source": [], "not_in_context": [], "unverified": True,
+                "detail": ("verbatim_quote 长度 %d 超过上限 %d：整篇/大段文本不构成引句，"
+                           "数值锚定在此长度下恒真，必须给出最小充分引句。"
+                           % (len(quote_text), MAX_QUOTE_LEN))}
+
     # 抽取值按严格模式解析：数字后的陌生 token 不再当成普通单词
     quantities = extract_quantities(raw_value, strict_units=True)
     if not quantities:
@@ -633,6 +683,7 @@ def check_value_alignment(rec: Dict[str, Any], norm_source: str,
                 continue
             not_in_context.append(tok)
             continue
+        # 数值既不在引句、也不在其局部上下文（并且不在全文任何位置）→ 缺失
         missing_in_source.append(tok)
         # 数值本身存在、但单位或量纲不同 → 单独指出，避免与"整段缺失"混淆
         for other in _scan_quantities(src_fold):
@@ -686,7 +737,8 @@ def audit_evidence(evidence: Dict[str, Any], source_text: str,
               "not_found": 0, "skipped_no_quote": 0, "too_short": 0,
               "unverified": 0, "value_aligned": 0, "value_not_found_in_source": 0,
               "value_not_in_quote_context": 0, "value_unit_mismatch": 0,
-              "value_unknown_unit": 0, "value_unparsable": 0, "value_checked": 0}
+              "value_unknown_unit": 0, "value_unparsable": 0,
+              "quote_too_long": 0, "value_checked": 0}
 
     for rec in evidence.get("evidence_records", []):
         quote = rec.get("verbatim_quote") or ""
@@ -765,6 +817,11 @@ def audit_evidence(evidence: Dict[str, Any], source_text: str,
                 counts["value_unknown_unit"] += 1
                 entry["unverified"] = True
                 counts["unverified"] += 1
+            elif va["verdict"] == "QUOTE_TOO_LONG":
+                # P0：整篇/大段引句让数值锚定恒真 → 待核验并阻断。
+                counts["quote_too_long"] += 1
+                entry["unverified"] = True
+                counts["unverified"] += 1
             elif va["verdict"] == "UNPARSEABLE_VALUE":
                 # R02：含数字却解析不出数量 → 待核验，不得算通过。
                 counts["value_unparsable"] += 1
@@ -777,7 +834,7 @@ def audit_evidence(evidence: Dict[str, Any], source_text: str,
     out_of_context = counts["value_not_in_quote_context"]
     value_broken = (counts["value_not_found_in_source"]
                     + counts["value_unit_mismatch"] + counts["value_unknown_unit"]
-                    + counts["value_unparsable"])
+                    + counts["value_unparsable"] + counts["quote_too_long"])
     if unverified_policy == UNVERIFIED_FAIL:
         gate = unverified > 0 or counts["not_found"] > 0 or out_of_context > 0
     else:
@@ -814,6 +871,8 @@ def gate_failed(report: Dict[str, Any], strict: bool = False) -> bool:
     if s.get("value_unit_mismatch", 0) > 0:
         return True
     if s.get("value_unknown_unit", 0) > 0:
+        return True
+    if s.get("quote_too_long", 0) > 0:
         return True
     if s.get("value_unparsable", 0) > 0:
         return True

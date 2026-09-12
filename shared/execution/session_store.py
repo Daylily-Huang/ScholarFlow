@@ -23,6 +23,9 @@
 from __future__ import annotations
 
 import hashlib
+import time
+import uuid
+from contextlib import contextmanager
 import json
 import os
 from typing import Any, Dict, List, Optional, Tuple
@@ -65,6 +68,13 @@ class ProjectionError(Exception):
     """事件试图改写不允许的字段。"""
 
 
+
+class SnapshotCorrupt(ProjectionError):
+    """快照文件损坏（非法 JSON）——必须结构化上报，不得以裸异常打死调用方。"""
+
+    def __init__(self, message: str, details: Dict[str, Any]):
+        super().__init__(message)
+        self.details = details
 class SessionStore:
     """一个会话目录的读写句柄。"""
 
@@ -80,10 +90,28 @@ class SessionStore:
 
     # ------------------------------------------------------------------ 内部
     def _atomic_write_text(self, path: str, text: str) -> None:
-        tmp = path + ".tmp"
-        with open(tmp, "w", encoding="utf-8") as fh:
-            fh.write(text)
-        os.replace(tmp, path)
+        """原子替换写入。
+
+        **P0 修复（2026-09-13 集群测试）**：临时文件名过去是固定的 `<path>.tmp`。
+        两个进程同时写同一路径时，它们会写同一个临时文件：内容互相覆盖成
+        "两段 JSON 拼在一起"，或一方先 `os.replace` 让另一方抛
+        `FileNotFoundError`。实测 3 进程 × 30 轮就产生 20 次异常与损坏快照。
+        现在临时名带 pid + 随机后缀，写完 fsync 再替换，失败清理。
+        """
+        tmp = "%s.%d.%s.tmp" % (path, os.getpid(), uuid.uuid4().hex[:8])
+        try:
+            with open(tmp, "w", encoding="utf-8") as fh:
+                fh.write(text)
+                fh.flush()
+                os.fsync(fh.fileno())
+            os.replace(tmp, path)
+        except BaseException:
+            try:
+                if os.path.exists(tmp):
+                    os.remove(tmp)
+            except OSError:
+                pass
+            raise
 
     def _atomic_write_json(self, path: str, payload: Any) -> None:
         self._atomic_write_text(path, json.dumps(payload, ensure_ascii=False, indent=2))
@@ -280,7 +308,15 @@ class SessionStore:
         if not os.path.isfile(self.session_path):
             raise FileNotFoundError("快照不存在：%s" % self.session_path)
         with open(self.session_path, "r", encoding="utf-8") as fh:
-            return json.load(fh)
+            raw = fh.read()
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError as exc:
+            # P0：损坏快照过去直接抛裸 JSONDecodeError 打死调用方进程。
+            raise SnapshotCorrupt(
+                "快照不是合法 JSON（可能被并发写坏或人工编辑破坏）：%s" % exc,
+                {"path": self.session_path, "reason": "SNAPSHOT_CORRUPT",
+                 "bytes": len(raw)}) from exc
 
     def save_snapshot(self, session: Dict[str, Any], expected_revision: int) -> Dict[str, Any]:
         """原子写入快照缓存（物化视图）；revision 冲突则拒绝覆盖。
@@ -293,6 +329,53 @@ class SessionStore:
         要让"快照即事件重放结果"可被机械核验，须调用 `seal_checkpoint()` 建立可信
         重放基底；未封存时 `consistency_report()` 会报 `SNAPSHOT_BASE_UNVERIFIED`。
         """
+        with self._revision_lock():
+            return self._save_snapshot_locked(session, expected_revision)
+
+    @contextmanager
+    def _revision_lock(self, timeout: float = 10.0):
+        """跨进程互斥：把"读 revision → 写快照"变成临界区。
+
+        P0 修复：`save_snapshot` 的 check-then-write 过去无锁，两个进程都读到
+        revision=5 时会有一个静默覆盖另一个（实测 90 次写入只留下 50 个版本）。
+        锁文件用 O_CREAT|O_EXCL 创建；超时给出结构化错误，不无限等待。
+        """
+        lock_path = os.path.join(self.session_dir, ".session.lock")
+        deadline = time.time() + timeout
+        fd = None
+        while True:
+            try:
+                fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                os.write(fd, str(os.getpid()).encode("ascii"))
+                break
+            except FileExistsError:
+                try:
+                    age = time.time() - os.path.getmtime(lock_path)
+                except OSError:
+                    age = 0.0
+                if age > timeout:
+                    try:
+                        os.remove(lock_path)      # 陈旧锁（进程被杀）自动回收
+                    except OSError:
+                        pass
+                    continue
+                if time.time() > deadline:
+                    raise RevisionConflict(
+                        "获取会话写锁超时（%s 被占用）；请稍后重试或检查残留锁" % lock_path)
+                time.sleep(0.01)
+        try:
+            yield
+        finally:
+            try:
+                if fd is not None:
+                    os.close(fd)
+            finally:
+                try:
+                    os.remove(lock_path)
+                except OSError:
+                    pass
+
+    def _save_snapshot_locked(self, session: Dict[str, Any], expected_revision: int) -> Dict[str, Any]:
         current = None
         if os.path.isfile(self.session_path):
             current = self.load_snapshot().get("revision")

@@ -87,6 +87,7 @@ from shared.execution.session_store import (
     CorruptEventLog,
     RevisionConflict,
     ProjectionError,
+    SnapshotCorrupt,
 )
 from shared.execution.artifacts import (
     RUN_BUNDLE_FILES,
@@ -151,6 +152,7 @@ __all__ = [
     "CorruptEventLog",
     "RevisionConflict",
     "ProjectionError",
+    "SnapshotCorrupt",
     # Debate <-> upstream handoff (RFC-016 / M3)
     "TARGET_SKILLS",
     "ALLOWED_RELATIONS",

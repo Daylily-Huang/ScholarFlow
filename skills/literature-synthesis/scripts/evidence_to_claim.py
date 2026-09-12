@@ -14,6 +14,8 @@ import sys
 import re
 from typing import Dict, List, Any, Optional, Tuple
 
+from evidence_states import classify_non_evidence  # noqa: E402
+
 
 EVIDENCE_BEARING_STATUSES = {
     "SUPPORTED",
@@ -84,7 +86,9 @@ def evaluate_consensus_eligibility(
     2. EvidenceRecord must exist for referenced evidence_ids.
     3. Context sufficiency must be SUFFICIENT for full-strength consensus (PARTIALLY_SUFFICIENT rejected).
     4. claim_status must be evidence-bearing (SUPPORTED, PARTIALLY_SUPPORTED, CONTRADICTORY).
-    5. support_type must not be NOT_REPORTED / NR.
+    5. 该记录不得属于「非证据」语义（NOT_REPORTED / UNCHECKED / INACCESSIBLE / CITED_ONLY）——
+       判定走 `evidence_states.classify_non_evidence()` 单一真源，写法差异（"NOT REPORTED"、
+       "not checked"）同样拦截。
     6. evidence_strength must not be UNKNOWN or empty.
     7. Stance mapping status must not be DIFFERENT_PROPOSITION or UNRESOLVED.
     """
@@ -112,7 +116,10 @@ def evaluate_consensus_eligibility(
                     issues.append(f"Evidence '{eid}' has PARTIALLY_SUFFICIENT context; not eligible for full-strength consensus")
 
                 claim_status = ev_rec.get("claim_status") or ev_rec.get("status")
-                if claim_status not in EVIDENCE_BEARING_STATUSES:
+                if classify_non_evidence(ev_rec):
+                    issues.append("Evidence '%s' is non-evidence-bearing (%s)"
+                                  % (eid, classify_non_evidence(ev_rec)))
+                elif claim_status not in EVIDENCE_BEARING_STATUSES:
                     issues.append(f"Evidence '{eid}' has non-evidence-bearing status: {claim_status}")
 
                 supp_type = ev_rec.get("support_type")
@@ -133,8 +140,9 @@ def evaluate_consensus_eligibility(
                         issues.append(f"Evidence '{eid}' has INSUFFICIENT context sufficiency")
 
     # Claim-level checks
-    if claim_record.get("support_type") in ("NOT_REPORTED", "NR"):
-        issues.append("Claim support_type is NOT_REPORTED")
+    if classify_non_evidence(claim_record):
+        issues.append("Claim is non-evidence-bearing (%s)"
+                      % classify_non_evidence(claim_record))
 
     strength = claim_record.get("evidence_strength")
     tier = claim_record.get("evidence_tier")

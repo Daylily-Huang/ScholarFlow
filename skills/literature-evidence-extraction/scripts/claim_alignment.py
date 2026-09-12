@@ -174,6 +174,75 @@ def _check_entity_presence(entity_str: str, text: str) -> bool:
     return False
 
 
+#: 极性标记（2026-09-13 集群测试 P0 修复）：Gate 5 只看"谓词字符串是否出现"，
+#: 于是 "Shrubs are NOT the most important food" 与忠实表述一样判 SUPPORTED，
+#: 综合侧再据此把反向主张当成支持证据。这里补上方向/极性一致性检查。
+NEGATION_MARKERS = (
+    "not ", "n't", "never", "no ", " none", "without", "lack", "lacks", "lacking",
+    "absence", "absent", "rarely", "seldom", "fail to", "failed to", "no evidence",
+    "未", "不", "无", "没有", "并非", "缺乏", "缺少", "极少", "很少", "未见", "不能",
+)
+
+#: 反义类：(正向词集合, 反向词集合)。命中同一类但落在不同侧即判极性不符。
+ANTONYM_CLASSES = (
+    (("most", "highest", "greatest", "dominant", "predominant", "maximum", "最高", "主要", "主导"),
+     ("least", "lowest", "smallest", "minor", "negligible", "minimum", "最低", "次要", "可忽略")),
+    (("increase", "increased", "increases", "higher", "greater", "positive", "promote",
+      "promotes", "enhance", "enhances", "增加", "升高", "高于", "促进", "增强", "正相关"),
+     ("decrease", "decreased", "decreases", "lower", "reduced", "reduces", "negative",
+      "inhibit", "inhibits", "suppress", "suppresses", "减少", "降低", "低于", "抑制", "减弱", "负相关")),
+    (("more", "greater", "更多", "大于"), ("less", "fewer", "更少", "小于")),
+)
+
+
+def _sentence_with(text: str, needle: str) -> str:
+    """取出包含 needle 的句子（找不到就返回全文），用于把极性判定限定在相关句内。"""
+    if not needle:
+        return text
+    lowered = text.lower()
+    idx = lowered.find(needle.lower())
+    if idx < 0:
+        return text
+    starts = [text.rfind(sep, 0, idx) for sep in ("。", "！", "？", ". ", "; ", "；", "\n")]
+    ends = [pos for pos in (text.find(sep, idx) for sep in ("。", "！", "？", ". ", "; ", "；", "\n")) if pos >= 0]
+    begin = max(starts) + 1 if starts and max(starts) >= 0 else 0
+    end = min(ends) + 1 if ends else len(text)
+    return text[begin:end]
+
+
+def _polarity_signature(text: str) -> Dict[str, Any]:
+    """抽取文本的极性签名：否定奇偶 + 各反义类落在哪一侧。"""
+    lowered = " " + text.lower() + " "
+    negations = sum(1 for marker in NEGATION_MARKERS if marker in lowered)
+    classes = {}
+    for idx, (pos, neg) in enumerate(ANTONYM_CLASSES):
+        side = None
+        if any(w in lowered for w in pos):
+            side = "POS"
+        if any(w in lowered for w in neg):
+            side = "NEG" if side is None else "BOTH"
+        if side:
+            classes[idx] = side
+    return {"negated": negations % 2 == 1, "classes": classes}
+
+
+def check_polarity(claim_text: str, evidence_sentence: str) -> Optional[str]:
+    """检查主张与证据句的方向是否一致；不一致返回原因字符串，一致返回 None。"""
+    if not claim_text.strip() or not evidence_sentence.strip():
+        return None
+    claim = _polarity_signature(claim_text)
+    evidence = _polarity_signature(evidence_sentence)
+    if claim["negated"] != evidence["negated"]:
+        return ("polarity mismatch: claim negated=%s but evidence negated=%s"
+                % (claim["negated"], evidence["negated"]))
+    for idx, side in claim["classes"].items():
+        other = evidence["classes"].get(idx)
+        if other and side != "BOTH" and other != "BOTH" and side != other:
+            return ("polarity mismatch on antonym class %d: claim=%s evidence=%s"
+                    % (idx, side, other))
+    return None
+
+
 def _check_predicate_grounding(predicate: str, text: str) -> bool:
     """Check if a relational predicate is grounded in evidence text across disciplines.
 
@@ -550,6 +619,23 @@ def verify_claim_alignment(
             "source_role": source_role,
             "audit_verdict": "PASS",
             "notes": "Target claim confirmed by semantic evaluation with entity and context alignment."
+        }
+
+    # P0 修复：方向/极性一致性。谓词字符串出现不等于主张方向成立——
+    # 反向主张（否定词或反义谓词）必须在综合前被拦下。
+    polarity_issue = check_polarity(claim_str, _sentence_with(evidence_text, predicate))
+    if polarity_issue:
+        gate_results["gate3_proposition_support"] = False
+        violations.append(polarity_issue)
+        return {
+            "status": RelationStatus.CONTRADICTORY,
+            "is_confirmed_eligible": False,
+            "gate_results": gate_results,
+            "violations": violations,
+            "source_role": source_role,
+            "audit_verdict": "REJECT_POLARITY_MISMATCH",
+            "notes": "Claim polarity contradicts the evidence sentence; it cannot be "
+                     "recorded as supporting evidence.",
         }
 
     # If predicate is grounded in evidence text with bound entities and current study result

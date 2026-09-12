@@ -237,18 +237,20 @@ def apply_verified_challenges(weight: float, challenges: List[Dict[str, Any]]
     return adjusted, factors
 
 
+from evidence_states import classify_non_evidence, normalize_state_token  # noqa: E402
+
 def resolve_evidence_weight(raw: Dict[str, Any]) -> Tuple[float, str, List[str]]:
     """
     Resolve base weight, resolved strength tier, and appraisal adjustment factors.
     Returns: (final_weight, resolved_strength, adjustment_factors)
     """
     support_type = str(raw.get("support_type", "")).upper().strip()
-    extracted_val = str(raw.get("extracted_value", "")).upper().strip()
     factors = []
 
-    # Strict isolation: NOT_REPORTED always yields 0.0 weight
-    if support_type in ["NOT_REPORTED", "NR"] or extracted_val in ["NR", "NOT REPORTED"]:
-        return 0.0, "NOT_REPORTED", ["not_reported(0.0)"]
+    # Strict isolation：任何「非证据」语义一律零权重（写法归一化后判定）
+    non_evidence = classify_non_evidence(raw)
+    if non_evidence:
+        return 0.0, non_evidence, ["%s(0.0)" % non_evidence.lower()]
 
     # Determine evidence strength: priority to evidence_strength, fallback to legacy evidence_tier / evidence_level
     raw_strength = raw.get("evidence_strength") or raw.get("evidence_tier") or raw.get("evidence_level") or "UNKNOWN"
@@ -332,9 +334,14 @@ def normalize_claim(raw: Dict[str, Any]) -> Dict[str, Any]:
     appraisal = raw.get("appraisal", {})
     final_weight, strength, _ = resolve_evidence_weight(raw)
 
+    # P0 修复：反证记录不是立场证据——资格判定与权重判定同源，且非证据语义一律不合格。
+    non_evidence = classify_non_evidence(raw)
+    is_relation_challenge = (str(raw.get("relation", "")).upper().strip() == "CHALLENGE"
+                             or bool(raw.get("challenge_status")))
     is_eligible = (
         strength not in {"UNKNOWN", "NOT_REPORTED", "AMBIGUOUS_LEGACY_TIER"}
-        and support_type not in {"NOT_REPORTED", "NR"}
+        and non_evidence is None
+        and not is_relation_challenge
         and final_weight > 0.0
     )
         
@@ -369,6 +376,20 @@ def normalize_claim(raw: Dict[str, Any]) -> Dict[str, Any]:
         "independence_status": raw.get("independence_status"),
         "claim_id": raw.get("claim_id"),
         "evidence_ids": raw.get("evidence_ids", []),
+        # P0 修复（2026-09-13 集群测试）：反证/方向字段必须穿过归一化。
+        # 旧白名单把它们全部丢掉，导致 analyze()/CLI 路径上 RFC-017 罚则永不命中，
+        # 反证行还会回落成普通立场证据参与投票。
+        "relation": raw.get("relation"),
+        "challenge_status": raw.get("challenge_status"),
+        "challenge_scope": raw.get("challenge_scope"),
+        "challenge_strength": raw.get("challenge_strength"),
+        "challenge_basis": raw.get("challenge_basis"),
+        "challenge_verification": raw.get("challenge_verification"),
+        "target_claim_id": raw.get("target_claim_id") or raw.get("target_claim"),
+        "verbatim_quote": raw.get("verbatim_quote"),
+        "artifact_ref": raw.get("artifact_ref") or raw.get("source_file"),
+        "checked_scope": raw.get("checked_scope"),
+        "non_evidence_class": non_evidence,
     }
 
 
@@ -559,7 +580,9 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         # RFC-017：反证记录是"对被挑战主张的削弱"，不是一条独立立场证据。
         # 若把它当普通 REFUTE 计入，5 条反证就能靠计数压过 2 条支持——那正是
         # "反证多数决"，与项目的非多数决原则冲突。它只通过 apply_verified_challenges 生效。
-        if str(c.get("relation", "")).upper() == "CHALLENGE" or "challenge_status" in c:
+        # 注意：归一化后的记录**总是**带 challenge_status 键（缺省为 None），
+        # 因此这里必须看取值而不是键是否存在，否则所有主张都会被误判成反证。
+        if str(c.get("relation", "")).upper() == "CHALLENGE" or bool(c.get("challenge_status")):
             excluded_counts["CHALLENGE_EVIDENCE"] += 1
             continue
 
@@ -569,6 +592,10 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         # silently discarded every such claim.
         styp = str(c.get("support_type", "")).upper().strip()
         resolved_weight, resolved_strength, _ = resolve_evidence_weight(c)
+        # 非证据语义（没查/拿不到/仅转引/未报告）一律不得进入共识——与权重判定同源。
+        if classify_non_evidence(c):
+            excluded_counts[classify_non_evidence(c)] += 1
+            continue
         if "weight" in c and c.get("weight") is not None:
             wt = float(c.get("weight", 0.0))
         else:
