@@ -24,6 +24,7 @@ from shared.execution import (  # noqa: E402
     TARGET_SKILLS, scope_fingerprint, to_upstream_payload, prepare_dispatch,
     to_evidence_link, ingest_returns, normalize_quote_text,
     to_executable_query, candidates_to_records,
+    to_session_budget, to_session_execution,
     detect_language_mismatch, align_against_proposition, variant_fingerprint,
 )
 from shared.execution.session_store import SessionStore  # noqa: E402
@@ -371,6 +372,55 @@ class TestExecutableQueryLanguageSeparation(unittest.TestCase):
         gap = {"question": "同域黑麂与小麂的重叠度是多少？",
                "scope": {"topic": "black muntjac diet overlap"}}
         self.assertEqual(to_executable_query(gap), "black muntjac diet overlap")
+
+
+class TestSessionBudgetMapping(unittest.TestCase):
+    """run 级预算 ≠ 技能级预算：必须显式映射（2026-09-13 真实试跑发现）。"""
+
+    #: 与 references/convergence_and_recovery.md §7.1 表格逐格一致
+    EXPECTED = {
+        "quick": {"max_rounds": 4, "max_review_batches": 1, "max_subtasks_per_batch": 2,
+                  "max_active_seconds": 600, "max_events": 120},
+        "standard": {"max_rounds": 8, "max_review_batches": 2, "max_subtasks_per_batch": 2,
+                     "max_active_seconds": 1800, "max_events": 400},
+        "deep": {"max_rounds": 16, "max_review_batches": 3, "max_subtasks_per_batch": 2,
+                 "max_active_seconds": 3600, "max_events": 1200},
+    }
+
+    def test_budget_matches_documented_table(self):
+        for depth, expected in self.EXPECTED.items():
+            self.assertEqual(to_session_budget(depth), expected, depth)
+
+    def test_chinese_alias_is_accepted(self):
+        self.assertEqual(to_session_budget("标准"), self.EXPECTED["standard"])
+
+    def test_invalid_depth_is_rejected(self):
+        with self.assertRaises(ValueError):
+            to_session_budget("ultra")
+        with self.assertRaises(ValueError):
+            to_session_budget(None)
+
+    def test_session_execution_block_has_required_keys_and_honest_metering(self):
+        from shared.execution import RunExecutionConfig
+        cfg = RunExecutionConfig.confirmed("deep", run_id="run-test")
+        block = to_session_execution(cfg)
+        # 技能级 schema 要求的五个硬约束键
+        for key in ("max_rounds", "max_review_batches", "max_subtasks_per_batch",
+                    "max_active_seconds", "max_events"):
+            self.assertIn(key, block["budget"])
+        self.assertEqual(block["budget"], self.EXPECTED["deep"])
+        self.assertEqual(block["depth"], "deep")
+        # 观测不到的量不得写 0 冒充已计量
+        self.assertIsNone(block["usage"]["tokens_observed"])
+        self.assertEqual(block["usage"]["tokens_metering"], "UNAVAILABLE")
+
+    def test_run_level_budget_keys_do_not_leak_into_session_budget(self):
+        from shared.execution import RunExecutionConfig
+        cfg = RunExecutionConfig.confirmed("deep", run_id="run-test")
+        block = to_session_execution(cfg)
+        for leaked in ("max_search_candidates", "snowball_rounds", "extraction_unit_limit",
+                       "max_token_ceiling", "max_model_requests"):
+            self.assertNotIn(leaked, block["budget"], leaked)
 
 
 class TestQuoteNormalisationParity(unittest.TestCase):

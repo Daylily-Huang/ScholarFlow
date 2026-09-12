@@ -39,6 +39,8 @@ description: 研究构想与假说推敲技能。从一句模糊直觉或一个�
 1. **Stage 0A — Context Resolution**：解析当前指令、历史对话、任务附件、上游技能产物（检索协议、证据单元、综合结论）与项目资料，输出《现有科研上下文确认简报》，已知要素自动继承并标注来源（`[USER]` / `[CONTEXT]` / `[UPSTREAM]` / `[PROJECT]` / `[INFERRED]` / `[DEFAULTED]` / `[SYSTEM_RULE]`）。**严禁对已知要素重复询问。**
 2. **Stage 0B — 单问门禁（本技能与前三技能的关键差异）**：只提出**一个**配置问题"本次讨论的资源档位"，附推荐值（继承上游 `execution_profile.json` 的 `depth`，否则用标准档）、该档的轮次上限，以及"可直接回复`按推荐`或用一句话覆盖"。其余项取项目默认并标 `[DEFAULTED]`。**输出后立即终止回复，静默等待**，严禁自问自答。
 3. **Stage 0C — 启动快照**：确认后固化快照：`mode` 及其判断依据、成熟度初值、深度与来源、已知约束、`progress_signals`（空）、停止规则版本、携带的上游证据及其指纹。状态转 `DISCUSSING`。
+   - **预算必须映射，不可直接搬运**：run 级 `ExecutionProfile.budgets`（检索候选/滚雪球/抽取单元/token）与技能级 `session.execution.budget`（`max_rounds` / `max_review_batches` / `max_subtasks_per_batch` / `max_active_seconds` / `max_events`，`additionalProperties: false`）字段不重叠。用 `shared.execution.to_session_execution(config)` 生成 `execution` 块（或 `to_session_budget(depth)` 单取预算），否则 `validate_session.py` 会以 BU1 拒绝。
+   - **上游产物写入 `upstream_refs`**（`{skill, artifact_path, schema_version, record_ids, content_fingerprint}`），**不要写 `external_inputs`**——后者在 session schema 中专指"外部意见（导师/同行）"，要求 `authority=EXTERNAL_OPINION` 且 `not_user_decision=true`。
 
 **模式判断不提问**：用户给出具体主张 → `examine`（推敲）；只有兴趣、观察或矛盾 → `explore`（探索）。判断依据在回复中说明，用户可一句切换。
 

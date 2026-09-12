@@ -215,6 +215,68 @@ def to_executable_query(gap: Dict[str, Any], max_terms: int = 12) -> str:
     return " ".join(tokens[:max_terms])
 
 
+#: 技能级会话预算（research-idea-debate 设计稿 §7.1 /
+#: `references/convergence_and_recovery.md` §7.1）。**与 run 级 ExecutionProfile 结构不同**：
+#: run 级管检索候选/滚雪球/抽取单元与 token；技能级管讨论轮次/评审批次/事件条数。
+#: 2026-09-13 真实试跑发现：两套契约没有任何自动映射，宿主直接搬运会被
+#: `validate_session.py` 的 BU1 拦下。
+DEBATE_SESSION_BUDGETS = {
+    "quick": {"max_rounds": 4, "max_review_batches": 1, "max_subtasks_per_batch": 2,
+              "max_active_seconds": 600, "max_events": 120},
+    "standard": {"max_rounds": 8, "max_review_batches": 2, "max_subtasks_per_batch": 2,
+                 "max_active_seconds": 1800, "max_events": 400},
+    "deep": {"max_rounds": 16, "max_review_batches": 3, "max_subtasks_per_batch": 2,
+             "max_active_seconds": 3600, "max_events": 1200},
+}
+
+
+def to_session_budget(depth: Any) -> Dict[str, int]:
+    """把执行深度映射为技能级会话预算（Stage 0C 用）。
+
+    两套预算契约结构不同、字段不重叠，因此必须显式映射而不是直接搬运：
+    run 级（`ExecutionProfile`）给的是检索/抽取/模型请求上限；技能级
+    （`session.execution.budget`，`additionalProperties: false`）要的是
+    `max_rounds` / `max_review_batches` / `max_subtasks_per_batch` /
+    `max_active_seconds` / `max_events`。非法深度抛 `ValueError`。
+    """
+    from shared.execution.profiles import ExecutionDepth
+    from shared.execution.selection import normalize_depth
+
+    normalized = depth if isinstance(depth, ExecutionDepth) else normalize_depth(depth)
+    if normalized is None:
+        raise ValueError("非法执行深度：%r（可选 quick/standard/deep）" % (depth,))
+    return dict(DEBATE_SESSION_BUDGETS[normalized.value])
+
+
+def to_session_execution(config: Any, rounds_used: int = 0,
+                         review_batches_used: int = 0, events_written: int = 0,
+                         active_seconds_metering: str = "ESTIMATED") -> Dict[str, Any]:
+    """把已确认的 run 级配置映射为会话 `execution` 块（Stage 0C 快照用）。
+
+    只搬运**该搬的**：深度、选择状态与来源、映射后的技能级预算；usage 从零起算，
+    观测不到的量如实标 `UNAVAILABLE`（不得写 0 冒充已计量）。
+    """
+    depth = getattr(config, "depth", config)
+    selection = getattr(config, "selection", None)
+    return {
+        "depth": getattr(depth, "value", depth),
+        "selection_status": getattr(selection, "status", "confirmed"),
+        "selection_source": getattr(selection, "source", "interactive_confirmed"),
+        "budget": to_session_budget(depth),
+        "usage": {
+            "rounds_used": rounds_used,
+            "review_batches_used": review_batches_used,
+            "events_written": events_written,
+            "tokens_observed": None,
+            "tokens_metering": "UNAVAILABLE",
+            "active_seconds_metering": active_seconds_metering,
+        },
+        "budget_contract_note": ("run 级 ExecutionProfile.budgets 与技能级 "
+                                 "session.execution.budget 字段不重叠，"
+                                 "由 to_session_budget() 显式映射"),
+    }
+
+
 #: 可作为用户授权的确认事件类型。CHECKPOINT / ROLE_RESPONSE 等一律不算授权。
 CONFIRMATION_EVENT_TYPES = ("GAP_CONFIRMED", "GAP_APPROVED", "USER_CONFIRMATION")
 

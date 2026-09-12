@@ -138,6 +138,13 @@
 
 上表为**待标定参数**，不是性能承诺，也未实测；应按真实会话记录回归修正。
 
+**写入会话时必须映射，不能搬运 run 级预算**（2026-09-13 真实试跑发现）：run 级
+`ExecutionProfile.budgets`（`max_search_candidates` / `snowball_rounds` /
+`extraction_unit_limit` / `max_token_ceiling` …）与本表的五个字段**不重叠**；
+`schema` 对 `execution.budget` 设了 `additionalProperties: false`，直接搬运会被
+`validate_session.py` 的 **BU1** 拒绝。正确做法：`shared.execution.to_session_execution(config)`
+（或 `to_session_budget(depth)`），它按本表生成 quick/standard/deep 三档预算。
+
 ### 7.2 观测字段（不作硬判据）
 
 - `usage.tokens_observed` 与 `usage.tokens_metering`（`MEASURED`／`ESTIMATED`／`UNAVAILABLE`）只作观测记录。

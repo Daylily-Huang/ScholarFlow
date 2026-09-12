@@ -152,7 +152,7 @@
 | 引句对齐入向适配（`to_evidence_link`） | `CODE_VERIFIED` | `to_evidence_link()`；强制要求 `artifact_ref` 溯源；区分 `EXACT` / `FRAGMENT` / 否定句 |
 | **命题—引句一致性门槛** | `PARTIAL` | 引句须覆盖命题比对单元 ≥ **0.85** 才升级。实测：逐字同句 1.000/轻微改写 0.975 → `VERIFIED`；**忠实意译 0.709、中文命题+英文证据 0.575/0.512 → `UNRESOLVED`**。即「用自己的措辞陈述命题」不会升级。用法要求命题用证据语言、按原文用词陈述；跨语言须有与原文用词一致的已确认译文。阈值是设计选择（不降低科学准入），已在 `to_evidence_link` 与 `references/evidence_handoff.md` 写明 |
 | 语义支持核验 | `CODE_VERIFIED` | **默认 `UNRESOLVED`**：模式规则只用于排除（设问/假说/模拟假设/转引/条件/被反驳），未命中不等于已证实；只有绑定完整的显式语义凭据（`evidence_id` + 命题指纹 + `verifier` + `verification_ref`，且命题版本未过期）才允许 `VERIFIED`。覆盖边界：凭据由核验环节写出，本层不生成语义判断 |
-| **反证独立契约迁移（F09）** | `DEFERRED` | 非 SUPPORT 关系（CHALLENGE / BOUNDARY）当前保守记为 `UNRESOLVED` 阻断放行，独立反证分级契约与通道暂缓实施 |
+| **反证独立契约迁移（F09）** | `DEFERRED` | 非 SUPPORT 关系（CHALLENGE / BOUNDARY）当前保守记为 `UNRESOLVED` 阻断放行。2026-09-13 真实试跑实测：5 条已逐字核验的反证引句（Pianka 0.86 / 活动节律 0.65 / Jaccard 17.31%）全部无法与背景文本区分。设计方案见 [RFC-017](../rfcs/RFC-017-research-debate-challenge-channel.md)（`PROPOSED`，待裁定 4 个开放问题，未实现） |
 | **会话事件日志与恢复** | `CODE_VERIFIED` | `shared/execution/session_store.py`；完整追加边界保护（末尾无换行时安全补行分隔）、坏尾部须显式恢复（F03）、快照比较业务投影（F04）；测试 `tests/test_research_debate_session_store.py` |
 | 授权事件的真实性边界 | `CODE_VERIFIED` | 用户确认事件必须是已生效事件（`applied=false` → `CONFIRMATION_EVENT_NOT_APPLIED`）；同一 `event_id` 出现多次 → `CONFIRMATION_EVENT_AMBIGUOUS`；事件日志损坏 → `CONFIRMATION_CONTEXT_UNREADABLE`（与"没给上下文"区分） |
 | **事件先行可信重放基底** | `PARTIAL` | `seal_checkpoint()`：封存全量状态 + 事件前缀摘要 + `event_count` + `last_event_id`，未封存会话一律报 `SNAPSHOT_BASE_UNVERIFIED`；重放边界以 `event_count` 为准（零事件检查点不会跳过后续事件），并校验前缀摘要/边界一致性。**未完成**：`save_snapshot()` 仍只是调用约定（无法从代码上阻止写入未记录字段），尚无强制事件先行的写入入口 |
