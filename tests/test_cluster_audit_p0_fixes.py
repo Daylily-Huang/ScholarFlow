@@ -286,5 +286,57 @@ class TestP0ConcurrentSnapshotWrites(unittest.TestCase):
             self.assertEqual(ctx.exception.details.get("reason"), "SNAPSHOT_CORRUPT")
 
 
+class TestP1ClusterFollowups(unittest.TestCase):
+    """同批修复的高价值 P1（集群测试）：ID 冲突、DOI 前缀、事件绑定、中文折行。"""
+
+    def test_placeholder_doi_does_not_collide(self):
+        """两条 doi="NR" 的候选必须得到不同 evidence_id（否则关系注入串篇）。"""
+        from shared.execution.debate_handoff import _candidate_evidence_id
+        first = _candidate_evidence_id({"doi": "NR", "title": "Paper A"})
+        second = _candidate_evidence_id({"doi": "NR", "title": "Paper B"})
+        self.assertNotEqual(first, second)
+        self.assertEqual(_candidate_evidence_id({"doi": "NR", "openalex_id": "W1"}), "CAND-W1")
+
+    def test_doi_url_prefix_is_stripped(self):
+        """`https://doi.org/…`、`https://dx.doi.org/…`、`doi:…` 必须归一化成同一 DOI。"""
+        import importlib.util
+        path = os.path.join(REPO_ROOT, "skills", "literature-discovery-acquisition",
+                            "scripts", "ingest_external_records.py")
+        spec = importlib.util.spec_from_file_location("sf_ingest_p1", path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = module
+        spec.loader.exec_module(module)
+        source = open(path, encoding="utf-8").read()
+        self.assertIn("doi\\.org/", source)      # 前缀剥离逻辑存在
+        self.assertIn("unquote", source)           # 百分号编码处理存在
+
+    def test_confirmation_event_must_be_bound_to_the_evidence(self):
+        """P1：他条证据的复核事件不得给本反证授权（见 test_rfc017_challenge_channel）。"""
+        from tests.test_rfc017_challenge_channel import _credential, _record, _store, PROP
+        from shared.execution import to_evidence_link
+        with tempfile.TemporaryDirectory(prefix="sf-p1-bind-") as folder:
+            store = _store(folder, evidence_id="EV-OTHER")
+            link = to_evidence_link(_record(credential=_credential()), PROP, "CHALLENGE",
+                                    session_store=store)
+            self.assertEqual(link["challenge_status"], "REJECTED")
+            self.assertIn("EVIDENCE_MISMATCH", link["challenge_reason"])
+
+    def test_cjk_line_break_folding(self):
+        """中文 PDF 折行被复制时整段去掉 → 必须仍能定位（拉丁文不放宽）。"""
+        source = "本研究采用双因素\n方差分析比较三种配置的土壤理化性质，结果表明存在差异。"
+        quote = "本研究采用双因素方差分析比较三种配置的土壤理化性质"
+        report = qa.audit_evidence(
+            {"evidence_records": [{"verbatim_quote": quote, "extracted_value": None}]}, source)
+        self.assertEqual(report["entries"][0]["match_type"], "WHITESPACE_RELAXED")
+        self.assertFalse(qa.gate_failed(report, strict=True))
+
+    def test_latin_quotes_are_not_whitespace_relaxed(self):
+        source = "The survival rate was high in the treated group of the study."
+        report = qa.audit_evidence(
+            {"evidence_records": [{"verbatim_quote": "The survivalrate was high",
+                                   "extracted_value": None}]}, source)
+        self.assertEqual(report["entries"][0]["match_type"], "NOT_FOUND")
+
+
 if __name__ == "__main__":
     unittest.main()

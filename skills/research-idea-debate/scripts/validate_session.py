@@ -138,6 +138,12 @@ def check_session(rep, s):
     _enum(rep, ex.get("selection_status"), {"pending", "confirmed", "rejected"},
           "S-EXEC", "session.execution", "selection_status")
     budget, usage = ex.get("budget", {}), ex.get("usage", {})
+    # P1 修复：token 类上限不得只认字面 "max_tokens"（旧写法漏掉 token_ceiling 等变体）
+    for key in list(budget):
+        rep.ok()
+        if "token" in str(key).lower() or "cost" in str(key).lower():
+            rep.add("BU1", "session.execution.budget.%s" % key,
+                    "技能级预算不得出现 token/成本类上限（%s）" % key)
     for key in ("max_rounds", "max_review_batches", "max_subtasks_per_batch",
                 "max_active_seconds", "max_events"):
         rep.ok()
@@ -280,7 +286,14 @@ def check_rounds(rep, s):
 def check_maturity_gate(rep, s):
     for idea in s.get("ideas", []):
         iid = idea.get("idea_id")
-        if not any(h.get("from") == "RAW" for h in idea.get("maturity_history", [])):
+        history = idea.get("maturity_history") or []
+        if not any(h.get("from") == "RAW" for h in history):
+            # P1 修复：缺 maturity_history 过去直接跳过配额检查，于是"清空历史"即可绕过。
+            # 无法证明满足门槛时按未满足处理（失败关闭）。
+            if any(r.get("trigger") in DEVELOPMENT_QUOTA_TRIGGERS for r in s.get("rounds", [])):
+                rep.add("MT2", "idea %s" % iid,
+                        "缺少 maturity_history，无法证明在进入 %s 前已累积 ≥2 个发展信号"
+                        % "/".join(sorted(DEVELOPMENT_QUOTA_TRIGGERS)))
             continue
         signals = 0
         for r in s.get("rounds", []):
@@ -329,6 +342,24 @@ def check_gaps(rep, s):
         rep.ok()
         if not ap.get("scope_fingerprint"):
             rep.add("GP1", where, "缺少 scope_fingerprint")
+        else:
+            # P1 修复：指纹必须与**当前**缺口内容一致，否则旧范围仍会被当成有效授权。
+            try:
+                from shared.execution import scope_fingerprint as _fp
+                current = _fp(g)
+                rep.ok()
+                if ap.get("scope_fingerprint") != current:
+                    rep.add("GP6", where, "scope_fingerprint 与当前缺口内容不符（范围已变更）")
+            except Exception:  # noqa: BLE001 - 引擎不可用时只跳过该增强检查
+                pass
+        # P1 修复：approved_idea_version 必须与 idea_version 一致（旧实现完全不检查）
+        if ap.get("status") == "CONFIRMED":
+            rep.ok()
+            if ap.get("approved_idea_version") is None or g.get("idea_version") is None:
+                rep.add("GP7", where, "已确认缺口缺少 approved_idea_version 或 idea_version")
+            elif ap.get("approved_idea_version") != g.get("idea_version"):
+                rep.add("GP7", where, "approved_idea_version=%r 与 idea_version=%r 不一致"
+                        % (ap.get("approved_idea_version"), g.get("idea_version")))
         rep.ok()
         if ap.get("status") != "CONFIRMED" and g.get("execution_status") not in \
                 ("NOT_STARTED", "REFUSED_BY_USER"):
@@ -378,6 +409,10 @@ def check_reviews(rep, s):
         where = "batch %s" % b.get("batch_id")
         subs = b.get("subtasks", [])
         done = [t for t in subs if t.get("status") == "COMPLETE"]
+        # P1 修复（集群测试）：评估者数量必须按**去重身份**计。两个子任务共用同一
+        # task_id（或同一 lens）只是同一个人写了两遍，不能冒充两名独立评估者。
+        reviewer_ids = {t.get("task_id") or t.get("lens") for t in done}
+        distinct_reviewers = len(reviewer_ids)
         ds = b.get("disagreement_signal")
         _enum(rep, ds, DISAGREEMENT, "RV7", where, "disagreement_signal")
         rep.ok()
@@ -406,7 +441,10 @@ def check_reviews(rep, s):
         if len(done) < 2 and ds != "NOT_APPLICABLE":
             rep.add("RV10", where, "评估者不足 2 个时应为 NOT_APPLICABLE")
         rep.ok()
-        if len(done) < 2 and ds == "LOW_DIVERGENCE":
+        if len(done) > distinct_reviewers:
+            rep.add("RV16", where, "子任务 task_id 重复：%d 个子任务只有 %d 个独立评估者"
+                    % (len(done), distinct_reviewers))
+        if distinct_reviewers < 2 and ds == "LOW_DIVERGENCE":
             rep.add("RV9", where, "评估者不足 2 个不得判 LOW_DIVERGENCE")
         if b.get("degraded"):
             rep.ok()

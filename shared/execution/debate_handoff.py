@@ -1071,7 +1071,8 @@ CHALLENGE_STRENGTHS = ("WEAKENS", "REFUTES")
 CHALLENGE_CONFIRMATION_EVENT_TYPES = ("EVIDENCE_IMPORTED", "USER_INPUT", "REVIEW_RETURNED")
 
 
-def _validate_challenge_human_confirmation(human: Any, session_store: Optional[Any]):
+def _validate_challenge_human_confirmation(human: Any, session_store: Optional[Any],
+                                           evidence_id: str = ""):
     """校验反证的人工复核绑定；返回 `(ok, problem_or_None, details)`。
 
     RFC-017 裁定 1：反证影响更大，**必须有人工复核**。
@@ -1111,6 +1112,16 @@ def _validate_challenge_human_confirmation(human: Any, session_store: Optional[A
             str(event.get("actor") or "").strip().lower() not in USER_ACTOR_NAMES:
         return False, "CHALLENGE_HUMAN_CONFIRMATION_NOT_USER", [
             "actor=%r is not the user" % event.get("actor")]
+    # P1 修复（集群测试）：复核事件必须绑定到**被复核的这条证据**，否则一个真实
+    # 用户事件可以被复用来给任意论文的反证授权。
+    payload = event.get("payload") if isinstance(event.get("payload"), dict) else {}
+    bound_id = str(payload.get("evidence_id") or event.get("evidence_id") or "").strip()
+    if not bound_id:
+        return False, "CHALLENGE_HUMAN_CONFIRMATION_UNBOUND", [
+            "confirmation event carries no evidence_id; it cannot be tied to this evidence"]
+    if evidence_id and bound_id != str(evidence_id):
+        return False, "CHALLENGE_HUMAN_CONFIRMATION_EVIDENCE_MISMATCH", [
+            "event confirms evidence_id=%r but this challenge is %r" % (bound_id, evidence_id)]
     return True, None, []
 
 
@@ -1197,7 +1208,8 @@ def evaluate_challenge(relation: str, record: Dict[str, Any], quote: str,
                 "challenge_reason": "该引句在命题层面是**支持**而非挑战，不得记反证"}
 
     ok, problem, details = _validate_challenge_human_confirmation(
-        explicit.get("human_confirmation"), session_store)
+        explicit.get("human_confirmation"), session_store,
+        evidence_id=basis.get("evidence_id") or "")
     if not ok:
         status = ("PENDING_HUMAN_CONFIRMATION"
                   if problem in ("CHALLENGE_HUMAN_CONFIRMATION_MISSING",
@@ -1373,6 +1385,22 @@ def _reason(relation: str, alignment: str, how: str, problems: List[str],
     return "缺少判定所需的引句、定位或标识：%s" % ",".join(problems)
 
 
+#: 不可作为证据 ID 的占位 DOI 写法。
+_PLACEHOLDER_IDS = {"", "NR", "N/A", "NA", "N.D.", "ND", "NONE", "NULL", "-", "?"}
+
+
+def _candidate_evidence_id(candidate: Dict[str, Any]) -> str:
+    """为候选生成唯一 evidence_id：排除占位符并保证同批内不冲突。"""
+    for key in ("doi", "openalex_id", "id", "record_id"):
+        value = str(candidate.get(key) or "").strip()
+        if value and value.upper() not in _PLACEHOLDER_IDS:
+            return "CAND-%s" % value
+    # 全部缺失或占位：用标题哈希保底，避免多条候选塌成同一个 ID
+    seed = str(candidate.get("title") or candidate.get("display_name") or "")
+    digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()[:10]
+    return "CAND-NOID-%s" % digest
+
+
 def candidates_to_records(discovery_result: Dict[str, Any],
                           max_records: Optional[int] = None) -> List[Dict[str, Any]]:
     """把 Discovery 的 headless 产物转成**候选**证据记录。
@@ -1391,7 +1419,10 @@ def candidates_to_records(discovery_result: Dict[str, Any],
     out: List[Dict[str, Any]] = []
     for c in cands:
         out.append({
-            "evidence_id": "CAND-%s" % (c.get("doi") or c.get("openalex_id") or c.get("id") or "?"),
+            # P1 修复（集群测试）：占位 DOI（"NR"/"n.d."/空）不得当 ID 来源——
+            # 实测 29 条候选里有两条 doi="NR"，都映射成 CAND-NR，关系注入会串到
+            # 另一篇文献上。占位符一律回退 openalex_id / record_id，并保底编号。
+            "evidence_id": _candidate_evidence_id(c),
             "artifact_ref": "discovery_result.json",
             "title": c.get("title"),
             "doi": c.get("doi"),

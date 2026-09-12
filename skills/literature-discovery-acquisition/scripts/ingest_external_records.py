@@ -778,8 +778,24 @@ def merge_candidate_records(
         return re.sub(r"[^a-zA-Z0-9\u4e00-\u9fa5]", "", str(t or "").lower())
 
     def _norm_doi(d: Optional[str]) -> Optional[str]:
+        """DOI 归一化：小写 + 剥离 URL/`doi:` 前缀 + 解百分号编码。
+
+        P1 修复（2026-09-13 集群测试）：旧实现只 `strip().lower()`，于是
+        `https://doi.org/10.1/x` 与 `https://dx.doi.org/10.1/x` 与 `10.1/x`
+        被当成三个不同 DOI，重复文献会拿到两份独立证据身份。
+        """
         d_str = str(d or "").strip().lower()
-        return d_str if d_str and d_str != "nr" else None
+        if not d_str:
+            return None
+        d_str = re.sub(r"^(?:https?://)?(?:dx\.)?doi\.org/", "", d_str)
+        d_str = re.sub(r"^doi:\s*", "", d_str)
+        try:
+            from urllib.parse import unquote
+            d_str = unquote(d_str)
+        except Exception:  # noqa: BLE001
+            pass
+        d_str = d_str.strip()
+        return d_str if d_str and d_str not in ("nr", "n/a", "none", "null", "-") else None
 
     # Deep copy existing records
     merged: List[Dict[str, Any]] = [dict(r) for r in existing_records]

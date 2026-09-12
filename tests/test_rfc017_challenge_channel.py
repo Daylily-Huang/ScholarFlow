@@ -38,11 +38,13 @@ IRRELEVANT_QUOTE = "本研究采用双因素方差分析比较三种配置的土
 
 
 def _store(folder, event_id="EV-CH-1", actor="user", execution_kind="USER",
-           event_type="EVIDENCE_IMPORTED", applied=True):
+           event_type="EVIDENCE_IMPORTED", applied=True, evidence_id="EV-CH"):
+    """确认事件必须携带 payload.evidence_id（P1：一个事件不得给任意证据授权）。"""
     store = SessionStore(folder)
     store.append_event({"schema_version": "0.1", "event_id": event_id, "session_id": "S1",
                         "seq": 1, "type": event_type, "actor": actor,
-                        "execution_kind": execution_kind, "payload": {},
+                        "execution_kind": execution_kind,
+                        "payload": {"evidence_id": evidence_id} if evidence_id else {},
                         "created_at": None, "applied": applied})
     return store
 
@@ -101,6 +103,22 @@ class TestChallengeStateMachine(unittest.TestCase):
     def test_unapplied_event_cannot_confirm(self):
         with tempfile.TemporaryDirectory(prefix="sf-rfc017-") as folder:
             store = _store(folder, applied=False)
+            link = to_evidence_link(_record(credential=_credential()), PROP, "CHALLENGE",
+                                    session_store=store)
+            self.assertEqual(link["challenge_status"], "PENDING_HUMAN_CONFIRMATION")
+
+    def test_confirmation_event_bound_to_other_evidence_is_refused(self):
+        """P1：复用他条证据的复核事件给本反证授权 → 必须拒绝。"""
+        with tempfile.TemporaryDirectory(prefix="sf-rfc017-") as folder:
+            store = _store(folder, evidence_id="EV-OTHER")
+            link = to_evidence_link(_record(credential=_credential()), PROP, "CHALLENGE",
+                                    session_store=store)
+            self.assertEqual(link["challenge_status"], "REJECTED")
+            self.assertIn("EVIDENCE_MISMATCH", link["challenge_reason"])
+
+    def test_confirmation_event_without_evidence_binding_is_pending(self):
+        with tempfile.TemporaryDirectory(prefix="sf-rfc017-") as folder:
+            store = _store(folder, evidence_id="")
             link = to_evidence_link(_record(credential=_credential()), PROP, "CHALLENGE",
                                     session_store=store)
             self.assertEqual(link["challenge_status"], "PENDING_HUMAN_CONFIRMATION")

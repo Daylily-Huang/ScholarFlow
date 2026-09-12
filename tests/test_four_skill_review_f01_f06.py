@@ -548,7 +548,7 @@ class TestR08GapSchemaStateConstraints(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="sf-r08-") as folder:
             store = SessionStore(folder)
             healed, _ = store.heal_referential_integrity({
-                "ideas": [], "review_batches": [
+                "session_id": "S-R08", "ideas": [], "review_batches": [
                     {"batch_id": "B1", "resolution": "ESCALATED_TO_GAP",
                      "escalated_gap_id": "G1"}]})
             return healed["gap_requests"][0]
@@ -1179,6 +1179,7 @@ class TestR06HealedGapSchemaValidation(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="sf-r06-") as folder:
             store = SessionStore(folder)
             session = {
+                "session_id": "S-R06",
                 "ideas": [{"idea_id": "I1"}, {"idea_id": "I2"}],
                 "review_batches": [{"batch_id": "B1", "resolution": "ESCALATED_TO_GAP", "escalated_gap_id": "G1"}],
             }

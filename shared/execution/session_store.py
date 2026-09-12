@@ -792,6 +792,11 @@ class SessionStore:
                     new_gap = {
                         "schema_version": "0.1",
                         "gap_id": gid,
+                        # P1 修复（集群测试）：派发门禁要求 gap.session_id，schema 现已
+                        # 声明并 required；修复产物必须一并写出，否则"schema PASS 却永远
+                        # 无法派发"。会话缺 session_id 时占位会被 schema 校验拒收，
+                        # 转入 repair_proposals 由人工处理。
+                        "session_id": healed_session.get("session_id"),
                         "idea_id": idea_id,
                         "idea_version": idea_version,
                         "gap_type": "SEARCH_GAP",

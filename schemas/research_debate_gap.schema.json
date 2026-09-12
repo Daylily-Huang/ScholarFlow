@@ -18,7 +18,8 @@
     "scope",
     "approval",
     "execution_status",
-    "result_refs"
+    "result_refs",
+    "session_id"
   ],
   "properties": {
     "schema_version": {
@@ -209,6 +210,11 @@
         "string",
         "null"
       ]
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "所属会话 ID。派发门禁会用它与确认事件逐项比对（缺该字段一律 APPROVAL_SESSION_UNBOUND），因此必须在契约里显式声明，否则合规产物永远无法派发。"
     }
   },
   "allOf": [

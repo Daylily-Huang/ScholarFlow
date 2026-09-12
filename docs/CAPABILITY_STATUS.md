@@ -93,6 +93,9 @@
 | 逐字引句回查（EXACT/HYPHEN/FUZZY/NOT_FOUND） | `CODE_VERIFIED` | `quote_audit.py`；**不校验页码**，页码来自 Agent 自报 |
 | 数值—引句锚定（含单位与量纲） | `CODE_VERIFIED` | 完整数量解析（符号/数值/指数/单位）后按数值+量纲比较；同量纲按**精确十进制**因子换算（2.5 mL == 2500 µL，1 nL ≠ 2 nL），跨量纲不匹配；`bp/kb/mb` 分列，`%`=1/100、`‰`=1/1000；`%` ↔ 裸比例仅在字段声明 `value_type` 时互认 |
 | 未知/复合单位的诚实阻断 | `CODE_VERIFIED` | 单位不在表内（如 `Gy`、`Sv`、`m/s`、`m2`）→ `dimension="unknown"`、保留原文，判 `UNKNOWN_UNIT` 并阻断；源文扫描**保留大小写**（`Gy` 不会被折成 `gy`），抽取值悄悄丢单位也会被 `UNIT_MISMATCH` 挡住；只有字段声明 `value_type=count/dimensionless` 且另一侧确实无量纲时才按数值比较 |
+| 数值字面量边界（千分位/比较符/全角） | `CODE_VERIFIED` | 多组千分位（`1,234,567`、`1.234.567`）与英/欧两种 locale；单组点分 `0.005` 仍按小数；比较符（`< > ≤ ≥ ± ~`）参与比较；抽取值侧与源文侧同源 confusable 归一化 |
+| 引句长度与空白边界 | `CODE_VERIFIED` | `MAX_QUOTE_LEN=2000`：整篇/大段文本当引句 → `QUOTE_TOO_LONG` 阻断（否则数值锚定恒真）；含 CJK 的引句允许折行空白不敏感匹配（拉丁文不放宽，避免 `the rapist`/`therapist` 假命中） |
+| 主张—证据方向（极性） | `CODE_VERIFIED` | 否定词奇偶 + 反义类一致性检查：反向/反义/缺失型 claim → `CONTRADICTORY` + `REJECT_POLARITY_MISMATCH`，不得进入共识 |
 | 数值字面量边界 | `CODE_VERIFIED` | 千分位 `1,000` 与欧洲小数逗号 `2,5` 分别解析；`5%` ↔ `50‰` 在比例字段下等价、`5%` ≠ `5‰`；同量纲跨单位换算仅接受已登记倍率；含义不明确的符号（`mb`）不登记 |
 | 数值核验覆盖边界 | `PARTIAL` | **已覆盖**：抽取值带未知/复合单位、源文未知单位（含大小写符号与两字母小写单位）、量纲错配、未锚定、不可解析。**未覆盖**：源文用 3 个以上字母的**生僻小写**单位、而抽取值又恰好丢了单位——这种组合仍可能通过；需要时把该单位登记进 `_UNIT_GROUPS` |
 | 数值判定边界 | `CODE_VERIFIED` | 含数字却解析不出数量 → `UNPARSEABLE_VALUE`；数字对但单位/量纲不同 → `UNIT_MISMATCH`；距引句过远 → `NOT_IN_QUOTE_CONTEXT`；四类均计入 `unverified` 并触发硬门禁 |
@@ -121,6 +124,7 @@
 | 加权证据评价（directness/independence/risk_of_bias/replication） | `CODE_VERIFIED` | `controversy_analyzer.resolve_evidence_weight` |
 | 独立性组权重封顶 + STRONG 需 ≥2 已验证独立组 | `CODE_VERIFIED` | 实测通过 |
 | 非篇数多数决 | `CODE_VERIFIED` | 8 篇弱反证不敌 1 篇强实证，实测 |
+| 「非证据」语义的单一真源 | `CODE_VERIFIED` | `evidence_states.py`：`NOT_REPORTED`/`NOT REPORTED`/`NR`/`unchecked`/`inaccessible`/`cited_only` 写法归一化后一律零权重，并真正读取 `claim_status`；资格检查 `evaluate_consensus_eligibility()` 同源。**修复前**这些写法均按满权重进入共识 |
 | 已核验反证的有界加权 | `CODE_VERIFIED` | `controversy_analyzer.apply_verified_challenges()`：`WEAKENS` 0.25 / `REFUTES` 0.5，同来源组封顶 0.5，权重不为负；反证记录**不计入立场权重**（`CHALLENGE_EVIDENCE`），5 条 `REFUTES` 只把支持压到 `INSUFFICIENT_EVIDENCE`，`REFUTE` 权重保持 0；未核验反证零影响。测试 `tests/test_rfc017_challenge_channel.py` |
 | 可比性分层（6 维） | `CODE_VERIFIED` | `comparability.py` |
 | 层内结论与跨层差异分别披露 | `CODE_VERIFIED` | 头条取全量主张；分层方向分歧显式披露，不再以单层代表整体 |
@@ -158,6 +162,7 @@
 | 授权事件的真实性边界 | `CODE_VERIFIED` | 用户确认事件必须是已生效事件（`applied=false` → `CONFIRMATION_EVENT_NOT_APPLIED`）；同一 `event_id` 出现多次 → `CONFIRMATION_EVENT_AMBIGUOUS`；事件日志损坏 → `CONFIRMATION_CONTEXT_UNREADABLE`（与"没给上下文"区分） |
 | **事件先行可信重放基底** | `PARTIAL` | `seal_checkpoint()`：封存全量状态 + 事件前缀摘要 + `event_count` + `last_event_id`，未封存会话一律报 `SNAPSHOT_BASE_UNVERIFIED`；重放边界以 `event_count` 为准（零事件检查点不会跳过后续事件），并校验前缀摘要/边界一致性。**未完成**：`save_snapshot()` 仍只是调用约定（无法从代码上阻止写入未记录字段），尚无强制事件先行的写入入口 |
 | 检查点信任边界与历史导入 | `CODE_VERIFIED` | 检查点自述 `inherited_fields` + `trust_boundary` + `import_mode/reason/source`；已有检查点后引入新的、事件未记录的业务字段必须显式 `import_mode=True` 并给出理由与来源，否则拒绝封存。**不得宣称"全部业务状态由事件证明"** |
+| 并发写入与损坏快照 | `CODE_VERIFIED` | `_atomic_write_text` 临时名带 pid+随机后缀（原固定 `.tmp` 会被并发写坏）；`save_snapshot` 读-改-写用 `O_EXCL` 锁串行化（陈旧锁自动回收）；损坏快照抛结构化 `SnapshotCorrupt` 而非裸 `JSONDecodeError`。实测 3 进程 ×30 轮：修复前 20 次异常 / 90 写只剩 50 版本 / 文件损坏；修复后 90/90 成功、revision=91、零残留 |
 | 两文件一致提交与中断识别 | `CODE_VERIFIED` | 封存前完成 revision 校验（失败时快照与检查点均不变）；快照与检查点经 `commit_journal.json` 一致提交，中断留下提交日志 → `consistency_report()` 报 `INCOMPLETE_COMMIT`，`recover_commit()` 完成或回滚；CLI `seal` 支持 `--import-mode/--import-reason/--import-source` |
 | **契约校验前置到修复路径** | `CODE_VERIFIED` | `heal_referential_integrity()` 生成的占位立即过 `research_debate_gap.schema.json`；不合规输出转入 `repair_proposals` 而非正式 `gap_requests` |
 | **外键修复不得制造授权** | `CODE_VERIFIED` | `heal_referential_integrity()` 只生成 `PENDING` 占位，不伪造 `CONFIRMED`（F06/R06）；占位以 `healed_placeholder=true` 显式标记，Schema 据此放开空关联并强制 `execution_status=NOT_STARTED`；测试 `tests/test_research_debate_session_store.py` |
@@ -264,9 +269,16 @@
 ## 7. 本表的验证绑定
 
 - **实现提交**：`e8b3d14`（含 RFC-017 反证通道；预算映射 `bc5555f`；F1/F2 `b091516`；T01–T05 主体 `8a267e2`）
-- **测试结果**：`Ran 871 tests ... OK`（本机 0 项跳过；跳过 ≠ 通过）
-- **报告**：`docs/implementation/ScholarFlow_第三次修改验收修复报告_2026-09-13.md`
+- **测试结果**：`Ran 900 tests ... OK`（本机 0 项跳过；跳过 ≠ 通过）
+- **报告**：`docs/implementation/ScholarFlow_集群端到端测试报告_2026-09-13.md`（18 agent 集群测试，6 P0 已修 / P1–P2 留档）
+  、`docs/implementation/ScholarFlow_第三次修改验收修复报告_2026-09-13.md`
   （前两轮：`ScholarFlow_R01-R06第二轮修复报告_2026-09-13.md`、
   `ScholarFlow_四技能审查修复批次报告_2026-09-12.md`，后者已标注"全部验收"表述过度）
 
 > 本表的 `CODE_VERIFIED` 仅覆盖上表 L1/L2 层，且只对该提交有效；实现变更后须重新核对本表。
+15. 事件写入无 schema 门禁：`research_debate_event.schema.json` 全仓无执行点，
+    伪造的确认事件可直接 `append_event` 并被派发门禁接受（集群测试 P1，未修）。
+16. `depth` 标签与资源上限解耦：`ExecutionProfile` 的 `depth=quick` 可携带 deep 预算
+    并通过校验与 preflight（集群测试 P1，未修）。
+17. 检索台账跨作用域虚报：查询数与台账行数不等、`hits=0` 仍可判 `COMPLETE`、
+    覆盖率 `rate > 1`（集群测试 P1，未修）。

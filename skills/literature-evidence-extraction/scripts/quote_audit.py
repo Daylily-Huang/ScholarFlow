@@ -231,6 +231,14 @@ _UNIT_MAX_LEN = max(len(k) for k in _UNIT_LOOKUP)
 #: 数字字面量：支持多组千分位（1,234,567 / 1.234.567）与小数（1,234.56 / 1.234,56）。
 #: 2026-09-13 集群测试 P0：旧正则只吃一组分隔，`1,234,567` 被截成 `1,234`，
 #: 于是伪造值 `1,234` 被判定 ALIGNED。
+def _is_cjk_text(text: str) -> bool:
+    return bool(re.search(r"[\u3400-\u4dbf\u4e00-\u9fff]", text))
+
+
+def _strip_whitespace(text: str) -> str:
+    return re.sub(r"\s+", "", text)
+
+
 _NUMBER_RE = re.compile(
     r"(?<![\d.,])(?P<num>\d{1,3}(?:[.,]\d{3})+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)"
     r"(?:[eE](?P<exp>[+-]?\d+))?(?![\d])")
@@ -733,7 +741,7 @@ def audit_evidence(evidence: Dict[str, Any], source_text: str,
     source_tokens = tokenize(joined_source)
 
     entries: List[Dict[str, Any]] = []
-    counts = {"exact_match": 0, "hyphen_join": 0, "fuzzy_match": 0,
+    counts = {"exact_match": 0, "hyphen_join": 0, "whitespace_relaxed": 0, "fuzzy_match": 0,
               "not_found": 0, "skipped_no_quote": 0, "too_short": 0,
               "unverified": 0, "value_aligned": 0, "value_not_found_in_source": 0,
               "value_not_in_quote_context": 0, "value_unit_mismatch": 0,
@@ -775,6 +783,14 @@ def audit_evidence(evidence: Dict[str, Any], source_text: str,
             counts["hyphen_join"] += 1
             entry = {**base, "match_type": "HYPHEN_JOIN", "unverified": False,
                      "detail": "Found after re-joining hyphenated line breaks."}
+        elif _is_cjk_text(norm_quote) and _strip_whitespace(norm_quote) in _strip_whitespace(norm_source):
+            # P1 修复（集群测试）：中文 PDF 的折行在复制时常常被整段去掉，于是
+            # "本研究采用双因素" 与源文 "本研究采用\n双因素" 不匹配 → NOT_FOUND 误挡。
+            # 仅对含 CJK 的引句放宽空白（拉丁文若也去空白会引入 "therapist"/"the rapist"
+            # 这类假命中）。
+            counts["whitespace_relaxed"] = counts.get("whitespace_relaxed", 0) + 1
+            entry = {**base, "match_type": "WHITESPACE_RELAXED", "unverified": False,
+                     "detail": "Found after ignoring intra-quote whitespace (CJK line-break folding)."}
         else:
             ratio = _best_fuzzy_window(tokenize(norm_quote), source_tokens)
             if ratio >= fuzzy_threshold:

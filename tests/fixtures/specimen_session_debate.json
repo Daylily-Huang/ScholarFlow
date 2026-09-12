@@ -415,7 +415,8 @@
       "approval": {
         "status": "CONFIRMED",
         "confirmed_event_id": "EV-GAP-001",
-        "scope_fingerprint": "fp-gap-001-v1"
+        "scope_fingerprint": "fp-29628e587f83a529",
+        "approved_idea_version": 2
       },
       "execution_status": "REFUSED_BY_USER",
       "result_refs": []
@@ -442,7 +443,7 @@
       "approval": {
         "status": "REJECTED",
         "confirmed_event_id": null,
-        "scope_fingerprint": "fp-gap-002-v1"
+        "scope_fingerprint": "fp-35e917cf415dc48f"
       },
       "execution_status": "NOT_STARTED",
       "result_refs": []
@@ -463,7 +464,7 @@
       "approval": {
         "status": "PENDING",
         "confirmed_event_id": null,
-        "scope_fingerprint": "fp-gap-003-v1"
+        "scope_fingerprint": "fp-112540266769920c"
       },
       "execution_status": "NOT_STARTED",
       "result_refs": []
@@ -484,7 +485,7 @@
       "approval": {
         "status": "INVALIDATED",
         "confirmed_event_id": null,
-        "scope_fingerprint": "fp-gap-004-v1"
+        "scope_fingerprint": "fp-5e415fee9dd1166a"
       },
       "execution_status": "NOT_STARTED",
       "result_refs": [],
