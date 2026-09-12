@@ -16,6 +16,21 @@ description: 通用学科科研文献证据可信抽取与事实核验专业技�
 > 严厉禁止反模式：**Read → Remember → Guess → Answer**
 > 核心承诺：**没有直接证据时输出 `NR`（Not Reported），严禁捏造看起来合理的参数。**
 >
+> **`NR` 的精确口径（审查 F09）**：`NR` 只表示**原文已检查且作者未报告**。
+> 以下情形**都不等于** `NR`，必须分别标注，不得合并：
+>
+> | 情形 | 正确标注 | 含义 |
+> |---|---|---|
+> | 拿不到全文 | `inaccessible` | 看不到，不是作者没写 |
+> | 有全文但该字段尚未检查 | `unchecked` | 没查，不是没报告 |
+> | 数据来自作者转引他人文献 | `cited_only`（`support_type=REFERENCED`） | 本文未自测，不得冒充本文结果 |
+> | 可由原文数据重算得出 | `derived`（`support_type=DERIVED`） | 附公式与原始输入 |
+> | 已检查全文、作者确实未报告 | **`not_reported`（= `NR`）** | 唯一可写 `NR` 的情形 |
+>
+> 引句与定位是否真实有效，另由**来源核验**维度判定（`verified` / `unverified` / `failed`）；
+> 命题方向另由 `support` / `challenge` / `boundary` / `context` 表达。
+> 五个维度各自回答不同问题，**不得互相替代**（详见 `docs/CAPABILITY_STATUS.md`）。
+>
 > ### 🛡️ 主张—证据对齐底层原则 (Universal Claim–Evidence Alignment Principle)
 > **Mention ≠ Relation. Co-occurrence ≠ Relation. Contextual proximity ≠ Relation. Entity evidence ≠ claim evidence.**  
 > **提及 ≠ 关系。共现 ≠ 关系。上下文邻近 ≠ 目标关系。实体证据 ≠ 主张证据。**  

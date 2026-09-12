@@ -22,9 +22,12 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 from typing import Any, Dict, List, Optional, Tuple
+
+_ABSENT = object()
 
 EVENTS_FILENAME = "events.jsonl"
 SESSION_FILENAME = "session.json"
@@ -64,6 +67,7 @@ class SessionStore:
     """一个会话目录的读写句柄。"""
 
     def __init__(self, session_dir: str):
+        self._recovery_notes: List[Dict[str, Any]] = []
         self.session_dir = session_dir
         self.events_path = os.path.join(session_dir, EVENTS_FILENAME)
         self.session_path = os.path.join(session_dir, SESSION_FILENAME)
@@ -91,14 +95,62 @@ class SessionStore:
         if not os.path.isdir(self.session_dir):
             raise FileNotFoundError("会话目录不存在：%s" % self.session_dir)
 
-        seen = {e.get("event_id") for e in self._read_events()["events"]}
+        parsed = self._read_events()
+        seen = {e.get("event_id") for e in parsed["events"]}
         if event_id in seen:
             return False
 
         line = json.dumps(event, ensure_ascii=False)
+
+        if parsed.get("quarantined_tail"):
+            # F03: 坏尾部未解除时**不得**继续在坏尾部之后追加——那些字节会被解析器
+            # 一并忽略，而本方法却返回 True，调用方以为已经持久化。
+            # 调用方必须先走显式恢复（rebuild()/recover()）解除坏尾部。
+            raise CorruptEventLog(
+                "事件日志尾部损坏，拒绝追加：请先执行恢复再写入"
+                "（rebuild() 或 recover()）",
+                {"path": self.events_path,
+                 "reason": "RECOVERY_REQUIRED",
+                 "quarantined_tail": parsed["quarantined_tail"]},
+            )
+
         with open(self.events_path, "a", encoding="utf-8") as fh:
             fh.write(line + "\n")
+            fh.flush()
+            os.fsync(fh.fileno())
         return True
+
+    def _recover_tail(self, bad_lines: List[str], valid_events: List[Dict[str, Any]]) -> str:
+        """在明确事务中修复坏尾部：保留原日志与坏尾部证据，原子重建活动日志。
+
+        可重复执行：同一份损坏不会每次都产生新的隔离副本（隔离文件名按内容摘要固定）。
+        返回隔离文件路径。
+        """
+        digest = hashlib.sha256("\n".join(bad_lines).encode("utf-8")).hexdigest()[:12]
+        quarantine = "%s.corrupt-tail-%s" % (self.events_path, digest)
+        if not os.path.exists(quarantine):
+            self._atomic_write_text(quarantine, "\n".join(bad_lines) + "\n")
+
+        backup = "%s.pre-recovery-%s" % (self.events_path, digest)
+        if not os.path.exists(backup):
+            if os.path.isfile(self.events_path):
+                with open(self.events_path, encoding="utf-8") as fh:
+                    self._atomic_write_text(backup, fh.read())
+
+        rebuilt = "".join(json.dumps(e, ensure_ascii=False) + "\n" for e in valid_events)
+        self._atomic_write_text(self.events_path, rebuilt)
+
+        self._recovery_notes.append({
+            "quarantine": quarantine,
+            "backup": backup,
+            "quarantined_lines": len(bad_lines),
+            "recovered_events": len(valid_events),
+        })
+        return quarantine
+
+    def recovery_notes(self) -> List[Dict[str, Any]]:
+        """本实例执行过的尾部恢复记录（可审计）。"""
+        return list(self._recovery_notes)
 
     def _read_events(self) -> Dict[str, Any]:
         """读取事件日志，按规则处理损坏。
@@ -140,7 +192,8 @@ class SessionStore:
                     # 崩溃写盘可能留下半行，也可能留下"完整换行但内容坏"的一行。
                     # 只隔离并忽略该条，不影响已提交事件。
                     quarantined = [line]
-                    self._quarantine_tail(line)
+                    # 不再在这里就地隔离：隔离发生在明确的恢复事务中
+                    # （见 _recover_tail），这样"只读诊断"不会产生副作用。
                     break
                 raise CorruptEventLog(
                     "事件日志中段损坏：第 %d 行无法解析（其后仍有内容，不按尾部损坏处理）：%s"
@@ -187,10 +240,17 @@ class SessionStore:
         state["_events_applied"] = applied
         return state
 
-    def rebuild(self) -> Dict[str, Any]:
-        """从快照 + 事件重放重建当前状态，并报告差异。"""
+    def rebuild(self, repair: bool = True) -> Dict[str, Any]:
+        """从快照 + 事件重放重建当前状态，并报告差异。
+
+        F03：这是**显式恢复入口**。检测到坏尾部时执行一次恢复事务——保留原始日志
+        与坏尾部证据，用有效前缀原子重建活动日志，坏尾部因此从活动日志中解除。
+        只读调用方可以传 ``repair=False`` 以避免任何写盘副作用。
+        """
         base = self.load_snapshot()
         read = self._read_events()
+        if read.get("quarantined_tail") and repair:
+            self._recover_tail(read["quarantined_tail"], read["events"])
         projected = self.project(base, read["events"])
         return {
             "state": projected,
@@ -241,6 +301,23 @@ class SessionStore:
                 "snapshot": snap_last,
                 "replayed": replay_last,
             })
+
+        # F04: 同一个事件 ID 不等于同一个状态。
+        # 旧实现只比末尾事件 ID，于是"快照写着 E1/state=CLOSED、事件重放却是
+        # E1/state=WAITING_USER"被判为一致。这里比较**规范化业务投影**，
+        # 并列出具体不同的字段。
+        snap_business = self._business_projection(session)
+        replay_business = self._business_projection(projected)
+        if snap_business != replay_business:
+            changed = sorted(set(snap_business) | set(replay_business))
+            differing = [k for k in changed
+                         if snap_business.get(k, _ABSENT) != replay_business.get(k, _ABSENT)]
+            divergence.append({
+                "kind": "STATE_PROJECTION_MISMATCH",
+                "fields": differing,
+                "snapshot": {k: snap_business.get(k) for k in differing},
+                "replayed": {k: replay_business.get(k) for k in differing},
+            })
         if read["quarantined_tail"]:
             divergence.append({
                 "kind": "QUARANTINED_TAIL",
@@ -254,6 +331,17 @@ class SessionStore:
             "divergence": divergence,
             "authoritative_source": EVENTS_FILENAME,
         }
+
+    @staticmethod
+    def _business_projection(state: Dict[str, Any]) -> Dict[str, Any]:
+        """规范化业务投影：去掉 revision、恢复诊断等非业务字段。
+
+        F04 要求"快照中 revision、恢复诊断等非业务字段与业务投影分开比较"，
+        否则每写一次快照 revision 递增就会被误报为状态不一致。
+        """
+        skip = {"revision", "_events_applied", "last_applied_event_id"}
+        return {k: v for k, v in (state or {}).items()
+                if k not in skip and not k.startswith("_") and not k.startswith("recovery_")}
 
     def recover(self) -> Dict[str, Any]:
         """恢复入口：以事件重放为准重建状态，并给出恢复简报所需字段。"""
@@ -330,15 +418,40 @@ class SessionStore:
         existing_gap_ids = {g.get("gap_id") for g in gaps_list if g.get("gap_id")}
         actions = []
 
+        ideas = [i for i in (healed_session.get("ideas") or []) if i.get("idea_id")]
+
         for b in (healed_session.get("review_batches") or []):
             if b.get("resolution") == "ESCALATED_TO_GAP":
                 gid = b.get("escalated_gap_id")
                 if gid and gid not in existing_gap_ids:
-                    # Synthesize placeholder gap to prevent orphaned reference
+                    # F06: 修复程序只能生成"待修复占位"，绝不能制造用户授权。
+                    #
+                    # 旧实现给占位缺口写入 approval.status=CONFIRMED 并**伪造**
+                    # confirmed_event_id / scope_fingerprint，等于把"未知关联"与
+                    # "未知授权"写成确定事实。修复日志只能证明"发生了修复"，
+                    # 不能证明"用户同意派发"。
+                    #
+                    # 因此：approval 保持 PENDING、不编造确认事件与指纹；
+                    # 无法确定 idea 归属时如实报告孤儿关系，而不是猜第一条 idea。
+                    idea_id = b.get("idea_id")
+                    idea_version = b.get("idea_version")
+                    if idea_id is None:
+                        if len(ideas) == 1:
+                            idea_id = ideas[0].get("idea_id")
+                            idea_version = idea_version if idea_version is not None else ideas[0].get("version", 1)
+                            actions.append(
+                                f"Inferred idea_id='{idea_id}' for gap '{gid}' from the only idea in session")
+                        else:
+                            idea_id = None
+                            actions.append(
+                                "ORPHAN_RELATION: gap '%s' has no determinable idea_id "
+                                "(%d candidate ideas); left unattributed for user resolution"
+                                % (gid, len(ideas)))
+
                     new_gap = {
                         "gap_id": gid,
-                        "idea_id": (healed_session.get("ideas") or [{}])[0].get("idea_id", "IDEA-DEFAULT"),
-                        "idea_version": 1,
+                        "idea_id": idea_id,
+                        "idea_version": idea_version,
                         "gap_type": "SEARCH_GAP",
                         "target_skill": "literature-discovery-acquisition",
                         "question": f"Autogenerated gap to resolve escalated divergence in batch {b.get('batch_id')}",
@@ -346,13 +459,22 @@ class SessionStore:
                         "decision_impact": "Required to unblock proposition evaluation.",
                         "blocking": "BLOCKING",
                         "scope": {"topic": "auto_healed_gap_inquiry"},
-                        "approval": {"status": "CONFIRMED", "confirmed_event_id": f"EV-HEAL-{gid}", "scope_fingerprint": f"fp-heal-{gid}"},
+                        # 占位状态：等待用户确认，绝不预置 CONFIRMED
+                        "approval": {
+                            "status": "PENDING",
+                            "confirmed_event_id": None,
+                            "scope_fingerprint": None,
+                            "healed_placeholder": True,
+                            "heal_reason": f"placeholder created to resolve orphan reference from batch {b.get('batch_id')}",
+                        },
                         "execution_status": "NOT_STARTED",
-                        "result_refs": []
+                        "result_refs": [],
                     }
                     gaps_list.append(new_gap)
                     existing_gap_ids.add(gid)
-                    actions.append(f"Synthesized missing gap_request '{gid}' for review_batch '{b.get('batch_id')}'")
+                    actions.append(
+                        f"Synthesized PENDING placeholder gap_request '{gid}' for review_batch "
+                        f"'{b.get('batch_id')}' (not an authorisation; user confirmation still required)")
 
         healed_session["gap_requests"] = gaps_list
         return healed_session, actions

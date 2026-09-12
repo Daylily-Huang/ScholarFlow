@@ -108,8 +108,14 @@ def test_d1_non_numeric_value_is_not_checked():
     assert code == 0
 
 
-def test_d1_value_exists_but_far_from_quote_is_flagged_not_fatal():
-    """取值存在于源文别处（不在引文附近）应提示，但不按伪造处理。"""
+def test_d1_value_exists_but_far_from_quote_blocks_delivery():
+    """取值存在于源文别处但不在引文附近 -> 阻断交付（F02 第 4 条）。
+
+    契约变更说明：旧行为把"存在但错位"视为提示级（exit 0）。那是"对数字、错位置"
+    ——数字确实在论文里，却不在所声称的证据锚点上，因此不能作为已核验记录交付。
+    审查报告 F02 明确要求：全文命中只能用于寻找候选来源，不能替代当前字段的
+    证据锚定。此处改为阻断，并同步更新断言（原有意图在数值核验三反例中保留）。
+    """
     ev = _env([_rec(
         extracted_value="19.2%",
         verbatim_quote="Shrubs were the most important food of black muntjac, accounting for 55.4% of the diet.",
@@ -117,7 +123,8 @@ def test_d1_value_exists_but_far_from_quote_is_flagged_not_fatal():
     code, s = _run_cli(ev, SOURCE_TEXT)
     assert s["value_not_in_quote_context"] == 1
     assert s["value_not_found_in_source"] == 0
-    assert code == 0, "存在但错位属提示级，不应硬失败"
+    assert s["unverified"] == 1, "错位取值必须计入 unverified"
+    assert code == 1, "存在但错位必须硬失败：数字对但位置错，不得作为已核验结果交付"
 
 
 # ---------------------------------------------------------------- D2

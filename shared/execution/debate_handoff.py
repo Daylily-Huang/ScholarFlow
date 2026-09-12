@@ -42,6 +42,39 @@ TARGET_SKILLS = {
 ALLOWED_RELATIONS = ("SUPPORT", "CHALLENGE", "BOUNDARY", "CONTEXT")
 ALIGNMENTS = ("VERIFIED", "UNRESOLVED")
 
+#: 命题中被引句覆盖到的最低比例。低于此值只能算"命中若干词"，不得记为支持。
+#: 单实体词（如 "roads"）对多词命题的覆盖率远低于门槛，因此不会被升级。
+SUBSTANTIVE_COVERAGE_THRESHOLD = 0.5
+
+#: 否定线索。命中即视为告警：词面相似不代表支持，否定句尤其不能升级。
+#: 审查报告 F01 指出简单否定词过滤不能宣称解决全部语义问题，因此这里只做
+#: **告警与阻断**，不据此判定命题真假——语义裁决仍交人工或带出处的结构化判断。
+NEGATION_MARKERS = (
+    "not ", "no ", "never", "cannot", "can not", "does not", "do not", "did not",
+    "is not", "are not", "was not", "were not", "without", "fail to", "fails to",
+    "failed to", "no evidence", "no significant", "no difference", "rather than",
+    "不", "无", "未", "没有", "并非", "不是", "不能", "无法", "否认", "缺乏",
+)
+
+#: F09：命题方向（relation）与"核验状态"（alignment）是两个正交维度。
+#:
+#: `relation` 回答"这条材料对当前主张是什么关系"：support / challenge / boundary / context。
+#: `alignment` 回答"这个关系是否已经核实"：VERIFIED / UNRESOLVED。
+#:
+#: 现行规则把 CHALLENGE / BOUNDARY 一律记为 UNRESOLVED，是**刻意的保守选择**：
+#: 它们不构成支持，因此不得进入支持计数。但这会把"已核实的反证"与"尚未判断的
+#: 材料"混在同一档里。消费方若需要区分，应读取调用方提供的核验记录，
+#: 不要仅凭 alignment 推断该反证是否已经核实。
+#:
+#: 注意：**已核实的反证可进入反证栏，但不得进入支持计数。**
+
+#: 上游审计状态中，表示"该记录已被判定为不可信"的取值。
+UPSTREAM_FAILED_STATUSES = ("unsupported", "unverified", "contradictory", "failed")
+
+#: 定位对象中可作为有效锚点的字段。
+LOCATION_ANCHOR_KEYS = ("page", "pages", "section", "table", "figure", "paragraph",
+                        "anchor", "quote_start", "offset", "coordinate", "bbox")
+
 #: 与 quote_audit.py 一致的少量常见可混淆字符（避免复制整张表导致漂移）
 CONFUSABLE_TABLE = {
     "\u2018": "'", "\u2019": "'", "\u201c": '"', "\u201d": '"',
@@ -161,10 +194,42 @@ def prepare_dispatch(gap: Dict[str, Any]) -> Dict[str, Any]:
                 "must_reconfirm": status in ("PENDING", "INVALIDATED"),
                 "idempotent_replay": False}
 
-    if recorded_fp and recorded_fp != current_fp:
+    # F05: 指纹缺失必须停止，而不是跳过比较。
+    # 旧实现写成 `if recorded_fp and recorded_fp != current_fp`，缺指纹时短路放行，
+    # 于是"只有 status=CONFIRMED 字符串、没有任何绑定"的审批就能派发。
+    # 规程（references/evidence_handoff.md:35）要求缺指纹回到 WAITING_GAP_CONFIRMATION。
+    if not recorded_fp:
+        return {"dispatchable": False, "reason": "APPROVAL_BINDING_MISSING",
+                "payload": None, "fingerprint": current_fp,
+                "must_reconfirm": True, "idempotent_replay": False,
+                "details": ["approval.scope_fingerprint is absent; a bare "
+                            "status=CONFIRMED string is not a verifiable approval."]}
+
+    if recorded_fp != current_fp:
         return {"dispatchable": False, "reason": "SCOPE_CHANGED_APPROVAL_STALE",
                 "payload": None, "fingerprint": current_fp,
                 "must_reconfirm": True, "idempotent_replay": False}
+
+    # F05: 确认记录必须能回指实际用户确认事件，并绑定会话/构想版本。
+    # 只信任字符串 CONFIRMED 等于把"写过 CONFIRMED"当成"用户同意过"。
+    confirmed_event = approval.get("confirmed_event_id") or gap.get("confirmed_event_id")
+    if not confirmed_event:
+        return {"dispatchable": False, "reason": "APPROVAL_CONFIRMATION_UNBOUND",
+                "payload": None, "fingerprint": current_fp,
+                "must_reconfirm": True, "idempotent_replay": False,
+                "details": ["No confirmed_event_id: the approval cannot be traced back "
+                            "to a user confirmation event."]}
+
+    for field, reason in (("session_id", "APPROVAL_SESSION_UNBOUND"),
+                          ("approved_idea_version", "APPROVAL_IDEA_VERSION_UNBOUND")):
+        expected = approval.get(field)
+        actual = gap.get(field)
+        if expected is not None and actual is not None and expected != actual:
+            return {"dispatchable": False, "reason": "SCOPE_CHANGED_APPROVAL_STALE",
+                    "payload": None, "fingerprint": current_fp,
+                    "must_reconfirm": True, "idempotent_replay": False,
+                    "details": ["%s changed: approved %r, current %r"
+                                % (field, expected, actual)]}
 
     if gap.get("scope_changed"):
         return {"dispatchable": False, "reason": "SCOPE_CHANGED_APPROVAL_STALE",
@@ -214,8 +279,14 @@ def _compare(quote: str, reference: str) -> Tuple[bool, str, float]:
     p = normalize_text(join_hyphen_breaks(reference))
     if not q or not p:
         return False, "EMPTY", 0.0
-    if p in q or q in p:
+    if p in q:
+        # 引句包含整个命题（通常还带额外上下文）→ 真正的字面命中。
         return True, "EXACT", 1.0
+    if q in p:
+        # 方向相反：引句只是命题的一个片段。**不支持方向与覆盖率都取决于此**，
+        # 因此单列 FRAGMENT，交由调用方按实质覆盖率裁决，而不是直接判 1.0。
+        frag_ratio = len(q) / max(1, len(p))
+        return frag_ratio >= SUBSTANTIVE_COVERAGE_THRESHOLD, "FRAGMENT", frag_ratio
     pu, qu = _units(p), _units(q)
     if not pu:
         return False, "EMPTY", 0.0
@@ -229,6 +300,65 @@ def _quote_supported_by(quote: str, proposition: str) -> Tuple[bool, str]:
     """判断引句是否在**命题本身**层面提供支持。"""
     ok, how, _ = _compare(quote, proposition)
     return ok, how
+
+
+def is_text_match(how: str) -> bool:
+    """``how`` 是否属于"原文中出现了这段文字"层面。
+
+    审查报告 F01 要求把 `_compare()` 的结论**降格为 text_match**：它只能回答
+    "引句与命题在字面上重合了多少"，不能回答"引句是否支持该命题"。语义判定必须
+    另走带出处的结构化检查。此函数是两者之间的显式分界。
+    """
+    return how in ("EXACT", "OVERLAP", "FRAGMENT")
+
+
+def detect_negation_mismatch(quote: str, proposition: str) -> Optional[str]:
+    """引句是否以否定形式谈论命题？返回命中的否定线索，无则 ``None``。
+
+    F01 的反例是 ``It is not true that roads reduce gene flow.``——它**包含**命题
+    字面，但语义相反。只要引句带否定线索而命题本身不带，就不能作为支持证据。
+    """
+    if not quote.strip() or not proposition.strip():
+        return None
+    q = normalize_text(quote)
+    pr = normalize_text(proposition)
+    if any(mark in pr for mark in NEGATION_MARKERS):
+        return None  # 命题本身即否定式，不适用此规则
+    for mark in NEGATION_MARKERS:
+        if mark in q:
+            return mark
+    return None
+
+
+def location_anchor(record: Dict[str, Any]) -> Tuple[bool, str]:
+    """定位是否提供了可用于回查的实质锚点。
+
+    ``{"page": null}``、``{}`` 这类"看着有 location 字段、实际无法回查"的情况必须
+    判为无效。允许非 PDF 来源，因此段落/表格/偏移等锚点同样有效。
+    """
+    loc = record.get("location")
+    if not isinstance(loc, dict) or not loc:
+        return False, "MISSING_LOCATION"
+    for key in LOCATION_ANCHOR_KEYS:
+        val = loc.get(key)
+        if val is None:
+            continue
+        if isinstance(val, str) and not val.strip():
+            continue
+        if isinstance(val, (list, tuple, dict)) and not val:
+            continue
+        return True, ""
+    return False, "INVALID_LOCATION"
+
+
+def upstream_audit_failed(record: Dict[str, Any]) -> Optional[str]:
+    """上游是否已把该记录判为不可信？"""
+    for key in ("audit_status", "claim_status", "verification_status",
+                "fulltext_verification_status"):
+        val = record.get(key)
+        if isinstance(val, str) and val.strip().lower() in UPSTREAM_FAILED_STATUSES:
+            return "%s=%s" % (key, val)
+    return None
 
 
 def _has_cjk(text: str) -> bool:
@@ -463,8 +593,18 @@ def to_evidence_link(record: Dict[str, Any], proposition: str,
         problems.append("MISSING_EVIDENCE_ID")
     if not quote.strip():
         problems.append("MISSING_VERBATIM_QUOTE")
-    if not location:
-        problems.append("MISSING_LOCATION")
+
+    # F01: 定位必须有实质锚点。{"page": null} 不能算"有定位"。
+    loc_ok, loc_problem = location_anchor(record)
+    if not loc_ok:
+        problems.append(loc_problem)
+
+    # F01: 记录入口必须强制检查范围与上游审计状态，而不是只写在文档里。
+    if not str(record.get("checked_scope") or "").strip():
+        problems.append("MISSING_CHECKED_SCOPE")
+    failed_audit = upstream_audit_failed(record)
+    if failed_audit:
+        problems.append("UPSTREAM_AUDIT_%s" % failed_audit.split("=", 1)[0].upper())
 
     # 引句评估与完整性检查相互独立：**所有**问题都要如实列出，
     # 不能因为缺定位就掩盖"引句本身不支持命题"这一条。
@@ -474,6 +614,17 @@ def to_evidence_link(record: Dict[str, Any], proposition: str,
         verdict = align_against_proposition(quote, proposition, variants)
         if not verdict["supported"]:
             problems.append("QUOTE_DOES_NOT_SUPPORT_PROPOSITION")
+        elif verdict["how"] == "FRAGMENT":
+            # 引句只是命题的一个片段（典型是单个实体词）。子串关系成立不等于
+            # 它在谈论整个命题：F01 反例 "roads" 对 "roads reduce gene flow"
+            # 旧实现返回 EXACT/ratio=1.0，正是因为覆盖方向搞反了。
+            problems.append("INSUFFICIENT_PROPOSITION_COVERAGE")
+        elif verdict["how"] == "OVERLAP" and verdict["ratio"] < SUBSTANTIVE_COVERAGE_THRESHOLD:
+            problems.append("INSUFFICIENT_PROPOSITION_COVERAGE")
+        # 词面命中不等于语义支持：否定句包含命题字面但方向相反。
+        negation = detect_negation_mismatch(quote, proposition)
+        if negation is not None:
+            problems.append("NEGATION_MISMATCH")
 
     supported, how = verdict["supported"], verdict["how"]
 
@@ -499,6 +650,9 @@ def to_evidence_link(record: Dict[str, Any], proposition: str,
         "alignment": alignment,
         "reason": _reason(relation, alignment, how, problems, verdict),
         "checked_scope": record.get("checked_scope") or "",
+        # F01: 显式区分"字面重合"与"语义支持"。quote_match 只回答前者；
+        # alignment 才回答后者，且语义支持另有结构化要求。
+        "text_match": is_text_match(how),
         "quote_match": how,
         "proposition_match_ratio": round(verdict.get("ratio") or 0.0, 4),
         "variant_ref": verdict.get("variant_ref"),

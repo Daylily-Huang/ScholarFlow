@@ -143,13 +143,23 @@ ALIGNMENT_WINDOW = 200     # chars of source context around the quote location
 # Kept deliberately tight: a value that only appears far from the quote it is
 # attached to is exactly the "right number, wrong place" failure this layer
 # exists to surface. Chunkier analysis units can widen it explicitly.
-# Only tokens that carry quantitative meaning are compared. Bare integers are
-# excluded: years, page numbers and citation markers would swamp the check.
+#: Only tokens that carry quantitative meaning are compared.
+#:
+#: Bare integers remain excluded (years, page numbers and citation markers
+#: would swamp the check), **but** an integer carrying a measurable unit is
+#: included: a reaction volume of "999 microliters" against a source saying
+#: "20 microliters" is exactly the mismatched-value failure this layer exists
+#: to catch, and skipping every unit-bearing integer let it through.
 _VALUE_TOKEN_RE = re.compile(
-    r"\d+(?:[.,]\d+)?\s*%|"                       # 55.4% / 55,4 %
-    r"\d+\.\d+\s*(?:%|‰)?|"                       # 55.4 / 55.4‰
-    r"\d+/\d+|"                                   # 16/33
-    r"\d+\s*(?:种|科|属|目|只|个|头|份|株|次)"      # 43种 / 29科
+    r"[+-]?\d+(?:[.,]\d+)?(?:[eE][+-]?\d+)?\s*%|"
+    r"[+-]?\d+\.\d+(?:[eE][+-]?\d+)?\s*(?:%|‰)?|"
+    r"\d+(?:\.\d+)?\s*[-–—~]\s*\d+(?:\.\d+)?|"
+    r"\d+/\d+|"
+    r"\d+(?:\.\d+)?\s*"
+    r"(?:microliters?|µl|μl|ml|milliliters?|liters?|micromolar|mm|cm|nm|µm|μm|"
+    r"mg|kg|ng|µg|μg|celsius|°c|kelvin|minutes?|hours?|seconds?|"
+    r"individuals?|species|samples?|sites?|plots?|reads?|bp|kb|"
+    r"种|科|属|目|只|个|头|份|株|次|分钟|小时|秒|微升|毫升|升|毫克|克|摄氏度)"
 )
 
 
@@ -168,14 +178,38 @@ def extract_value_tokens(value: Any) -> List[str]:
 
 
 def _variants(tok: str) -> set:
-    """Acceptable renderings of a numeric token: with/without a space before a unit."""
+    """Acceptable renderings of a numeric token (space-before-unit only).
+
+    A **bare-number** variant used to be added here. That was a correctness bug:
+    "5.4%" then matched the source string "55.4%" as a substring, so a value off
+    by an order of magnitude passed as ALIGNED. Unit-bearing tokens are likewise
+    no longer reducible to their number alone, so "999 microliters" cannot be
+    accepted on the strength of a bare "999" appearing elsewhere.
+    """
     v = {tok}
-    m = re.match(r"^(\d+(?:\.\d+)?)(.*)$", tok)
-    if m:
-        v.add(m.group(1) + m.group(2))
-        if m.group(2):
-            v.add(m.group(1))
+    m = re.match(r"^([+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)\s*(.*)$", tok)
+    if m and m.group(2):
+        v.add(m.group(1))
+        v.add(m.group(1) + " " + m.group(2))
     return v
+
+
+def _token_present(token: str, folded_text: str) -> bool:
+    """Digit-boundary-aware presence test for a numeric token.
+
+    "5.4" must not be satisfied by the tail of "55.4", so a match only counts
+    when the character before and after the token is not a digit.
+    """
+    start = 0
+    while True:
+        i = folded_text.find(token, start)
+        if i < 0:
+            return False
+        before = folded_text[i - 1] if i > 0 else ""
+        after = folded_text[i + len(token): i + len(token) + 1]
+        if before not in "0123456789" and after not in "0123456789":
+            return True
+        start = i + 1
 
 
 def fold_numeric(text: str) -> str:
@@ -219,8 +253,8 @@ def check_value_alignment(rec: Dict[str, Any], norm_source: str,
     not_in_context = []
     for t in toks:
         vs = _variants(t)
-        if any(v in src_fold for v in vs):
-            if any(v in quote_fold or v in window_fold for v in vs):
+        if any(_token_present(v, src_fold) for v in vs):
+            if any(_token_present(v, quote_fold) or _token_present(v, window_fold) for v in vs):
                 continue
             not_in_context.append(t)
         else:
@@ -324,18 +358,25 @@ def audit_evidence(evidence: Dict[str, Any], source_text: str,
             elif va["verdict"] == "NOT_FOUND_IN_SOURCE":
                 counts["value_not_found_in_source"] += 1
                 entry["unverified"] = True
+                counts["unverified"] += 1
             elif va["verdict"] == "NOT_IN_QUOTE_CONTEXT":
                 counts["value_not_in_quote_context"] += 1
+                # The value exists in the paper but not where the quote is.
+                # That is "right number, wrong place": it must not be
+                # deliverable as a verified record.
+                entry["unverified"] = True
+                counts["unverified"] += 1
         entries.append(entry)
 
     total = len(entries)
     unverified = counts["unverified"]
+    out_of_context = counts["value_not_in_quote_context"]
     if unverified_policy == UNVERIFIED_FAIL:
-        gate = unverified > 0 or counts["not_found"] > 0
-    elif unverified_policy == UNVERIFIED_LIST:
-        gate = counts["not_found"] > 0
+        gate = unverified > 0 or counts["not_found"] > 0 or out_of_context > 0
     else:
-        gate = counts["not_found"] > 0
+        # An explicit opt-out of the *quote* policy must not also excuse a value
+        # anchored in the wrong place.
+        gate = counts["not_found"] > 0 or out_of_context > 0
     return {
         "summary": {
             "total_records": total,
@@ -350,14 +391,18 @@ def audit_evidence(evidence: Dict[str, Any], source_text: str,
 def gate_failed(report: Dict[str, Any], strict: bool = False) -> bool:
     """Hard gate.
 
-    Fails on: NOT_FOUND always; FUZZY under --strict; unverified records unless
-    --unverified-policy explicitly downgrades them. Unverified = empty quote,
-    quote below the length floor, or a value absent from the whole source.
+    Fails on: NOT_FOUND always; a value absent from the whole source; a value
+    present in the paper but not anchored at the quote (NOT_IN_QUOTE_CONTEXT);
+    FUZZY under --strict; and unverified records unless --unverified-policy
+    explicitly downgrades them. Unverified = empty quote, quote below the length
+    floor, or any of the value-anchoring failures above.
     """
     s = report["summary"]
     if s["not_found"] > 0:
         return True
     if s.get("value_not_found_in_source", 0) > 0:
+        return True
+    if s.get("value_not_in_quote_context", 0) > 0:
         return True
     if strict and s["fuzzy_match"] > 0:
         return True

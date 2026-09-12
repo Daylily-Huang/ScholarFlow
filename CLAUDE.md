@@ -58,12 +58,12 @@ python skills/research-idea-debate/scripts/session_store_cli.py --help
 
 **两条贯穿全仓的硬门禁**（写代码前必须理解）：
 
-1. **执行深度门禁**：任何实质执行（检索/下载/抽取/讨论）前必须确认执行深度（quick/standard/deep 三档）。`ExecutionProfile` 只是资源上限模板，不等于运行授权——只有经确认的 `RunExecutionConfig`（`runs/<run_id>/execution_profile.json`，写前校验 + 原子替换）才解锁执行；`RunContext` 携带同一份确认配置与预算台账贯穿三个技能，超出上限显式标记为未处理而非静默丢弃。未确认配置一律不得保存为已授权状态。
+1. **执行深度门禁**：任何实质执行（检索/下载/抽取/讨论）前必须确认执行深度（quick/standard/deep 三档）。`ExecutionProfile` 只是资源上限模板，不等于运行授权——只有经确认的 `RunExecutionConfig`（`runs/<run_id>/execution_profile.json`，写前校验 + 原子替换）才解锁执行；`RunContext` 携带同一份确认配置与预算台账贯穿四个技能，超出上限显式标记为未处理而非静默丢弃。未确认配置一律不得保存为已授权状态。
 2. **Stage 0 决策门禁**：0A 上下文解析 → 0B 追问（输出提问清单后必须立即停止回复、静默等待，严禁自问自答）→ 0C 协议快照放行。已知要素自动继承、严禁重复发问。
 
 ## 能力状态真相来源
 
-`docs/CAPABILITY_STATUS.md` 是三个技能能力的**唯一权威说明**，能力分四级：`CODE_VERIFIED`（有代码+测试）/ `HOST_EXECUTED`（只有规程和提示词，效果取决于宿主 Agent 遵循度）/ `HUMAN_CONFIRMED`（必须人工裁定）/ `NOT_SUPPORTED`（不交付）。
+`docs/CAPABILITY_STATUS.md` 是**四个**技能能力的**唯一权威说明**，能力分四级：`CODE_VERIFIED`（有代码+测试，**仅覆盖结构与行为两层，不含科研正确性**）/ `PARTIAL`（部分路径已实现，缺口明确未实现）/ `HOST_EXECUTED`（只有规程和提示词，效果取决于宿主 Agent 遵循度）/ `HUMAN_CONFIRMED`（必须人工裁定）/ `NOT_SUPPORTED`（不交付）。
 
 写代码或修改文档前必读，尤其注意：
 

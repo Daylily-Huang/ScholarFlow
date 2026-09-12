@@ -53,7 +53,7 @@ description: 研究构想与假说推敲技能。从一句模糊直觉或一个�
 | 角色扮演（按当轮角色只读一个文件） | `role/concept_clarifier.md`、`role/premise_evidence_examiner.md`、`role/implication_validator.md`、`role/alternative_explorer.md`、`role/reflection_facilitator.md` |
 | 关键分歧或收敛前反例检查（P5） | [references/independent_review.md](./references/independent_review.md) |
 | 出现证据缺口、需调用前三个技能 | [references/evidence_handoff.md](./references/evidence_handoff.md) |
-| 阶段小结、检查点、暂停与恢复 | 同上一行文件（第三节起：停止原因、小结模板、恢复与预算） |
+| 阶段小结、检查点、暂停与恢复 | [references/convergence_and_recovery.md](./references/convergence_and_recovery.md)（第三节起：停止原因、小结模板、恢复与预算） |
 | 会话记录字段、事件类型、缺口请求结构 | [schemas/research_debate_session.schema.json](../../schemas/research_debate_session.schema.json)、[schemas/research_debate_event.schema.json](../../schemas/research_debate_event.schema.json)、[schemas/research_debate_gap.schema.json](../../schemas/research_debate_gap.schema.json) |
 | 阶段小结与验证方案模板 | [assets/session_summary_template.md](./assets/session_summary_template.md)、[assets/validation_plan_template.md](./assets/validation_plan_template.md) |
 | 想先看完整走法 | [examples/intuition_to_question.md](./examples/intuition_to_question.md)、[examples/hypothesis_revision.md](./examples/hypothesis_revision.md) |

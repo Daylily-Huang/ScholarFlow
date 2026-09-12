@@ -1,19 +1,58 @@
 # ScholarFlow 能力状态表 (Capability Status Matrix)
 
-> **目的**：把"文档里写了什么"与"实际由谁保证"分开记录。  
-> 本表是三个 Skill 的能力**唯一权威说明**；当 SKILL.md 的描述与本表冲突时，以本表为准并应提 issue 修正 SKILL.md。
+> **目的**：把"文档里写了什么"与"实际由谁保证"分开记录。
+> 本表是**四个 Skill** 的能力**唯一权威说明**；当 SKILL.md 的描述与本表冲突时，以本表为准并应提 issue 修正 SKILL.md。
 
 ## 状态定义
 
 | 状态 | 含义 | 用户应如何对待 |
 |---|---|---|
 | `CODE_VERIFIED` | 有实际执行路径，且有行为测试覆盖 | 可直接依赖 |
+| `PARTIAL` | 部分路径已实现；列出的缺口明确未实现 | 只依赖说明中已确认的那部分 |
 | `HOST_EXECUTED` | 只有操作规范与提示词，实际效果取决于宿主 Agent 的遵循程度 | 需抽查产物；不要把规范当成已执行的保证 |
 | `HUMAN_CONFIRMED` | 自动判断不足以保证正确，必须由人最终裁定 | 关键结论必须人工复核 |
 | `NOT_SUPPORTED` | 明确不交付；调用会得到显式缺口或错误 | 不要期待该能力存在 |
 
 > [!IMPORTANT]
 > `HOST_EXECUTED` **不是**"已实现"的同义词。它表示 ScholarFlow 提供了规程，但不保证宿主执行到位，也不保证执行质量。
+
+### `CODE_VERIFIED` 到底验证了什么（审查 F10）
+
+`CODE_VERIFIED` **只覆盖前两层**，不得外推为科研正确性已验证。四层验收分级：
+
+| 层级 | 验证内容 | 本表标注方式 |
+|---|---|---|
+| **L1 结构** | Schema、路径、字段形状 | 计入 `CODE_VERIFIED` |
+| **L2 行为** | 失败门禁、授权绑定、恢复、幂等、引用溯源 | 计入 `CODE_VERIFIED` |
+| **L3 科研质量** | 真实论文金标的字段准确率、数值/单位正确率、主张与证据方向准确率 | **未验证**；需要人工复核金标 |
+| **L4 工作流** | 同任务、同模型、同预算下的召回、交付质量、时间与 token | **未验证**；需要对照评测 |
+
+> **测试通过 ≠ 科研正确。** 套件全绿只证明 L1/L2。L3/L4 未建设，任何据此得出的
+> 准确率或能力排名都缺乏依据。金标须由人工复核并保存判定依据，
+> **不得用同一 Agent 生成答案再自评分**。
+
+### 测试到能力的映射（审查 F10）
+
+每项能力应可追溯到实现入口与对应测试；本表在每行"证据"列给出实现位置。
+机械门禁与测试锚点：
+
+| 门禁 / 测试 | 覆盖的能力层 |
+|---|---|
+| `tests/test_research_debate_handoff.py` | 授权指纹绑定、范围失效、引句对齐（L2） |
+| `tests/test_research_debate_session_store.py` | 事件日志恢复、快照一致性、外键修复（L2） |
+| `tests/test_quote_audit_gate.py` / `test_quote_audit.py` | 引句回查与数值锚定门禁（L2） |
+| `tests/test_cross_skill_contract.py` / `test_cross_skill_roundtrip_contract.py` | 跨技能 Envelope 契约（L1） |
+| `scripts/domain_neutrality_linter.py` | 核心文件学科中立性（L1） |
+| `scripts/verify_package_assets.py` | 打包资产完整性（L1） |
+
+**最后验证记录**：`709 tests OK (skipped=4)`，对应提交见本表末尾脚注；跳过项为
+`jsonschema` 严格契约（未装 `[dev]`）与 Windows 侧 bash 不可用项，属**未验证**而非通过。
+
+**已知未覆盖场景（不得据本表外推）**：
+
+- 第四技能的真实宿主端到端流程（缺口确认 → 上游返回 → 支持/反证回流 → 保存 → 恢复）**尚未执行**。
+- 隔离安装环境下的复用性验证曾因环境权限跳过，**未补验**；「单技能目录复制即可用」仍不成立。
+- 历史已自动标记为 `VERIFIED` 的旧记录**未被重审**，只应作审计器版本标注与重审清单处理。
 
 ---
 
@@ -85,6 +124,24 @@
 | 域中立化的领域规则隔离 | `PARTIAL` | `comparability.py` / `claim_alignment.py` 含硬编码学科规则；linter 尚未扫描 `.py` |
 | M1/M2/M4（DocumentBundle / ExtractionProvider / 敏感性分析） | `NOT_SUPPORTED` | RFC-013 设计中，未实现 |
 | D1–D5（多源调度 / 查询计划 / 多种子前沿） | `NOT_SUPPORTED` | RFC-013 设计中，未实现（D0 分页已实现） |
+
+---
+
+## 3.5 research-idea-debate（研究构想与假说推敲）
+
+| 能力 | 状态 | 证据 / 说明 |
+|---|---|---|
+| 五类苏格拉底视角角色与调度阶梯 | `HOST_EXECUTED` | `role/*.md` 规程；P0–P6 由 Agent 按规程执行 |
+| 想法成熟度守卫（RAW / DEVELOPING / TESTABLE） | `HOST_EXECUTED` | `references/maturation_and_gates.md` |
+| 单轮单问交互协议 | `HOST_EXECUTED` | `references/dialogue_protocol.md` |
+| 独立反例质询与确定性分歧判定 | `CODE_VERIFIED` | `shared/execution/debate_handoff.py: `_compare()` / `compare_evidence_links()`；测试 `tests/test_research_debate_handoff.py` |
+| **查证缺口授权绑定**（指纹 + 确认事件 + 范围/版本） | `CODE_VERIFIED` | `prepare_dispatch()`；缺指纹 → `APPROVAL_BINDING_MISSING`，缺确认事件 → `APPROVAL_CONFIRMATION_UNBOUND`；测试 `tests/test_research_debate_handoff.py` |
+| **缺口派发前门禁** | `CODE_VERIFIED` | 未确认 / 范围变更 / 版本变更 / 未绑定确认事件一律不得派发；覆盖边界：仅校验本会话内绑定，不校验上游文献真实性 |
+| 引句对齐入向适配（`to_evidence_link`） | `CODE_VERIFIED` | `to_evidence_link()`；`text_match` 区分 `EXACT` / `FRAGMENT` / 否定句；覆盖边界：字面与否定检测，**不是**语义蕴含判定 |
+| **会话事件日志与恢复** | `CODE_VERIFIED` | `shared/execution/session_store.py`；坏尾部须显式恢复（F03）、快照比较业务投影（F04）；测试 `tests/test_research_debate_session_store.py` |
+| **外键修复不得制造授权** | `CODE_VERIFIED` | `heal_referential_integrity()` 只生成 `PENDING` 占位，不伪造 `CONFIRMED`（F06）；测试 `tests/test_research_debate_session_store.py` |
+| 缺口确认 → 上游返回 → 支持/反证分别回流 → 保存 → 恢复 | `HOST_EXECUTED` | 端到端真实宿主流程**尚未执行** |
+| 讨论对文献质量的独立判断 | `HUMAN_CONFIRMED` | 不得以讨论中的说服力替代证据核验 |
 
 ---
 
@@ -165,3 +222,12 @@
    覆盖约 4 个维度（见 §4.1），自由文本表述多数不被识别。
 7. Stage 0 提问**上限为每轮 4 题**（`MAX_QUESTIONS_PER_ROUND = 4`）。Discovery 有 6 个 CRITICAL
    维度，因此会有 2 个进入第二轮显式确认，而非静默默认。
+8. README 第 0 节把 `research-idea-debate` 的「混合 Agent 独立评估」与 `[DETERMINISTIC]` 并列——
+   **仅分歧判定**是确定性程序；「独立评估」是 `HOST_EXECUTED` 规程，且同模型两次作答不构成
+   独立性（见 §3.5）。
+9. 同节「质量审查员恪守 12 项合规硬门禁」为 `role/quality_gatekeeper.md` 的**检查表规程**，
+   仓库内无对应代码实现（`grep -r quality_gatekeeper shared/ scripts/` 无结果），属 `HOST_EXECUTED`。
+10. 第四技能的「候选研究问题 / 最小验证方案」由宿主按规程产出，属 `HOST_EXECUTED`；
+    其端到端真实流程尚未执行，不得呈现为确定性交付。
+11. 「单技能目录复制即可用」不成立——技能依赖 `shared/` 共享运行时；复用性验证在隔离安装
+    环境**未补验**（见 §5）。
