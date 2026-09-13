@@ -23,9 +23,16 @@ Role Definition:
   6. Rejects mere co-occurrence / co-measurement from being promoted to confirmed relations.
 """
 
+import os
 import sys
 import re
 from typing import Dict, List, Any, Optional, Tuple, Set
+
+# Allow `python claim_alignment.py ...` (and CI jobs) to import shared.text.polarity
+# regardless of the current working directory (same bootstrap as extraction_pipeline).
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
 
 # Ensure UTF-8 output on Windows consoles
 if sys.platform == "win32":
@@ -34,6 +41,25 @@ if sys.platform == "win32":
         sys.stderr.reconfigure(encoding="utf-8", errors="replace")
     except Exception:
         pass
+
+# ---------------------------------------------------------------------------
+# H-02/H-82（2026-09-13 第二轮集群测试）：否定/反义词表单一真源。
+#
+# 词表与极性判定收敛到 shared/text/polarity.py；本模块只保留同名再导出，
+# 供既有调用方兼容。仅当仓库结构不可用时才退回内联最小词表（部署兜底，
+# 常规路径一律走共享模块——三处词表各自为政正是 H-02 的根因）。
+try:
+    from shared.text.polarity import (  # type: ignore
+        NEGATION_MARKERS as _SHARED_NEGATION_MARKERS,
+        ANTONYM_PAIRS as _SHARED_ANTONYM_PAIRS,
+        REVERSAL_MARKERS as _SHARED_REVERSAL_MARKERS,
+        polarity_signature as _shared_polarity_signature,
+        check_polarity as _shared_check_polarity,
+        predicate_stem as _shared_predicate_stem,
+    )
+    _HAS_SHARED_POLARITY = True
+except ImportError:  # pragma: no cover - only in stripped deployments
+    _HAS_SHARED_POLARITY = False
 
 
 
@@ -74,6 +100,19 @@ CONFIRMED_ELIGIBLE_STATUSES = {
     RelationStatus.PARTIALLY_SUPPORTED,
     RelationStatus.DERIVED,
 }
+
+# H-04（2026-09-13 第二轮）：表格对比的受益方向白名单。
+# 只有强信号指标允许推断方向；泛化词（score/rate 等）已删除——
+# "false positive rate" 这类"越高越糟"的指标绝不允许默认 HIGHER_IS_BETTER。
+# 白名单外 → UNKNOWN_METRIC_DIRECTION + eligible=False，交人工裁决。
+HIGHER_IS_BETTER_METRICS = (
+    "accuracy", "f1", "precision", "recall", "auc", "bleu", "rouge",
+    "yield", "survival", "richness", "abundance", "biomass", "germination",
+)
+LOWER_IS_BETTER_METRICS = (
+    "loss", "error", "rmse", "mae", "mortality", "toxicity",
+    "latency", "delay", "cost", "failure",
+)
 
 # Relation/claim intent markers across disciplines (used for semantic intent routing)
 CLAIM_INTENT_PATTERNS = [
@@ -177,22 +216,30 @@ def _check_entity_presence(entity_str: str, text: str) -> bool:
 #: 极性标记（2026-09-13 集群测试 P0 修复）：Gate 5 只看"谓词字符串是否出现"，
 #: 于是 "Shrubs are NOT the most important food" 与忠实表述一样判 SUPPORTED，
 #: 综合侧再据此把反向主张当成支持证据。这里补上方向/极性一致性检查。
-NEGATION_MARKERS = (
-    "not ", "n't", "never", "no ", " none", "without", "lack", "lacks", "lacking",
-    "absence", "absent", "rarely", "seldom", "fail to", "failed to", "no evidence",
-    "未", "不", "无", "没有", "并非", "缺乏", "缺少", "极少", "很少", "未见", "不能",
-)
-
-#: 反义类：(正向词集合, 反向词集合)。命中同一类但落在不同侧即判极性不符。
-ANTONYM_CLASSES = (
-    (("most", "highest", "greatest", "dominant", "predominant", "maximum", "最高", "主要", "主导"),
-     ("least", "lowest", "smallest", "minor", "negligible", "minimum", "最低", "次要", "可忽略")),
-    (("increase", "increased", "increases", "higher", "greater", "positive", "promote",
-      "promotes", "enhance", "enhances", "增加", "升高", "高于", "促进", "增强", "正相关"),
-     ("decrease", "decreased", "decreases", "lower", "reduced", "reduces", "negative",
-      "inhibit", "inhibits", "suppress", "suppresses", "减少", "降低", "低于", "抑制", "减弱", "负相关")),
-    (("more", "greater", "更多", "大于"), ("less", "fewer", "更少", "小于")),
-)
+#:
+#: H-02/H-82（2026-09-13 第二轮）：词表收敛到 shared/text/polarity.py 单一真源
+#: （补 neither/nor、don't/doesn't/didn't/cannot 词边界、abolish/reverse/
+#: eliminate/overturn 反转动词、中文"不同"排除集），本模块只做再导出。
+if _HAS_SHARED_POLARITY:
+    NEGATION_MARKERS = _SHARED_NEGATION_MARKERS
+    ANTONYM_CLASSES = _SHARED_ANTONYM_PAIRS
+    REVERSAL_MARKERS = _SHARED_REVERSAL_MARKERS
+else:  # pragma: no cover - stripped-deployment fallback
+    NEGATION_MARKERS = (
+        "not ", "n't", "never", "no ", " none", "without", "lack", "lacks", "lacking",
+        "absence", "absent", "rarely", "seldom", "fail to", "failed to", "no evidence",
+        "未", "不", "无", "没有", "并非", "缺乏", "缺少", "极少", "很少", "未见", "不能",
+    )
+    ANTONYM_CLASSES = (
+        (("most", "highest", "greatest", "dominant", "predominant", "maximum", "最高", "主要", "主导"),
+         ("least", "lowest", "smallest", "minor", "negligible", "minimum", "最低", "次要", "可忽略")),
+        (("increase", "increased", "increases", "higher", "greater", "positive", "promote",
+          "promotes", "enhance", "enhances", "增加", "升高", "高于", "促进", "增强", "正相关"),
+         ("decrease", "decreased", "decreases", "lower", "reduced", "reduces", "negative",
+          "inhibit", "inhibits", "suppress", "suppresses", "减少", "降低", "低于", "抑制", "减弱", "负相关")),
+        (("more", "greater", "更多", "大于"), ("less", "fewer", "更少", "小于")),
+    )
+    REVERSAL_MARKERS = ()
 
 
 def _sentence_with(text: str, needle: str) -> str:
@@ -211,7 +258,9 @@ def _sentence_with(text: str, needle: str) -> str:
 
 
 def _polarity_signature(text: str) -> Dict[str, Any]:
-    """抽取文本的极性签名：否定奇偶 + 各反义类落在哪一侧。"""
+    """抽取文本的极性签名（H-02 起实现委托给共享词表模块）。"""
+    if _HAS_SHARED_POLARITY:
+        return _shared_polarity_signature(text)
     lowered = " " + text.lower() + " "
     negations = sum(1 for marker in NEGATION_MARKERS if marker in lowered)
     classes = {}
@@ -226,20 +275,36 @@ def _polarity_signature(text: str) -> Dict[str, Any]:
     return {"negated": negations % 2 == 1, "classes": classes}
 
 
-def check_polarity(claim_text: str, evidence_sentence: str) -> Optional[str]:
-    """检查主张与证据句的方向是否一致；不一致返回原因字符串，一致返回 None。"""
+def check_polarity(claim_text: str, evidence_sentence: str,
+                   predicate: str = "", obj: str = "") -> Optional[Dict[str, Any]]:
+    """检查主张与证据的方向是否一致（三值，H-01/H-02/H-82）。
+
+    返回 None = 一致/无可比极性问题；
+    ``{"verdict": "CONTRADICTORY", "reason": ...}`` = 方向相反；
+    ``{"verdict": "UNRESOLVED", "reason": ...}`` = 签名不可比（BOTH/跨反义类/
+    谓词-宾语分支分裂），fail-closed 交人工，不得判 SUPPORTED。
+
+    ``predicate``/``obj`` 给定时执行**子句绑定**：否定与方向词只在包含
+    谓词（优先同时含宾语）的子句内比较，远距离否定（"Unlike drug B, which
+    did not ..., drug A increases ..."）不再误挡（H-82）。
+    """
     if not claim_text.strip() or not evidence_sentence.strip():
         return None
+    if _HAS_SHARED_POLARITY:
+        return _shared_check_polarity(claim_text, evidence_sentence,
+                                      predicate=predicate, obj=obj)
     claim = _polarity_signature(claim_text)
-    evidence = _polarity_signature(evidence_sentence)
+    evidence = _polarity_signature(_sentence_with(evidence_sentence, predicate))
     if claim["negated"] != evidence["negated"]:
-        return ("polarity mismatch: claim negated=%s but evidence negated=%s"
-                % (claim["negated"], evidence["negated"]))
+        return {"verdict": "CONTRADICTORY",
+                "reason": ("polarity mismatch: claim negated=%s but evidence negated=%s"
+                           % (claim["negated"], evidence["negated"]))}
     for idx, side in claim["classes"].items():
         other = evidence["classes"].get(idx)
         if other and side != "BOTH" and other != "BOTH" and side != other:
-            return ("polarity mismatch on antonym class %d: claim=%s evidence=%s"
-                    % (idx, side, other))
+            return {"verdict": "CONTRADICTORY",
+                    "reason": ("polarity mismatch on antonym class %d: claim=%s evidence=%s"
+                               % (idx, side, other))}
     return None
 
 
@@ -272,6 +337,8 @@ def _check_predicate_grounding(predicate: str, text: str) -> bool:
         (r"regulat", r"\b(regulates?|regulating|regulated|regulation)\b"),
         (r"reduc", r"\b(reduces?|reducing|reduced|reduction)\b"),
         (r"increas", r"\b(increases?|increasing|increased)\b"),
+        (r"decreas", r"\b(decreases?|decreasing|decreased)\b"),
+        (r"declin", r"\b(declines?|declining|declined|decline)\b"),
         (r"outperform", r"\b(outperforms?|outperforming|outperformed)\b"),
         (r"surpass", r"\b(surpasses?|surpassing|surpassed)\b"),
         (r"caus", r"\b(causes?|causing|caused)\b"),
@@ -292,12 +359,58 @@ def _check_predicate_grounding(predicate: str, text: str) -> bool:
             if re.search(pat, text_lower):
                 return True
 
+    # H-82（EXT-R-09）：反义类同侧词根互为屈折/同义（decrease↔declined↔reduced）。
+    # 谓词落在某反义类的一侧时，证据句中出现同侧任一词即算 grounded——
+    # 方向一致性仍由极性门单独把关。
+    if _HAS_SHARED_POLARITY:
+        from shared.text.polarity import ANTONYM_PAIRS as _AP, ANTONYM_LOOKUP as _AL  # type: ignore
+        for side_word, (cls_idx, side) in _AL.items():
+            if side_word in pred_lower and len(side_word) >= 4:
+                pos_words, neg_words = _AP[cls_idx]
+                words = pos_words if side == "POS" else neg_words
+                if any(w in text_lower for w in words):
+                    return True
+
     # Check multi-word phrase components (e.g. "positively associated with")
     words = [w for w in re.split(r"\s+", pred_lower) if len(w) > 3 and w not in {"with", "that", "from"}]
     if words and all(w in text_lower for w in words):
         return True
 
     return False
+
+
+def _alignment_summary(**flags: int) -> Dict[str, int]:
+    """设施-1（fail-closed 遥测最低版）：每次拒绝都能从 summary 读数。
+
+    固定键：polarity_unresolved / unknown_metric_direction / polarity_contradictions。
+    """
+    summary = {"polarity_unresolved": 0, "unknown_metric_direction": 0,
+               "polarity_contradictions": 0}
+    for key, val in flags.items():
+        summary[key] = int(val)
+    return summary
+
+
+def aggregate_alignment_summary(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """聚合多条 verify_claim_alignment 结果的 summary 计数（产物级遥测）。"""
+    agg = {"total_results": len(results), "confirmed_eligible": 0,
+           "polarity_unresolved": 0, "unknown_metric_direction": 0,
+           "polarity_contradictions": 0}
+    status_counts: Dict[str, int] = {}
+    verdict_counts: Dict[str, int] = {}
+    for res in results:
+        if not isinstance(res, dict):
+            continue
+        if res.get("is_confirmed_eligible"):
+            agg["confirmed_eligible"] += 1
+        status_counts[res.get("status", "UNKNOWN")] = status_counts.get(res.get("status", "UNKNOWN"), 0) + 1
+        verdict_counts[res.get("audit_verdict", "UNKNOWN")] = verdict_counts.get(res.get("audit_verdict", "UNKNOWN"), 0) + 1
+        for key in ("polarity_unresolved", "unknown_metric_direction", "polarity_contradictions"):
+            sub = res.get("summary") or {}
+            agg[key] += int(sub.get(key, 0) or 0)
+    agg["status_counts"] = status_counts
+    agg["audit_verdict_counts"] = verdict_counts
+    return agg
 
 
 def verify_claim_alignment(
@@ -313,9 +426,39 @@ def verify_claim_alignment(
     Deterministic Alignment Guard Principles:
     - Subject + Object must be bound to target entities.
     - source_role defaults to UNKNOWN and fails closed.
-    - Directional table comparisons require explicit or inferable metric_direction.
+    - Directional table comparisons require explicit or inferable metric_direction
+      (H-04: only whitelisted metrics allow direction inference; anything else is
+      UNKNOWN_METRIC_DIRECTION and ineligible).
+    - Polarity is checked BEFORE any semantic short-circuit and is three-valued:
+      an incomparable signature yields POLARITY_UNRESOLVED (never SUPPORTED).
     - Mere co-occurrence or co-measurement is prevented from entering confirmed output.
+
+    Every returned verdict carries a ``summary`` block with fail-closed counters
+    (设施-1: polarity_unresolved / unknown_metric_direction / polarity_contradictions).
     """
+    result = _verify_claim_alignment_impl(
+        target_claim, evidence_text,
+        evidence_context=evidence_context,
+        table_bundle=table_bundle,
+        is_cross_context=is_cross_context,
+        claim_is_relational=claim_is_relational,
+    )
+    if isinstance(result, dict) and "summary" not in result:
+        result["summary"] = _alignment_summary(
+            unknown_metric_direction=1 if result.get("audit_verdict") == "UNKNOWN_METRIC_DIRECTION" else 0,
+            polarity_contradictions=1 if result.get("audit_verdict") == "REJECT_POLARITY_MISMATCH" else 0,
+        )
+    return result
+
+
+def _verify_claim_alignment_impl(
+    target_claim: Dict[str, Any],
+    evidence_text: str,
+    evidence_context: Optional[Dict[str, Any]] = None,
+    table_bundle: Optional[Dict[str, Any]] = None,
+    is_cross_context: bool = False,
+    claim_is_relational: Optional[bool] = None,
+) -> Dict[str, Any]:
     ctx = evidence_context or {}
     if claim_is_relational is None:
         claim_is_relational = (
@@ -536,13 +679,18 @@ def verify_claim_alignment(
             metric = table_bundle.get("column_header", "")
 
             # Direction of comparison: HIGHER_IS_BETTER vs LOWER_IS_BETTER vs UNKNOWN
+            #
+            # H-04（2026-09-13 第二轮集群测试 P0）：受益方向**只认白名单**。
+            # 旧实现用黑名单（仅排除 error/loss/mortality/failure/latency/cost）+
+            # 泛化词（score/rate）推断"越高越好"，于是 false positive rate /
+            # infection rate / recurrence rate 翻倍被判目标方"胜出"——方向直接反转。
+            # 白名单外的指标一律 UNKNOWN_METRIC_DIRECTION + eligible=False，交人工。
             metric_direction = table_bundle.get("metric_direction")
             if not metric_direction:
                 m_lower = metric.lower()
-                if any(k in m_lower for k in ["accuracy", "f1", "precision", "recall", "bleu", "rouge", "auc", "yield", "survival", "score", "rate"]):
-                    if not any(k in m_lower for k in ["error", "loss", "mortality", "failure"]):
-                        metric_direction = "HIGHER_IS_BETTER"
-                if not metric_direction and any(k in m_lower for k in ["loss", "error", "rmse", "mae", "mortality", "toxicity", "latency", "delay", "cost"]):
+                if any(k in m_lower for k in HIGHER_IS_BETTER_METRICS):
+                    metric_direction = "HIGHER_IS_BETTER"
+                elif any(k in m_lower for k in LOWER_IS_BETTER_METRICS):
                     metric_direction = "LOWER_IS_BETTER"
 
             if metric_direction == "HIGHER_IS_BETTER":
@@ -609,6 +757,42 @@ def verify_claim_alignment(
     # ----------------------------------------------------
     # Gate 5: Inference Boundary & Predicate Insertion Check
     # ----------------------------------------------------
+    # P0 修复（2026-09-13 集群测试 H-01）：极性检查必须先于语义短路。
+    # 旧实现里 `semantic_verdict == "SUPPORTED" and predicate_grounded` 在极性
+    # 检查之前 return（~L613），上游一句自报 SUPPORTED 就洗白了一切方向问题；
+    # 且 check_polarity 在同句同现 increase/decrease 时判 BOTH 跳过比较、跨反义
+    # 类不配对即静默放行。现在：极性检查上移到短路前，三值化 fail-closed——
+    # 签名不可比 → AMBIGUOUS/POLARITY_UNRESOLVED（绝不判 SUPPORTED），
+    # 并在 result["summary"] 记 polarity_unresolved 计数（设施-1）。
+    polarity = check_polarity(claim_str, evidence_text, predicate=predicate, obj=obj)
+    if polarity is not None:
+        gate_results["gate3_proposition_support"] = False
+        violations.append(polarity["reason"])
+        if polarity["verdict"] == "CONTRADICTORY":
+            return {
+                "status": RelationStatus.CONTRADICTORY,
+                "is_confirmed_eligible": False,
+                "gate_results": gate_results,
+                "violations": violations,
+                "source_role": source_role,
+                "audit_verdict": "REJECT_POLARITY_MISMATCH",
+                "summary": _alignment_summary(polarity_unresolved=0),
+                "notes": "Claim polarity contradicts the evidence sentence; it cannot be "
+                         "recorded as supporting evidence.",
+            }
+        return {
+            "status": RelationStatus.AMBIGUOUS,
+            "is_confirmed_eligible": False,
+            "gate_results": gate_results,
+            "violations": violations,
+            "source_role": source_role,
+            "audit_verdict": "POLARITY_UNRESOLVED",
+            "summary": _alignment_summary(polarity_unresolved=1),
+            "notes": "Polarity signature not comparable (mixed directions / cross-class "
+                     "lexicon gap / predicate-object branch split); fail-closed to human "
+                     "adjudication instead of SUPPORTED.",
+        }
+
     # If upstream model/agent provided semantic confirmation
     if semantic_verdict == "SUPPORTED" and predicate_grounded:
         return {
@@ -618,24 +802,8 @@ def verify_claim_alignment(
             "violations": [],
             "source_role": source_role,
             "audit_verdict": "PASS",
+            "summary": _alignment_summary(),
             "notes": "Target claim confirmed by semantic evaluation with entity and context alignment."
-        }
-
-    # P0 修复：方向/极性一致性。谓词字符串出现不等于主张方向成立——
-    # 反向主张（否定词或反义谓词）必须在综合前被拦下。
-    polarity_issue = check_polarity(claim_str, _sentence_with(evidence_text, predicate))
-    if polarity_issue:
-        gate_results["gate3_proposition_support"] = False
-        violations.append(polarity_issue)
-        return {
-            "status": RelationStatus.CONTRADICTORY,
-            "is_confirmed_eligible": False,
-            "gate_results": gate_results,
-            "violations": violations,
-            "source_role": source_role,
-            "audit_verdict": "REJECT_POLARITY_MISMATCH",
-            "notes": "Claim polarity contradicts the evidence sentence; it cannot be "
-                     "recorded as supporting evidence.",
         }
 
     # If predicate is grounded in evidence text with bound entities and current study result
@@ -649,6 +817,7 @@ def verify_claim_alignment(
                 "violations": [],
                 "source_role": source_role,
                 "audit_verdict": "PASS",
+                "summary": _alignment_summary(),
                 "notes": f"Claim relation grounded in empirical evidence text (predicate '{predicate}' bound)."
             }
 

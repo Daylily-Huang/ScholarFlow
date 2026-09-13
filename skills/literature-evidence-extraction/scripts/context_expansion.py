@@ -390,10 +390,27 @@ def get_structured_figure_context(figure_data: Dict[str, Any], locator: Dict[str
 # 3. LINGUISTIC & EPISTEMIC GUARDS
 # ==============================================================================
 
-NEGATION_REGEX = re.compile(
-    r"(?:\b(not|no|never|neither|nor|failed\s+to|fail\s+to|did\s+not|does\s+not|without|non-significant|insignificant|lack\s+of|unsupported|no\s+effect|no\s+difference|declined\s+to|decline\s+to|refused\s+to|refuse\s+to|rejected|reject|denied|without\s+establishing)\b|未发现|并未|并无|无显著|没有|不具有|未见|未支持|拒绝|排除)",
-    re.IGNORECASE,
-)
+# H-02（2026-09-13 第二轮）：否定词表收敛到 shared/text/polarity.py 单一真源。
+# AECE 层使用其中刻意收窄的 AECE 子集（AECE 把"有否定"直接当 CONTRADICTS_TARGET，
+# 语义比极性层重，故 rarely/lack 等强度词留给极性层）。仓库结构不可用时退回
+# 内联正则（部署兜底，内容与 2026-09-11 版一致）。
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
+
+try:
+    from shared.text.polarity import (  # type: ignore
+        AECE_NEGATION_RE as NEGATION_REGEX,
+        AECE_NEGATION_MARKERS as _AECE_NEGATION_MARKERS,
+    )
+    _HAS_SHARED_POLARITY = True
+except ImportError:  # pragma: no cover - only in stripped deployments
+    _HAS_SHARED_POLARITY = False
+    NEGATION_REGEX = re.compile(
+        r"(?:\b(not|no|never|neither|nor|failed\s+to|fail\s+to|did\s+not|does\s+not|without|non-significant|insignificant|lack\s+of|unsupported|no\s+effect|no\s+difference|declined\s+to|decline\s+to|refused\s+to|refuse\s+to|rejected|reject|denied|without\s+establishing)\b|未发现|并未|并无|无显著|没有|不具有|未见|未支持|拒绝|排除)",
+        re.IGNORECASE,
+    )
+    _AECE_NEGATION_MARKERS = ()
 
 MODALITY_REGEX = re.compile(
     r"(?:\b(may|might|could|suggest|suggests|suggested|suggesting|possibly|possible|likely|hypothesized|speculate|speculated|preliminary|unconfirmed|putative)\b|可能|提示|推测|或许|假定|潜在)",
@@ -407,7 +424,12 @@ PRONOUN_ANAPHORA_REGEX = re.compile(
 
 
 def detect_negation(text: str) -> Dict[str, Any]:
-    """Detect explicit negation expressions within context text."""
+    """Detect explicit negation expressions within context text.
+
+    H-35 切片（2026-09-13 第二轮）：调用方必须只对**目标句**调用本函数——
+    pypdf 提取的正文常无空行，段落启发式会把整篇（实测 80,701 字符）当
+    一个"段落"，对拼接全文做否定扫描会失控误判 CONTRADICTS_TARGET。
+    """
     matches = [m.group(0) for m in NEGATION_REGEX.finditer(text)]
     return {
         "has_negation": len(matches) > 0,
@@ -848,7 +870,17 @@ def evaluate_target_alignment(
     context_lower = context_text.lower()
 
     # 1. Check Negation Trap
-    neg = detect_negation(context_text)
+    # H-35 切片（2026-09-13 第二轮）：否定扫描**只作用于目标句**。
+    # 旧实现对整个扩展后的 context_text 扫描——pypdf 文本零空行时 PARAGRAPH
+    # 级 context 就是整篇文档（实测 80,701 字符），几十页外的否定词会把
+    # 忠实候选误判成 CONTRADICTS_TARGET。目标句 = 命中所在的原始句子
+    # （expand_candidate_context 的 evidence_span.text）；结构化上下文回退
+    # 到 context_text。
+    negation_scope = (
+        (candidate_context.get("evidence_span") or {}).get("text")
+        or context_text
+    )
+    neg = detect_negation(negation_scope)
     if neg["has_negation"]:
         # If user asked for claim/relation/comparison and context explicitly negates
         if task_type in (TINTaskType.CLAIM, TINTaskType.RELATION, TINTaskType.COMPARISON):

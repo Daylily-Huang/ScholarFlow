@@ -80,6 +80,28 @@ except ImportError:
     )
     from claim_alignment import verify_claim_alignment, RelationStatus
 
+# H-37（2026-09-13 第二轮集群测试）：ATTRIBUTE 数值核验复用 quote_audit 的
+# 完整数量解析（数值 + 符号 + 指数 + 量纲），杜绝"任意数字 + 任意 >2 字符
+# 字段 token 即 ALIGNED"的通道。导入失败必须显式可见（与本文件 schema gate
+# 的导入失败同策略），不得静默退回任意数字对齐。
+try:
+    from .quote_audit import (  # type: ignore
+        extract_quantities as _extract_quantities,
+        numeric_view as _numeric_view,
+        _present_in as _quantity_present_in,
+    )
+except ImportError:  # pragma: no cover - stripped deployment fallback
+    try:
+        from quote_audit import (  # type: ignore
+            extract_quantities as _extract_quantities,
+            numeric_view as _numeric_view,
+            _present_in as _quantity_present_in,
+        )
+    except ImportError:
+        _extract_quantities = None  # type: ignore
+        _numeric_view = None  # type: ignore
+        _quantity_present_in = None  # type: ignore
+
 
 CLAIM_TASK_TYPES = {
     TINTaskType.CLAIM,
@@ -89,6 +111,52 @@ CLAIM_TASK_TYPES = {
     "RELATION",
     "COMPARISON",
 }
+
+
+def _verify_attribute_value_anchoring(extracted_value: Any,
+                                      context_text: str) -> Optional[Dict[str, Any]]:
+    """H-37（2026-09-13 第二轮集群测试）：ATTRIBUTE 数值核验。
+
+    旧实现里 ATTRIBUTE 对齐 = "上下文出现任意数字 + 字段 token" → 伪造
+    `25 uL`（上下文唯一数字是 1985）照样升级 SUPPORTED/EXPLICIT。现在复用
+    quote_audit 的完整数量解析（`extract_quantities`：数值+符号+指数+量纲）
+    与量纲比较（`_present_in`），抽取值中的每个数量都必须锚定在扩展上下文中。
+
+    返回：
+      - None                    —— quote_audit 不可用（导入失败已在他处显式报告）
+      - {"anchored": True, ...}  —— 无数量可解析（纯文本值，交 quote_audit 门禁）
+                                    或全部数量锚定成功
+      - {"anchored": False, "detail": ...} —— 存在未锚定数量，不得判 ALIGNED
+    """
+    if _extract_quantities is None or _numeric_view is None or _quantity_present_in is None:
+        return None
+    quantities = _extract_quantities(str(extracted_value if extracted_value is not None else ""),
+                                     strict_units=True)
+    if not quantities:
+        return {"anchored": True,
+                "detail": "no parsable quantity in extracted_value; numeric anchoring not applicable"}
+    ctx_fold = _numeric_view(context_text or "", fold_case=False)
+    unanchored = []
+    for q in quantities:
+        if q.get("sign_ambiguous"):
+            unanchored.append(q["raw"] + " (ambiguous sign)")
+            continue
+        if not _quantity_present_in(q, ctx_fold, {}):
+            unanchored.append(q["raw"])
+    if unanchored:
+        return {
+            "anchored": False,
+            "detail": ("ATTRIBUTE value not anchored in expanded context: quantity token(s) "
+                       "%s parse cleanly but do not appear in the evidence context "
+                       "(value + dimension compared via quote_audit.extract_quantities); "
+                       "refusing SUPPORTED/EXPLICIT promotion." % (unanchored,)),
+            "quantities": [{"value": str(q["value"]), "unit": q["unit"],
+                            "dimension": q["dimension"]} for q in quantities],
+        }
+    return {"anchored": True,
+            "detail": "all quantities anchored in expanded context",
+            "quantities": [{"value": str(q["value"]), "unit": q["unit"],
+                            "dimension": q["dimension"]} for q in quantities]}
 
 
 def process_candidate(
@@ -124,6 +192,20 @@ def process_candidate(
 
     # 3. Target Alignment
     alignment = evaluate_target_alignment(tin, expanded_ctx)
+
+    # 3b. H-37: ATTRIBUTE 数值核验（复用 quote_audit.extract_quantities）
+    # 伪造值（上下文唯一数字是 1985 的 "25 uL"）不得升级 SUPPORTED/EXPLICIT。
+    value_anchoring = None
+    if task_type not in CLAIM_TASK_TYPES and extracted_value is not None:
+        value_anchoring = _verify_attribute_value_anchoring(
+            extracted_value, expanded_ctx.get("context_text", ""))
+        if value_anchoring is not None and not value_anchoring.get("anchored", True):
+            alignment = {
+                "status": AlignmentStatus.NOT_ALIGNED,
+                "rationale": value_anchoring.get("detail",
+                                                 "ATTRIBUTE value not anchored in context"),
+                "value_anchoring": value_anchoring,
+            }
 
     # 4. Claim Alignment Gate (A2)
     claim_alignment_verdict = None

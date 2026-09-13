@@ -21,15 +21,35 @@ Matching is robust to PDF extraction artifacts:
 2. HYPHEN_JOIN — match after re-joining hyphenated line breaks ("step- wise" -> "stepwise").
 3. FUZZY       — best sliding-window token containment >= threshold (default 0.95).
                  Reported as a warning, not a failure (unless --strict).
+                 H-03（2026-09-13 第二轮）: a FUZZY quote is NOT trusted as a value
+                 anchor — its extracted_value is re-verified against the source-side
+                 matched window (never against the possibly-doctored quote text).
 4. NOT_FOUND   — no acceptable match: gate failure.
+
+Value anchoring (F1b) additionally fails on (2026-09-13 第二轮, H-03/H-33):
+  NOT_VERIFIABLE      — textual significance verdicts ("not significant") carry no
+                        parsable quantity; human adjudication required, no promotion
+                        to VERIFIED/EXPLICIT on this basis.
+  FUZZY_NOT_ANCHORED  — an untrusted (FUZZY) quote could not be re-anchored to a
+                        source window.
+  AMBIGUOUS_SIGN      — a minus sign glued to a word ("at-20.5", OCR dropped a
+                        space) cannot be trusted; H-33.
+  区间负号             — a dash between two numbers is a range separator
+                        ("83 −85%" == 83-85%), not a sign; H-33.
+
+`--strict` semantics: FUZZY matches are treated as gate failures as well. Use it
+for anti-forgery-critical values (key effect sizes, doses, endpoints); the default
+tolerates extraction artifacts but NEVER tolerates value-anchoring failures.
 
 Standard Library Only (pypdf optional, only needed for PDF sources).
 
 Usage:
     python quote_audit.py -i evidence.json -s paper.pdf
     python quote_audit.py -i evidence.json -s paper.txt --strict -o audit_report.json
-Exit code: 0 = all quotes verified; 1 = at least one NOT_FOUND (or FUZZY under --strict);
-           2 = input error (file/schema missing, pypdf unavailable for PDF source).
+Exit code: 0 = all quotes verified; 1 = at least one NOT_FOUND (or FUZZY under --strict,
+           or any value-anchoring failure above);
+           2 = input error (file/schema missing, envelope invalid/empty, pypdf
+           unavailable for PDF source).
 """
 
 import argparse
@@ -84,6 +104,14 @@ CONFUSABLE_TABLE = {
     # full-width forms that NFKC leaves alone in some CJK journal fonts
     "\uff0e": ".", "\uff0c": ",", "\uff1a": ":", "\uff1b": ";",
     "\uff08": "(", "\uff09": ")", "\uff05": "%",
+    # --- H-30 切片（2026-09-13 第二轮集群测试）：真实统计值被诬为伪造 ------
+    # CJK 排版字体把等号/比较号铸成浊音假名与分数字形（实测：Acta Zool. Sin.
+    # "P ¼ 0.002" 的 ¼ 就是 "="），U+3002 是中文全角句号（与 "." 不互认曾被
+    # 记为 FIX-D 缺口），全角/双线比较符（＜＞≦≧）同样不归一即误挡。
+    "\u00bc": "=", "\u00bd": "=", "\u00be": "=",          # ¼ ½ ¾ -> "="
+    "\u3002": ".",                                        # 。 -> "."
+    "\uff1c": "<", "\uff1e": ">",                          # ＜ ＞
+    "\u2266": "<=", "\u2267": ">=",                        # ≦ ≧
 }
 
 
@@ -109,11 +137,46 @@ def tokenize(text: str) -> List[str]:
     return re.findall(r"\w+", text, re.UNICODE)
 
 
+def _tokenize_with_offsets(text: str) -> List["tuple"]:
+    """token 及其在 text 中的字符区间（供 FUZZY 窗口回定位到源文）。"""
+    return [(m.group(0), m.start(), m.end())
+            for m in re.finditer(r"\w+", text, re.UNICODE)]
+
+
+def _locate_fuzzy_window(needle_tokens: List[str],
+                         haystack_text: str) -> "tuple":
+    """在 haystack_text 上找最优 token 窗口，返回 (containment, start_char, end_char)。
+
+    H-03①：FUZZY 命中的引句不可自证——值锚定必须回到**源文侧**的实际匹配窗口。
+    旧实现只返回比率，窗口信息丢失，值检查只能拿被篡改的引句自锚定。
+    """
+    needle_set = set(needle_tokens)
+    m = len(needle_set)
+    tokens = _tokenize_with_offsets(haystack_text)
+    if m == 0 or not tokens:
+        return 0.0, None, None
+    best_ratio = 0.0
+    best_span = (None, None)
+    end_limit = min(len(tokens), FUZZY_WINDOW_CAP)
+    for start in range(0, max(1, len(tokens) - m + 1)):
+        if start >= end_limit:
+            break
+        window_tokens = tokens[start:start + m]
+        ratio = len(needle_set & set(t[0] for t in window_tokens)) / m
+        if ratio > best_ratio:
+            best_ratio = ratio
+            best_span = (window_tokens[0][1], window_tokens[-1][2])
+            if best_ratio == 1.0:
+                break
+    return best_ratio, best_span[0], best_span[1]
+
+
 def _best_fuzzy_window(needle_tokens: List[str], haystack_tokens: List[str]) -> float:
     """Max unique-token containment of the needle across sliding windows of the haystack.
 
     Both sides are reduced to unique token sets: duplicate words (e.g. "was ... was")
     would otherwise double-penalize containment for extraction-noise quotes.
+    （H-03 起窗口定位走 `_locate_fuzzy_window`；本函数保留为兼容接口。）
     """
     needle_set = set(needle_tokens)
     m = len(needle_set)
@@ -213,6 +276,23 @@ _UNIT_GROUPS = (
     # 说明：`mb` 不用——它在基因组学是 megabase、在大气科学是 millibar，
     # 属"含义不明确的大小写符号"，登记进来会把气压值悄悄换算成碱基数。
     # 未登记即 UNKNOWN_UNIT 阻断，需要时由字段显式换算。
+    #
+    # --- H-32（2026-09-13 第二轮集群测试）：派生量纲注册 -------------------
+    # 旧实现把 "/" 一律当复合单位丢弃 → mg/L、µg/L、ppm 全部 UNKNOWN_UNIT，
+    # MP 类语料数值门禁 100% 失效，且伪造 999 mg/L 与真实 25 mg/L 的 detail
+    # 完全相同（伪造信号被掩蔽）。现在注册派生量纲：同量纲内可换算比较，
+    # 25 与 999 mg/L 可区分，detail 带量纲与数值。
+    ("mass_volume", "1", ("g/l", "g/L")),                  # 基准：g/L
+    ("mass_volume", "0.001", ("mg/l", "mg/L")),
+    ("mass_volume", "0.000001", ("µg/l", "µg/L", "μg/l", "μg/L", "ug/l", "ug/L")),
+    ("mass_volume", "0.000000001", ("ng/l", "ng/L")),
+    ("mass_volume", "1000", ("kg/l", "kg/L")),
+    ("count_per_volume", "1", ("ind/l", "ind/L", "individuals/l", "individuals/L",
+                               "cells/l", "cells/L")),
+    ("count_per_volume", "1000", ("ind/ml", "ind/mL", "cell/ml", "cell/mL",
+                                  "cells/ml", "cells/mL")),
+    ("concentration", "1", ("ppm", "ppmv")),               # 基准：ppm
+    ("concentration", "0.001", ("ppb", "ppbv")),
 )
 
 #: 单位写法 → (量纲, 因子)。**区分大小写**：mL 是毫升而 ML 不是，mm 是毫米而 Mm 不是。
@@ -299,16 +379,39 @@ def _looks_like_unit_symbol(token: str) -> bool:
 _COMPOUND_UNIT_CHARS = "/·*^*×⋅"
 
 
-def _sign_before(text: str, pos: int) -> int:
-    """判断数字前的 +/- 是符号还是区间分隔符，返回 +1 / -1。"""
+def _sign_before(text: str, pos: int) -> "tuple":
+    """判断数字前的 +/- 是符号、区间分隔符还是不可信符号，返回 (sign, ambiguous)。
+
+    H-33（2026-09-13 第二轮集群测试）：
+    - 两个数字之间的连字/减号（可隔空白）是**区间分隔符**："83 −85%" = 83-85%，
+      两个数都取正——旧实现把 −85 判成负值，忠实引句反被误挡、语义错误的
+      "-85%" 反而 ALIGNED。
+    - 负号**紧邻字母**（"at-20.5"，OCR 丢空格）时符号不可信：按负值解析但标
+      ambiguous，配对的量不得静默 ALIGNED（丢负号的伪造值不得放行）。
+    - 负号前有空白/起始/开括号 → 合法负号（"was -5 Gy"、"(−5)"）。
+    """
     if pos == 0:
-        return 1
-    prev = text[pos - 1]
-    if prev in "+-\u2212":
-        before_sign = text[pos - 2] if pos >= 2 else ""
-        if before_sign == "" or before_sign in " \t(=[,;:（±":
-            return -1 if prev in "-\u2212" else 1
-    return 1
+        return 1, False
+    j = pos - 1                      # 紧邻数字的字符位
+    prev = text[j]
+    if prev not in "+-\u2212\u2013\u2014":
+        return 1, False
+    if prev == "+":
+        return 1, False
+    # 向前跳过空白找"减号前一个非空白字符"（区间判定）
+    k = j - 1
+    while k >= 0 and text[k] in " \t\u00a0":
+        k -= 1
+    if k >= 0 and text[k].isdigit():
+        # 数字 − 数字 → 区间分隔符（83 −85% / 25 −32% / 10–100）
+        return 1, False
+    immediate = text[j - 1] if j >= 1 else ""
+    if j == 0 or immediate in " \t\u00a0(=[,;:（【「『\u00b1":
+        return -1, False
+    if re.match(r"[A-Za-z\u4e00-\u9fff]", immediate):
+        # 字母紧邻负号（at-20.5）：按负值解析但符号不可信
+        return -1, True
+    return 1, False
 
 
 def _match_unit(text: str, pos: int):
@@ -422,7 +525,7 @@ def extract_quantities(value: Any, strict_units: bool = False) -> List[Dict[str,
             continue
         if m.group("exp"):
             number *= Decimal(10) ** int(m.group("exp"))
-        sign = _sign_before(text, m.start("num"))
+        sign, sign_ambiguous = _sign_before(text, m.start("num"))
         comparator = None
         before = text[:m.start("num")].rstrip()
         m_before = _COMPARATOR_BEFORE.search(before)
@@ -453,6 +556,7 @@ def extract_quantities(value: Any, strict_units: bool = False) -> List[Dict[str,
             "dimension": dimension,
             "factor": factor,
             "comparator": comparator,
+            "sign_ambiguous": bool(sign_ambiguous),   # H-33：字母邻接负号，符号不可信
         })
     return out
 
@@ -536,12 +640,26 @@ def _quantities_match(ext_q: Dict[str, Any], src_q: Dict[str, Any], rec: Dict[st
     T01：比较用 `Decimal` 定点值直接相等判定，不设"宽松绝对容差"——容差会把
     `1 nL` 与 `2 nL`（换算后差 1e-9 L）判成相等。解析与换算本身是十进制定点、
     不含浮点误差，因此无需容差来掩盖。
+
+    H-03②（2026-09-13 第二轮）：比较符**双侧都在场才比较**——`P<0.05` 与
+    `>0.05` 仍互相拦截，但单侧缺失（OCR 丢比较符、"P ¼ 0.002" 的源文侧 "="
+    对抽取值无比较符）不再误挡。`±/~` 等不确定度标记不同：单侧出现即阻断
+    （"0.3" 与 "±0.3" 语义不同）。
     """
+    # H-33：任一侧符号不可信（字母邻接负号）→ 拒绝自动配对，交人工。
+    if ext_q.get("sign_ambiguous") or src_q.get("sign_ambiguous"):
+        return False
     if not _dimension_compatible(ext_q, src_q, rec):
         return False
-    # 比较符/不确定度必须一致：`>0.05` 与 `<0.05` 语义相反，不得互相命中。
-    if (ext_q.get("comparator") or None) != (src_q.get("comparator") or None):
-        return False
+    ext_cmp = ext_q.get("comparator") or None
+    src_cmp = src_q.get("comparator") or None
+    if ext_cmp != src_cmp:
+        if ext_cmp is None or src_cmp is None:
+            if "approx" in (ext_cmp, src_cmp):
+                return False          # 不确定度标记（±/~）单侧出现必须阻断
+            # 单侧比较符缺失：不因比较符阻断，值本身仍需一致
+        else:
+            return False              # 双侧比较符不一致（< vs >）语义相反
     ed, sd = ext_q["dimension"], src_q["dimension"]
     if ed == "unknown" or sd == "unknown":
         # 量纲可比性已由 _dimension_compatible 判定（同未知单位，或声明无量纲）
@@ -603,9 +721,43 @@ def numeric_view(text: str, fold_case: bool = True) -> str:
     return re.sub(r"(?<=\d)\s*[·•∙]\s*(?=\d)", ".", normalize_text(text, fold_case=fold_case))
 
 
+_SENTENCE_BOUNDARY_RE = re.compile(r"[。！!？?；;\n]|\.(?=\s|$)")
+
+
+def _same_sentence_window(window_text: str, quote_start: int, quote_end: int) -> str:
+    """把 ±ALIGNMENT_WINDOW 的窗口收窄到与引句**同句**的部分（H-03③ 语义位）。
+
+    表格行等无句界文本保持整窗（同一行即同一语义位）。
+    """
+    if not window_text:
+        return window_text
+    qs = max(0, min(quote_start, len(window_text)))
+    qe = max(qs, min(quote_end, len(window_text)))
+    starts = [m.end() for m in _SENTENCE_BOUNDARY_RE.finditer(window_text, 0, qs)]
+    s = starts[-1] if starts else 0
+    # 若引句自身以句界字符收尾，句子就到引句末为止（从 qe-1 起搜，使引句
+    # 末尾的句号本身成为边界——否则下一段会被并进同一窗口）。
+    m = _SENTENCE_BOUNDARY_RE.search(window_text, max(0, qe - 1))
+    e = m.end() if m else len(window_text)
+    return window_text[s:e]
+
+
+#: 文本型值里的"显著性判语"：这是统计结论的文本形式（正是 EXT-A-02 攻击篡改
+#: 比较符后用来绕过值核验的形态），必须显式 NOT_VERIFIABLE，不得静默零核验。
+#: 纯描述性文本值（如"以木本植物叶及嫩枝为主"）不含可证伪的比较断言，
+#: 维持"不参与数值对齐"的既有契约（test_d1）。
+_SIGNIFICANCE_VERDICT_RE = re.compile(
+    r"(?:not\s+significant|non-?significant|insignificant|\bn\.?\s?s\.?\b|significant"
+    r"|no\s+(?:significant\s+)?(?:difference|effect|change)|not\s+different"
+    r"|无显著|不显著|无差异|差异不显著|无显著差异)",
+    re.IGNORECASE,
+)
+
+
 def check_value_alignment(rec: Dict[str, Any], norm_source: str,
                           quote_span: Optional[tuple],
-                          raw_source: Optional[str] = None) -> Optional[Dict[str, Any]]:
+                          raw_source: Optional[str] = None,
+                          quote_trusted: bool = True) -> Optional[Dict[str, Any]]:
     """
     Compare extracted quantities against the source.
 
@@ -617,7 +769,14 @@ def check_value_alignment(rec: Dict[str, Any], norm_source: str,
       UNIT_MISMATCH     – same number, different/incompatible unit or dimension
       UNKNOWN_UNIT      – the value carries a unit/dimension this layer does not support
       UNPARSEABLE_VALUE – the value contains digits but no quantity could be parsed
+      NOT_VERIFIABLE    – textual significance verdict (e.g. "not significant") cannot
+                          be mechanically verified (H-03: no promotion on it)
+      FUZZY_NOT_ANCHORED – FUZZY-matched (untrusted) quote could not be re-anchored
+                          to a source window, so the value has no trustworthy anchor
     Returns None when there is nothing to check.
+
+    ``quote_trusted=False``（FUZZY 命中）时引句本身不可作锚：值只能回源文窗口
+    核验（H-03①，禁止"攻击者自控引句自锚定"）。
     """
     raw_value = rec.get("extracted_value")
     quote_text = rec.get("verbatim_quote") or ""
@@ -642,6 +801,17 @@ def check_value_alignment(rec: Dict[str, Any], norm_source: str,
                     "detail": ("extracted_value=%r contains digits but no parsable "
                                "quantity (value + unit); it must be reviewed by hand "
                                "and cannot pass the numeric gate." % (raw_value,))}
+        if raw_value and _SIGNIFICANCE_VERDICT_RE.search(normalize_text(str(raw_value))):
+            # H-03④：文本型显著性判语零核验曾是 rc=0 通道；显式 NOT_VERIFIABLE
+            # 且禁 promotion（不得以此升级 VERIFIED/EXPLICIT）。
+            return {"verdict": "NOT_VERIFIABLE", "tokens": [],
+                    "missing_in_source": [], "not_in_context": [],
+                    "unverified": True,
+                    "detail": ("extracted_value=%r is a textual significance verdict "
+                               "with no parsable quantity; the auditor cannot verify "
+                               "it mechanically (the surrounding comparator may have "
+                               "been altered). Human adjudication required; it must "
+                               "not be promoted as VERIFIED/EXPLICIT." % (raw_value,))}
         return None
 
     # 源文扫描保留大小写：单位符号有意义，先转小写会把 `5 Gy` 当成无量纲 5。
@@ -650,19 +820,45 @@ def check_value_alignment(rec: Dict[str, Any], norm_source: str,
     quote = rec.get("verbatim_quote") or ""
     quote_fold = numeric_view(quote, fold_case=False)
     window_fold = ""
-    raw_quote_span = None
-    if raw_source:
-        pos = raw_source.find(quote)
-        if pos >= 0:
-            raw_quote_span = (pos, pos + len(quote))
-    if raw_quote_span:
-        a = max(0, raw_quote_span[0] - ALIGNMENT_WINDOW)
-        b = min(len(raw_source), raw_quote_span[1] + ALIGNMENT_WINDOW)
-        window_fold = numeric_view(raw_source[a:b], fold_case=False)
-    elif quote_span:
-        a = max(0, quote_span[0] - ALIGNMENT_WINDOW)
-        b = min(len(norm_source), quote_span[1] + ALIGNMENT_WINDOW)
-        window_fold = numeric_view(norm_source[a:b])
+    if quote_trusted:
+        # 可信引句（EXACT/HYPHEN_JOIN/WHITESPACE_RELAXED）：以源文中引句的实际
+        # 位置取 ±ALIGNMENT_WINDOW 窗口。
+        raw_quote_span = None
+        if raw_source:
+            pos = raw_source.find(quote)
+            if pos >= 0:
+                raw_quote_span = (pos, pos + len(quote))
+        if raw_quote_span:
+            a = max(0, raw_quote_span[0] - ALIGNMENT_WINDOW)
+            b = min(len(raw_source), raw_quote_span[1] + ALIGNMENT_WINDOW)
+            window_raw = raw_source[a:b]
+            window_fold = numeric_view(
+                _same_sentence_window(window_raw,
+                                      raw_quote_span[0] - a, raw_quote_span[1] - a),
+                fold_case=False)
+        elif quote_span:
+            a = max(0, quote_span[0] - ALIGNMENT_WINDOW)
+            b = min(len(norm_source), quote_span[1] + ALIGNMENT_WINDOW)
+            window_fold = numeric_view(
+                _same_sentence_window(norm_source[a:b],
+                                      quote_span[0] - a, quote_span[1] - a))
+    else:
+        # H-03①：FUZZY 引句不可自证。值锚定只认源文侧窗口（quote_span 由
+        # FUZZY 匹配器回定位到源文坐标）。
+        if quote_span:
+            a = max(0, quote_span[0] - ALIGNMENT_WINDOW)
+            b = min(len(norm_source), quote_span[1] + ALIGNMENT_WINDOW)
+            window_fold = numeric_view(
+                _same_sentence_window(norm_source[a:b],
+                                      quote_span[0] - a, quote_span[1] - a))
+        if not window_fold:
+            return {"verdict": "FUZZY_NOT_ANCHORED", "tokens": [],
+                    "missing_in_source": [], "not_in_context": [],
+                    "unverified": True,
+                    "detail": ("FUZZY-matched quote could not be re-anchored to a "
+                               "source window; the value has no trustworthy anchor "
+                               "(the quote itself is not verbatim). Human "
+                               "adjudication required.")}
 
     tokens = [_format_decimal(q["value"]) + (q["unit"] or "") for q in quantities]
 
@@ -682,12 +878,26 @@ def check_value_alignment(rec: Dict[str, Any], norm_source: str,
                            "the table, or declare value_type=dimensionless/count if that "
                            "is the real contract." % unsupported)}
 
+    if any(q.get("sign_ambiguous") for q in quantities):
+        # H-33：抽取值侧字母邻接负号（OCR 丢空格），符号不可信 → 不判 ALIGNED。
+        return {"verdict": "AMBIGUOUS_SIGN", "tokens": tokens,
+                "quantities": [{"value": _format_decimal(q["value"]), "unit": q["unit"],
+                                "dimension": q["dimension"]} for q in quantities],
+                "missing_in_source": [], "not_in_context": [],
+                "unverified": True,
+                "detail": ("Value(s) %s sit next to a hyphen/minus glued to a word "
+                           "(OCR dropped a space); the sign cannot be trusted "
+                           "mechanically. Compare against the page image before "
+                           "citing." % tokens)}
+
     missing_in_source = []
     not_in_context = []
     unit_mismatch = []
     for q, tok in zip(quantities, tokens):
         if _present_in(q, src_fold, rec):
-            if _present_in(q, quote_fold, rec) or _present_in(q, window_fold, rec):
+            # H-03①：FUZZY（不可信引句）下禁止以引句自身为锚；只有源文窗口算数。
+            in_quote = quote_trusted and (_present_in(q, quote_fold, rec))
+            if in_quote or _present_in(q, window_fold, rec):
                 continue
             not_in_context.append(tok)
             continue
@@ -715,8 +925,8 @@ def check_value_alignment(rec: Dict[str, Any], norm_source: str,
     elif not_in_context:
         verdict = "NOT_IN_QUOTE_CONTEXT"
         detail = ("Value token(s) %s exist in the source but not within the quote "
-                  "or its ±%d-char context; confirm the value is anchored where "
-                  "claimed." % (not_in_context, ALIGNMENT_WINDOW))
+                  "or its same-sentence window (±%d chars); confirm the value is "
+                  "anchored where claimed." % (not_in_context, ALIGNMENT_WINDOW))
     else:
         verdict = "ALIGNED"
         detail = "All numeric tokens located in the quote or its local context."
@@ -746,6 +956,8 @@ def audit_evidence(evidence: Dict[str, Any], source_text: str,
               "unverified": 0, "value_aligned": 0, "value_not_found_in_source": 0,
               "value_not_in_quote_context": 0, "value_unit_mismatch": 0,
               "value_unknown_unit": 0, "value_unparsable": 0,
+              "value_not_verifiable": 0, "value_fuzzy_not_anchored": 0,
+              "value_ambiguous_sign": 0,
               "quote_too_long": 0, "value_checked": 0}
 
     for rec in evidence.get("evidence_records", []):
@@ -792,12 +1004,17 @@ def audit_evidence(evidence: Dict[str, Any], source_text: str,
             entry = {**base, "match_type": "WHITESPACE_RELAXED", "unverified": False,
                      "detail": "Found after ignoring intra-quote whitespace (CJK line-break folding)."}
         else:
-            ratio = _best_fuzzy_window(tokenize(norm_quote), source_tokens)
+            fuzzy_span = None
+            ratio, fz_start, fz_end = _locate_fuzzy_window(tokenize(norm_quote), norm_source)
             if ratio >= fuzzy_threshold:
                 counts["fuzzy_match"] += 1
+                if fz_start is not None:
+                    fuzzy_span = (fz_start, fz_end)
                 entry = {**base, "match_type": "FUZZY", "unverified": False,
                          "detail": f"Token containment {ratio:.3f} >= {fuzzy_threshold}; "
                                    "likely extraction artifact, verify manually."}
+                if fuzzy_span:
+                    entry["fuzzy_span"] = [fz_start, fz_end]
             else:
                 counts["not_found"] += 1
                 entry = {**base, "match_type": "NOT_FOUND", "unverified": True,
@@ -806,7 +1023,13 @@ def audit_evidence(evidence: Dict[str, Any], source_text: str,
                                    "(quote unverified -> treat as UNSUPPORTED until human-confirmed)."}
 
         # F1b: value–quote alignment runs on every record that carries a quote.
-        va = check_value_alignment(rec, norm_source, span, source_text)
+        # H-03①：FUZZY 命中 = 引句不可信 → quote_trusted=False，值核验只认
+        # 源文侧回定位窗口，禁止"被篡改引句自证"。
+        if entry.get("match_type") == "FUZZY":
+            va = check_value_alignment(rec, norm_source, fuzzy_span, source_text,
+                                       quote_trusted=False)
+        else:
+            va = check_value_alignment(rec, norm_source, span, source_text)
         if va is not None:
             counts["value_checked"] += 1
             entry["value_alignment"] = va
@@ -843,6 +1066,21 @@ def audit_evidence(evidence: Dict[str, Any], source_text: str,
                 counts["value_unparsable"] += 1
                 entry["unverified"] = True
                 counts["unverified"] += 1
+            elif va["verdict"] == "NOT_VERIFIABLE":
+                # H-03④：文本型显著性判语零核验曾是 rc=0 通道 → 显式待核验。
+                counts["value_not_verifiable"] += 1
+                entry["unverified"] = True
+                counts["unverified"] += 1
+            elif va["verdict"] == "FUZZY_NOT_ANCHORED":
+                # H-03①：FUZZY 引句无法回锚到源文窗口 → 无可信锚点。
+                counts["value_fuzzy_not_anchored"] += 1
+                entry["unverified"] = True
+                counts["unverified"] += 1
+            elif va["verdict"] == "AMBIGUOUS_SIGN":
+                # H-33：字母邻接负号，符号不可信 → 待核验。
+                counts["value_ambiguous_sign"] += 1
+                entry["unverified"] = True
+                counts["unverified"] += 1
         entries.append(entry)
 
     total = len(entries)
@@ -850,7 +1088,9 @@ def audit_evidence(evidence: Dict[str, Any], source_text: str,
     out_of_context = counts["value_not_in_quote_context"]
     value_broken = (counts["value_not_found_in_source"]
                     + counts["value_unit_mismatch"] + counts["value_unknown_unit"]
-                    + counts["value_unparsable"] + counts["quote_too_long"])
+                    + counts["value_unparsable"] + counts["quote_too_long"]
+                    + counts["value_not_verifiable"] + counts["value_fuzzy_not_anchored"]
+                    + counts["value_ambiguous_sign"])
     if unverified_policy == UNVERIFIED_FAIL:
         gate = unverified > 0 or counts["not_found"] > 0 or out_of_context > 0
     else:
@@ -873,9 +1113,10 @@ def gate_failed(report: Dict[str, Any], strict: bool = False) -> bool:
 
     Fails on: NOT_FOUND always; a value absent from the whole source; a value
     present in the paper but not anchored at the quote (NOT_IN_QUOTE_CONTEXT);
-    FUZZY under --strict; and unverified records unless --unverified-policy
-    explicitly downgrades them. Unverified = empty quote, quote below the length
-    floor, or any of the value-anchoring failures above.
+    a value/unit/sign the auditor cannot trust (UNIT_MISMATCH / UNKNOWN_UNIT /
+    UNPARSEABLE / NOT_VERIFIABLE / FUZZY_NOT_ANCHORED / AMBIGUOUS_SIGN); a
+    quote beyond the length cap; FUZZY under --strict; and unverified records
+    unless --unverified-policy explicitly downgrades them.
     """
     s = report["summary"]
     if s["not_found"] > 0:
@@ -891,6 +1132,12 @@ def gate_failed(report: Dict[str, Any], strict: bool = False) -> bool:
     if s.get("quote_too_long", 0) > 0:
         return True
     if s.get("value_unparsable", 0) > 0:
+        return True
+    if s.get("value_not_verifiable", 0) > 0:
+        return True
+    if s.get("value_fuzzy_not_anchored", 0) > 0:
+        return True
+    if s.get("value_ambiguous_sign", 0) > 0:
         return True
     if strict and s["fuzzy_match"] > 0:
         return True
@@ -962,7 +1209,12 @@ Exit codes: 0 all verified | 1 gate failed | 2 input error
     parser.add_argument("-s", "--source", required=True, help="Source document (.pdf or .txt)")
     parser.add_argument("-o", "--output", help="Optional path to write the JSON audit report")
     parser.add_argument("--strict", action="store_true",
-                        help="Treat FUZZY matches as gate failures as well")
+                        help="Treat FUZZY matches as gate failures as well. Recommended "
+                             "for anti-forgery-critical values (doses, key effect "
+                             "sizes, endpoints): the default tolerates extraction "
+                             "artifacts, but value-anchoring failures (fabricated / "
+                             "misplaced / unit-mismatched / not-verifiable values) "
+                             "always fail the gate regardless of this flag.")
     parser.add_argument("--min-quote-len", type=int, default=MIN_QUOTE_LEN)
     parser.add_argument("--unverified-policy", choices=UNVERIFIED_POLICIES,
                         default=UNVERIFIED_FAIL,
@@ -984,6 +1236,20 @@ Exit codes: 0 all verified | 1 gate failed | 2 input error
         evidence = json.loads(ev_path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as e:
         print(f"[ERROR] Evidence JSON invalid: {e}", file=sys.stderr)
+        sys.exit(2)
+
+    # H-17（2026-09-13 第二轮）：信封缺失/0 条不得静默 exit 0，也不得裸 traceback。
+    # 错误顶层 key（如 `records`）曾让伪造引句零核验直通 rc=0（EXT-A-09）。
+    if not isinstance(evidence, dict) or not isinstance(evidence.get("evidence_records"), list):
+        top_keys = sorted(evidence.keys()) if isinstance(evidence, dict) else type(evidence).__name__
+        print("[ERROR] [ENVELOPE_INVALID] evidence JSON must be an object with an "
+              "'evidence_records' list; got top-level keys: %s. "
+              "See schemas/extraction_result.schema.json." % (top_keys,), file=sys.stderr)
+        sys.exit(2)
+    if len(evidence["evidence_records"]) == 0:
+        print("[ERROR] [ENVELOPE_EMPTY] evidence envelope carries 0 evidence records; "
+              "there is nothing to audit and an empty run must not exit 0.",
+              file=sys.stderr)
         sys.exit(2)
 
     prov = source_provenance(src_path)
@@ -1037,6 +1303,9 @@ Exit codes: 0 all verified | 1 gate failed | 2 input error
     print(f"   value ALIGNED          : {s['value_aligned']}")
     print(f"   value NOT_IN_CONTEXT   : {s['value_not_in_quote_context']}")
     print(f"   value ABSENT FROM SRC  : {s['value_not_found_in_source']}  <- fabrication signal")
+    print(f"   NOT_VERIFIABLE         : {s.get('value_not_verifiable', 0)}   "
+          f"FUZZY_NOT_ANCHORED: {s.get('value_fuzzy_not_anchored', 0)}   "
+          f"AMBIGUOUS_SIGN: {s.get('value_ambiguous_sign', 0)}")
     print(f" Unverified records       : {s['unverified']}  (policy={s['unverified_policy']})")
     print(f" Source sha256            : {prov['sha256'][:16]}…  ({prov['size_bytes']} bytes)")
     if pin_problems:
