@@ -478,6 +478,35 @@ def normalize_title(title):
     return re.sub(r"[^a-zA-Z0-9\u4e00-\u9fa5]", "", (title or "").lower())
 
 
+def _cjk_char_count(word: str) -> int:
+    """Number of CJK ideograph characters in a word (H-18)."""
+    return sum(
+        1
+        for ch in word
+        if "\u3400" <= ch <= "\u4dbf" or "\u4e00" <= ch <= "\u9fff"
+    )
+
+
+def concept_expansion_words(query_str: str) -> List[str]:
+    """H-18: concept-expansion word filter with CJK-aware length rule.
+
+    The legacy filter ``len(w) > 3`` applied the English word-length threshold
+    to every token, so 2-3 character Chinese concept words (微塑料 / 水蚤 /
+    行为毒性) were silently dropped and deep/standard tiers never expanded a
+    Chinese query. CJK-containing words now qualify by character count
+    (>= 2 chars); pure-ASCII words keep the original ``len(w) > 3`` rule so
+    English behaviour is unchanged.
+    """
+    words: List[str] = []
+    for w in (query_str or "").split():
+        if _cjk_char_count(w) >= 1:
+            if len(w) >= 2:
+                words.append(w)
+        elif len(w) > 3:
+            words.append(w)
+    return words
+
+
 def deduplicate_records(records):
     """Canonical deduplication delegating to merge_candidate_records with cross-source enrichment."""
     res = merge_candidate_records([], records)
@@ -514,7 +543,7 @@ def run_deep_search(query_str, limit=30, include_theses=True, profile=None):
     reported_total_hits = getattr(r1_res, "reported_total_hits", None)
 
     # Phase 2: concept expansion / sub-query variants (one per configured round).
-    words = [w for w in query_str.split() if len(w) > 3]
+    words = concept_expansion_words(query_str)
     expansion_records = []
     if expansion_budget and len(words) >= 2:
         for round_index in range(expansion_budget):
@@ -644,7 +673,7 @@ def run_standard_search(query_str, limit=50, include_theses=True, profile=None):
     reported_total_hits = getattr(r1_res, "reported_total_hits", None)
 
     # Phase 2: concept expansion queries (one per configured round).
-    words = [w for w in query_str.split() if len(w) > 3]
+    words = concept_expansion_words(query_str)
     expansion_records = []
     if expansion_budget and len(words) >= 2:
         for round_index in range(expansion_budget):
@@ -749,7 +778,7 @@ def build_prisma_s_audit(mode: str, snowball_seed: str = None) -> dict:
         {"item": 3, "name": "Search strategies recorded", "status": "PARTIAL", "evidence": "Query recorded in search_protocol"},
         {"item": 4, "name": "Search dates documented", "status": "PASS", "evidence": "Execution timestamp logged"},
         {"item": 5, "name": "Full search query recorded", "status": "PASS", "evidence": "Recorded verbatim in search_protocol"},
-        {"item": 6, "name": "Search limits applied", "status": "PASS", "evidence": "Type, language, and year limits recorded"},
+        {"item": 6, "name": "Search limits applied", "status": "NOT_APPLICABLE", "evidence": "Headless pipeline does not support year/language/type filter parameters (headless 管道不支持年份/语言/类型过滤参数); no such limits were applied, so none are claimed"},
         {"item": 7, "name": "Search filters described", "status": "PASS", "evidence": "Type filter and thesis preference documented"},
         {"item": 8, "name": "Prior search strategies updated", "status": "NOT_APPLICABLE", "evidence": "Single initial retrieval run"},
         {"item": 9, "name": "Peer review of search strategy", "status": "USER_ASSISTED", "evidence": "PRESS peer review requires human supervisor"},

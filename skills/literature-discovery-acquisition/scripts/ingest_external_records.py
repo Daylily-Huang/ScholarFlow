@@ -15,6 +15,24 @@ Supported Formats:
 3. EndNote export (*.enw, *.txt) - standard Tagged format (%0, %T, %A, %D, etc.)
 4. Tabular export (*.csv, *.tsv) - table exports with configurable columns
 
+DOI/identity normalization v2 (2026-09-13, cluster-2 round 2, H-23):
+unified module-level `_norm_doi` — placeholder values ("NR"/"N/A"/empty
+string/pure digits/pure punctuation) never become identity keys; identity
+falls back to `openalex_id`, then to the normalized title hash (first-round
+P1-13 semantics now also enforced on the ingest side). URL prefixes
+(`https://doi.org/`, `dx.doi.org`, `doi:`), trailing punctuation (`. , ;`)
+and percent-encoding are stripped and case is normalized. This applies to
+newly parsed records only — already-stored records are NOT retroactively
+migrated (panel consensus: NO-ACTION).
+
+Encoding robustness (H-25): non-UTF-8 (GBK/gb18030) exports fall back to
+`gb18030` decoding. Residual U+FFFD replacement characters are counted and
+flagged (`encoding_lossy_count` in the ingest report sidecar, per-record
+`encoding_lossy: true`) instead of being silently ingested as mojibake.
+Parsing 0 records from a non-empty file emits an explicit WARNING (e.g.
+space-separated CNKI/WoS export variants are never silently skipped);
+exit-code semantics are unchanged.
+
 Usage:
     python ingest_external_records.py -i cnki_export.txt -o cnki_candidates.json --source CNKI
     python ingest_external_records.py -i ./external_imports/ -o all_imported_candidates.json
@@ -25,11 +43,12 @@ import os
 import sys
 import re
 import csv
+import io
 import json
 import hashlib
 import argparse
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Any, Optional, Union, Tuple
 
 # Ensure UTF-8 output on Windows consoles
 if sys.platform == "win32":
@@ -50,6 +69,98 @@ CANONICAL_INGESTION_METHODS = {
     "Web_Search",
 }
 
+# H-25: per-process ingestion diagnostics. `encoding_lossy_count` counts
+# finalized records that still contain U+FFFD replacement characters after
+# decoding; `warnings` collects every explicit WARNING emitted (e.g. 0
+# records parsed from a non-empty file). Nothing here silently swallows data.
+INGEST_DIAGNOSTICS: Dict[str, Any] = {
+    "encoding_lossy_count": 0,
+    "encoding_lossy_files": [],
+    "warnings": [],
+    "decodings": [],
+    "files": [],
+}
+
+
+def reset_ingest_diagnostics() -> None:
+    """Clear per-process ingestion diagnostics (called once per CLI run)."""
+    INGEST_DIAGNOSTICS.update(
+        {
+            "encoding_lossy_count": 0,
+            "encoding_lossy_files": [],
+            "warnings": [],
+            "decodings": [],
+            "files": [],
+        }
+    )
+
+
+def get_ingest_diagnostics() -> Dict[str, Any]:
+    """Return a snapshot of the current ingestion diagnostics."""
+    return {
+        "encoding_lossy_count": INGEST_DIAGNOSTICS["encoding_lossy_count"],
+        "encoding_lossy_files": list(INGEST_DIAGNOSTICS["encoding_lossy_files"]),
+        "warnings": list(INGEST_DIAGNOSTICS["warnings"]),
+        "decodings": list(INGEST_DIAGNOSTICS["decodings"]),
+        "files": list(INGEST_DIAGNOSTICS["files"]),
+    }
+
+
+def read_text_with_fallback(file_path: Union[str, Path]) -> Tuple[str, str, int]:
+    """H-25: read a bibliography export with encoding fallback.
+
+    Decoding order:
+    1. strict ``utf-8-sig`` (handles BOM, the canonical ScholarFlow encoding);
+    2. strict ``gb18030`` (superset of GBK/GB2312 — real CNKI/WoS Chinese exports);
+    3. ``gb18030`` with replacement characters — lossy, never silent: the
+       resulting U+FFFD characters are counted and surfaced in diagnostics.
+
+    Returns:
+        (content, encoding_used, replacement_char_count)
+    """
+    raw = Path(file_path).read_bytes()
+    for enc in ("utf-8-sig", "gb18030"):
+        try:
+            text = raw.decode(enc)
+            n_fffd = text.count("\ufffd")
+            if enc != "utf-8-sig" or n_fffd:
+                INGEST_DIAGNOSTICS["decodings"].append(
+                    {
+                        "file": Path(file_path).name,
+                        "encoding": enc,
+                        "replacement_chars": n_fffd,
+                    }
+                )
+                if n_fffd and enc == "gb18030":
+                    INGEST_DIAGNOSTICS["encoding_lossy_files"].append(Path(file_path).name)
+            return text, enc, n_fffd
+        except (UnicodeDecodeError, UnicodeError):
+            continue
+    # Last resort: gb18030 with replacement — lossy and explicitly flagged.
+    text = raw.decode("gb18030", errors="replace")
+    n_fffd = text.count("\ufffd")
+    INGEST_DIAGNOSTICS["decodings"].append(
+        {
+            "file": Path(file_path).name,
+            "encoding": "gb18030(replace)",
+            "replacement_chars": n_fffd,
+        }
+    )
+    if n_fffd:
+        INGEST_DIAGNOSTICS["encoding_lossy_files"].append(Path(file_path).name)
+    return text, "gb18030(replace)", n_fffd
+
+
+def _has_replacement_char(value: Any) -> bool:
+    """True when a decoded string (recursively) still contains U+FFFD."""
+    if isinstance(value, str):
+        return "\ufffd" in value
+    if isinstance(value, list):
+        return any(_has_replacement_char(v) for v in value)
+    if isinstance(value, dict):
+        return any(_has_replacement_char(v) for v in value.values())
+    return False
+
 
 def clean_str(val: Optional[str]) -> str:
     """Strip whitespace and normalize spacing."""
@@ -58,19 +169,60 @@ def clean_str(val: Optional[str]) -> str:
     return re.sub(r"\s+", " ", str(val)).strip()
 
 
+def _norm_doi(value: Optional[str]) -> Optional[str]:
+    """H-23 DOI 归一化 v2（2026-09-13）——统一身份键口径。
+
+    归一化步骤：小写 -> 剥离 ``https://doi.org/`` / ``dx.doi.org/`` URL 前缀与
+    ``doi:`` / ``info:doi:`` 前缀 -> 解百分号编码 -> 剥尾部标点（``. , ;``）。
+
+    占位符清单不成键（返回 None）："NR" / "N/A" / 空串 / 纯数字伪 DOI
+    （"12345"）/ 纯标点（".,;"）等任何不符合 ``10.<digits>/`` 形态的值。
+    这保证不同文献不会因为共享占位 DOI 而被误并或共享 record_id。
+
+    仅对新解析记录生效；已入库旧记录不做回溯迁移（决议 NO-ACTION）。
+    """
+    d_str = str(value or "").strip().lower()
+    if not d_str:
+        return None
+    d_str = re.sub(r"^(?:https?://)?(?:dx\.)?doi\.org/", "", d_str)
+    d_str = re.sub(r"^(?:info:)?doi:\s*", "", d_str)
+    if not re.match(r"^10\.\d{4,9}/\S", d_str):
+        # 占位符/伪 DOI/纯标点：一律不成键（记录本身保留原值，仅不作身份键）
+        return None
+    try:
+        from urllib.parse import unquote
+        d_str = unquote(d_str)
+    except Exception:  # noqa: BLE001
+        pass
+    d_str = d_str.strip()
+    d_str = d_str.rstrip(".,;")
+    if not d_str.startswith("10."):
+        return None
+    return d_str
+
+
 def generate_record_id(raw_record: Dict[str, Any]) -> str:
-    """Generate deterministic, collision-resistant record_id."""
-    doi = raw_record.get("doi")
-    if doi and str(doi).strip().lower() not in ("", "none", "nr"):
-        norm_doi = str(doi).strip().lower()
+    """Generate deterministic, collision-resistant record_id.
+
+    H-23 identity-key priority: normalized DOI > openalex_id > normalized
+    title+year+first-author hash. Placeholder DOIs ("NR"/"N/A"/pure digits)
+    never become identity keys, so distinct works can no longer collide on
+    ``doi:n/a`` (first-round P1-13 semantics, now enforced ingest-side).
+    """
+    norm_doi = _norm_doi(raw_record.get("doi"))
+    if norm_doi:
         key = f"doi:{norm_doi}"
     else:
-        title = str(raw_record.get("title") or "").strip().lower()
-        norm_title = re.sub(r"[^\w\s]", "", title)
-        year = str(raw_record.get("year") or "NR")
-        authors = raw_record.get("authors") or []
-        first_author = str(authors[0]).strip().lower() if authors else "unknown"
-        key = f"title:{norm_title}|year:{year}|author:{first_author}"
+        openalex_id = str(raw_record.get("openalex_id") or "").strip()
+        if openalex_id:
+            key = f"openalex:{openalex_id.lower()}"
+        else:
+            title = str(raw_record.get("title") or "").strip().lower()
+            norm_title = re.sub(r"[^\w\s]", "", title)
+            year = str(raw_record.get("year") or "NR")
+            authors = raw_record.get("authors") or []
+            first_author = str(authors[0]).strip().lower() if authors else "unknown"
+            key = f"title:{norm_title}|year:{year}|author:{first_author}"
     return "REC-" + hashlib.sha256(key.encode("utf-8")).hexdigest()[:12]
 
 
@@ -139,7 +291,51 @@ def finalize_literature_record(
     # 7. Remove discovery-phase evidence_tier
     record.pop("evidence_tier", None)
 
+    # 8. H-25: flag records that still contain U+FFFD replacement characters
+    #    after decoding. Lossy ingestion is never silent: the record carries an
+    #    explicit `encoding_lossy` marker and the per-process counter increments
+    #    once per affected record (re-finalizing the same record is idempotent).
+    lossy_fields = sorted(k for k, v in record.items() if _has_replacement_char(v))
+    if lossy_fields:
+        if record.get("encoding_lossy") is not True:
+            INGEST_DIAGNOSTICS["encoding_lossy_count"] += 1
+        record["encoding_lossy"] = True
+        record.setdefault("encoding_lossy_fields", lossy_fields)
+
     return record
+
+
+# H-24: record-boundary line of CNKI Refworks exports. A record always starts
+# with a key field line — "RT <type>", "RT: <type>", "RT: <type>" (colon
+# variant), "Reference Type: <type>" or "SR 1". The legacy split only knew the
+# space/dash forms, so consecutive colon-style records ("RT: ..." / "T1: ...")
+# fused into ONE cross-contaminated record (two T1 titles concatenated, DOI of
+# record 1 + document type of record 2).
+_CNKI_RECORD_BOUNDARY = r"\n(?=\s*(?:RT(?:\s*[:-]\s*|\s+)|Reference Type\s*:|\bSR\s+1\b))"
+# Fallback boundary when an export omits RT on every record: a repeated title
+# tag line (same tag twice inside one block) is a record restart, not a
+# continuation line.
+_CNKI_TITLE_TAG_LINE = r"(?m)^\s*(T1|TI)\s*[:-]"
+
+
+def _split_cnki_record_blocks(content: str) -> List[str]:
+    """Split CNKI Refworks content into per-record blocks (H-24)."""
+    raw_blocks = re.split(_CNKI_RECORD_BOUNDARY, content)
+    blocks: List[str] = []
+    for block in raw_blocks:
+        if not block.strip():
+            continue
+        title_tags = re.findall(_CNKI_TITLE_TAG_LINE, block)
+        repeated_tag = next((t for t in ("T1", "TI") if title_tags.count(t) > 1), None)
+        if repeated_tag:
+            # A block holding several same-tag title lines means the RT marker
+            # was missing on later records; split again on the title boundary.
+            blocks.extend(
+                re.split(r"\n(?=\s*" + repeated_tag + r"\s*[:-])", block)
+            )
+        else:
+            blocks.append(block)
+    return blocks
 
 
 def parse_cnki_refworks(content: str) -> List[Dict[str, Any]]:
@@ -159,9 +355,11 @@ def parse_cnki_refworks(content: str) -> List[Dict[str, Any]]:
       LK: CNKI URL
     """
     records = []
-    # Split by delimiter indicating new record
-    raw_blocks = re.split(r"\n\s*(?=RT\s+|Reference Type:\s*|\bSR\s+1\b)", content)
-    
+    # H-24: split into blocks at real record boundaries (RT/Reference Type/SR
+    # starting lines, plus repeated title-tag fallback) so consecutive
+    # colon-format records are parsed independently instead of fusing.
+    raw_blocks = _split_cnki_record_blocks(content)
+
     for block in raw_blocks:
         if not block.strip():
             continue
@@ -271,21 +469,24 @@ def parse_ris(content: str) -> List[Dict[str, Any]]:
       ER  - End of Reference
     """
     records = []
-    blocks = re.split(r"\bER\s*-\s*", content)
-    
+    # H-26: some exporters emit fully lowercase tags ("ty  - JOUR", "er  - ");
+    # the legacy case-sensitive split silently yielded 0 records. Match the
+    # end-of-reference delimiter and tags case-insensitively.
+    blocks = re.split(r"\bER\s*-\s*", content, flags=re.IGNORECASE)
+
     for block in blocks:
         if not block.strip():
             continue
-        
+
         lines = block.splitlines()
         fields: Dict[str, List[str]] = {}
         curr_tag = None
-        
+
         for line in lines:
             line_str = line.strip()
             if not line_str:
                 continue
-            match = re.match(r"^([A-Z0-9]{2})\s*-\s*(.*)$", line_str)
+            match = re.match(r"^([A-Za-z0-9]{2})\s*-\s*(.*)$", line_str)
             if match:
                 curr_tag = match.group(1).upper()
                 val = match.group(2).strip()
@@ -459,73 +660,79 @@ def parse_csv_tsv(file_path: Path) -> List[Dict[str, Any]]:
     """Parses CSV or TSV table exports with column auto-detection."""
     records = []
     delimiter = "\t" if file_path.suffix.lower() == ".tsv" else ","
-    
-    with open(file_path, mode="r", encoding="utf-8-sig", errors="replace") as f:
-        reader = csv.DictReader(f, delimiter=delimiter)
-        if not reader.fieldnames:
-            return []
-            
-        header_map = {}
-        for h in reader.fieldnames:
-            norm_h = h.strip().lower()
-            if any(k in norm_h for k in ["title", "题名", "篇名", "文章名称"]):
-                header_map["title"] = h
-            elif any(k in norm_h for k in ["author", "作者", "creator"]):
-                header_map["author"] = h
-            elif any(k in norm_h for k in ["year", "年", "date", "出版年", "发表时间"]):
-                header_map["year"] = h
-            elif any(k in norm_h for k in ["journal", "刊名", "来源", "source", "出版物"]):
-                header_map["journal"] = h
-            elif any(k in norm_h for k in ["abstract", "摘要"]):
-                header_map["abstract"] = h
-            elif any(k in norm_h for k in ["keyword", "关键词"]):
-                header_map["keyword"] = h
-            elif any(k in norm_h for k in ["doi"]):
-                header_map["doi"] = h
-            elif any(k in norm_h for k in ["url", "链接"]):
-                header_map["url"] = h
-                
-        if "title" not in header_map:
-            return []
-            
-        for row in reader:
-            title = clean_str(row.get(header_map.get("title", "")))
-            if not title:
-                continue
-                
-            raw_authors = clean_str(row.get(header_map.get("author", "")))
-            authors = [clean_str(a) for a in re.split(r"[;,、/]", raw_authors) if clean_str(a)]
-            
-            year_str = clean_str(row.get(header_map.get("year", "")))
-            year_match = re.search(r"\b(19\d\d|20\d\d)\b", year_str)
-            year = int(year_match.group(1)) if year_match else None
-            
-            journal = clean_str(row.get(header_map.get("journal", "")))
-            abstract = clean_str(row.get(header_map.get("abstract", "")))
-            
-            raw_kw = clean_str(row.get(header_map.get("keyword", "")))
-            keywords = [clean_str(k) for k in re.split(r"[;,、/]", raw_kw) if clean_str(k)]
-            
-            doi_raw = clean_str(row.get(header_map.get("doi", "")))
-            doi_match = re.search(r"\b10\.\d{4,9}/[-._;()/:A-Za-z0-9]+\b", doi_raw)
-            doi = doi_match.group(0) if doi_match else "NR"
-            
-            url = clean_str(row.get(header_map.get("url", "")))
-            
-            raw_rec = {
-                "title": title,
-                "authors": authors,
-                "year": year,
-                "journal": journal,
-                "doi": doi,
-                "url": url if url else None,
-                "abstract": abstract if abstract else None,
-                "keywords": keywords,
-                "document_type": "Journal Article",
-            }
-            record = finalize_literature_record(raw_rec, source_database="UNKNOWN_EXTERNAL_SOURCE", ingestion_method="Table_Import")
-            records.append(record)
-            
+
+    # H-25: non-UTF-8 (GBK/gb18030) tabular exports fall back to gb18030
+    # decoding instead of silently ingesting U+FFFD mojibake.
+    try:
+        content, _enc_used, _repl = read_text_with_fallback(file_path)
+    except OSError as e:
+        print(f"[ERROR] Failed to read {file_path}: {e}", file=sys.stderr)
+        return []
+    reader = csv.DictReader(io.StringIO(content), delimiter=delimiter)
+    if not reader.fieldnames:
+        return []
+
+    header_map = {}
+    for h in reader.fieldnames:
+        norm_h = h.strip().lower()
+        if any(k in norm_h for k in ["title", "题名", "篇名", "文章名称"]):
+            header_map["title"] = h
+        elif any(k in norm_h for k in ["author", "作者", "creator"]):
+            header_map["author"] = h
+        elif any(k in norm_h for k in ["year", "年", "date", "出版年", "发表时间"]):
+            header_map["year"] = h
+        elif any(k in norm_h for k in ["journal", "刊名", "来源", "source", "出版物"]):
+            header_map["journal"] = h
+        elif any(k in norm_h for k in ["abstract", "摘要"]):
+            header_map["abstract"] = h
+        elif any(k in norm_h for k in ["keyword", "关键词"]):
+            header_map["keyword"] = h
+        elif any(k in norm_h for k in ["doi"]):
+            header_map["doi"] = h
+        elif any(k in norm_h for k in ["url", "链接"]):
+            header_map["url"] = h
+
+    if "title" not in header_map:
+        return []
+
+    for row in reader:
+        title = clean_str(row.get(header_map.get("title", "")))
+        if not title:
+            continue
+
+        raw_authors = clean_str(row.get(header_map.get("author", "")))
+        authors = [clean_str(a) for a in re.split(r"[;,、/]", raw_authors) if clean_str(a)]
+
+        year_str = clean_str(row.get(header_map.get("year", "")))
+        year_match = re.search(r"\b(19\d\d|20\d\d)\b", year_str)
+        year = int(year_match.group(1)) if year_match else None
+
+        journal = clean_str(row.get(header_map.get("journal", "")))
+        abstract = clean_str(row.get(header_map.get("abstract", "")))
+
+        raw_kw = clean_str(row.get(header_map.get("keyword", "")))
+        keywords = [clean_str(k) for k in re.split(r"[;,、/]", raw_kw) if clean_str(k)]
+
+        doi_raw = clean_str(row.get(header_map.get("doi", "")))
+        doi_match = re.search(r"\b10\.\d{4,9}/[-._;()/:A-Za-z0-9]+\b", doi_raw)
+        doi = doi_match.group(0) if doi_match else "NR"
+
+        url = clean_str(row.get(header_map.get("url", "")))
+
+        raw_rec = {
+            "title": title,
+            "authors": authors,
+            "year": year,
+            "journal": journal,
+            "doi": doi,
+            "url": url if url else None,
+            "abstract": abstract if abstract else None,
+            "keywords": keywords,
+            "document_type": "Journal Article",
+        }
+        record = finalize_literature_record(raw_rec, source_database="UNKNOWN_EXTERNAL_SOURCE", ingestion_method="Table_Import")
+        records.append(record)
+
     return records
 
 
@@ -666,8 +873,8 @@ def parse_vip_format(content: str, source_name: str = "VIP") -> List[Dict[str, A
     return records
 
 
-def detect_and_parse_file(file_path: Path, source_override: Optional[str] = None) -> List[Dict[str, Any]]:
-    """Automatically detects format and parses single export file."""
+def _detect_and_parse_file_impl(file_path: Path, source_override: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Format detection + parsing core (see detect_and_parse_file)."""
     ext = file_path.suffix.lower()
 
     if ext in {".csv", ".tsv"}:
@@ -676,10 +883,11 @@ def detect_and_parse_file(file_path: Path, source_override: Optional[str] = None
             return [finalize_literature_record(r, source_database=source_override, ingestion_method="Table_Import") for r in records]
         return records
 
+    # H-25: read with gb18030 fallback; a non-UTF-8 export must not be
+    # silently ingested as U+FFFD mojibake.
     try:
-        with open(file_path, "r", encoding="utf-8-sig", errors="replace") as f:
-            content = f.read()
-    except Exception as e:
+        content, _enc_used, _repl = read_text_with_fallback(file_path)
+    except OSError as e:
         print(f"[ERROR] Failed to read {file_path}: {e}", file=sys.stderr)
         return []
 
@@ -741,6 +949,44 @@ def detect_and_parse_file(file_path: Path, source_override: Optional[str] = None
     return parse_ris(content)
 
 
+def detect_and_parse_file(file_path: Union[str, Path], source_override: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Automatically detects format and parses single export file.
+
+    H-25/H-26: parsing 0 records from a non-empty file is never silent — an
+    explicit WARNING is emitted and recorded in the ingest diagnostics (the
+    file's export format variant, e.g. space-separated CNKI/WoS style, is not
+    supported by any parser). Exit-code semantics are unchanged: a clean 0
+    record parse still returns [] with rc 0, and valid parses are never blocked.
+    """
+    path = Path(file_path)
+    records = _detect_and_parse_file_impl(path, source_override)
+
+    try:
+        nonempty = path.exists() and path.stat().st_size > 0
+    except OSError:
+        nonempty = False
+
+    entry: Dict[str, Any] = {"file": path.name, "records": len(records)}
+    for dec in INGEST_DIAGNOSTICS["decodings"]:
+        if dec.get("file") == path.name:
+            entry["encoding"] = dec.get("encoding")
+            if dec.get("replacement_chars"):
+                entry["replacement_chars"] = dec.get("replacement_chars")
+    INGEST_DIAGNOSTICS["files"].append(entry)
+
+    if not records and nonempty:
+        msg = (
+            f"[WARNING] Parsed 0 records from non-empty file '{path.name}': its export "
+            f"format variant (e.g. space-separated CNKI/WoS style or non-standard tags) "
+            f"is not supported by any parser — records are missing from the ingestion "
+            f"result (H-25/H-26 zero-record disclosure)."
+        )
+        sys.stderr.write(msg + "\n")
+        INGEST_DIAGNOSTICS["warnings"].append(msg)
+
+    return records
+
+
 def ingest_file(
     file_path: Union[str, Path],
     source_database: Optional[str] = None,
@@ -777,25 +1023,11 @@ def merge_candidate_records(
     def _norm_t(t: Optional[str]) -> str:
         return re.sub(r"[^a-zA-Z0-9\u4e00-\u9fa5]", "", str(t or "").lower())
 
-    def _norm_doi(d: Optional[str]) -> Optional[str]:
-        """DOI 归一化：小写 + 剥离 URL/`doi:` 前缀 + 解百分号编码。
-
-        P1 修复（2026-09-13 集群测试）：旧实现只 `strip().lower()`，于是
-        `https://doi.org/10.1/x` 与 `https://dx.doi.org/10.1/x` 与 `10.1/x`
-        被当成三个不同 DOI，重复文献会拿到两份独立证据身份。
-        """
-        d_str = str(d or "").strip().lower()
-        if not d_str:
-            return None
-        d_str = re.sub(r"^(?:https?://)?(?:dx\.)?doi\.org/", "", d_str)
-        d_str = re.sub(r"^doi:\s*", "", d_str)
-        try:
-            from urllib.parse import unquote
-            d_str = unquote(d_str)
-        except Exception:  # noqa: BLE001
-            pass
-        d_str = d_str.strip()
-        return d_str if d_str and d_str not in ("nr", "n/a", "none", "null", "-") else None
+    # H-23: DOI normalization is unified in the module-level `_norm_doi`
+    # (placeholder list + URL/doi: prefix stripping + percent-decoding +
+    # trailing punctuation + case folding). Placeholder/pseudo DOIs return
+    # None and never become dedup keys, so distinct works with "N/A" or
+    # purely numeric DOIs stay separate records.
 
     # Deep copy existing records
     merged: List[Dict[str, Any]] = [dict(r) for r in existing_records]
@@ -941,6 +1173,7 @@ def merge_candidate_records(
 
 
 def main():
+    reset_ingest_diagnostics()
     parser = argparse.ArgumentParser(
         description="ScholarFlow External Bibliography Ingestion Pipeline",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -1014,12 +1247,40 @@ Examples:
     print(f" Metadata conflicts    : {len(conflicts)}")
     print(f" Lineage entries       : {len(dedup_lineage)}")
     print(f" Source distribution   : {merge_result.get('source_distribution', {})}")
+    diagnostics = get_ingest_diagnostics()
+    print(f" Encoding-lossy records: {diagnostics['encoding_lossy_count']}")
+    if diagnostics["warnings"]:
+        print(f" Warnings              : {len(diagnostics['warnings'])} (see stderr / ingest report)")
     print(f" - Theses (博硕士学位) : {theses_count}")
     print(f" - Journal Articles    : {journal_count}")
     print(f" - With Valid DOI      : {with_doi_count} ({with_doi_count/len(deduped_records)*100:.1f}%)" if deduped_records else "0")
     print(f" - With Abstract       : {with_abs_count} ({with_abs_count/len(deduped_records)*100:.1f}%)" if deduped_records else "0")
     print(f" Output saved to       : {out_path.resolve()}")
     print("========================================================\n")
+
+    # H-25: persist the ingest diagnostics as a sidecar artifact whenever
+    # something noteworthy happened (lossy decoding or zero-record warnings).
+    # Clean runs keep the previous behavior exactly (no extra file).
+    if diagnostics["encoding_lossy_count"] or diagnostics["warnings"]:
+        report = {
+            "input": str(in_path),
+            "output": str(out_path.resolve()),
+            "raw_records": len(all_records),
+            "deduplicated_records": len(deduped_records),
+            "encoding_lossy_count": diagnostics["encoding_lossy_count"],
+            "encoding_lossy_files": diagnostics["encoding_lossy_files"],
+            "warnings": diagnostics["warnings"],
+            "decodings": diagnostics["decodings"],
+            "files": diagnostics["files"],
+        }
+        sidecar = out_path.with_name(out_path.stem + ".ingest_report.json")
+        with open(sidecar, "w", encoding="utf-8") as f:
+            json.dump(report, f, ensure_ascii=False, indent=2)
+        print(
+            f"[WARNING] Ingest diagnostics sidecar written to: {sidecar} "
+            f"(encoding_lossy_count={diagnostics['encoding_lossy_count']}, "
+            f"warnings={len(diagnostics['warnings'])})"
+        )
 
 
 if __name__ == "__main__":

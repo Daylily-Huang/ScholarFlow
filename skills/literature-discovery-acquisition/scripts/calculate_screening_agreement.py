@@ -9,11 +9,24 @@ Computes inter-rater agreement statistics (Cohen's Kappa κ, Observed Agreement,
 Contingency Matrix) between two independent screening reviewers (e.g., SubAgent-A
 and SubAgent-B), and outputs PRISMA-compliant audit trails and arbitration queues.
 
+H-27 (2026-09-13, cluster-2 round 2) — the kappa gate now also verifies the
+*preconditions* of dual screening:
+1. Source independence: A/B inputs that are byte-identical (same content
+   fingerprint) with fully agreeing decisions, or that reuse the same
+   non-empty ``task_id``, are rejected as IDENTICAL_SOURCES with rc=1 and no
+   report is emitted — kappa=1.0 laundered from a single source is never a
+   pass.
+2. Reviewer coverage: records reviewed by only one reviewer never enter the
+   confusion matrix; a coverage gap produces an explicit ``coverage_warning``
+   (coverage_status=WARNING, non-PASS) in the metrics and the markdown report
+   while rc stays 0, so legitimately complete inputs are never blocked.
+
 Standard Library Only (Zero third-party pip dependencies required).
 """
 
 import argparse
 import csv
+import hashlib
 import json
 import math
 import sys
@@ -60,7 +73,8 @@ def load_decisions(path: Path) -> Dict[str, Dict[str, Any]]:
                             "status": normalize_status(item.get("status", "")),
                             "reason_code": item.get("reason_code", ""),
                             "reason_detail": item.get("reason_detail", ""),
-                            "confidence_score": float(item.get("confidence_score", 0.0)) if item.get("confidence_score") is not None else None
+                            "confidence_score": float(item.get("confidence_score", 0.0)) if item.get("confidence_score") is not None else None,
+                            "task_id": item.get("task_id") or item.get("reviewer_task_id") or ""
                         }
             elif isinstance(data, dict):
                 for rid, item in data.items():
@@ -71,7 +85,8 @@ def load_decisions(path: Path) -> Dict[str, Dict[str, Any]]:
                             "status": normalize_status(item.get("status", "")),
                             "reason_code": item.get("reason_code", ""),
                             "reason_detail": item.get("reason_detail", ""),
-                            "confidence_score": float(item.get("confidence_score", 0.0)) if item.get("confidence_score") is not None else None
+                            "confidence_score": float(item.get("confidence_score", 0.0)) if item.get("confidence_score") is not None else None,
+                            "task_id": item.get("task_id") or item.get("reviewer_task_id") or ""
                         }
                     else:
                         records[str(rid)] = {
@@ -80,7 +95,8 @@ def load_decisions(path: Path) -> Dict[str, Dict[str, Any]]:
                             "status": normalize_status(str(item)),
                             "reason_code": "",
                             "reason_detail": "",
-                            "confidence_score": None
+                            "confidence_score": None,
+                            "task_id": ""
                         }
 
     elif suffix in [".csv", ".tsv"]:
@@ -97,12 +113,116 @@ def load_decisions(path: Path) -> Dict[str, Dict[str, Any]]:
                         "status": normalize_status(status_raw),
                         "reason_code": row.get("reason_code", row.get("code", "")),
                         "reason_detail": row.get("reason_detail", row.get("reason", "")),
-                        "confidence_score": float(row.get("confidence_score", 0.0)) if row.get("confidence_score") else None
+                        "confidence_score": float(row.get("confidence_score", 0.0)) if row.get("confidence_score") else None,
+                        "task_id": row.get("task_id") or ""
                     }
     else:
         raise ValueError(f"Unsupported file format: {suffix}. Use .json or .csv")
 
     return records
+
+
+def compute_source_fingerprint(path: Path) -> Optional[str]:
+    """H-27: sha256 content fingerprint used to detect same-source input files."""
+    try:
+        data = Path(path).read_bytes()
+    except OSError:
+        return None
+    return "sha256:" + hashlib.sha256(data).hexdigest()
+
+
+def check_source_independence(
+    path_a: Path,
+    path_b: Path,
+    rev_a_data: Dict[str, Dict[str, Any]],
+    rev_b_data: Dict[str, Dict[str, Any]],
+) -> Optional[Dict[str, Any]]:
+    """H-27: reject same-source reviewer inputs before any kappa is certified.
+
+    Two same-source signals are detected (either one is fatal):
+
+    1. byte-identical input files (identical content fingerprint, e.g. the
+       same file fed to both ``-a`` and ``-b``) whose decisions fully agree —
+       the classic kappa=1.0 laundering route;
+    2. both payloads reusing the same non-empty ``task_id`` (one screening run
+       relabelled as two reviewers).
+
+    Returns None when the inputs are plausibly independent; otherwise a
+    structured ``IDENTICAL_SOURCES`` error dict. The caller must exit rc=1 and
+    must NOT emit a passing report.
+    """
+    fp_a = compute_source_fingerprint(path_a)
+    fp_b = compute_source_fingerprint(path_b)
+    common_ids = sorted(set(rev_a_data) & set(rev_b_data))
+    reasons: List[str] = []
+
+    if fp_a and fp_b and fp_a == fp_b and common_ids:
+        fully_agree = all(
+            rev_a_data[r]["status"] == rev_b_data[r]["status"] for r in common_ids
+        )
+        if fully_agree:
+            reasons.append(
+                "Reviewer A and Reviewer B inputs are byte-identical "
+                f"(same source fingerprint {fp_a}) with fully agreeing decisions; "
+                "kappa=1.0 from identical sources is not evidence of independent "
+                "dual screening."
+            )
+
+    def _task_ids(records: Dict[str, Dict[str, Any]]) -> set:
+        vals = set()
+        for r in records.values():
+            tid = str(r.get("task_id") or "").strip()
+            if tid:
+                vals.add(tid)
+        return vals
+
+    task_a = _task_ids(rev_a_data)
+    task_b = _task_ids(rev_b_data)
+    shared_tasks = sorted(task_a & task_b)
+    if shared_tasks:
+        reasons.append(
+            "Reviewer A and Reviewer B payloads reuse the same task_id "
+            f"({', '.join(shared_tasks)}); the two decision sets come from one "
+            "screening run, not two independent reviewers."
+        )
+
+    if reasons:
+        return {
+            "error": "IDENTICAL_SOURCES",
+            "reasons": reasons,
+            "fingerprint_a": fp_a,
+            "fingerprint_b": fp_b,
+            "common_records": len(common_ids),
+        }
+    return None
+
+
+def check_reviewer_coverage(
+    rev_a_data: Dict[str, Dict[str, Any]],
+    rev_b_data: Dict[str, Dict[str, Any]],
+) -> Dict[str, Any]:
+    """H-27: reviewer coverage check — unreviewed records must be disclosed.
+
+    Records present in only one reviewer's file never enter the confusion
+    matrix. A gap raises ``coverage_warning`` (coverage_status=WARNING, i.e.
+    non-PASS) without blocking: legitimately complete inputs stay rc=0/PASS.
+    """
+    a_ids = set(rev_a_data)
+    b_ids = set(rev_b_data)
+    union = a_ids | b_ids
+    a_missing = sorted(b_ids - a_ids)  # only B reviewed these -> A missed them
+    b_missing = sorted(a_ids - b_ids)  # only A reviewed these -> B missed them
+    warning = bool(a_missing or b_missing)
+    return {
+        "union_records": len(union),
+        "reviewer_a_count": len(a_ids),
+        "reviewer_b_count": len(b_ids),
+        "common_records": len(a_ids & b_ids),
+        "missing_from_reviewer_a": a_missing,
+        "missing_from_reviewer_b": b_missing,
+        "coverage_warning": warning,
+        "coverage_status": "WARNING" if warning else "PASS",
+    }
 
 
 def calculate_cohens_kappa(
@@ -258,6 +378,35 @@ def generate_markdown_report(metrics: Dict[str, Any], reviewer_a_name: str, revi
     md.append(f"- **一致性评定 (Landis & Koch)**: **{metrics['interpretation']}**")
     md.append(f"- **分歧文献量 (Discrepancies)**: **{metrics['discrepancy_count']} 篇** (需仲裁)\n")
 
+    # H-27: reviewer coverage section — always disclosed, WARNING when a
+    # reviewer missed records that the other one reviewed.
+    coverage = metrics.get("coverage")
+    if coverage:
+        md.append("## 〇、评阅覆盖率核查 (Reviewer Coverage Check)\n")
+        md.append(f"- **覆盖率状态 (Coverage Status)**: **{coverage['coverage_status']}**")
+        md.append(
+            f"- Reviewer A 已评 **{coverage['reviewer_a_count']}/{coverage['union_records']}** 篇，"
+            f"Reviewer B 已评 **{coverage['reviewer_b_count']}/{coverage['union_records']}** 篇，"
+            f"双方共同评阅 **{coverage['common_records']}** 篇（κ 仅基于共同评阅样本计算）"
+        )
+        if coverage["missing_from_reviewer_b"]:
+            preview = ", ".join(coverage["missing_from_reviewer_b"][:10])
+            if len(coverage["missing_from_reviewer_b"]) > 10:
+                preview += ", ..."
+            md.append(
+                f"- **⚠ WARNING**: Reviewer B 缺审 **{len(coverage['missing_from_reviewer_b'])}** 篇"
+                f"（未进入 κ 计算）: `{preview}`"
+            )
+        if coverage["missing_from_reviewer_a"]:
+            preview = ", ".join(coverage["missing_from_reviewer_a"][:10])
+            if len(coverage["missing_from_reviewer_a"]) > 10:
+                preview += ", ..."
+            md.append(
+                f"- **⚠ WARNING**: Reviewer A 缺审 **{len(coverage['missing_from_reviewer_a'])}** 篇"
+                f"（未进入 κ 计算）: `{preview}`"
+            )
+        md.append("")
+
     md.append("## 一、评阅交叉混淆矩阵 (Contingency Matrix)\n")
     header = "| Reviewer A \\ Reviewer B | " + " | ".join(cats) + " | 合计 |"
     md.append(header)
@@ -336,9 +485,12 @@ def export_prisma_audit_csv(
 def export_arbitration_queue(metrics: Dict[str, Any], output_path: Path):
     """Export discrepancy items as JSON for human or arbitrator subagent."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    coverage = metrics.get("coverage") or {}
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump({
             "total_discrepancies": len(metrics["discrepancies"]),
+            "coverage_warning": bool(coverage.get("coverage_warning")),
+            "coverage_status": coverage.get("coverage_status"),
             "items": metrics["discrepancies"]
         }, f, indent=2, ensure_ascii=False)
 
@@ -414,11 +566,39 @@ Examples:
     rev_a_data = load_decisions(path_a)
     rev_b_data = load_decisions(path_b)
 
+    # H-27 gate 1: same-source inputs must be rejected before any kappa is
+    # certified (rc=1, structured IDENTICAL_SOURCES, no passing report).
+    identical = check_source_independence(path_a, path_b, rev_a_data, rev_b_data)
+    if identical:
+        sys.stderr.write(json.dumps(identical, ensure_ascii=False, indent=2) + "\n")
+        sys.stderr.write(
+            "[-] IDENTICAL_SOURCES: Reviewer A/B inputs are not independent; "
+            "refusing to certify kappa agreement (PRISMA Item 8 requires two "
+            "independent reviewers).\n"
+        )
+        sys.exit(1)
+
     metrics = calculate_cohens_kappa(rev_a_data, rev_b_data)
 
     if "error" in metrics:
         print(f"Error: {metrics['error']}", file=sys.stderr)
         sys.exit(1)
+
+    # H-27 gate 2: reviewer coverage — disclose unreviewed records without
+    # blocking legitimately complete inputs (rc stays 0).
+    coverage = check_reviewer_coverage(rev_a_data, rev_b_data)
+    metrics["coverage"] = coverage
+    if coverage["coverage_warning"]:
+        sys.stderr.write(
+            "[WARNING] Reviewer coverage gap: Reviewer A reviewed %d/%d records, "
+            "Reviewer B reviewed %d/%d records; kappa is computed on the %d common "
+            "records only (missing ids are disclosed in the report).\n"
+            % (
+                coverage["reviewer_a_count"], coverage["union_records"],
+                coverage["reviewer_b_count"], coverage["union_records"],
+                coverage["common_records"],
+            )
+        )
 
     md_report = generate_markdown_report(metrics, path_a.name, path_b.name)
 
