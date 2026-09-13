@@ -49,12 +49,29 @@ SUBSTANTIVE_COVERAGE_THRESHOLD = 0.5
 #: 否定线索。命中即视为告警：词面相似不代表支持，否定句尤其不能升级。
 #: 审查报告 F01 指出简单否定词过滤不能宣称解决全部语义问题，因此这里只做
 #: **告警与阻断**，不据此判定命题真假——语义裁决仍交人工或带出处的结构化判断。
-NEGATION_MARKERS = (
-    "not ", "no ", "never", "cannot", "can not", "does not", "do not", "did not",
-    "is not", "are not", "was not", "were not", "without", "fail to", "fails to",
-    "failed to", "no evidence", "no significant", "no difference", "rather than",
-    "不", "无", "未", "没有", "并非", "不是", "不能", "无法", "否认", "缺乏",
-)
+#:
+#: **H-02（2026-09-13 集群测试决议）**：词表单一真源为 `shared/text/polarity.py`
+#: （B2 定型）。旧本地词表缺 don't/doesn't 等 n't 收缩词（DEB-V-05：
+#: "roads don't reduce gene flow" 曾被判 VERIFIED），且三处词表互不一致。
+#: 消费方式：**不用子串 `in` 匹配**（共享词表的 "not"/"no" 是无空格 token，
+#: 子串匹配会误报 another/nothing/normal），改用共享模块的 `NEGATION_TOKEN_RE`
+#: （英文词边界 + 中文排除集，"不同样地间…显著增加" 不误报）。旧词表中共享
+#: 词表未收录的成员保留为补充（行为兼容）。
+from shared.text.polarity import NEGATION_MARKERS, NEGATION_TOKEN_RE  # noqa: E402
+
+#: 旧本地 NEGATION_MARKERS 中、共享词表未收录的成员，保留为补充线索。
+_LEGACY_NEGATION_SUPPLEMENT = ("rather than", "否认")
+
+
+def _first_negation_marker(text: str) -> Optional[str]:
+    """返回文本中第一个否定线索（共享词表 token 优先，旧词表补充兜底）。"""
+    match = NEGATION_TOKEN_RE.search(text)
+    if match:
+        return match.group(0)
+    for mark in _LEGACY_NEGATION_SUPPLEMENT:
+        if mark in text:
+            return mark
+    return None
 
 #: F09：命题方向（relation）与"核验状态"（alignment）是两个正交维度。
 #:
@@ -287,12 +304,36 @@ NON_USER_EXECUTION_KINDS = ("SYSTEM", "ROLE_SWITCH", "INDEPENDENT_AGENT", "SELF_
 USER_ACTOR_NAMES = ("user", "human", "用户", "研究者", "学者", "researcher")
 
 
+def _trusted_store_session_id(session_store: Any) -> Optional[str]:
+    """读取可信存储自述的会话身份；无法确定返回 None。
+
+    优先 `declared_session_id()`（SessionStore 提供快照/检查点自述身份），
+    其次名字叫 `session_id` 的属性/方法；都不存在则视为身份未知。
+    """
+    for name in ("declared_session_id", "session_id"):
+        val = getattr(session_store, name, None)
+        if callable(val):
+            try:
+                val = val()
+            except Exception:  # noqa: BLE001 - 身份读取失败按"未知"处理
+                val = None
+        if isinstance(val, str) and val.strip():
+            return val.strip()
+    return None
+
+
 def _trusted_event_list(session_store: Optional[Any]):
     """从可信存储读取事件列表；返回 `(events, problem)`。
 
     - 没有存储 / 存储不提供读取接口 → `problem="CONFIRMATION_CONTEXT_MISSING"`；
     - 存储存在但读取失败（如日志中段损坏）→ `problem="CONFIRMATION_CONTEXT_UNREADABLE"`，
-      与"没给上下文"区分开，避免把损坏误报成缺参。
+      与"没给上下文"区分开，避免把损坏误报成缺参；
+    - **H-09②（2026-09-13 集群测试 INT-A-16）**：事件必须属于当前 session 的
+      store——存储自述了会话身份（快照/检查点的 session_id）而日志中出现其他
+      会话的事件，说明 events.jsonl 被跨会话搬运/拼装 → 
+      `problem="CONFIRMATION_EVENT_STORE_MISMATCH"`，失败关闭。身份无法自述的
+      存储（events-only 会话）跳过该核对；跨会话"改写 session_id 后搬运"的变体
+      需要带外来源认证（H-09①/③），本轮如实留待契约回合。
 
     R05：只接受外部存储对象（`SessionStore` / 任何带 `read_events()` 或
     `_read_events()` 的对象）。`gap` 自带的 `_events` / `_session_store` 是调用方
@@ -312,6 +353,23 @@ def _trusted_event_list(session_store: Optional[Any]):
     events = parsed.get("events") if isinstance(parsed, dict) else parsed
     if not isinstance(events, list):
         return None, "CONFIRMATION_CONTEXT_UNREADABLE:no-event-list"
+
+    store_sid = _trusted_store_session_id(session_store)
+    if store_sid:
+        foreign = set()
+        for ev in events:
+            if not isinstance(ev, dict):
+                continue
+            payload = ev.get("payload") if isinstance(ev.get("payload"), dict) else {}
+            ev_sid = ev.get("session_id") or payload.get("session_id")
+            if isinstance(ev_sid, str) and ev_sid.strip() and ev_sid.strip() != store_sid:
+                foreign.add(ev_sid.strip())
+        if foreign:
+            return None, ("CONFIRMATION_EVENT_STORE_MISMATCH:"
+                          "event log carries sessions %s but the store declares %r; "
+                          "the log was moved across sessions and is not a trusted "
+                          "authorisation context for this store"
+                          % (sorted(foreign), store_sid))
     return events, None
 
 
@@ -335,10 +393,15 @@ def _validate_confirmation_event(event: Dict[str, Any], gap: Dict[str, Any],
                 "details": ["actor=%r, execution_kind=%r: a user-sourced event is required"
                             % (event.get("actor"), exec_kind)]}
 
-    if event.get("applied") is False:
+    # H-10（2026-09-13 集群测试 DEB-V-01）：applied 判定改 `is not True`——
+    # applied=false / 0 / "false" / 缺失 / 任意非布尔 True 值一律不得授权。
+    # 落盘事件由 SessionStore.append_event 补写 applied=True（持久层不变式：
+    # 进入事件日志即已应用），因此诚实写入的日志事件不受影响。
+    if event.get("applied") is not True:
         return {"reason": "CONFIRMATION_EVENT_NOT_APPLIED",
-                "details": ["The confirmation event is marked applied=false; an event that "
-                            "was never applied cannot authorise a dispatch."]}
+                "details": ["event applied=%r is not boolean True; an event that was "
+                            "never affirmatively applied cannot authorise a dispatch."
+                            % (event.get("applied"),)]}
 
     payload = event.get("payload") if isinstance(event.get("payload"), dict) else {}
 
@@ -380,6 +443,30 @@ def _validate_confirmation_event(event: Dict[str, Any], gap: Dict[str, Any],
                 "details": ["Event scope_fingerprint %r does not match the current scope %r"
                             % (ev_fp, current_fp)]}
     return None
+
+
+def _store_gap_view(session_store: Optional[Any],
+                    gap_id: Any) -> Tuple[Optional[List[Dict[str, Any]]], bool]:
+    """读取可信存储快照中同 gap_id 的缺口登记；返回 `(same_id_gaps, snapshot_readable)`。
+
+    只读辅助（H-45）：存储不提供快照 / 快照不可读 / 没有 gap_requests 时返回
+    `(None, readable)`，调用方跳过唯一性核对（核对能力以快照在场为前提）。
+    """
+    loader = getattr(session_store, "load_snapshot", None)
+    if not callable(loader):
+        return None, False
+    try:
+        snap = loader()
+    except Exception:  # noqa: BLE001 - 快照不可读时跳过核对，不伪造登记
+        return None, False
+    if not isinstance(snap, dict):
+        return None, False
+    gaps = snap.get("gap_requests")
+    if not isinstance(gaps, list):
+        return None, True
+    same = [g for g in gaps
+            if isinstance(g, dict) and g.get("gap_id") == gap_id and gap_id]
+    return same, True
 
 
 def prepare_dispatch(gap: Dict[str, Any], session_store: Optional[Any] = None) -> Dict[str, Any]:
@@ -517,6 +604,44 @@ def prepare_dispatch(gap: Dict[str, Any], session_store: Optional[Any] = None) -
                         "must_reconfirm": True, "idempotent_replay": False})
         return refusal
 
+    # H-45（2026-09-13 集群测试 INT-A-06）：gap_id 唯一性与已推进缺口的重复派发。
+    # 同一 gap_id 在会话快照中登记了多条 → 一份用户授权可被双重消费，拒绝；
+    # 快照中该缺口已推进（execution_status 非 NOT_STARTED）而调用方拿的是旧副本
+    # → 重复派发拒绝。快照不可读/未登记时跳过（核对以快照在场为前提）。
+    same_gaps, snapshot_readable = _store_gap_view(session_store, gap.get("gap_id"))
+    if snapshot_readable and same_gaps is not None:
+        if len(same_gaps) > 1:
+            return {"dispatchable": False, "reason": "GAP_ID_NOT_UNIQUE",
+                    "payload": None, "fingerprint": current_fp,
+                    "must_reconfirm": False, "idempotent_replay": False,
+                    "details": ["gap_id %r is registered %d times in the session "
+                                "snapshot; one authorisation must not be consumed "
+                                "twice" % (gap.get("gap_id"), len(same_gaps))]}
+        if same_gaps:
+            store_exec = same_gaps[0].get("execution_status")
+            if store_exec in ("RUNNING", "IN_PROGRESS"):
+                return {"dispatchable": False, "reason": "ALREADY_RUNNING_IN_FLIGHT",
+                        "payload": None, "fingerprint": current_fp,
+                        "must_reconfirm": False, "idempotent_replay": True,
+                        "details": ["Snapshot records execution_status=%r for gap %r "
+                                    "(the caller passed %r); duplicate dispatch blocked."
+                                    % (store_exec, gap.get("gap_id"),
+                                       gap.get("execution_status"))]}
+            if store_exec == "COMPLETE":
+                return {"dispatchable": False, "reason": "ALREADY_COMPLETE_IDEMPOTENT",
+                        "payload": None, "fingerprint": current_fp,
+                        "must_reconfirm": False, "idempotent_replay": True,
+                        "details": ["Snapshot records gap %r as COMPLETE; the caller's "
+                                    "copy (execution_status=%r) is stale."
+                                    % (gap.get("gap_id"), gap.get("execution_status"))]}
+            if store_exec not in (None, "", "NOT_STARTED"):
+                return {"dispatchable": False, "reason": "GAP_ALREADY_ADVANCED",
+                        "payload": None, "fingerprint": current_fp,
+                        "must_reconfirm": False, "idempotent_replay": False,
+                        "details": ["Snapshot records execution_status=%r for gap %r; "
+                                    "only a gap that has not advanced may be dispatched."
+                                    % (store_exec, gap.get("gap_id"))]}
+
     return {"dispatchable": True, "reason": "OK",
             "payload": to_upstream_payload(gap), "fingerprint": current_fp,
             "must_reconfirm": False, "idempotent_replay": False}
@@ -593,17 +718,17 @@ def detect_negation_mismatch(quote: str, proposition: str) -> Optional[str]:
 
     F01 的反例是 ``It is not true that roads reduce gene flow.``——它**包含**命题
     字面，但语义相反。只要引句带否定线索而命题本身不带，就不能作为支持证据。
+
+    H-02：判定用共享词表的 token 正则（词边界），don't/doesn't 等 n't 收缩词
+    进入否定判定；命题侧同样改用 token 判定（避免子串误报）。
     """
     if not quote.strip() or not proposition.strip():
         return None
     q = normalize_text(quote)
     pr = normalize_text(proposition)
-    if any(mark in pr for mark in NEGATION_MARKERS):
+    if _first_negation_marker(pr) is not None:
         return None  # 命题本身即否定式，不适用此规则
-    for mark in NEGATION_MARKERS:
-        if mark in q:
-            return mark
-    return None
+    return _first_negation_marker(q)
 
 
 def location_anchor(record: Dict[str, Any]) -> Tuple[bool, str]:
@@ -1103,8 +1228,10 @@ def _validate_challenge_human_confirmation(human: Any, session_store: Optional[A
     if ev_type not in CHALLENGE_CONFIRMATION_EVENT_TYPES:
         return False, "CHALLENGE_HUMAN_CONFIRMATION_UNVERIFIED", [
             "event type %r cannot confirm a challenge" % ev_type]
-    if event.get("applied") is False:
-        return False, "CHALLENGE_HUMAN_CONFIRMATION_UNVERIFIED", ["event is applied=false"]
+    # H-10：applied 判定改 `is not True`（false/0/"false"/缺失一律不放行）。
+    if event.get("applied") is not True:
+        return False, "CHALLENGE_HUMAN_CONFIRMATION_UNVERIFIED", [
+            "event applied=%r is not boolean True" % (event.get("applied"),)]
     if event.get("execution_kind") in NON_USER_EXECUTION_KINDS:
         return False, "CHALLENGE_HUMAN_CONFIRMATION_NOT_USER", [
             "execution_kind=%r is not a user action" % event.get("execution_kind")]
@@ -1119,9 +1246,18 @@ def _validate_challenge_human_confirmation(human: Any, session_store: Optional[A
     if not bound_id:
         return False, "CHALLENGE_HUMAN_CONFIRMATION_UNBOUND", [
             "confirmation event carries no evidence_id; it cannot be tied to this evidence"]
-    if evidence_id and bound_id != str(evidence_id):
+    rec_id = str(evidence_id or "").strip()
+    if rec_id and bound_id != rec_id:
         return False, "CHALLENGE_HUMAN_CONFIRMATION_EVIDENCE_MISMATCH", [
-            "event confirms evidence_id=%r but this challenge is %r" % (bound_id, evidence_id)]
+            "event confirms evidence_id=%r but this challenge is %r" % (bound_id, rec_id)]
+    if not rec_id:
+        # H-13（2026-09-13 集群测试 DEB-V-06）：被复核记录自身没有 evidence_id 时，
+        # 旧实现的 `if evidence_id and ...` 让绑定核对空转 → 复核事件绑定到任意
+        # 其他证据也能空放行。现在显式失败关闭：复核与"这条证据"无法绑定即不成立。
+        return False, "CHALLENGE_HUMAN_CONFIRMATION_UNBOUND", [
+            "challenge record carries no evidence_id, so the confirmation event "
+            "(bound to evidence_id=%r) cannot be tied to the evidence under review; "
+            "bind the record identity first" % bound_id]
     return True, None, []
 
 

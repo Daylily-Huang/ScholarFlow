@@ -23,6 +23,7 @@
 from __future__ import annotations
 
 import hashlib
+import threading
 import time
 import uuid
 from contextlib import contextmanager
@@ -37,6 +38,163 @@ CHECKPOINT_FILENAME = "checkpoint.json"
 COMMIT_JOURNAL_FILENAME = "commit_journal.json"
 SESSION_FILENAME = "session.json"
 LEDGER_FILENAME = "usage_ledger.jsonl"
+LOCK_FILENAME = ".session.lock"
+
+#: 恢复提交的审计事件类型（H-08/H-16，2026-09-13 集群测试）。
+#: 两者都是无投影载荷的纯记录事件：进入事件日志可审计，但不改写业务状态。
+RECOVERY_COMMIT_APPLIED = "RECOVERY_COMMIT_APPLIED"
+RECOVERY_COMMIT_REJECTED = "RECOVERY_COMMIT_REJECTED"
+
+
+def _pid_alive(pid: int) -> Optional[bool]:
+    """进程是否存活；无法判断时返回 None（Windows 不用 os.kill 探活——
+    在 Windows 上 os.kill(pid, 0) 会**终止**目标进程，绝不可用）。"""
+    if pid == os.getpid():
+        return True
+    if os.name == "posix":
+        try:
+            os.kill(pid, 0)
+            return True
+        except ProcessLookupError:
+            return False
+        except (PermissionError, OSError):
+            return True
+    return None
+
+
+class _SessionFileLock:
+    """跨进程 + 跨线程可重入的会话写锁（H-101 三项加固，2026-09-13）。
+
+    锁文件 `<session_dir>/.session.lock` 用 ``O_CREAT|O_EXCL`` 创建，内容为持有者 pid。
+
+    - **pid 属主核对**（DEB-V-16）：释放时只在锁文件内容仍是本进程 pid 时删除，
+      防止"原持有者 finally 删掉后到者的锁"；POSIX 上陈旧回收前先探活，活锁不窃取。
+    - **deadline 全路径生效**（INT-A-11）：陈旧回收分支失败同样受 deadline 约束，
+      不再存在"锁永远回收不掉就永远等下去"的分支；超时抛结构化 RevisionConflict。
+    - **stale 回收改 rename-aside**（不原地删除，可审计）：陈旧/孤儿锁被改名为
+      `<lock>.stale-<epoch>-<rand>`。Windows 上持有者握着打开句柄时 rename 必然
+      失败（PermissionError）→ 活锁不可被夺；rename 成功 ⟺ 无人持有（孤儿锁）
+      ⟹ 立即回收，进程被 kill 后的恢复无需等满 timeout。
+    """
+
+    _registry: Dict[str, "_SessionFileLock"] = {}
+    _registry_guard = threading.Lock()
+
+    def __init__(self, path: str):
+        self.path = path
+        self._thread_lock = threading.RLock()
+        self._depth = 0
+        self._fd: Optional[int] = None
+
+    # -- 注册表（按绝对锁路径共享实例，使同进程同线程可重入） ----------------
+    @classmethod
+    def acquire(cls, path: str, timeout: float) -> "_SessionFileLock":
+        key = os.path.abspath(path)
+        with cls._registry_guard:
+            inst = cls._registry.get(key)
+            if inst is None:
+                inst = cls(key)
+                cls._registry[key] = inst
+        inst._enter(timeout)
+        return inst
+
+    def _enter(self, timeout: float) -> None:
+        if not self._thread_lock.acquire(timeout=max(timeout, 0.0)):
+            raise RevisionConflict(
+                "获取会话写锁超时（同进程其他线程持有 %s）" % self.path)
+        try:
+            if self._depth == 0:
+                self._acquire_file_lock(timeout)
+            self._depth += 1
+        except BaseException:
+            self._thread_lock.release()
+            raise
+
+    def release(self) -> None:
+        try:
+            self._depth -= 1
+            if self._depth == 0 and self._fd is not None:
+                fd, self._fd = self._fd, None
+                try:
+                    os.close(fd)
+                finally:
+                    self._release_file_lock()
+        finally:
+            self._thread_lock.release()
+
+    # -- 文件锁 -------------------------------------------------------------
+    def _acquire_file_lock(self, timeout: float) -> None:
+        deadline = time.time() + timeout
+        while True:
+            try:
+                fd = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            except FileExistsError:
+                pass
+            except FileNotFoundError:
+                continue  # 目录在检查后消失等极端情形：重试
+            else:
+                try:
+                    os.write(fd, str(os.getpid()).encode("ascii"))
+                except OSError:
+                    pass
+                self._fd = fd
+                return
+            if self._recover_stale(timeout):
+                continue
+            if time.time() > deadline:
+                raise RevisionConflict(
+                    "获取会话写锁超时（%s 被占用）；请稍后重试或检查残留锁" % self.path)
+            time.sleep(0.01)
+
+    def _read_lock_info(self) -> Optional[Dict[str, Any]]:
+        try:
+            with open(self.path, "r", encoding="ascii", errors="replace") as fh:
+                raw = fh.read().strip()
+            age = time.time() - os.path.getmtime(self.path)
+        except (OSError, ValueError):
+            return None
+        pid = int(raw) if raw.isdigit() else None
+        return {"pid": pid, "age": age}
+
+    def _rename_aside(self) -> None:
+        aside = "%s.stale-%d-%s" % (self.path, int(time.time()), uuid.uuid4().hex[:8])
+        os.rename(self.path, aside)  # 不覆盖既有归档；失败即视为回收未成功
+
+    def _recover_stale(self, timeout: float) -> bool:
+        """尝试回收陈旧/孤儿锁；返回 True 表示锁已消失、应立即重试创建。"""
+        info = self._read_lock_info()
+        if info is None:
+            return True  # 锁文件刚消失
+        if os.name == "nt":
+            # Windows：持有者握着打开句柄 → rename 失败 → 活锁在位，等待；
+            # rename 成功 ⟺ 没有任何进程持有句柄（孤儿锁）→ 立即回收。
+            try:
+                self._rename_aside()
+                return True
+            except OSError:
+                return False
+        # POSIX：rename 对活持有者也会成功，必须 age>timeout 且属主已死才回收。
+        age = info.get("age")
+        pid = info.get("pid")
+        if age is not None and age <= timeout:
+            return False
+        if pid is not None and _pid_alive(pid):
+            return False  # 活锁不可窃取（DEB-V-16）
+        try:
+            self._rename_aside()
+            return True
+        except OSError:
+            return False
+
+    def _release_file_lock(self) -> None:
+        # pid 属主核对：只删除仍然属于本进程的锁文件。
+        info = self._read_lock_info()
+        if info is not None and info.get("pid") not in (os.getpid(), None):
+            return  # 锁已易主（本进程的锁曾被回收）→ 不得删除他人锁
+        try:
+            os.remove(self.path)
+        except OSError:
+            pass
 
 #: 事件类型中允许通过整值投影修改的字段白名单。
 #: 未列入的字段不允许被事件改写（例如 schema_version / session_id / run_id 是身份字段）。
@@ -121,12 +279,35 @@ class SessionStore:
         """追加一条事件（原子写），返回是否为**新应用**（False = 幂等跳过）。
 
         幂等判据是 `event_id`：已存在于日志中的事件不再追加。
+
+        **H-15（2026-09-13 集群测试 INT-A-01/DEB-V-08，NTFS 实测丢事件 0.8%~13.4%）**：
+        "读日志去重 → 检查尾部 → 追加" 整体纳入 O_EXCL 锁临界区。Windows CRT 的
+        `_O_APPEND` 是 lseek+write 两步而非原子追加，且 check-then-append 在多进程
+        下互相覆盖——实测 5 进程 ×200 次自报成功只落盘 866 条。现在单写者在临界区
+        内完成全部步骤，跨进程零丢失；单进程时序不变。
+
+        **持久层不变式（H-10 配套）**：落盘事件若未显式携带 `applied`，由本层补写
+        ``applied=True``——事件日志是唯一真源，出现在日志里的事件都会被重放应用。
+        调用方要表达"已记录但未应用"必须显式写非 True 值（授权门禁据此拒绝）。
         """
+        if not isinstance(event, dict):
+            raise ValueError("event 必须是 dict")
         event_id = event.get("event_id")
         if not event_id:
             raise ValueError("event 必须有 event_id")
         if not os.path.isdir(self.session_dir):
             raise FileNotFoundError("会话目录不存在：%s" % self.session_dir)
+
+        with self._revision_lock():
+            return self._append_event_locked(event)
+
+    def _append_event_locked(self, event: Dict[str, Any]) -> bool:
+        """append_event 的临界区实现；调用方必须已持有会话写锁。"""
+        if "applied" not in event:
+            event = dict(event, applied=True)
+        event_id = event.get("event_id")
+        if not event_id:
+            raise ValueError("event 必须有 event_id")
 
         parsed = self._read_events()
         seen = {e.get("event_id") for e in parsed["events"]}
@@ -334,46 +515,22 @@ class SessionStore:
 
     @contextmanager
     def _revision_lock(self, timeout: float = 10.0):
-        """跨进程互斥：把"读 revision → 写快照"变成临界区。
+        """跨进程互斥：把"读 revision → 写快照"变成临界区（也保护事件/台账追加）。
 
         P0 修复：`save_snapshot` 的 check-then-write 过去无锁，两个进程都读到
         revision=5 时会有一个静默覆盖另一个（实测 90 次写入只留下 50 个版本）。
-        锁文件用 O_CREAT|O_EXCL 创建；超时给出结构化错误，不无限等待。
+
+        **H-101 三项加固（2026-09-13 集群测试）**：见 `_SessionFileLock`——
+        pid 属主核对、deadline 全路径生效、stale 锁 rename-aside 回收。
+        同进程同线程可重入（`recover_commit` 需要在持锁状态下完成审计事件追加
+        与快照推进，不得自锁）。
         """
-        lock_path = os.path.join(self.session_dir, ".session.lock")
-        deadline = time.time() + timeout
-        fd = None
-        while True:
-            try:
-                fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-                os.write(fd, str(os.getpid()).encode("ascii"))
-                break
-            except FileExistsError:
-                try:
-                    age = time.time() - os.path.getmtime(lock_path)
-                except OSError:
-                    age = 0.0
-                if age > timeout:
-                    try:
-                        os.remove(lock_path)      # 陈旧锁（进程被杀）自动回收
-                    except OSError:
-                        pass
-                    continue
-                if time.time() > deadline:
-                    raise RevisionConflict(
-                        "获取会话写锁超时（%s 被占用）；请稍后重试或检查残留锁" % lock_path)
-                time.sleep(0.01)
+        lock = _SessionFileLock.acquire(
+            os.path.join(self.session_dir, LOCK_FILENAME), timeout)
         try:
             yield
         finally:
-            try:
-                if fd is not None:
-                    os.close(fd)
-            finally:
-                try:
-                    os.remove(lock_path)
-                except OSError:
-                    pass
+            lock.release()
 
     def _save_snapshot_locked(self, session: Dict[str, Any], expected_revision: int) -> Dict[str, Any]:
         current = None
@@ -530,19 +687,172 @@ class SessionStore:
         return "commit-" + hashlib.sha256(material.encode("utf-8")).hexdigest()[:12]
 
     def recover_commit(self) -> Dict[str, Any]:
-        """完成或回滚未完成的两文件提交；返回恢复简报。"""
+        """完成或回滚未完成的两次提交（two-file commit）；返回恢复简报。
+
+        **H-08/H-16 三守卫（2026-09-13 集群测试 INT-A-05 / DEB-V-09 / DEB-V-10）**：
+        commit_journal 是恢复入口的自愈输入，旧实现**零校验**直接写回——攻击者把
+        封存时的旧 checkpoint 打包成 journal，就能让已撤销（INVALIDATED）的授权
+        复活并解锁下游派发，且 consistency 全绿无察觉。现在逐条守卫：
+
+          ① **revision 单调**：journal 目标 revision 必须 > 当前快照 revision
+             （陈旧 journal 回滚历史状态一律拒绝）；
+          ② **commit_id 绑定 + 事件前缀摘要重算核对**：journal.commit_id 必须与
+             journal.checkpoint.commit_id 一致；snapshot.revision 必须 ==
+             expected_revision + 1（seal 的构造不变式）；checkpoint 声明的
+             event_log_digest 必须与当前事件日志前缀的重算摘要一致（日志被改写/
+             截断即拒绝）；
+          ③ **拒绝可审计**：被拒 journal 归档为 `commit_journal.json.rejected-<digest>`
+             （不删除），并追加 `RECOVERY_COMMIT_REJECTED` 审计事件；恢复成功也追加
+             `RECOVERY_COMMIT_APPLIED` 审计事件。审计事件为无投影载荷的纯记录事件。
+
+        注意：commit_id 是公开内容的摘要、无密钥（HMAC 通道属 H-09③，本轮
+        NO-ACTION），守卫②挡的是"伪造/陈旧 journal 与事件日志、检查点绑定链不符"；
+        对能完整重算 commit_id 的攻击者，最终防线是①的单调性。
+        """
         journal = self.pending_commit()
         if journal is None:
             return {"status": "NO_PENDING_COMMIT"}
-        if journal.get("unreadable") or not isinstance(journal.get("snapshot"), dict):
+        with self._revision_lock():
+            return self._recover_commit_locked(journal)
+
+    def _recover_commit_locked(self, journal: Any) -> Dict[str, Any]:
+        if not isinstance(journal, dict) or journal.get("unreadable") \
+                or not isinstance(journal.get("snapshot"), dict) \
+                or not isinstance(journal.get("checkpoint"), dict):
+            return self._reject_journal(
+                journal, "JOURNAL_MALFORMED",
+                "提交日志不可读或缺少 snapshot/checkpoint；两个文件保持原状")
+
+        snapshot = journal["snapshot"]
+        checkpoint = journal["checkpoint"]
+        current_revision = self._current_revision()
+
+        # 守卫①：revision 单调——journal 目标必须严格向前。
+        target = snapshot.get("revision")
+        if not isinstance(target, int) or isinstance(target, bool) or target <= current_revision:
+            return self._reject_journal(
+                journal, "REVISION_NOT_MONOTONIC",
+                "journal 目标 revision=%r 不大于当前快照 revision=%r；"
+                "恢复将回退历史状态，已拒绝（陈旧提交日志不可重放）"
+                % (target, current_revision))
+
+        # 守卫②：commit_id 绑定 + 事件前缀摘要重算核对。
+        commit_id = journal.get("commit_id")
+        if not isinstance(commit_id, str) or not commit_id.strip():
+            return self._reject_journal(
+                journal, "COMMIT_ID_BINDING_INVALID", "journal 缺少 commit_id")
+        cp_commit_id = checkpoint.get("commit_id")
+        if cp_commit_id is not None and cp_commit_id != commit_id:
+            return self._reject_journal(
+                journal, "COMMIT_ID_BINDING_INVALID",
+                "journal.commit_id=%r 与 journal.checkpoint.commit_id=%r 不一致："
+                "伪造或拼装的提交日志" % (commit_id, cp_commit_id))
+        expected = journal.get("expected_revision")
+        if isinstance(expected, int) and not isinstance(expected, bool) \
+                and target != expected + 1:
+            return self._reject_journal(
+                journal, "COMMIT_ID_BINDING_INVALID",
+                "snapshot.revision=%r != expected_revision+1=%r；不符合 seal 的构造不变式"
+                % (target, expected + 1))
+        declared_count = checkpoint.get("event_count")
+        declared_digest = checkpoint.get("event_log_digest")
+        if isinstance(declared_count, int) and not isinstance(declared_count, bool) \
+                and declared_count >= 0 and isinstance(declared_digest, str):
+            read = self._read_events()
+            events = read["events"]
+            if declared_count > len(events):
+                return self._reject_journal(
+                    journal, "EVENT_PREFIX_DIGEST_MISMATCH",
+                    "checkpoint 声明 %d 个事件，当前日志仅 %d 条：事件日志被截断"
+                    % (declared_count, len(events)))
+            if self._event_digest(events[:declared_count]) != declared_digest:
+                return self._reject_journal(
+                    journal, "EVENT_PREFIX_DIGEST_MISMATCH",
+                    "事件前缀摘要重算与 checkpoint.event_log_digest 不一致："
+                    "日志被改写或 journal 与本会话不符")
+
+        digest = self._journal_digest(journal)
+        # 守卫通过：完成提交。
+        self._atomic_write_json(self.session_path, snapshot)
+        self._atomic_write_json(self.checkpoint_path, checkpoint)
+        audit_id = self._append_recovery_audit(
+            RECOVERY_COMMIT_APPLIED, digest,
+            {"commit_id": commit_id, "revision": target})
+        # 审计事件已进入日志尾部：快照的 last_applied_event_id 如实推进，
+        # 保持"快照 = 检查点重放结果"（否则 check 会报 LAST_APPLIED_EVENT_MISMATCH）。
+        advanced = dict(snapshot)
+        if audit_id is not None:
+            advanced["last_applied_event_id"] = audit_id
+        self._save_snapshot_locked(advanced, expected_revision=target)
+        try:
             os.remove(self.commit_journal_path)
-            return {"status": "JOURNAL_DISCARDED",
-                    "detail": "提交日志不可解析，已删除；两个文件保持原状"}
-        self._atomic_write_json(self.session_path, journal["snapshot"])
-        self._atomic_write_json(self.checkpoint_path, journal["checkpoint"])
-        os.remove(self.commit_journal_path)
-        return {"status": "COMMIT_COMPLETED", "commit_id": journal.get("commit_id"),
-                "revision": journal["snapshot"].get("revision")}
+        except OSError:
+            pass
+        return {"status": "COMMIT_COMPLETED", "commit_id": commit_id,
+                "revision": target, "audit_event_id": audit_id}
+
+    # ------------------------------------------------------ 恢复守卫与审计
+    @staticmethod
+    def _journal_digest(journal: Any) -> str:
+        try:
+            canonical = json.dumps(journal, ensure_ascii=False, sort_keys=True)
+        except (TypeError, ValueError):
+            canonical = repr(journal)
+        return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:12]
+
+    def _reject_journal(self, journal: Any, reason: str, detail: str) -> Dict[str, Any]:
+        """守卫拒绝：归档原 journal（`.rejected-<digest>`，不删除）+ 追加审计事件。"""
+        digest = self._journal_digest(journal)
+        archive = "%s.rejected-%s" % (self.commit_journal_path, digest)
+        if not os.path.exists(archive):
+            raw = None
+            if os.path.isfile(self.commit_journal_path):
+                try:
+                    with open(self.commit_journal_path, "r",
+                              encoding="utf-8", errors="replace") as fh:
+                        raw = fh.read()
+                except OSError:
+                    raw = None
+            if raw is None:
+                try:
+                    raw = json.dumps(journal, ensure_ascii=False, sort_keys=True)
+                except (TypeError, ValueError):
+                    raw = repr(journal)
+            self._atomic_write_text(archive, raw)
+        try:
+            os.remove(self.commit_journal_path)
+        except OSError:
+            pass
+        commit_id = journal.get("commit_id") if isinstance(journal, dict) else None
+        audit_id = self._append_recovery_audit(
+            RECOVERY_COMMIT_REJECTED, digest,
+            {"reason": reason, "commit_id": commit_id, "detail": detail,
+             "archive": os.path.basename(archive)})
+        return {"status": "COMMIT_REJECTED", "reason": reason, "detail": detail,
+                "archived_to": archive, "audit_event_id": audit_id}
+
+    def _append_recovery_audit(self, ev_type: str, digest: str,
+                               payload: Dict[str, Any]) -> Optional[str]:
+        """追加一条恢复审计事件（无投影载荷的纯记录事件）。
+
+        审计写入失败（如日志中段损坏）不得改变恢复决定本身，返回 None 并由
+        调用方在返回值中如实上报 `audit_event_id=None`。
+        """
+        event_id = "%s-%s" % (ev_type, digest)
+        event = {
+            "schema_version": "0.1",
+            "event_id": event_id,
+            "type": ev_type,
+            "execution_kind": "SYSTEM",
+            "actor": "session_store.recover_commit",
+            "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "payload": dict(payload),
+        }
+        try:
+            self._append_event_locked(event)
+        except (CorruptEventLog, OSError, ProjectionError):
+            return None
+        return event_id
 
     def _replay_from_checkpoint(self, checkpoint: Dict[str, Any], read: Dict[str, Any]) -> Dict[str, Any]:
         """从检查点重放其后的事件；返回 `(projected, divergences)`。
@@ -684,13 +994,23 @@ class SessionStore:
                 if k not in skip and not k.startswith("_") and not k.startswith("recovery_")}
 
     def recover(self) -> Dict[str, Any]:
-        """恢复入口：以事件重放为准重建状态，并给出恢复简报所需字段。"""
+        """恢复入口：以事件重放为准重建状态，并给出恢复简报所需字段。
+
+        **H-16（2026-09-13 集群测试 DEB-R-01/DEB-V-09/INT-R-09）**：旧实现只调
+        rebuild()，从不处理 commit_journal——`consistency_report()` 提示
+        "请运行 recover_commit()"，CLI 按提示走 `recover` 却无法解除
+        INCOMPLETE_COMMIT（CLI 命令面也没有 recover-commit）。现在恢复路径
+        **先收敛未完成提交**（含三守卫与审计），再重建重放简报。
+        """
+        commit_recovery: Optional[Dict[str, Any]] = None
+        if self.pending_commit() is not None:
+            commit_recovery = self.recover_commit()
         report = self.rebuild()
         state = report["state"]
         ex = state.get("execution", {}) or {}
         usage, budget = ex.get("usage", {}) or {}, ex.get("budget", {}) or {}
         pending = state.get("pending_question") or None
-        return {
+        out = {
             "state": state,
             "consistency": {
                 "snapshot_last_applied_event_id": report["snapshot_last_applied_event_id"],
@@ -717,14 +1037,46 @@ class SessionStore:
                 "review_batches_cap": budget.get("max_review_batches"),
             },
         }
+        if commit_recovery is not None:
+            out["commit_recovery"] = commit_recovery
+        return out
+
+    def declared_session_id(self) -> Optional[str]:
+        """会话目录自述的 session_id（快照优先，其次检查点）；无法确定返回 None。
+
+        H-09②（2026-09-13 集群测试 INT-A-16）：`debate_handoff._trusted_event_list`
+        用它核对事件日志的身份绑定——日志中出现与 store 自述身份不符的会话事件，
+        即判定日志被跨会话搬运，授权核验失败关闭。
+        """
+        for path in (self.session_path, self.checkpoint_path):
+            if not os.path.isfile(path):
+                continue
+            try:
+                with open(path, "r", encoding="utf-8") as fh:
+                    doc = json.load(fh)
+            except (OSError, json.JSONDecodeError):
+                continue
+            if isinstance(doc, dict):
+                sid = doc.get("session_id")
+                if isinstance(sid, str) and sid.strip():
+                    return sid.strip()
+        return None
 
     # ---------------------------------------------------------------- 用量台账
     def append_usage(self, entry: Dict[str, Any]) -> None:
-        """追加一条资源用量记录（只追加，不覆盖历史）。"""
+        """追加一条资源用量记录（只追加，不覆盖历史）。
+
+        **H-15 配套（INT-A-02）**：台账与事件日志同属"只追加真源"，并发交错写会
+        产生非法 JSONL（实测 600 条自报成功只可解析 443 条）。追加纳入同一把
+        O_EXCL 会话锁临界区，恒产出合法 JSONL。
+        """
         if not os.path.isdir(self.session_dir):
             raise FileNotFoundError("会话目录不存在：%s" % self.session_dir)
-        with open(self.ledger_path, "a", encoding="utf-8") as fh:
-            fh.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        with self._revision_lock():
+            with open(self.ledger_path, "a", encoding="utf-8") as fh:
+                fh.write(json.dumps(entry, ensure_ascii=False) + "\n")
+                fh.flush()
+                os.fsync(fh.fileno())
 
     def read_usage(self) -> List[Dict[str, Any]]:
         if not os.path.isfile(self.ledger_path):
@@ -738,10 +1090,22 @@ class SessionStore:
 
     # -------------------------------------------------------- 外键与引用完整性
     def check_referential_integrity(self, session: Optional[Dict[str, Any]] = None) -> List[str]:
-        """检查会话结构中的外键引用完整性（例如批次升级缺口是否存在）。"""
+        """检查会话结构中的外键引用完整性（例如批次升级缺口是否存在）。
+
+        **H-45（2026-09-13 集群测试 INT-A-06）**：gap_id 在 gap_requests 中必须唯一
+        ——同一 gap_id 两条记录意味着一份用户授权可被双重消费，属引用完整性违规。
+        """
         session = session if session is not None else self.load_snapshot()
         violations = []
-        gaps = {g.get("gap_id") for g in (session.get("gap_requests") or []) if g.get("gap_id")}
+        gap_entries = [g for g in (session.get("gap_requests") or []) if isinstance(g, dict)]
+        gap_ids = [g.get("gap_id") for g in gap_entries if g.get("gap_id")]
+        duplicated = sorted({gid for gid in gap_ids if gap_ids.count(gid) > 1})
+        if duplicated:
+            violations.append(
+                "duplicate gap_id in gap_requests: %s (a gap_id identifies exactly one "
+                "authorisation; duplicates would allow the same confirmation event to be "
+                "consumed twice)" % duplicated)
+        gaps = set(gap_ids)
         for b in (session.get("review_batches") or []):
             if b.get("resolution") == "ESCALATED_TO_GAP":
                 gid = b.get("escalated_gap_id")

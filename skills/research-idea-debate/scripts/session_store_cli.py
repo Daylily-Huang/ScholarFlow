@@ -10,13 +10,22 @@
     python session_store_cli.py rebuild  <session_dir>
     python session_store_cli.py check    <session_dir>
     python session_store_cli.py recover  <session_dir>
+    python session_store_cli.py recover-commit <session_dir>
     python session_store_cli.py snapshot <session_dir> --expected-revision N --session-json '<json>'
     python session_store_cli.py seal     <session_dir> --expected-revision N [--session-json '<json>']
     python session_store_cli.py append-usage <session_dir> --entry-json '<json>'
 
-退出码：0 成功；1 校验/一致性失败（如中段损坏、revision 冲突）；2 输入错误。
+退出码：0 成功；1 校验/一致性失败（如中段损坏、revision 冲突、**恢复提交被拒**）；
+2 输入错误。
 
 **不使用 `sys.exit` 打印堆栈**：所有失败都转成结构化 JSON 输出，便于上游编排读取。
+
+**recover-commit（2026-09-13 集群测试 DEB-R-01/DEB-V-09/INT-R-09）**：中断提交
+（`check` 报 `INCOMPLETE_COMMIT`）过去在 CLI 命令面上无解——`recover` 只做重放
+重建、不处理 commit_journal，Python API `recover_commit()` 又无生产调用点。现在：
+`recover` 会先收敛未完成提交（H-16 恢复路径真实调用点），`recover-commit` 提供
+只收敛提交的显式入口；提交被三守卫拒绝时 rc=1（持久层违规），并给出
+`.rejected-<digest>` 归档位置。
 """
 
 import argparse
@@ -68,8 +77,8 @@ def _parse(text, what):
 def main(argv=None):
     ap = argparse.ArgumentParser(description="research-idea-debate 会话持久化 CLI")
     ap.add_argument("command", choices=[
-        "append", "rebuild", "check", "recover", "snapshot", "seal", "append-usage",
-        "read-usage",
+        "append", "rebuild", "check", "recover", "recover-commit", "snapshot", "seal",
+        "append-usage", "read-usage",
     ])
     ap.add_argument("session_dir")
     ap.add_argument("--event-json")
@@ -107,7 +116,17 @@ def main(argv=None):
                          0 if report["consistent"] else 1)
 
         if args.command == "recover":
-            return _emit({"status": "OK", **store.recover()})
+            # H-16：store.recover() 已先收敛未完成提交（recover_commit），再重建简报。
+            result = store.recover()
+            rejected = (result.get("commit_recovery") or {}).get("status") == "COMMIT_REJECTED"
+            return _emit({"status": "OK", **result}, 1 if rejected else 0)
+
+        if args.command == "recover-commit":
+            # H-08/H-16：显式收敛 INCOMPLETE_COMMIT；三守卫拒绝（陈旧/伪造提交日志）
+            # 属持久层违规，rc=1 并给出 .rejected-<digest> 归档位置。
+            result = store.recover_commit()
+            code = 0 if result.get("status") in ("COMMIT_COMPLETED", "NO_PENDING_COMMIT") else 1
+            return _emit(result, code)
 
         if args.command == "snapshot":
             if args.expected_revision is None:
