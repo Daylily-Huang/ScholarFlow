@@ -153,7 +153,7 @@ graph TD
   - 🌐 **全自动检索层 (AUTOMATED Tier)**：
     - **Headless CLI 原生实现**：基于 Python 标准库原生集成 OpenAlex API 开放元数据检索与双向引文滚雪球（Snowballing）；
     - **Host 交互式编排**：当宿主 Agent 环境配备相应工具能力时，可进一步编排调用 PubMed、Crossref、学术 Web 搜索等外部接口；
-  - 🔐 **人机协同商业库摄取层 (USER_ASSISTED Tier)**：知网 (CNKI)、万方、Web of Science、Scopus 受校园网 IP 准入与反爬机制保护，ScholarFlow 严格遵守学术安全规范，不采用逆向爬虫；系统自动生成目标库的标准高级布尔检索式（Boolean Syntax），由学者在机构网络下一键导出标准题录（Refworks / RIS / EndNote / CSV），随后由 `ingest_external_records.py` 执行本地批量硬解析与四级去重入库。
+  - 🔐 **人机协同商业库摄取层 (USER_ASSISTED Tier)**：知网 (CNKI)、万方、Web of Science、Scopus 受校园网 IP 准入与反爬机制保护，ScholarFlow 严格遵守学术安全规范，不采用逆向爬虫；系统自动生成目标库的标准高级布尔检索式（Boolean Syntax），由学者在机构网络下一键导出标准题录（Refworks / RIS / EndNote / CSV），随后由 `ingest_external_records.py` 执行本地批量硬解析与去重入库（DOI 精确 + 标题精确两级）。
 - **PRISMA 2020 Item 8 双盲独立初筛 `[PROTOCOL + DETERMINISTIC]`**：
   - 派发双评阅人独立盲审，基于内置工具自动计算 **Cohen's Kappa ($\kappa$)** 与一致率，生成符合发表级规范的 `screening_dual_audit.csv` 与分歧待仲裁队列。
 - **双向引用滚雪球 `[DETERMINISTIC]`**：
@@ -276,7 +276,7 @@ ScholarFlow 严格拒绝“同一个大模型换角色念台词的伪独立审�
   - `session_store.py` / `session_store_cli.py`：构想推敲单写者事件真源重放与一致性自愈；
   - `debate_handoff.py`：查证缺口授权指纹防重与命题直接对齐判定（A2-D）；
   - `download_oa_papers.py`：PDF 二进制 `%PDF-` 魔数核验，拦截 403 伪装 HTML；
-  - `ingest_external_records.py`：知网/万方/WoS 外部导出题录 Schema 硬解析与四级去重；
+  - `ingest_external_records.py`：知网/万方/WoS 外部导出题录 Schema 硬解析与去重（DOI 精确 + 标题精确两级）；
   - `calculate_screening_agreement.py`：双评阅人 Cohen's $\kappa$ 数学统计检验与分歧自动剥离；
   - `audit_claims.py`：正文局部上下文协同共现校验与 PDF 文本解析质量审计，辅助定位候选证据并拦截伪匹配；
   - `controversy_analyzer.py`：多维评价因子加权数学验算、定性共识梯队划分与 `NOT_REPORTED` 绝对零权重隔离；

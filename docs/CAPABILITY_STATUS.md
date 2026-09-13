@@ -84,6 +84,8 @@
 | Stage 8B 浏览器兜底下载 | `NOT_SUPPORTED` | 无实现；仅剩枚举值 |
 | 商业库逆向抓取 | `NOT_SUPPORTED` | 明确不做（合规边界） |
 
+> **检索台账口径注（第二轮，H-20/21/22/61-66）**：台账跨作用域虚报（查询数≠台账行数）、`hits=0` 仍可判 `COMPLETE`、snowball 少取引用仍记 `COMPLETE`、headless Ledger 非 canonical 且 `reconcile` 无生产调用点——已登记，**下轮 reconcile 重构一并修**；当前 Gate A 判定不得作为「已穷尽检索」的证明。
+
 ---
 
 ## 2. literature-evidence-extraction
@@ -91,11 +93,11 @@
 | 能力 | 状态 | 证据 / 说明 |
 |---|---|---|
 | 逐字引句回查（EXACT/HYPHEN/FUZZY/NOT_FOUND） | `CODE_VERIFIED` | `quote_audit.py`；**不校验页码**，页码来自 Agent 自报 |
-| 数值—引句锚定（含单位与量纲） | `CODE_VERIFIED` | 完整数量解析（符号/数值/指数/单位）后按数值+量纲比较；同量纲按**精确十进制**因子换算（2.5 mL == 2500 µL，1 nL ≠ 2 nL），跨量纲不匹配；`bp/kb/mb` 分列，`%`=1/100、`‰`=1/1000；`%` ↔ 裸比例仅在字段声明 `value_type` 时互认 |
+| 数值—引句锚定（含单位与量纲） | `CODE_VERIFIED` | 完整数量解析（符号/数值/指数/单位）后按数值+量纲比较；同量纲按**精确十进制**因子换算（2.5 mL == 2500 µL，1 nL ≠ 2 nL），跨量纲不匹配；`bp/kb/mb` 分列，`%`=1/100、`‰`=1/1000；`%` ↔ 裸比例仅在字段声明 `value_type` 时互认。**第二轮实测注**：FUZZY 匹配默认容忍单 token 级引句篡改且 `--strict` 未经 SKILL.md 强制（H-03），被篡改引句可携带伪造数值过默认门禁——**防伪关键值必须用 `--strict`** |
 | 未知/复合单位的诚实阻断 | `CODE_VERIFIED` | 单位不在表内（如 `Gy`、`Sv`、`m/s`、`m2`）→ `dimension="unknown"`、保留原文，判 `UNKNOWN_UNIT` 并阻断；源文扫描**保留大小写**（`Gy` 不会被折成 `gy`），抽取值悄悄丢单位也会被 `UNIT_MISMATCH` 挡住；只有字段声明 `value_type=count/dimensionless` 且另一侧确实无量纲时才按数值比较 |
 | 数值字面量边界（千分位/比较符/全角） | `CODE_VERIFIED` | 多组千分位（`1,234,567`、`1.234.567`）与英/欧两种 locale；单组点分 `0.005` 仍按小数；比较符（`< > ≤ ≥ ± ~`）参与比较；抽取值侧与源文侧同源 confusable 归一化 |
 | 引句长度与空白边界 | `CODE_VERIFIED` | `MAX_QUOTE_LEN=2000`：整篇/大段文本当引句 → `QUOTE_TOO_LONG` 阻断（否则数值锚定恒真）；含 CJK 的引句允许折行空白不敏感匹配（拉丁文不放宽，避免 `the rapist`/`therapist` 假命中） |
-| 主张—证据方向（极性） | `CODE_VERIFIED` | 否定词奇偶 + 反义类一致性检查：反向/反义/缺失型 claim → `CONTRADICTORY` + `REJECT_POLARITY_MISMATCH`，不得进入共识 |
+| 主张—证据方向（极性） | `PARTIAL` | 否定词奇偶 + 反义类一致性检查：反向/反义/缺失型 claim → `CONTRADICTORY` + `REJECT_POLARITY_MISMATCH`，不得进入共识。**第二轮实测词表盲区（H-01/H-02）**：名词化反转（"reversed/abolished the increase"）、`don't` 收缩词、`neither/nor` 等可绕过判 `SUPPORTED`；同句含双向词时跳过比较——修复前**不得依赖该门禁拦反向结论** |
 | 数值字面量边界 | `CODE_VERIFIED` | 千分位 `1,000` 与欧洲小数逗号 `2,5` 分别解析；`5%` ↔ `50‰` 在比例字段下等价、`5%` ≠ `5‰`；同量纲跨单位换算仅接受已登记倍率；含义不明确的符号（`mb`）不登记 |
 | 数值核验覆盖边界 | `PARTIAL` | **已覆盖**：抽取值带未知/复合单位、源文未知单位（含大小写符号与两字母小写单位）、量纲错配、未锚定、不可解析。**未覆盖**：源文用 3 个以上字母的**生僻小写**单位、而抽取值又恰好丢了单位——这种组合仍可能通过；需要时把该单位登记进 `_UNIT_GROUPS` |
 | 数值判定边界 | `CODE_VERIFIED` | 含数字却解析不出数量 → `UNPARSEABLE_VALUE`；数字对但单位/量纲不同 → `UNIT_MISMATCH`；距引句过远 → `NOT_IN_QUOTE_CONTEXT`；四类均计入 `unverified` 并触发硬门禁 |
@@ -103,7 +105,7 @@
 | AECE 上下文扩展（单句→相邻句→段落→结构化） | `CODE_VERIFIED` | `context_expansion.py`；`SECTION_CONTEXT` / `CONTEXT_UNIT` 两级未产出 |
 | 长距离拼接拦截 | `CODE_VERIFIED` | 跨页 / 间隔 >1500 字符 / Intro-Results 混拼 |
 | 表格单元格与图注证据提升 | `CODE_VERIFIED` | 原为崩溃路径，已修；保留原始单元格内容，拼接上下文单独标注为解释性 |
-| 抽取溯源四级（`support_type`） | `CODE_VERIFIED` | 提升路径按语义推导 EXPLICIT / REFERENCED / DERIVED / NOT_REPORTED，不再硬编码 |
+| 抽取溯源四级（`support_type`） | `CODE_VERIFIED` | 提升路径按语义推导 EXPLICIT / REFERENCED / DERIVED / NOT_REPORTED，不再硬编码。**注（第二轮）**：EXPLICIT 判定不保证语义方向正确——反向主张可判 `EXPLICIT`（极性词表盲区 H-01/H-02，修复中） |
 | 结构化定位保留（表号/行头/列头/单位/脚注） | `CODE_VERIFIED` | `location.table_or_figure_id` 等字段随提升保留 |
 | 0–10 相关度前置剪枝 | `CODE_VERIFIED` | `audit_claims.py`；空 topic 边界行为见已知限制 |
 | 上下文充分性审计（第 16 项） | `CODE_VERIFIED` | `audit_context_sufficiency` |
@@ -124,16 +126,16 @@
 | 加权证据评价（directness/independence/risk_of_bias/replication） | `CODE_VERIFIED` | `controversy_analyzer.resolve_evidence_weight` |
 | 独立性组权重封顶 + STRONG 需 ≥2 已验证独立组 | `CODE_VERIFIED` | 实测通过 |
 | 非篇数多数决 | `CODE_VERIFIED` | 8 篇弱反证不敌 1 篇强实证，实测 |
-| 「非证据」语义的单一真源 | `CODE_VERIFIED` | `evidence_states.py`：`NOT_REPORTED`/`NOT REPORTED`/`NR`/`unchecked`/`inaccessible`/`cited_only` 写法归一化后一律零权重，并真正读取 `claim_status`；资格检查 `evaluate_consensus_eligibility()` 同源。**修复前**这些写法均按满权重进入共识 |
-| 已核验反证的有界加权 | `CODE_VERIFIED` | `controversy_analyzer.apply_verified_challenges()`：`WEAKENS` 0.25 / `REFUTES` 0.5，同来源组封顶 0.5，权重不为负；反证记录**不计入立场权重**（`CHALLENGE_EVIDENCE`），5 条 `REFUTES` 只把支持压到 `INSUFFICIENT_EVIDENCE`，`REFUTE` 权重保持 0；未核验反证零影响。测试 `tests/test_rfc017_challenge_channel.py` |
-| 可比性分层（6 维） | `CODE_VERIFIED` | `comparability.py` |
+| 「非证据」语义的单一真源 | `PARTIAL` | `evidence_states.py`：`NOT_REPORTED`/`NOT REPORTED`/`NR`/`unchecked`/`inaccessible`/`cited_only` 写法归一化后一律零权重，并真正读取 `claim_status`；资格检查 `evaluate_consensus_eligibility()` 同源。**第二轮实测归一化仍不完备（H-05）**：34 个变体中 15 个（含 `Not reported.` 标点逃逸、`NOT.REPORTED`、`REFERENCED_ONLY` 漏映射）满权重入共识且缺省 fail-open——修复前不得依赖零权重保证 |
+| 已核验反证的有界加权 | `CODE_VERIFIED` | `controversy_analyzer.apply_verified_challenges()`：`WEAKENS` 0.25 / `REFUTES` 0.5，同来源组封顶 0.5，权重不为负；反证记录**不计入立场权重**（`CHALLENGE_EVIDENCE`），5 条 `REFUTES` 只把支持压到 `INSUFFICIENT_EVIDENCE`，`REFUTE` 权重保持 0；未核验反证零影响。测试 `tests/test_rfc017_challenge_channel.py`。**作用域注（第二轮）**：以上仅在本技能域内自洽——跨技能 `challenge_*` 字段断链（H-41）、反证入层受 comparability 元数据完整性制约（H-44）、消费端信任自声明 `challenge_status`（H-07 修复中） |
+| 可比性分层（6 维） | `CODE_VERIFIED` | `comparability.py`。**注（第二轮）**：名义 6 维，硬编码学科规则实际集中于 4 维；域中立 linter 尚未扫描 `.py` |
 | 层内结论与跨层差异分别披露 | `CODE_VERIFIED` | 头条取全量主张；分层方向分歧显式披露，不再以单层代表整体 |
 | Claim ID 可溯源门禁 | `CODE_VERIFIED` | `claim_linter.py` |
 | Mermaid 论证拓扑图 | `CODE_VERIFIED` | 有静默截断（支持/反驳各 4 篇、条件 3 篇） |
-| canonical SynthesisRecord 输出 | `CODE_VERIFIED` | 通过 schema 校验 |
+| canonical SynthesisRecord 输出 | `CODE_VERIFIED` | 通过 schema 校验。**注（第二轮）**：CLI `--format json` 输出根类型与 schema 不符（已拍板包装 object，代码下轮，H-58） |
 | 9 类争议分类（Type A–I） | `PARTIAL` | 实现 A/B/D 三类分支；C/E/F/G/H/I 未实现 |
 | 6 级共识梯队 | `CODE_VERIFIED` | 层级判定与零权重不入共识均为实测行为 |
-| 学派与范式演进图谱 | `PARTIAL` | 确定性分桶 + 时间排序，非无监督聚类 |
+| 学派与范式演进图谱 | `PARTIAL` | 确定性分桶 + 时间排序，非无监督聚类；别名归一化过窄可致同名学派分裂（H-75，下轮） |
 | Devil's Advocate 红队质询 | `HOST_EXECUTED` | 仅 role 文档；无代码强制 |
 | Gatekeeper 10 项终审 | `HOST_EXECUTED` | 同上 |
 | SEARCH GAP / EXTRACTION GAP 回传 | `HOST_EXECUTED` | 有字段与模板，无生成代码 |
@@ -166,7 +168,7 @@
 | 两文件一致提交与中断识别 | `CODE_VERIFIED` | 封存前完成 revision 校验（失败时快照与检查点均不变）；快照与检查点经 `commit_journal.json` 一致提交，中断留下提交日志 → `consistency_report()` 报 `INCOMPLETE_COMMIT`，`recover_commit()` 完成或回滚；CLI `seal` 支持 `--import-mode/--import-reason/--import-source` |
 | **契约校验前置到修复路径** | `CODE_VERIFIED` | `heal_referential_integrity()` 生成的占位立即过 `research_debate_gap.schema.json`；不合规输出转入 `repair_proposals` 而非正式 `gap_requests` |
 | **外键修复不得制造授权** | `CODE_VERIFIED` | `heal_referential_integrity()` 只生成 `PENDING` 占位，不伪造 `CONFIRMED`（F06/R06）；占位以 `healed_placeholder=true` 显式标记，Schema 据此放开空关联并强制 `execution_status=NOT_STARTED`；测试 `tests/test_research_debate_session_store.py` |
-| 缺口确认 → 上游返回 → 支持/反证分别回流 → 保存 → 恢复 | `HOST_EXECUTED` | 端到端真实宿主流程**尚未执行** |
+| 缺口确认 → 上游返回 → 支持/反证分别回流 → 保存 → 恢复 | `NOT_SUPPORTED` | 端到端闭环事实不可达：入向适配缺失（第二轮实测 38 条真实证据 100% `UNRESOLVED`，H-41/H-42/H-43）；RFC-016「端到端四技能闭环验证」表述不成立 |
 | 讨论对文献质量的独立判断 | `HUMAN_CONFIRMED` | 不得以讨论中的说服力替代证据核验 |
 
 ---
@@ -223,7 +225,7 @@
 |---|---|---|
 | 统一执行深度三档 | `CODE_VERIFIED` | 预设 ≠ 运行授权；未确认配置不得保存 |
 | 运行配置契约与往返一致性 | `CODE_VERIFIED` | `RunExecutionConfig` + schema 校验 + 原子写入 |
-| 运行级预算与阶段计划 | `CODE_VERIFIED` | `RunContext`；模型/数据库请求分开计数 |
+| 运行级预算与阶段计划 | `PARTIAL` | `RunContext`；模型/数据库请求分开计数。**第二轮实测（H-19）**：重新实例化 RunContext 不回放 usage_ledger——已终结 run 配额重置满额发放；台账负数记账/删除投毒未设防（H-47，下轮） |
 | Token 计量诚实性 | `CODE_VERIFIED` | 由观测计数推导；部分观测标注为下界 |
 | 预算硬上限（抢占式） | `NOT_SUPPORTED` | 请求 `hard` 会显式降级为 `best_effort` 并写入回执 |
 | 跨运行资源授权隔离 | `CODE_VERIFIED` | 绑定 `run_id`；证据可用但授权不转移 |
@@ -232,6 +234,8 @@
 | 断点续跑（阶段中途精确接续） | `PARTIAL` | 可重建剩余额度，不支持单篇处理中途接续 |
 | 宿主图表理解能力 | `HOST_EXECUTED` | 记为能力缺口，不输出"已穷尽审计" |
 | 真实论文质量评测（Level 3–4） | `NOT_SUPPORTED` | 尚未建设真实金标测试集 |
+
+> **威胁模型声明（第二轮合议拍板）**：本套件的机械门禁对抗的是**宿主 Agent 的伪造输入与自我欺骗**（伪造引句、伪造确认事件、伪造证据产物），不承诺对抗对磁盘有写权限的持盘攻击者（恢复链路 journal、授权来源认证按此边界设计，详见 `docs/` 跨技能契约文档）。
 
 ---
 
@@ -263,6 +267,16 @@
     会话/gap/构想/版本/范围逐项绑定（见 §3.5）；只给字符串 ID 不再放行。
 14. 「快照 = 事件重放结果」在未封存检查点时不成立：此时 `consistency_report()` 报
     `SNAPSHOT_BASE_UNVERIFIED`，不得把 `consistent=true` 当作真源一致性证明。
+15. RFC-016 标注 research-idea-debate「端到端四技能闭环验证」`IMPLEMENTED`——第二轮集群实测
+    闭环不可达（入向适配缺失，38 条真实证据 100% `UNRESOLVED`），RFC-016 状态已加注更正。
+16. 第一轮 P1-9 中「`--unverified-policy list/ignore` 跳过数值核验」的表述随第二轮 H-17 处理
+    而过时（envelope/schema FAIL 已计入退出码），以更新后的 KNOWN_ISSUES 为准。
+17. debate SKILL.md §七记载的「append+snapshot」路径若被中断会留下 `INCOMPLETE_COMMIT`，
+    必须经 `recover_commit()` 恢复；`summaries/` 目录当前无自动生成点（预留）。
+18. RFC-017 反证罚则仅在本技能域内自洽；跨技能 `challenge_*` 字段契约（H-41）尚未建立。
+19. 威胁模型：机械门禁不承诺对抗持盘攻击者（见 §5 威胁模型声明）。
+20. fail-closed 拒绝目前**无专用人工裁决队列**，仅靠产物 summary 计数暴露
+    （`UNRESOLVED`/`UNPARSEABLE`/`UNKNOWN_METRIC_DIRECTION`/`INVALID_STANCE`）。
 
 ---
 

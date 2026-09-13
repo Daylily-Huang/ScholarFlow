@@ -25,5 +25,5 @@ Status vocabulary:
 | **RFC-013** | [文献解析抽取与跨文献综合增强操作文档](../implementation/ScholarFlow_文献解析抽取与跨文献综合增强操作文档.md) | v0.6.5 | `PARTIALLY IMPLEMENTED` — M0/F0x、M3 与 §17 D0 已落地；M1/M2/M4 与 D1–D5 仍为设计 |
 | **RFC-014** | [统一执行深度架构接入操作手册](../implementation/ScholarFlow_统一执行深度接入操作手册.md) | v0.6.5 | `IMPLEMENTED` — 三档 profile、`EXECUTION_DEPTH` 门禁、T01–T20 验收 |
 | **RFC-015** | [执行深度实现审查与详细修改建议（2026-09-10）](../implementation/ScholarFlow_执行深度实现审查与详细修改建议_2026-09-10.md) | v0.6.6 | `IMPLEMENTED` — R01–R12 全部修复，验收见该文档附录 |
-| **RFC-016** | [研究构想与假说推敲技能设计稿](./research-idea-debate-design.md) | 新技能 `research-idea-debate` | `IMPLEMENTED` — M1–M4 全部交付；包含 7 大角色规范、5 大规程、3 个 JSON Schema、单写者事件溯源重放、50 项机械规程硬校验（RV01–RV50）及端到端四技能闭环验证 |
-| **RFC-017** | [research-idea-debate 反证（CHALLENGE）通道的核验状态](./RFC-017-research-debate-challenge-channel.md) | v0.6.7 | `IMPLEMENTED` — 独立 `challenge_status`（不改 `alignment`）+ 人工复核 + 有界加权（不得多数决） |
+| **RFC-016** | [研究构想与假说推敲技能设计稿](./research-idea-debate-design.md) | 新技能 `research-idea-debate` | `IMPLEMENTED` — M1–M4 全部交付；包含 7 大角色规范、5 大规程、3 个 JSON Schema、单写者事件溯源重放、50 项机械规程硬校验（RV01–RV50）。**注（2026-09-13 第二轮集群实测）**：原文「端到端四技能闭环验证」不成立——入向适配缺失致真实证据 100% `UNRESOLVED`（能力表 §3.5 该行已改 `NOT_SUPPORTED`），闭环待跨技能字段契约落地后另行验收 |
+| **RFC-017** | [research-idea-debate 反证（CHALLENGE）通道的核验状态](./RFC-017-research-debate-challenge-channel.md) | v0.6.7 | `IMPLEMENTED` — 独立 `challenge_status`（不改 `alignment`）+ 人工复核 + 有界加权（不得多数决）。**注（第二轮）**：罚则仅在本技能域内自洽，跨技能 `challenge_*` 字段契约未建立（H-41），消费端对自声明字段的信任边界见能力表 §3 |
