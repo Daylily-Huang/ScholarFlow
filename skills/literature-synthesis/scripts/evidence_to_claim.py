@@ -14,13 +14,23 @@ import sys
 import re
 from typing import Dict, List, Any, Optional, Tuple
 
-from evidence_states import classify_non_evidence  # noqa: E402
+from evidence_states import classify_non_evidence, resolve_non_evidence_class  # noqa: E402
 
 
 EVIDENCE_BEARING_STATUSES = {
     "SUPPORTED",
     "PARTIALLY_SUPPORTED",
     "CONTRADICTORY",
+}
+
+#: H-49：claim 级资格 issue 代码 → 共识排除计数（excluded_from_consensus）的理由键。
+#: `NON_EVIDENCE:<class>` 与 `CLAIM_STATUS_<VALUE>` 直接以自身作排除键。
+CLAIM_ISSUE_REASON_KEYS = {
+    "NEUTRAL_STANCE": "NEUTRAL",
+    "UNRESOLVED": "UNRESOLVED",
+    "DIFFERENT_PROPOSITION": "DIFFERENT_PROPOSITION",
+    "UNKNOWN_EVIDENCE_STRENGTH": "UNKNOWN",
+    "NO_EVIDENCE_STRENGTH": "NO_EVIDENCE_STRENGTH",
 }
 
 
@@ -44,6 +54,17 @@ def check_target_proposition_compatibility(
 
     if norm_src == norm_tgt:
         return "VERIFIED_SAME_PROPOSITION", "Identical target proposition"
+
+    # H-53（词袋命题兼容）：词袋（token 集合）相等但归一化串不等 = 同一批词的不同
+    # 顺序——最典型是主宾互换（"A increases B" vs "B increases A"）。词袋比较把语序
+    # 信息全丢，曾把反向关系判成 VERIFIED_SAME_PROPOSITION（反向主张可冒充支持）。
+    # 此时无法在词袋层面证明命题对齐，必须 fail-closed 交人工（UNRESOLVED），
+    # 由资格门禁拒绝入共识；原语序（归一化串相等）仍走上方 VERIFIED 成对断言。
+    if norm_src and norm_tgt and set(norm_src.split()) == set(norm_tgt.split()):
+        return "UNRESOLVED", (
+            "Proposition tokens match but word order differs (possible subject/object "
+            "swap); manual adjudication required: '%s' vs '%s'"
+            % (source_target_claim, synthesis_target_claim))
 
     # Token-based comparison to detect obvious subject/object/predicate mismatches
     src_words = set(norm_src.split())
@@ -74,6 +95,54 @@ def check_target_proposition_compatibility(
     return "VERIFIED_SAME_PROPOSITION", "Compatible proposition"
 
 
+def claim_consensus_issues(claim_record: Dict[str, Any]) -> List[str]:
+    """H-49：claim 级共识资格检查（无证据索引上下文的公共判定）。
+
+    与 `evaluate_consensus_eligibility` 的 claim 级检查**同源共用**，并被生产路径
+    `controversy_analyzer.compute_topic_consensus()` 直接消费——资格门禁从此有了
+    生产调用点（known P1-7 收口）。返回结构化 issue 代码列表，代码 → 排除键映射见
+    `CLAIM_ISSUE_REASON_KEYS`；`NON_EVIDENCE:<class>` / `CLAIM_STATUS_<VALUE>`
+    直接以自身作排除键，保证每次拒绝在 `excluded_from_consensus` 里可读数（设施-1）。
+
+    检查项：
+    1. 该记录不得属于「非证据」语义（NOT_REPORTED / UNCHECKED / INACCESSIBLE /
+       CITED_ONLY / UNPARSEABLE）——判定走 `evidence_states` 单一真源；
+    2. evidence_strength 与 evidence_tier 不得同时缺失，或 strength 为 UNKNOWN；
+    3. stance 不得是 NEUTRAL（非证据承载立场，H-91：出分母）；
+    4. stance_mapping_status 不得是 DIFFERENT_PROPOSITION / UNRESOLVED；
+    5. claim 显式声明的上游状态（`claim_status` / `claim_status_upstream` 键存在时）
+       必须是证据承载值——缺 key 不发表意见（普通 CLI 主张不携带该字段），但声明了
+       空值/非承载值即拒绝（fail-closed，H-49「缺 claim_status」半边）。
+    """
+    issues: List[str] = []
+    non_evidence = resolve_non_evidence_class(claim_record)
+    if non_evidence:
+        issues.append("NON_EVIDENCE:%s" % non_evidence)
+
+    strength = claim_record.get("evidence_strength")
+    tier = claim_record.get("evidence_tier")
+    if not strength and not tier:
+        issues.append("NO_EVIDENCE_STRENGTH")
+    elif (strength == "UNKNOWN" or not strength) and not tier:
+        issues.append("UNKNOWN_EVIDENCE_STRENGTH")
+
+    if str(claim_record.get("stance", "") or "").upper() == "NEUTRAL":
+        issues.append("NEUTRAL_STANCE")
+
+    mapping_status = claim_record.get("stance_mapping_status")
+    if mapping_status == "DIFFERENT_PROPOSITION":
+        issues.append("DIFFERENT_PROPOSITION")
+    elif mapping_status == "UNRESOLVED":
+        issues.append("UNRESOLVED")
+
+    for status_key in ("claim_status", "claim_status_upstream"):
+        if status_key in claim_record:
+            declared = str(claim_record.get(status_key) or "").strip().upper()
+            if declared not in EVIDENCE_BEARING_STATUSES:
+                issues.append("CLAIM_STATUS_%s" % (declared or "MISSING"))
+    return issues
+
+
 def evaluate_consensus_eligibility(
     claim_record: Dict[str, Any],
     evidence_index: Optional[Dict[str, Any]] = None,
@@ -86,15 +155,20 @@ def evaluate_consensus_eligibility(
     2. EvidenceRecord must exist for referenced evidence_ids.
     3. Context sufficiency must be SUFFICIENT for full-strength consensus (PARTIALLY_SUFFICIENT rejected).
     4. claim_status must be evidence-bearing (SUPPORTED, PARTIALLY_SUPPORTED, CONTRADICTORY).
-    5. 该记录不得属于「非证据」语义（NOT_REPORTED / UNCHECKED / INACCESSIBLE / CITED_ONLY）——
-       判定走 `evidence_states.classify_non_evidence()` 单一真源，写法差异（"NOT REPORTED"、
-       "not checked"）同样拦截。
+    5. 该记录不得属于「非证据」语义（NOT_REPORTED / UNCHECKED / INACCESSIBLE / CITED_ONLY /
+       UNPARSEABLE）——判定走 `evidence_states` 单一真源，写法差异（"NOT REPORTED"、
+       "not checked"、显式空值）同样拦截。
     6. evidence_strength must not be UNKNOWN or empty.
-    7. Stance mapping status must not be DIFFERENT_PROPOSITION or UNRESOLVED.
+    7. Stance mapping status must not be DIFFERENT_PROPOSITION or UNRESOLVED（H-49）。
+       UNRESOLVED 的唯一豁免：AUDITED_CANONICAL 模式下证据索引存在且所有引用证据逐条
+       核验通过——此时立场来自上游已核验的 claim_status，而非缺失的命题对齐。
+    8. Claim-level checks are shared with the production path via
+       `claim_consensus_issues()`（controversy_analyzer.compute_topic_consensus 同源消费）。
     """
-    issues = []
+    issues: List[str] = []
     evidence_ids = claim_record.get("evidence_ids", [])
     ev_index = evidence_index or {}
+    audited_clean = False
 
     if mode == "AUDITED_CANONICAL":
         if not evidence_index:
@@ -102,6 +176,7 @@ def evaluate_consensus_eligibility(
         elif not evidence_ids:
             issues.append("Missing evidence_ids references in claim record")
         else:
+            mark = len(issues)
             for eid in evidence_ids:
                 ev_rec = ev_index.get(eid)
                 if not ev_rec:
@@ -129,6 +204,8 @@ def evaluate_consensus_eligibility(
                 ev_strength = ev_rec.get("evidence_strength")
                 if not ev_strength or ev_strength == "UNKNOWN":
                     issues.append(f"Evidence '{eid}' has UNKNOWN evidence strength")
+            # H-49：全部引用证据逐条核验通过（本段零新增 issue）才算"已审计"。
+            audited_clean = (len(issues) == mark)
     else:
         # Legacy/display mode checks if index is provided
         if ev_index and evidence_ids:
@@ -139,25 +216,10 @@ def evaluate_consensus_eligibility(
                     if ctx_suff == "INSUFFICIENT":
                         issues.append(f"Evidence '{eid}' has INSUFFICIENT context sufficiency")
 
-    # Claim-level checks
-    if classify_non_evidence(claim_record):
-        issues.append("Claim is non-evidence-bearing (%s)"
-                      % classify_non_evidence(claim_record))
-
-    strength = claim_record.get("evidence_strength")
-    tier = claim_record.get("evidence_tier")
-    if not strength and not tier:
-        issues.append("Claim has no evidence_strength or evidence_tier specified")
-    elif (strength == "UNKNOWN" or not strength) and not tier:
-        issues.append("Claim evidence_strength is UNKNOWN")
-
-    stance = claim_record.get("stance")
-    if stance == "NEUTRAL":
-        issues.append("Claim stance is NEUTRAL (non-evidence-bearing stance)")
-
-    mapping_status = claim_record.get("stance_mapping_status")
-    if mapping_status == "DIFFERENT_PROPOSITION":
-        issues.append("Claim stance mapping status is DIFFERENT_PROPOSITION (target proposition mismatch)")
+    # Claim-level checks（与生产路径 compute_topic_consensus 共用单一判定）
+    issues.extend(claim_consensus_issues(claim_record))
+    if audited_clean and "UNRESOLVED" in issues:
+        issues = [i for i in issues if i != "UNRESOLVED"]
 
     is_eligible = len(issues) == 0
     return is_eligible, issues
@@ -195,7 +257,12 @@ def map_evidence_to_claim(
         or evidence_record.get("target_information_need_id")
     )
 
-    status = evidence_record.get("claim_status") or evidence_record.get("status", "SUPPORTED")
+    status = evidence_record.get("claim_status") or evidence_record.get("status")
+    if not status:
+        # H-49：缺 claim_status 不得默认 SUPPORTED（fail-closed）。无状态即无方向，
+        # 映射立场交由资格门禁拒绝；SYN-A-08 实测默认 SUPPORTED 曾让"没查状态"的
+        # 证据盖 E1 章直通共识。
+        status = "UNRESOLVED"
 
     # Determine stance & compatibility gate (P0-11)
     if stance:

@@ -108,6 +108,81 @@ CONTRACT_DIRECTION_MAP = {
     "NOT_TESTED": "NEUTRAL",
 }
 
+#: H-07 止血：反证 `challenge_scope` 的合法枚举（与上游
+#: shared/execution/debate_handoff.evaluate_challenge 的 scope 枚举同值；按决议用
+#: 本地常量，**不跨包 import**）。消费端对声明了枚举外 scope 的反证不施罚。
+CHALLENGE_SCOPES = {"MECHANISM", "PREMISE", "SCOPE", "MAGNITUDE"}
+
+#: H-52：「该行确是一条反证记录」的 challenge_status 等价判定路径（relation 缺失时）。
+#: `REJECTED`（挑战已被驳回——该行本就是立场证据）与任意其它非空垃圾值不再把
+#: 立场证据行逐出投票；仅 `relation=CHALLENGE` 或这些真实反证状态进入反证分流。
+CHALLENGE_RECORD_STATUSES = {"VERIFIED_CHALLENGE", "PENDING_HUMAN_CONFIRMATION", "UNRESOLVED"}
+
+#: H-07：与顶层 `challenge_status=VERIFIED_CHALLENGE` 语义矛盾的内嵌凭据状态
+#: （SYN-A-02 f04c：凭据说 UNVERIFIED、顶层却说已核验）——矛盾凭据不罚。
+_CONFLICTING_VERIFICATION_STATUSES = {
+    "UNVERIFIED", "REJECTED", "PENDING", "PENDING_HUMAN_CONFIRMATION",
+}
+
+
+def is_challenge_record(record: Dict[str, Any]) -> bool:
+    """该行是否为反证记录（进入反证分流，不参与立场投票）。
+
+    H-52：只认 `relation=CHALLENGE`，或 challenge_status 取真实反证状态值
+    （`CHALLENGE_RECORD_STATUSES`，relation 字段丢失时的等价判定路径）。
+    任何其它非空 `challenge_status`（含 REJECTED / "X"）不再逐出立场投票。
+    """
+    if str(record.get("relation", "") or "").upper().strip() == "CHALLENGE":
+        return True
+    return (str(record.get("challenge_status", "") or "").upper().strip()
+            in CHALLENGE_RECORD_STATUSES)
+
+
+def _challenge_scope_rejected(challenge: Dict[str, Any]) -> Optional[str]:
+    """声明了枚举外 scope → 返回该 scope（应截获不罚）；未声明/合法 → None。
+
+    未声明（缺键/空值）沿用既有语义放行：上游 to_evidence_link 产出的核验凭据必填
+    scope，旧格式直通记录的缺失不构成本端伪造信号（避免误伤既有合法链路）。
+    """
+    scope = str(challenge.get("challenge_scope", "") or "").strip().upper()
+    if scope and scope not in CHALLENGE_SCOPES:
+        return scope
+    return None
+
+
+def _challenge_verification_conflict(challenge: Dict[str, Any]) -> Optional[str]:
+    """内嵌 challenge_verification 与顶层 challenge_status=VERIFIED_CHALLENGE 语义
+    矛盾 → 返回矛盾状态；否则 None。"""
+    verification = challenge.get("challenge_verification")
+    if not isinstance(verification, dict):
+        return None
+    status = str(verification.get("status", "") or "").strip().upper()
+    top = str(challenge.get("challenge_status", "") or "").strip().upper()
+    if top == "VERIFIED_CHALLENGE" and status in _CONFLICTING_VERIFICATION_STATUSES:
+        return status
+    return None
+
+
+def audit_challenge_channels(challenges: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
+    """H-07 止血：消费端反证截获审计（不依赖 target 是否命中，逐条可对账）。
+
+    返回 `{"scope_rejected": [...], "verification_conflicts": [...]}`，条目含
+    challenge 标识与截获原因，供 challenge_adjustment 产物披露。
+    """
+    scope_rejected: List[Dict[str, Any]] = []
+    verification_conflicts: List[Dict[str, Any]] = []
+    for ch in challenges or []:
+        if str(ch.get("challenge_status", "") or "").upper() != "VERIFIED_CHALLENGE":
+            continue
+        who = str(ch.get("claim_id") or ch.get("paper_id") or "unknown")
+        conflict = _challenge_verification_conflict(ch)
+        if conflict:
+            verification_conflicts.append({"challenge": who, "verification_status": conflict})
+        bad_scope = _challenge_scope_rejected(ch)
+        if bad_scope:
+            scope_rejected.append({"challenge": who, "scope": bad_scope})
+    return {"scope_rejected": scope_rejected, "verification_conflicts": verification_conflicts}
+
 
 
 def parse_args():
@@ -201,15 +276,37 @@ def challenge_penalty(challenges: List[Dict[str, Any]]) -> Tuple[float, List[str
       - 惩罚按**反证来源的独立组**合并，单组合计不超过 `CHALLENGE_GROUP_PENALTY_CAP`；
       - 惩罚只从被挑战主张的权重里扣，**不转移给对立立场**——因此再多反证也无法靠计数
         把结论翻成 REFUTE，只可能把支持权重压到 0（判为证据不足）。
+
+    H-07 止血（消费端不再全信任自声明）：
+      - `challenge_scope` **显式声明**且不在 `CHALLENGE_SCOPES` 枚举 → 不罚
+        （factors 记 `challenge_scope_rejected(<scope>)`；GALAXY/ENTIRE_TOPIC_AND_BEYOND 截获）；
+        未声明 scope 的记录沿用既有语义放行（上游核验凭据必填 scope，旧格式缺失
+        不构成本端伪造信号）；
+      - 内嵌 `challenge_verification.status` 与顶层 `VERIFIED_CHALLENGE` 语义矛盾
+        （UNVERIFIED/REJECTED/PENDING*）→ 不罚（factors 记
+        `challenge_verification_conflict(...)`，f04c 截获）；
+      - factors 披露封顶三量：组内原始合计 `challenge_group_raw(罚前)`、
+        `challenge_group_capped(罚前->封顶后)`（触发封顶时）、实际扣减 `challenge(罚后)`。
     """
     by_group: Dict[str, float] = defaultdict(float)
     factors: List[str] = []
     for ch in challenges or []:
-        if str(ch.get("challenge_status", "")).upper() != "VERIFIED_CHALLENGE":
+        if str(ch.get("challenge_status", "") or "").upper() != "VERIFIED_CHALLENGE":
             continue
-        strength = str(ch.get("challenge_strength", "")).upper()
+        strength = str(ch.get("challenge_strength", "") or "").upper()
         amount = CHALLENGE_PENALTY.get(strength)
         if amount is None:
+            continue
+        rejected = False
+        conflict = _challenge_verification_conflict(ch)
+        if conflict:
+            factors.append("challenge_verification_conflict(%s)" % conflict)
+            rejected = True
+        bad_scope = _challenge_scope_rejected(ch)
+        if bad_scope:
+            factors.append("challenge_scope_rejected(%s)" % bad_scope)
+            rejected = True
+        if rejected:
             continue
         grp = str(ch.get("independence_group_id") or ch.get("study_id")
                   or ch.get("paper_id") or "Unknown")
@@ -217,6 +314,7 @@ def challenge_penalty(challenges: List[Dict[str, Any]]) -> Tuple[float, List[str
     penalty = 0.0
     for grp, raw_amount in sorted(by_group.items()):
         capped = min(raw_amount, CHALLENGE_GROUP_PENALTY_CAP)
+        factors.append("challenge_group_raw(%s: %.2f)" % (grp, raw_amount))
         if capped < raw_amount:
             factors.append("challenge_group_capped(%s: %.2f->%.2f)"
                            % (grp, raw_amount, capped))
@@ -237,7 +335,33 @@ def apply_verified_challenges(weight: float, challenges: List[Dict[str, Any]]
     return adjusted, factors
 
 
-from evidence_states import classify_non_evidence, normalize_state_token  # noqa: E402
+from evidence_states import (  # noqa: E402
+    classify_non_evidence,
+    normalize_state_token,
+    resolve_non_evidence_class,
+)
+from evidence_to_claim import (  # noqa: E402
+    CLAIM_ISSUE_REASON_KEYS,
+    EVIDENCE_BEARING_STATUSES,
+    claim_consensus_issues,
+)
+
+#: H-54：appraisal 维度取值白名单与别名归一——拼写逃逸（HIGH_RISK/VERY_LOW/表外垃圾值）
+#: 不再"既不受罚也无专属标记"（SYN-A-07：40% 权重膨胀不可见）。
+_APPRAISAL_LEGAL = {
+    "directness": {"HIGH", "MEDIUM", "LOW"},
+    "independence": {"HIGH", "MEDIUM", "LOW"},
+    "risk_of_bias": {"LOW", "MEDIUM", "HIGH"},
+    "replication": {"HIGH", "LOW"},
+}
+_APPRAISAL_ALIASES = {
+    "directness": {"VERY_LOW": "LOW", "VERY_HIGH": "HIGH"},
+    "independence": {"VERY_LOW": "LOW", "VERY_HIGH": "HIGH"},
+    "risk_of_bias": {"HIGH_RISK": "HIGH", "VERY_HIGH": "HIGH", "SERIOUS": "HIGH",
+                     "SOME_CONCERNS": "MEDIUM", "VERY_LOW": "LOW"},
+    "replication": {"VERY_LOW": "LOW", "VERY_HIGH": "HIGH"},
+}
+
 
 def resolve_evidence_weight(raw: Dict[str, Any]) -> Tuple[float, str, List[str]]:
     """
@@ -247,8 +371,10 @@ def resolve_evidence_weight(raw: Dict[str, Any]) -> Tuple[float, str, List[str]]
     support_type = str(raw.get("support_type", "")).upper().strip()
     factors = []
 
-    # Strict isolation：任何「非证据」语义一律零权重（写法归一化后判定）
-    non_evidence = classify_non_evidence(raw)
+    # Strict isolation：任何「非证据」语义一律零权重（写法归一化后判定）。
+    # 走 resolve_non_evidence_class：归一化产物优先消费其基于原始输入判定的
+    # non_evidence_class（区分「未声明」与「显式空声明」，H-05）。
+    non_evidence = resolve_non_evidence_class(raw)
     if non_evidence:
         return 0.0, non_evidence, ["%s(0.0)" % non_evidence.lower()]
 
@@ -269,8 +395,28 @@ def resolve_evidence_weight(raw: Dict[str, Any]) -> Tuple[float, str, List[str]]
     if isinstance(appraisal, dict) and appraisal:
         has_incomplete = False
 
-        raw_dir = appraisal.get("directness")
-        dir_val = str(raw_dir).upper() if raw_dir else "UNKNOWN"
+        def _appraisal_dim(dim: str) -> Tuple[str, bool]:
+            """归一化单个 appraisal 维度（H-54）。
+
+            返回 (规范值, 是否 invalid)。别名命中 → 记
+            `appraisal_nonstandard(<dim>=<raw>-><canonical>)` 并按规范值施罚；
+            白名单外垃圾值 → 记 `appraisal_invalid(<dim>=<raw>)` 并按 UNKNOWN
+            （information incomplete）处理，绝不满权放行。
+            """
+            raw_val = appraisal.get(dim)
+            text = (str(raw_val).upper().strip()
+                    if raw_val is not None and str(raw_val).strip() else "UNKNOWN")
+            canonical = _APPRAISAL_ALIASES.get(dim, {}).get(text, text)
+            if canonical != text:
+                factors.append("appraisal_nonstandard(%s=%s->%s)" % (dim, text, canonical))
+            if canonical != "UNKNOWN" and canonical not in _APPRAISAL_LEGAL[dim]:
+                factors.append("appraisal_invalid(%s=%s)" % (dim, text))
+                return "UNKNOWN", True
+            return canonical, False
+
+        dir_val, bad = _appraisal_dim("directness")
+        if bad:
+            has_incomplete = True
         if dir_val == "LOW":
             mult *= 0.6
             factors.append("indirect(-0.2)")
@@ -280,8 +426,9 @@ def resolve_evidence_weight(raw: Dict[str, Any]) -> Tuple[float, str, List[str]]
         elif dir_val == "UNKNOWN":
             has_incomplete = True
 
-        raw_ind = appraisal.get("independence")
-        ind_val = str(raw_ind).upper() if raw_ind else "UNKNOWN"
+        ind_val, bad = _appraisal_dim("independence")
+        if bad:
+            has_incomplete = True
         if ind_val == "LOW":
             mult *= 0.6
             factors.append("dependent(-0.2)")
@@ -290,8 +437,9 @@ def resolve_evidence_weight(raw: Dict[str, Any]) -> Tuple[float, str, List[str]]
         elif ind_val == "UNKNOWN":
             has_incomplete = True
 
-        raw_rob = appraisal.get("risk_of_bias")
-        rob_val = str(raw_rob).upper() if raw_rob else "UNKNOWN"
+        rob_val, bad = _appraisal_dim("risk_of_bias")
+        if bad:
+            has_incomplete = True
         if rob_val == "HIGH":
             mult *= 0.6
             factors.append("bias_high(-0.3)")
@@ -301,8 +449,9 @@ def resolve_evidence_weight(raw: Dict[str, Any]) -> Tuple[float, str, List[str]]
         elif rob_val == "UNKNOWN":
             has_incomplete = True
 
-        raw_rep = appraisal.get("replication")
-        rep_val = str(raw_rep).upper() if raw_rep else "UNKNOWN"
+        rep_val, bad = _appraisal_dim("replication")
+        if bad:
+            has_incomplete = True
         if rep_val == "HIGH":
             mult *= 1.1
             factors.append("replicated(+0.1)")
@@ -320,32 +469,51 @@ def resolve_evidence_weight(raw: Dict[str, Any]) -> Tuple[float, str, List[str]]
 
 
 def normalize_claim(raw: Dict[str, Any]) -> Dict[str, Any]:
-    """Ensure standard fields and sensible defaults with support_type / evidence_strength decoupling."""
+    """Ensure standard fields and sensible defaults with support_type / evidence_strength decoupling.
+
+    H-06：立场词表外取值不再静默归 NEUTRAL——仍映射为 NEUTRAL（不参与方向投票），
+    但 `invalid_stance=True` 显式标记、`stance_original` 保留原值，并在共识分母中
+    排除（INVALID_STANCE 计数），绝不静默当有效。
+    """
     topic = raw.get("topic") or raw.get("target_question") or "General Research Theme"
     raw_stance = str(raw.get("stance", "NEUTRAL")).upper().strip()
     # Translate the coordinator contract's six-value vocabulary into the canonical
     # four-value one instead of discarding the direction (see CONTRACT_DIRECTION_MAP).
     stance = CONTRACT_DIRECTION_MAP.get(raw_stance, raw_stance)
     direction_was_mapped = stance != raw_stance
+    invalid_stance = False
     if stance not in VALID_STANCES:
         stance = "NEUTRAL"
-    
+        invalid_stance = True
+
     support_type = str(raw.get("support_type", "")).upper().strip()
     appraisal = raw.get("appraisal", {})
-    final_weight, strength, _ = resolve_evidence_weight(raw)
+    final_weight, strength, weight_factors = resolve_evidence_weight(raw)
 
     # P0 修复：反证记录不是立场证据——资格判定与权重判定同源，且非证据语义一律不合格。
-    non_evidence = classify_non_evidence(raw)
-    is_relation_challenge = (str(raw.get("relation", "")).upper().strip() == "CHALLENGE"
-                             or bool(raw.get("challenge_status")))
+    # H-52：分流只认 relation=CHALLENGE（或真实反证状态等价路径），
+    # challenge_status="REJECTED"/"X" 等不再把立场证据行逐出投票。
+    # 走 resolve_non_evidence_class：对归一化产物再归一化时优先消费其基于原始输入
+    # 判定的 non_evidence_class（「未声明」≠「显式空声明」，幂等）。
+    non_evidence = resolve_non_evidence_class(raw)
+    is_relation_challenge = is_challenge_record(raw)
+
+    # H-49：claim 级资格与生产路径（compute_topic_consensus）共用单一判定
+    # （evidence_to_claim.claim_consensus_issues）：非证据语义、UNKNOWN/缺失强度、
+    # NEUTRAL 立场、UNRESOLVED/DIFFERENT_PROPOSITION 映射、显式声明的非承载
+    # claim_status 一律不合格。传入归一化后的立场，使契约词表映射同样生效。
+    claim_issues = claim_consensus_issues(dict(raw, stance=stance))
+
     is_eligible = (
         strength not in {"UNKNOWN", "NOT_REPORTED", "AMBIGUOUS_LEGACY_TIER"}
         and non_evidence is None
         and not is_relation_challenge
         and final_weight > 0.0
+        and not invalid_stance
+        and not claim_issues
     )
-        
-    return {
+
+    normalized = {
         "topic": topic.strip(),
         "paper_id": raw.get("paper_id") or raw.get("source_citation") or "Unknown",
         # Carry the entity and the outcome metric through normalization: the
@@ -360,6 +528,7 @@ def normalize_claim(raw: Dict[str, Any]) -> Dict[str, Any]:
         "stance": stance,
         "stance_original": raw_stance,
         "stance_was_mapped": direction_was_mapped,
+        "invalid_stance": invalid_stance,
         "direction_provenance": ("mapped from contract vocabulary" if direction_was_mapped
                                  else "canonical"),
         "method": raw.get("method") or "Unspecified Method",
@@ -370,6 +539,7 @@ def normalize_claim(raw: Dict[str, Any]) -> Dict[str, Any]:
         "support_type": support_type if support_type else None,
         "appraisal": appraisal if isinstance(appraisal, dict) and appraisal else None,
         "weight": final_weight,
+        "weight_factors": weight_factors,
         "consensus_eligible": is_eligible,
         "boundary": raw.get("boundary") or "Unspecified Boundary",
         "independence_group_id": raw.get("independence_group_id"),
@@ -391,6 +561,15 @@ def normalize_claim(raw: Dict[str, Any]) -> Dict[str, Any]:
         "checked_scope": raw.get("checked_scope"),
         "non_evidence_class": non_evidence,
     }
+    # H-49：声明式字段**仅在原始输入声明时**穿透（键缺席 ≠ 显式空值——
+    # claim_consensus_issues 以键存在与否区分「未声明」与「声明了非承载值」）。
+    if "stance_mapping_status" in raw:
+        normalized["stance_mapping_status"] = raw.get("stance_mapping_status")
+    if "claim_status" in raw:
+        normalized["claim_status"] = raw.get("claim_status")
+    if "claim_status_upstream" in raw:
+        normalized["claim_status_upstream"] = raw.get("claim_status_upstream")
+    return normalized
 
 
 
@@ -567,12 +746,13 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         for c in claims
     ]
     total_claims = len(claims)
-    
+
     # Determine consensus eligibility for each claim
     eligible_claims = []
     excluded_counts = defaultdict(int)
     all_papers_by_stance = defaultdict(list)
-    
+    invalid_stance_records: List[Dict[str, Any]] = []
+
     for c in claims:
         s = c.get("stance", "NEUTRAL")
         all_papers_by_stance[s].append(c.get("paper_id", "Unknown"))
@@ -580,22 +760,52 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         # RFC-017：反证记录是"对被挑战主张的削弱"，不是一条独立立场证据。
         # 若把它当普通 REFUTE 计入，5 条反证就能靠计数压过 2 条支持——那正是
         # "反证多数决"，与项目的非多数决原则冲突。它只通过 apply_verified_challenges 生效。
-        # 注意：归一化后的记录**总是**带 challenge_status 键（缺省为 None），
-        # 因此这里必须看取值而不是键是否存在，否则所有主张都会被误判成反证。
-        if str(c.get("relation", "")).upper() == "CHALLENGE" or bool(c.get("challenge_status")):
+        # H-52：分流只认 relation=CHALLENGE（或真实反证状态等价路径）；
+        # challenge_status="REJECTED"/"X" 等不再把立场证据行逐出投票。
+        if is_challenge_record(c):
             excluded_counts["CHALLENGE_EVIDENCE"] += 1
+            continue
+
+        # H-06：立场词表外取值不静默当 NEUTRAL 计入分母——排除出共识并计数，
+        # stance_original 原值进产物（invalid_stance_records）供人工裁决。
+        if "stance" in c:
+            raw_stance = str(c.get("stance") or "").upper().strip()
+        else:
+            raw_stance = "NEUTRAL"
+        mapped_stance = CONTRACT_DIRECTION_MAP.get(raw_stance, raw_stance)
+        if mapped_stance not in VALID_STANCES or c.get("invalid_stance"):
+            excluded_counts["INVALID_STANCE"] += 1
+            invalid_stance_records.append({
+                "claim_id": c.get("claim_id"),
+                "paper_id": c.get("paper_id", "Unknown"),
+                "stance_original": c.get("stance_original") or raw_stance,
+            })
+            continue
+
+        # H-91：NEUTRAL 不是证据承载立场——出分母（与 evidence_to_claim 资格语义
+        # 对齐，消除两模块对 NEUTRAL 的语义矛盾）。
+        if mapped_stance == "NEUTRAL":
+            excluded_counts["NEUTRAL"] += 1
+            continue
+
+        # H-49：claim 级资格门禁接入生产路径（与 evaluate_consensus_eligibility 的
+        # claim 级检查共用单一判定 claim_consensus_issues）：非证据语义、UNKNOWN/
+        # 缺失强度、UNRESOLVED/DIFFERENT_PROPOSITION 映射、显式声明的非承载
+        # claim_status 一律拒绝，排除原因逐条可读（设施-1）。
+        claim_issues = claim_consensus_issues(c)
+        if claim_issues:
+            for code in claim_issues:
+                if code.startswith("NON_EVIDENCE:"):
+                    excluded_counts[code.split(":", 1)[1]] += 1
+                else:
+                    excluded_counts[CLAIM_ISSUE_REASON_KEYS.get(code, code)] += 1
             continue
 
         # Check eligibility. resolve_evidence_weight() is the single source of
         # truth, so a raw claim carrying only evidence_strength is weighted
         # exactly like a normalized one. Reading a missing "weight" as 0.0
         # silently discarded every such claim.
-        styp = str(c.get("support_type", "")).upper().strip()
         resolved_weight, resolved_strength, _ = resolve_evidence_weight(c)
-        # 非证据语义（没查/拿不到/仅转引/未报告）一律不得进入共识——与权重判定同源。
-        if classify_non_evidence(c):
-            excluded_counts[classify_non_evidence(c)] += 1
-            continue
         if "weight" in c and c.get("weight") is not None:
             wt = float(c.get("weight", 0.0))
         else:
@@ -607,7 +817,6 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         else:
             eligible = (
                 strn not in {"UNKNOWN", "NOT_REPORTED", "AMBIGUOUS_LEGACY_TIER"}
-                and styp not in {"NOT_REPORTED", "NR"}
                 and wt > 0.0
             )
         
@@ -635,22 +844,27 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
 
     # RFC-017 裁定 2：反证参与加权（有上限，且不转移给对立立场）。
     # 反证记录以 target_claim_id 指向被挑战主张；未核验的反证不参与。
+    # H-07 止血：消费端对 scope 越界 / 凭据矛盾的反证截获不罚，并逐条披露。
     challenges_by_target: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     challenge_factors: List[str] = []
+    challenge_audit = audit_challenge_channels(claims)
     for ch in claims:
-        if str(ch.get("challenge_status", "")).upper() != "VERIFIED_CHALLENGE":
+        if str(ch.get("challenge_status", "") or "").upper() != "VERIFIED_CHALLENGE":
             continue
         target = ch.get("target_claim_id") or ch.get("target_claim") or ch.get("claim_id")
         if target:
             challenges_by_target[str(target)].append(ch)
     if challenges_by_target:
         adjusted_claims = []
+        any_penalty_applied = False
         for c in eligible_claims:
             hits = challenges_by_target.get(str(c.get("claim_id")), [])
             if not hits:
                 adjusted_claims.append(c)
                 continue
             new_weight, factors = apply_verified_challenges(float(c.get("weight", 0.0)), hits)
+            if new_weight < float(c.get("weight", 0.0)):
+                any_penalty_applied = True
             c = dict(c, weight=new_weight,
                      challenge_adjustment={"applied": True, "factors": factors,
                                            "challenges": len(hits)})
@@ -661,6 +875,8 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
                 excluded_counts["CHALLENGE_ZEROED"] += 1
         eligible_claims = adjusted_claims
         total_eligible_claims = len(eligible_claims)
+    else:
+        any_penalty_applied = False
 
     weights_by_stance = defaultdict(float)
     papers_by_stance = defaultdict(list)
@@ -699,6 +915,7 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
             "total_claims": total_claims,
             "consensus_eligible_claims": 0,
             "excluded_from_consensus": dict(excluded_counts),
+            "invalid_stance_records": invalid_stance_records,
             "total_evidence_weight": 0.0,
             "distinct_independence_group_count": len(distinct_independence_groups),
             "stance_weights": {k: round(v, 2) for k, v in weights_by_stance.items()},
@@ -719,8 +936,13 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
             "classification_scope": "CURRENT_EVIDENCE_SET_ONLY",
             "external_consensus_claim": False,
             "papers_by_stance": dict(all_papers_by_stance),
-            "challenge_adjustment": {"factors": challenge_factors,
-                                      "targets": sorted(challenges_by_target)},
+            "challenge_adjustment": {
+                "factors": challenge_factors,
+                "targets": sorted(challenges_by_target),
+                "applied": any_penalty_applied,
+                "scope_rejected_challenges": challenge_audit["scope_rejected"],
+                "verification_conflict_challenges": challenge_audit["verification_conflicts"],
+            },
             "controversy_diagnosis": {
                 "type": "NO_ELIGIBLE_EVIDENCE",
                 "confidence": "High",
@@ -738,10 +960,14 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         c.get("independence_group_id") or c.get("paper_id", "Unknown")
         for c in support_claims
     }
+    # H-50：独立组判定改**正向白名单**——仅 independence_status 归一化后等于
+    # VERIFIED 的组算"已验证独立"（写法变体容忍）；缺失/null/UNKNOWN/UNVERIFIED/
+    # ASSUMED/SELF_CITATION 等一律不得作为"已验证独立"支撑 Level 1。
     verified_support_groups = {
         c["independence_group_id"]
         for c in support_claims
-        if c.get("independence_group_id") and c.get("independence_status") != "UNKNOWN"
+        if c.get("independence_group_id")
+        and normalize_state_token(c.get("independence_status")) == "VERIFIED"
     }
     has_empirical_support = any(
         c.get("evidence_strength") in ("DIRECT_EMPIRICAL", "MODELED_EMPIRICAL")
@@ -791,6 +1017,7 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         "total_claims": total_claims,
         "consensus_eligible_claims": total_eligible_claims,
         "excluded_from_consensus": dict(excluded_counts),
+        "invalid_stance_records": invalid_stance_records,
         "total_evidence_weight": round(total_weight, 2),
         "distinct_independence_group_count": len(distinct_independence_groups),
         "single_independence_group": single_independence_group,
@@ -802,9 +1029,13 @@ def compute_topic_consensus(claims: List[Dict[str, Any]]) -> Dict[str, Any]:
         "classification_scope": "CURRENT_EVIDENCE_SET_ONLY",
         "external_consensus_claim": False,
         "papers_by_stance": dict(all_papers_by_stance),
-        "challenge_adjustment": {"factors": challenge_factors,
-                                 "targets": sorted(challenges_by_target),
-                                 "applied": bool(challenges_by_target)},
+        "challenge_adjustment": {
+            "factors": challenge_factors,
+            "targets": sorted(challenges_by_target),
+            "applied": any_penalty_applied,
+            "scope_rejected_challenges": challenge_audit["scope_rejected"],
+            "verification_conflict_challenges": challenge_audit["verification_conflicts"],
+        },
         "controversy_diagnosis": diagnosis
     }
 
@@ -1128,6 +1359,31 @@ def format_markdown_report(results: Dict[str, Any]) -> str:
                 "- ⚠️ **只有一个独立研究组**：多条主张来自同一研究单元，"
                 "不构成重复验证，已按证据不足处理（INSUFFICIENT_EVIDENCE）。"
             )
+
+        # 设施-1（fail-closed 人工承接最低版）：每次拒绝都从产物可读数——
+        # 暂无专用裁决队列，排除/拒绝计数与立场异常原值在此暴露。
+        excluded_counts = data.get("excluded_from_consensus") or {}
+        invalid_rows = data.get("invalid_stance_records") or []
+        if excluded_counts or invalid_rows:
+            lines.append("")
+            lines.append("### 🧾 排除与拒绝计数（fail-closed 审计；暂无专用裁决队列，凭本计数暴露）")
+            lines.append("")
+            if excluded_counts:
+                lines.append("| 排除原因 | 条数 |")
+                lines.append("|---|---:|")
+                for reason in sorted(excluded_counts):
+                    lines.append("| `%s` | %d |" % (reason, excluded_counts[reason]))
+                lines.append("")
+            if invalid_rows:
+                lines.append("**立场词表外记录**（原值保留，待人工裁决，未计入任何立场分母）：")
+                lines.append("")
+                for rec in invalid_rows:
+                    lines.append(
+                        "- `%s`（%s）：stance_original=`%s`"
+                        % (rec.get("claim_id") or "N/A",
+                           rec.get("paper_id", "Unknown"),
+                           rec.get("stance_original", ""))
+                    )
         lines.append("")
         
         # Comparability disclosure: a method-level split must be visible in the
@@ -1250,6 +1506,16 @@ def format_summary_report(results: Dict[str, Any]) -> str:
         lines.append(f"  Controversy: {data['controversy_diagnosis']['type']}")
         lines.append(f"  Stance Split: Support={data['stance_percentages']['SUPPORT']}%, Refute={data['stance_percentages']['REFUTE']}%")
         lines.append(f"  Claims count: {data['total_claims']}")
+        # 设施-1：每次拒绝可读数（UNRESOLVED / UNPARSEABLE / INVALID_STANCE /
+        # NEUTRAL / 非证据语义 …… 全部来自 excluded_from_consensus）。
+        excluded_counts = data.get("excluded_from_consensus") or {}
+        if excluded_counts:
+            lines.append("  Excluded: " + ", ".join(
+                "%s=%d" % (k, excluded_counts[k]) for k in sorted(excluded_counts)))
+        for rec in (data.get("invalid_stance_records") or []):
+            lines.append("  InvalidStance: %s (stance_original=%s)"
+                         % (rec.get("claim_id") or rec.get("paper_id", "Unknown"),
+                            rec.get("stance_original", "")))
     return "\n".join(lines)
 
 
