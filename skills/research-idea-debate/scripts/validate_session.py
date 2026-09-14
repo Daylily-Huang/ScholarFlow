@@ -9,13 +9,17 @@
     python skills/research-idea-debate/scripts/validate_session.py <session.json> [--json]
     python skills/research-idea-debate/scripts/validate_session.py --self-check
 
-退出码：0 无违规；1 有违规；2 输入错误（文件缺失、JSON 非法）。
+退出码：0 无违规；1 有违规（含 JSON Schema 校验 FAIL、GP6 指纹引擎导入失败）；
+2 输入错误（文件缺失、JSON 非法）。
 
-实现约束：仅用标准库。若环境中存在 `jsonschema`，额外用 assets/*.schema.json 做一次
-JSON Schema 校验；否则跳过并如实报告"未做 schema 校验"，不假装已校验。
+实现约束：仅用标准库。若环境中存在 `jsonschema`，额外用 schemas/research_debate_session.schema.json
+做一次 JSON Schema 校验；否则跳过并如实报告"未做 schema 校验"，不假装已校验。
+GP6（scope_fingerprint 指纹重算）依赖 `shared.execution` 引擎；引擎不可导入时**显式报告
+FAILED_IMPORT 并计入违规**，不得静默跳过（第二轮集群实测 H-12：干净部署下 GP6 曾无声失效）。
 """
 
 import argparse
+import datetime
 import json
 import os
 import sys
@@ -81,6 +85,13 @@ DECISION_TRIGGERS = {
 REVIEW_STATUS = {"COMPLETE", "PARTIAL", "FAILED", "UNAVAILABLE"}
 DISAGREEMENT = {"LOW_DIVERGENCE", "HIGH_DIVERGENCE", "NOT_APPLICABLE"}
 SUBSTANTIVE_KINDS = {"SUBSTANTIVE", "EXTERNAL_INPUT", "REVIEW_SUBMISSION"}
+# H-79（集群第二轮）：rounds[].kind 枚举与 schemas/research_debate_session.schema.json
+# 的既有取值对齐（枚举清单取自 schema，schema 本身零改动）。枚举外的 kind 一律拒绝。
+ROUND_KINDS = {"SUBSTANTIVE", "EXTERNAL_INPUT", "CONFIGURATION",
+               "REVIEW_SUBMISSION", "CHECKPOINT"}
+# H-11（集群第二轮）：maturity_history 段内时间戳字段（schema 未定义该字段，因此只在
+# 出现这些键时才启用单调性校验；一旦使用就必须完整、可解析且单调不减）。
+MATURITY_TIMESTAMP_KEYS = ("at", "timestamp", "recorded_at", "changed_at")
 DEVELOPMENT_QUOTA_TRIGGERS = {"P3"}
 BANNED_IN_QUESTION = ("以及", "另外", "顺便")
 COUNTEREXAMPLE_TYPES = {
@@ -108,6 +119,9 @@ class Report(object):
     def __init__(self):
         self.violations = []
         self.checked = 0
+        # H-12：GP6 指纹重算引擎的加载状态。NOT_RUN（会话无缺口）/ OK / FAILED_IMPORT。
+        self.gp6_status = "NOT_RUN"
+        self.gp6_error = None
 
     def add(self, rule, where, message):
         self.violations.append({"rule": rule, "where": where, "message": message})
@@ -118,6 +132,73 @@ class Report(object):
     @property
     def failed(self):
         return bool(self.violations)
+
+
+_GP6_CACHE = {"tried": False, "func": None, "error": None}
+
+
+def _scope_fingerprint_engine():
+    """惰性加载 GP6 指纹引擎；导入失败必须留痕，不得静默吞掉（H-12）。"""
+    if not _GP6_CACHE["tried"]:
+        _GP6_CACHE["tried"] = True
+        try:
+            from shared.execution import scope_fingerprint as fp
+            _GP6_CACHE["func"] = fp
+        except Exception as exc:  # noqa: BLE001 - 记录失败详情供显式报告
+            _GP6_CACHE["error"] = "%s: %s" % (type(exc).__name__, exc)
+    return _GP6_CACHE["func"], _GP6_CACHE["error"]
+
+
+def _parse_timestamp(value):
+    """解析 ISO-8601 时间戳；无法解析返回 None（调用方 fail-closed 处理）。"""
+    if not isinstance(value, str):
+        return None
+    text = value.strip()
+    if not text:
+        return None
+    if text[-1] in ("Z", "z"):
+        text = text[:-1] + "+00:00"
+    try:
+        moment = datetime.datetime.fromisoformat(text)
+    except ValueError:
+        return None
+    if moment.tzinfo is None:
+        moment = moment.replace(tzinfo=datetime.timezone.utc)
+    return moment
+
+
+def _check_history_timestamps(rep, iid, hist):
+    """H-11：maturity_history 一旦使用时间戳，就必须整条历史完整、可解析且单调不减。
+
+    schema 未定义时间戳字段，因此对完全不写时间戳的历史不做要求；但"倒填时间戳"是
+    实测攻击面（M4 负例），一旦出现就必须能证明时间顺序，否则按违规处理（失败关闭）。
+    """
+    keyed = [(idx, next((k for k in MATURITY_TIMESTAMP_KEYS if k in h), None))
+             for idx, h in enumerate(hist)]
+    if not any(key for _, key in keyed):
+        rep.ok()  # 未使用时间戳：无可校验项
+        return
+    rep.ok()
+    for idx, key in keyed:
+        if key is None:
+            rep.add("ID-MAT", iid,
+                    "成熟度历史第 %d 段缺少时间戳，无法证明时间顺序单调" % (idx + 1))
+            continue
+        if _parse_timestamp(hist[idx][key]) is None:
+            rep.add("ID-MAT", iid,
+                    "成熟度历史第 %d 段时间戳 %r 无法解析（需 ISO-8601）"
+                    % (idx + 1, hist[idx][key]))
+    moments = []
+    for idx, key in keyed:
+        if key is not None:
+            moments.append(_parse_timestamp(hist[idx][key]))
+    if moments and all(m is not None for m in moments):
+        for prev, cur in zip(moments, moments[1:]):
+            rep.ok()
+            if cur < prev:
+                rep.add("ID-MAT", iid,
+                        "成熟度历史时间戳倒填：%s 晚于其后一段的 %s"
+                        % (prev.isoformat(), cur.isoformat()))
 
 
 def _enum(rep, value, allowed, rule, where, field):
@@ -163,6 +244,7 @@ def check_session(rep, s):
 
 
 def check_ideas(rep, s):
+    round_ids = {r.get("round") for r in s.get("rounds", [])}
     for idea in s.get("ideas", []):
         iid = idea.get("idea_id", "<no-id>")
         _enum(rep, idea.get("maturation"), MATURATION, "ID-MAT", iid, "maturation")
@@ -203,6 +285,28 @@ def check_ideas(rep, s):
                 rep.ok()
                 if order.get(h.get("to"), -1) - order.get(h.get("from"), -2) != 1:
                     rep.add("ID-MAT", iid, "成熟度不得跳级：%r -> %r" % (h.get("from"), h.get("to")))
+            # H-11（集群第二轮 M4 实测）：段间必须连续——上一段 to 即下一段 from。
+            # 旧实现只查单段不跳级，攻击者插入"合法"片段（如 RAW→DEVELOPING 后再
+            # RAW→DEVELOPING→TESTABLE）即可绕过逐级检查。
+            for prev, cur in zip(hist, hist[1:]):
+                rep.ok()
+                if cur.get("from") != prev.get("to"):
+                    rep.add("ID-MAT", iid,
+                            "成熟度历史段间不连续：%r -> %r 之后接 %r -> %r"
+                            % (prev.get("from"), prev.get("to"), cur.get("from"), cur.get("to")))
+            # H-11：每段成熟度变更必须绑定会话内真实存在的轮次（游离/未绑定轮次拒绝）。
+            for h in hist:
+                rep.ok()
+                bound = h.get("round")
+                if bound is None:
+                    rep.add("ID-MAT", iid,
+                            "成熟度变更（%r -> %r）未绑定轮次（须写 round=<会话内轮次号>）"
+                            % (h.get("from"), h.get("to")))
+                elif bound not in round_ids:
+                    rep.add("ID-MAT", iid,
+                            "成熟度变更（%r -> %r）绑定游离轮次 %r（会话内无此轮）"
+                            % (h.get("from"), h.get("to"), bound))
+            _check_history_timestamps(rep, iid, hist)
             rep.ok()
             if idea.get("maturation") != hist[-1].get("to"):
                 rep.add("ID-MAT", iid, "maturation 与 maturity_history 终点不一致")
@@ -236,6 +340,8 @@ def check_rounds(rep, s):
         rep.add("RD-SEQ", "rounds", "轮次序号必须唯一且递增：%s" % seq)
     for r in rounds:
         where = "R%s" % r.get("round")
+        # H-79（集群第二轮）：kind 必须取自 schema 既定枚举，枚举外拒绝。
+        _enum(rep, r.get("kind"), ROUND_KINDS, "RD11", where, "kind")
         q = r.get("question", "")
         rep.ok()
         if q.count("？") + q.count("?") != 1:
@@ -344,14 +450,24 @@ def check_gaps(rep, s):
             rep.add("GP1", where, "缺少 scope_fingerprint")
         else:
             # P1 修复：指纹必须与**当前**缺口内容一致，否则旧范围仍会被当成有效授权。
-            try:
-                from shared.execution import scope_fingerprint as _fp
-                current = _fp(g)
-                rep.ok()
-                if ap.get("scope_fingerprint") != current:
-                    rep.add("GP6", where, "scope_fingerprint 与当前缺口内容不符（范围已变更）")
-            except Exception:  # noqa: BLE001 - 引擎不可用时只跳过该增强检查
-                pass
+            # H-12（集群第二轮）：引擎导入失败不得静默跳过——干净部署下 GP6 曾无声失效
+            # （fail-open 无痕迹）。显式报 FAILED_IMPORT 并计入违规（rc≠0）。
+            fp_func, fp_err = _scope_fingerprint_engine()
+            if fp_func is None:
+                rep.gp6_status = "FAILED_IMPORT"
+                rep.gp6_error = fp_err
+                rep.add("GP6", where,
+                        "GP6 指纹重算依赖导入失败（FAILED_IMPORT）：%s；指纹一致性检查未执行，"
+                        "请修复部署环境（PYTHONPATH 须含仓库根）后重跑" % fp_err)
+            else:
+                rep.gp6_status = "OK"
+                try:
+                    current = fp_func(g)
+                    rep.ok()
+                    if ap.get("scope_fingerprint") != current:
+                        rep.add("GP6", where, "scope_fingerprint 与当前缺口内容不符（范围已变更）")
+                except Exception as exc:  # noqa: BLE001 - 指纹算不出=无法证明一致，失败关闭
+                    rep.add("GP6", where, "GP6 指纹计算失败：%s: %s" % (type(exc).__name__, exc))
         # P1 修复：approved_idea_version 必须与 idea_version 一致（旧实现完全不检查）
         if ap.get("status") == "CONFIRMED":
             rep.ok()
@@ -542,20 +658,29 @@ def validate(session):
 
 
 def try_jsonschema(session):
-    """存在 jsonschema 时做一次 schema 校验；否则如实报告未做。"""
+    """存在 jsonschema 时做一次 schema 校验；否则如实报告未做。
+
+    返回 (status, note, errors)：FAIL 时 errors 携带结构化明细（路径 + 消息），
+    并由 main 计入退出码（H-17：schema FAIL 不得再以 rc=0 放行）。
+    """
     path = os.path.join(SCHEMAS, "research_debate_session.schema.json")
     if not os.path.isfile(path):
-        return "SKIPPED", "未找到 schemas/research_debate_session.schema.json"
+        return "SKIPPED", "未找到 schemas/research_debate_session.schema.json", []
     try:
         import jsonschema  # noqa: WPS433
     except Exception:
-        return "SKIPPED", "环境无 jsonschema，未做 JSON Schema 校验（不代表通过）"
+        return "SKIPPED", "环境无 jsonschema，未做 JSON Schema 校验（不代表通过）", []
     schema = json.load(open(path, encoding="utf-8"))
     try:
         jsonschema.validate(session, schema)
-        return "PASS", "session.schema.json 校验通过"
+        return "PASS", "session.schema.json 校验通过", []
     except Exception as exc:  # noqa: BLE001
-        return "FAIL", "schema 校验失败：%s" % exc
+        errors = list(getattr(exc, "context", None) or []) or [exc]
+        details = []
+        for e in errors[:20]:
+            where = "/".join(str(p) for p in getattr(e, "absolute_path", []) )
+            details.append({"path": where, "message": str(e.message) if hasattr(e, "message") else str(e)})
+        return "FAIL", "schema 校验失败：%d 处（明细见 json_schema.errors）" % len(details), details
 
 
 def main(argv=None):
@@ -611,26 +736,37 @@ def main(argv=None):
         return 2
 
     rep = validate(session)
-    schema_status, schema_note = try_jsonschema(session)
+    schema_status, schema_note, schema_errors = try_jsonschema(session)
     result = {
         "session": args.session,
         "checks_run": rep.checked,
         "violations": rep.violations,
-        "json_schema": {"status": schema_status, "note": schema_note},
+        "json_schema": {
+            "status": schema_status,
+            "note": schema_note,
+            "errors": schema_errors,
+        },
+        # H-12：GP6 指纹引擎状态显式入结构化输出（NOT_RUN/OK/FAILED_IMPORT）。
+        "gp6": {"status": rep.gp6_status, "error": rep.gp6_error},
     }
+    failed = rep.failed or schema_status == "FAIL"
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))
     else:
         print("会话：%s" % args.session)
         print("已检查项：%d" % rep.checked)
         print("JSON Schema：%s（%s）" % (schema_status, schema_note))
+        print("GP6 指纹重算：%s" % rep.gp6_status)
+        if schema_status == "FAIL":
+            for e in schema_errors:
+                print("  - [schema] %s: %s" % (e["path"] or "<root>", e["message"]))
         if rep.violations:
             print("违规 %d 条：" % len(rep.violations))
             for v in rep.violations:
                 print("  - [%s] %s: %s" % (v["rule"], v["where"], v["message"]))
         else:
             print("无结构性违规。注意：这不代表对话质量合格，也不判断科学真伪。")
-    return 1 if rep.failed else 0
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":

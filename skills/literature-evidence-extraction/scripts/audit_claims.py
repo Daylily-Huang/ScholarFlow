@@ -15,6 +15,20 @@ Capabilities:
 NOTE: This tool is an automated candidate evidence locator and consistency screener, NOT
 a substitute for expert peer review or deep causal/semantic truth verification.
 
+Exit codes (second-round cluster hardening, H-38/39/40):
+    0  audit completed (with --allow-skipped: skipped items tolerated but still reported)
+    1  claims file contained SKIPPED_UNPARSEABLE items and --allow-skipped was NOT passed
+       (fail-closed: silently dropping malformed claim entries would fake an all-green rc=0)
+    2  source/input error. Structured JSON error on stderr:
+       - SOURCE_UNREADABLE: corrupted PDF / zero-page PDF / PDF with no extractable text
+         layer. A zero-page or text-less PDF must NEVER fall through to "claim not found"
+         style verdicts — an unreadable source is a source failure, not evidence of forgery.
+       - PARSER_REQUIRED: PDF audited without a reliable parser (pass --allow-degraded-pdf
+         to bypass the parser-availability gate; it does NOT bypass SOURCE_UNREADABLE —
+         reading PDF bytes as text yields binary noise, not evidence).
+       - CLAIMS_FILE_UNPARSEABLE: claims file is not valid JSON (hard fail, not skippable).
+       - INPUT_NOT_FOUND: input file does not exist.
+
 Usage:
     python audit_claims.py -i <paper.pdf> -c <claims.json>
     python audit_claims.py -i <paper.pdf> --relevance-topic "fecal DNA microsatellite snow leopard"
@@ -48,6 +62,14 @@ def load_full_text(file_path: str, allow_degraded_pdf: bool = False) -> Tuple[Li
 
     Fails closed (PARSER_REQUIRED) if a PDF document is audited without a reliable
     PDF parser, unless allow_degraded_pdf is explicitly passed (P1-17).
+
+    H-40 (second-round cluster): an unreadable SOURCE must be reported as
+    SOURCE_UNREADABLE (structured, exit 2) instead of masquerading as analysis
+    results. A corrupted PDF, a zero-page PDF, or a PDF with no extractable text
+    layer can never support "claim not found" verdicts — that would misreport a
+    source failure as evidence of forgery. Unlike PARSER_REQUIRED (parser missing,
+    environment problem), SOURCE_UNREADABLE is NOT bypassed by allow_degraded_pdf:
+    reading PDF bytes as plain text yields binary noise, not evidence.
     """
     if not os.path.isfile(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
@@ -66,7 +88,10 @@ def load_full_text(file_path: str, allow_degraded_pdf: bool = False) -> Tuple[Li
                     pages.append({"page": idx + 1, "text": p.extract_text() or ""})
             except Exception as e:
                 if not allow_degraded_pdf:
-                    raise RuntimeError(f"PARSER_REQUIRED: pypdf error reading PDF: {e}. Pass --allow-degraded-pdf for best-effort fallback.")
+                    raise RuntimeError(
+                        f"SOURCE_UNREADABLE: pypdf failed to read PDF (corrupted, encrypted, or not a PDF): {e}. "
+                        "Pass --allow-degraded-pdf for best-effort fallback."
+                    )
                 parser_used = "plain_text_fallback"
                 warning = f"[WARN] PyPDF error: {e}, fell back to raw text reading."
                 sys.stderr.write(f"{warning}\n")
@@ -76,6 +101,25 @@ def load_full_text(file_path: str, allow_degraded_pdf: bool = False) -> Tuple[Li
             parser_used = "plain_text_fallback"
             warning = "[WARN] pypdf is not installed. PDF text extraction is degraded."
             sys.stderr.write(f"{warning}\n")
+
+        # H-40: zero-page PDF / no text layer -> SOURCE_UNREADABLE, never a
+        # "forgery / no match" class verdict on binary noise. Only applies when
+        # pypdf actually parsed the container (parser_used == "pypdf"); if the user
+        # explicitly opted into the degraded raw-text fallback after a pypdf
+        # failure, their choice stands. Not bypassed by --allow-degraded-pdf
+        # otherwise: with zero pages or zero characters there is no meaningful
+        # fallback content — raw bytes are noise, not evidence.
+        if parser_used == "pypdf":
+            if not pages:
+                raise RuntimeError(
+                    f"SOURCE_UNREADABLE: PDF parsed to zero pages ({file_path}). "
+                    "The document itself is unreadable; claims must not be judged against it."
+                )
+            if all(not p["text"].strip() for p in pages):
+                raise RuntimeError(
+                    f"SOURCE_UNREADABLE: PDF has {len(pages)} page(s) but no extractable text layer "
+                    "(scanned/image-only or fontless content streams). OCR is required before auditing claims."
+                )
 
     if not pages:
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
@@ -160,12 +204,23 @@ def compute_relevance_score(topic: str, pages: List[Dict[str, Any]]) -> Dict[str
     }
 
 
+def _token_number_pattern(num: str) -> str:
+    """H-38: numbers must match as FULL tokens, never substrings.
+
+    "45" must not hit "145" / "456" / "0.45" / "45.2" / "1945". The lookarounds
+    reject any neighbouring word character (digit/letter/underscore) or decimal
+    point, so only standalone numbers count as located.
+    """
+    return r"(?<![\w.])" + re.escape(num) + r"(?![\w.])"
+
+
 def audit_single_claim(claim: str, pages: List[Dict[str, Any]], window_chars: int = 250) -> Dict[str, Any]:
     """
     Audit one claim against full text pages using context-aware co-location.
     Evaluates whether numbers and key terms co-occur in the same local window.
     """
     numbers = re.findall(r"\b\d+(?:\.\d+)?\b", claim)
+    num_patterns = [re.compile(_token_number_pattern(n)) for n in numbers]
     raw_words = re.findall(r"[a-zA-Z\u4e00-\u9fa5]{3,}", claim)
     common_stops = {
         "the", "and", "that", "this", "with", "from", "were", "been", "have", "then",
@@ -180,38 +235,46 @@ def audit_single_claim(claim: str, pages: List[Dict[str, Any]], window_chars: in
     best_overlap = 0
     best_window_has_numbers = False
 
-    # Check if numbers exist anywhere in document
+    # Check if numbers exist anywhere in document (as full tokens, H-38)
     numbers_in_doc = set()
     if numbers:
         for p in pages:
-            for num in numbers:
-                if num in p["text"]:
+            for num, pat in zip(numbers, num_patterns):
+                if num not in numbers_in_doc and pat.search(p["text"]):
                     numbers_in_doc.add(num)
 
     for p in pages:
         p_text = p["text"]
         p_text_lower = p_text.lower()
-        
+
         # Search match positions for each word
         word_positions = []
         for w in words:
             for m in re.finditer(re.escape(w), p_text_lower):
                 word_positions.append(m.start())
-                
+
         if not word_positions:
             continue
-            
+
         # Scan candidate context windows centered around each match
         for pos in word_positions:
             start = max(0, pos - window_chars)
             end = min(len(p_text), pos + window_chars)
+
+            # H-38: a number only co-locates if its FULL token lies inside the
+            # window (matches anchored to the page, so a token cut in half by the
+            # window edge cannot masquerade as a hit).
+            local_has_num = any(
+                any(start <= m.start() and m.end() <= end for m in pat.finditer(p_text))
+                for pat in num_patterns
+            ) if numbers else True
+
             window_text = p_text[start:end]
             window_lower = window_text.lower()
-            
+
             # Count distinct keywords present in this window
             local_overlap = sum(1 for w in words if w in window_lower)
-            local_has_num = any(num in window_text for num in numbers) if numbers else True
-            
+
             # Prefer windows with higher keyword overlap, with tie-break favoring number co-location
             score = local_overlap + (1.5 if (numbers and local_has_num) else 0)
             best_score = best_overlap + (1.5 if (numbers and best_window_has_numbers) else 0)
@@ -249,6 +312,52 @@ def audit_single_claim(claim: str, pages: List[Dict[str, Any]], window_chars: in
     }
 
 
+def _extract_claim(item: Any, idx: int, skipped_claims: List[Dict[str, Any]]) -> Any:
+    """Extract a claim string from one element of the claims array.
+
+    Unparseable elements are NOT silently dropped (H-39): they are registered as
+    SKIPPED_UNPARSEABLE entries with a reason and counted into the exit code.
+    """
+    if isinstance(item, str):
+        if item.strip():
+            return item
+        skipped_claims.append({"index": idx, "reason": "空声明（空白字符串）", "preview": item[:80]})
+        return None
+    if isinstance(item, dict):
+        value = item.get("claim")
+        if isinstance(value, str) and value.strip():
+            return value
+        if "claim" not in item:
+            keys = ", ".join(str(k) for k in item.keys()) or "<empty object>"
+            skipped_claims.append({
+                "index": idx,
+                "reason": "对象缺少 'claim' 字段（实际键：%s）——字段名漂移按不可解析处理，不静默丢弃" % keys,
+                "preview": json.dumps(item, ensure_ascii=False)[:80],
+            })
+        else:
+            skipped_claims.append({
+                "index": idx,
+                "reason": "'claim' 字段必须是字符串，实际为 %s" % type(value).__name__,
+                "preview": json.dumps(item, ensure_ascii=False)[:80],
+            })
+        return None
+    skipped_claims.append({
+        "index": idx,
+        "reason": "元素类型必须是字符串或含 'claim' 键的对象，实际为 %s" % type(item).__name__,
+        "preview": json.dumps(item, ensure_ascii=False)[:80],
+    })
+    return None
+
+
+def _emit_error(error: str, detail: str, file_path: str) -> None:
+    """Structured stderr error line (H-40): machine-readable, no bare tracebacks."""
+    sys.stderr.write(json.dumps({
+        "error": error,
+        "file": file_path,
+        "detail": detail,
+    }, ensure_ascii=False) + "\n")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Candidate Evidence Locator & Surface-Consistency Checker (audit_claims.py)",
@@ -263,7 +372,11 @@ but does NOT perform causal or semantic truth verification.
     parser.add_argument("-c", "--claims", default="", help="Path to JSON file containing list of claims")
     parser.add_argument("--claim", default="", help="A single claim string to audit")
     parser.add_argument("-r", "--relevance-topic", default="", help="Topic string to compute 0-10 relevance gatekeeper score")
-    parser.add_argument("--allow-degraded-pdf", action="store_true", help="Allow degraded plain-text fallback if PDF parser is missing or fails (bypasses fail-closed gate)")
+    parser.add_argument("--allow-degraded-pdf", action="store_true", help="Allow degraded plain-text fallback if PDF parser is missing or fails (bypasses parser-availability fail-closed gate; does NOT bypass SOURCE_UNREADABLE)")
+    parser.add_argument(
+        "--allow-skipped", action="store_true",
+        help="H-39: tolerate SKIPPED_UNPARSEABLE claim entries (they are counted and reported, "
+             "but not audited). Without this flag any skipped entry fails the run with exit code 1.")
     parser.add_argument("-o", "--output", default="", help="Path to write output markdown or JSON")
 
     args = parser.parse_args()
@@ -272,7 +385,15 @@ but does NOT perform causal or semantic truth verification.
     try:
         pages, parse_status = load_full_text(input_path, allow_degraded_pdf=args.allow_degraded_pdf)
     except RuntimeError as e:
-        sys.stderr.write(f"Error: {e}\n")
+        detail = str(e)
+        code = detail.split(":", 1)[0] if detail.startswith(("SOURCE_UNREADABLE", "PARSER_REQUIRED")) \
+            else "SOURCE_UNREADABLE"
+        # H-40: source unreadability is a SOURCE failure, never a "forgery / no
+        # match" audit verdict. Structured exit 2 with details.
+        _emit_error(code, detail, input_path)
+        sys.exit(2)
+    except OSError as e:
+        _emit_error("INPUT_NOT_FOUND", str(e), input_path)
         sys.exit(2)
 
     md_lines = [
@@ -305,21 +426,36 @@ but does NOT perform causal or semantic truth verification.
 
     # 2. Claim Audit Section
     claim_list = []
+    skipped_claims: List[Dict[str, Any]] = []
     if args.claim:
-        claim_list.append(args.claim)
+        claim = _extract_claim(args.claim, 0, skipped_claims)
+        if claim is not None:
+            claim_list.append(claim)
     elif args.claims:
         claims_file = os.path.abspath(args.claims)
         if not os.path.isfile(claims_file):
-            sys.stderr.write(f"Error: Claims file does not exist: {claims_file}\n")
+            _emit_error("CLAIMS_FILE_NOT_FOUND", f"Claims file does not exist: {claims_file}", claims_file)
             sys.exit(1)
         with open(claims_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            if isinstance(data, list):
-                for item in data:
-                    if isinstance(item, str):
-                        claim_list.append(item)
-                    elif isinstance(item, dict) and "claim" in item:
-                        claim_list.append(item["claim"])
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError as e:
+                # H-39: a wholly unparseable claims file has no items to skip —
+                # hard fail (unchanged rc=1), but structured and without traceback.
+                _emit_error("CLAIMS_FILE_UNPARSEABLE",
+                            f"claims 文件不是合法 JSON：{e}", claims_file)
+                sys.exit(1)
+        if isinstance(data, list):
+            for idx, item in enumerate(data):
+                claim = _extract_claim(item, idx, skipped_claims)
+                if claim is not None:
+                    claim_list.append(claim)
+        else:
+            skipped_claims.append({
+                "index": 0,
+                "reason": "claims 文件顶层必须是数组 []，实际为 %s" % type(data).__name__,
+                "preview": json.dumps(data, ensure_ascii=False)[:80],
+            })
 
     if claim_list:
         audit_results = [audit_single_claim(c, pages) for c in claim_list]
@@ -336,6 +472,20 @@ but does NOT perform causal or semantic truth verification.
             c_text = r["claim"].replace("|", "\\|")
             md_lines.append(f"| C{idx+1} | {c_text} | {badge} | Page {r['best_match_page'] or '-'} | {snippet} | {note} |")
 
+    if skipped_claims:
+        # H-39: skipped entries are always visible in the report, never silent.
+        gate_note = "" if args.allow_skipped else "（未传 `--allow-skipped` → 本次运行退出码为 1）"
+        md_lines.extend([
+            "## ⛔ 不可解析跳过项 (SKIPPED_UNPARSEABLE)",
+            f"- **跳过条数**：`{len(skipped_claims)}`{gate_note}",
+            "| Entry Index | Reason | Preview |",
+            "|:---:|---|---|",
+        ])
+        for s in skipped_claims:
+            reason = s["reason"].replace("|", "\\|")
+            preview = s["preview"].replace("|", "\\|")
+            md_lines.append(f"| #{s['index']} | {reason} | `{preview}` |")
+
     report_content = "\n".join(md_lines)
 
     if args.output:
@@ -344,6 +494,17 @@ but does NOT perform causal or semantic truth verification.
         print(f"Audit report saved to: {args.output}")
     else:
         print(report_content)
+
+    # H-39: SKIPPED_UNPARSEABLE counts into the exit code — a partial audit must
+    # never look like an all-green rc=0 unless explicitly allowed.
+    if skipped_claims and not args.allow_skipped:
+        sys.stderr.write(
+            "Error: %d claim(s) were SKIPPED_UNPARSEABLE (not audited). "
+            "Pass --allow-skipped to accept a partial audit explicitly.\n"
+            % len(skipped_claims)
+        )
+        sys.exit(1)
+    sys.exit(0)
 
 
 if __name__ == "__main__":
