@@ -196,7 +196,8 @@ def test_d3_source_substitution_is_detected():
 
         # 1) pin 原始源
         subprocess.run([sys.executable, str(SCRIPT), "-i", str(ev), "-s", str(src),
-                        "--write-source-pins", str(pins)], capture_output=True, text=True)
+                        "--write-source-pins", str(pins)], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
         assert pins.exists()
 
         # 2) 追加伪造内容
@@ -223,9 +224,11 @@ def test_d3_pin_match_passes():
         )]), ensure_ascii=False), encoding="utf-8")
         src.write_text(SOURCE_TEXT, encoding="utf-8")
         subprocess.run([sys.executable, str(SCRIPT), "-i", str(ev), "-s", str(src),
-                        "--write-source-pins", str(pins)], capture_output=True, text=True)
+                        "--write-source-pins", str(pins)], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
         proc = subprocess.run([sys.executable, str(SCRIPT), "-i", str(ev), "-s", str(src),
-                               "--source-pins", str(pins)], capture_output=True, text=True)
+                               "--source-pins", str(pins)], capture_output=True, text=True,
+                              encoding="utf-8", errors="replace")
         assert proc.returncode == 0
 
 

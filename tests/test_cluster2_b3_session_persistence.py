@@ -193,8 +193,9 @@ class TestConcurrentAppendZeroLoss(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # 仓库根在 D:\\（NTFS 本机路径）；显式落在本机数据盘而非系统临时目录。
-        cls.base = tempfile.mkdtemp(prefix="b3_conc_", dir=REPO_ROOT)
+        # 仓库根在 D:\\（NTFS 本机路径）；显式落在本机数据盘而非系统临时目录，
+        # 但走 gitignore 覆盖的 scratch 目录，避免 kill 时在仓库根留未跟踪残留。
+        cls.base = helpers.make_scratch_dir("b3_conc_")
 
     @classmethod
     def tearDownClass(cls):
@@ -204,9 +205,13 @@ class TestConcurrentAppendZeroLoss(unittest.TestCase):
         script_path = os.path.join(self.base, "worker_b3.py")
         with open(script_path, "w", encoding="utf-8") as fh:
             fh.write(WORKER_SCRIPT)
+        # encoding 必须显式指定：本机 locale 是 GBK，而 worker 的失败信息是 UTF-8
+        # 中文，默认解码会在读取线程里抛 UnicodeDecodeError，把诊断信息整个吞掉
+        # （断言里只剩空字符串）——正是本仓在修的那类静默失败。
         procs = [subprocess.Popen(
             [sys.executable, script_path, REPO_ROOT, self.folder, tag, str(count), mode],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            text=True, encoding="utf-8", errors="replace")
             for tag in tags]
         results = []
         for proc in procs:
@@ -246,6 +251,51 @@ class TestConcurrentAppendZeroLoss(unittest.TestCase):
         self.assertEqual(len(entries), 300, "台账条目必须零丢失")
         workers = {e["worker"] for e in entries}
         self.assertEqual(workers, {"L1", "L2", "L3"})
+
+    def test_concurrent_seal_checkpoint_has_exactly_one_winner(self):
+        """`seal_checkpoint` 与 `save_snapshot` 写同一个 session_path，必须同锁。
+
+        2026-09-15 部署层核查：`seal_checkpoint` 旧实现不持 `_revision_lock()`，
+        N 个进程可以各自通过 revision 校验再先后覆盖——与 H-15 修复前
+        `save_snapshot` 的 check-then-write 是同一形态。正确行为是**恰好一个**
+        成功、其余拿到 `RevisionConflict`，盘上 revision 只前进一步。
+        """
+        folder = os.path.join(self.base, "sess_seal_race")
+        os.makedirs(folder)
+        script = os.path.join(self.base, "seal_race_worker.py")
+        with open(script, "w", encoding="utf-8") as fh:
+            fh.write(textwrap.dedent("""
+                import json, sys
+                sys.path.insert(0, sys.argv[1])
+                from shared.execution.session_store import SessionStore, RevisionConflict
+                folder, expected = sys.argv[2], int(sys.argv[3])
+                store = SessionStore(folder)
+                try:
+                    store.seal_checkpoint({}, expected)
+                    print(json.dumps({"outcome": "OK"}))
+                except RevisionConflict:
+                    print(json.dumps({"outcome": "REVISION_CONFLICT"}))
+                except Exception as exc:
+                    print(json.dumps({"outcome": type(exc).__name__, "msg": str(exc)[:160]}))
+            """))
+        procs = [subprocess.Popen([sys.executable, script, REPO_ROOT, folder, "0"],
+                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                  text=True, encoding="utf-8", errors="replace")
+                 for _ in range(4)]
+        outcomes = []
+        for proc in procs:
+            out, err = proc.communicate()
+            self.assertEqual(proc.returncode, 0, "封存 worker 异常退出：%s" % err)
+            outcomes.append(json.loads(out.strip().splitlines()[-1]))
+
+        winners = [o for o in outcomes if o["outcome"] == "OK"]
+        self.assertEqual(len(winners), 1,
+                         "并发 seal 必须恰好一个赢家，实得 %d：%s" % (len(winners), outcomes))
+        for o in outcomes:
+            self.assertIn(o["outcome"], ("OK", "REVISION_CONFLICT"),
+                          "非预期结局（锁未生效时通常表现为多个 OK）：%s" % o)
+        self.assertEqual(SessionStore(folder).load_snapshot().get("revision"), 1,
+                         "失败者不得推进 revision，盘上只应前进一步")
 
 
 # ------------------------------------------------------------ H-101 锁加固
@@ -913,7 +963,7 @@ class TestKillRecoveryHonesty(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.base = tempfile.mkdtemp(prefix="b3_kill_", dir=REPO_ROOT)
+        cls.base = helpers.make_scratch_dir("b3_kill_")
         cls.seal_child = os.path.join(cls.base, "seal_crash_child.py")
         cls.append_child = os.path.join(cls.base, "append_crash_child.py")
         with open(cls.seal_child, "w", encoding="utf-8") as fh:

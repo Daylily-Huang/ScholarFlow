@@ -130,6 +130,16 @@ class _SessionFileLock:
                 fd = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
             except FileExistsError:
                 pass
+            except PermissionError:
+                # Windows：目标文件已被他人持有（或正处于删除挂起态）时，
+                # `O_CREAT|O_EXCL` 返回 EACCES 而非 EEXIST。这是**竞争**不是
+                # 致命错误，必须走与 FileExistsError 相同的重试 / stale 回收
+                # 路径——否则异常直接逃逸打死调用方进程（2026-09-15 实测：
+                # 5 进程 ×200 并发 append 在 NTFS 上约 2/10 次以
+                # `PermissionError: [Errno 13] ... .session.lock` 崩溃）。
+                # 真正的权限故障（如只读目录）会在 deadline 到达后按既有语义
+                # 抛结构化 `RevisionConflict`，比裸 traceback 更可诊断。
+                pass
             except FileNotFoundError:
                 continue  # 目录在检查后消失等极端情形：重试
             else:
@@ -594,7 +604,21 @@ class SessionStore:
         **提交协议（T04）**：revision 校验在任何写入之前完成；快照与检查点通过
         `commit_journal.json` 做两文件一致提交——中断会留下提交日志，
         `consistency_report()` 报 `INCOMPLETE_COMMIT`，`recover_commit()` 完成或回滚。
+
+        **临界区（2026-09-15 部署层核查）**：本方法与 `save_snapshot()` 写同一个
+        `session_path`，但旧实现不持锁——两个并发 `seal` 会各自通过 revision 校验
+        再先后覆盖（与 H-15 修复前 `save_snapshot` 的 check-then-write 是同一形态）。
+        现与 `save_snapshot()` 一致地纳入 `_revision_lock()`。
         """
+        with self._revision_lock():
+            return self._seal_checkpoint_locked(
+                session, expected_revision, import_mode, import_reason, import_source)
+
+    def _seal_checkpoint_locked(self, session: Dict[str, Any], expected_revision: int,
+                                import_mode: bool = False,
+                                import_reason: Optional[str] = None,
+                                import_source: Optional[str] = None) -> Dict[str, Any]:
+        """`seal_checkpoint()` 的持锁实现体；调用方必须已持有 `_revision_lock()`。"""
         # ① 先校验 revision，再考虑任何写入（旧实现先写检查点、后由 save_snapshot
         #    抛 RevisionConflict，导致 revision 冲突时却已覆盖 checkpoint.json）。
         current_revision = self._current_revision()
