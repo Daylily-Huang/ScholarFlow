@@ -52,13 +52,15 @@
 | `scripts/domain_neutrality_linter.py` | 核心文件学科中立性（L1） |
 | `scripts/verify_package_assets.py` | 打包资产完整性（L1） |
 
-**最后验证记录**：`709 tests OK (skipped=4)`，对应提交见本表末尾脚注；跳过项为
+**最后验证记录**：`1175 tests OK (skipped=4)`（2026-09-15 本机实测），对应提交见本表末尾脚注；跳过项为
 `jsonschema` 严格契约（未装 `[dev]`）与 Windows 侧 bash 不可用项，属**未验证**而非通过。
+（2026-09-15 更正：本节此前记为 `709 tests`，与本表 §7 的 `1168` 自相矛盾；两个数字都不是当时的真实值。）
 
 **已知未覆盖场景（不得据本表外推）**：
 
 - 第四技能的真实宿主端到端流程（缺口确认 → 上游返回 → 支持/反证回流 → 保存 → 恢复）**尚未执行**。
-- 隔离安装环境下的复用性验证曾因环境权限跳过，**未补验**；「单技能目录复制即可用」仍不成立。
+- 隔离安装环境下的复用性验证曾因环境权限跳过。**2026-09-15 已补**：`tests/test_install_runtime_integrity.py` 在临时目录复刻安装布局，于无 site-packages（`-I -S`）下断言 7 个门禁入口可运行、引擎解析到安装树自身（拒绝回落到仓库或 site-packages）、极性门禁与仓库布局逐值一致。该测试跨平台，Windows 与 Linux 都实际执行。
+- 「单技能目录复制即可用」仍**不成立**——技能依赖 `shared/` 运行时；安装器按「每个目标根一份引擎」落盘，单技能目录需连同同级 `shared/`、`schemas/` 一起复制。
 - 历史已自动标记为 `VERIFIED` 的旧记录**未被重审**，只应作审计器版本标注与重审清单处理。
 
 ---
@@ -93,7 +95,7 @@
 | 能力 | 状态 | 证据 / 说明 |
 |---|---|---|
 | 逐字引句回查（EXACT/HYPHEN/FUZZY/NOT_FOUND） | `CODE_VERIFIED` | `quote_audit.py`；**不校验页码**，页码来自 Agent 自报 |
-| 数值—引句锚定（含单位与量纲） | `CODE_VERIFIED` | 完整数量解析（符号/数值/指数/单位）后按数值+量纲比较；同量纲按**精确十进制**因子换算（2.5 mL == 2500 µL，1 nL ≠ 2 nL），跨量纲不匹配；`bp/kb/mb` 分列，`%`=1/100、`‰`=1/1000；`%` ↔ 裸比例仅在字段声明 `value_type` 时互认。**H-03 半边修复（2026-09-13 第二轮，同 commit）**：FUZZY 命中的引句不再自证——其抽取值必须回**源文侧匹配窗口**（同句范围）核验，被篡改数值判 `NOT_IN_QUOTE_CONTEXT`/`NOT_FOUND_IN_SOURCE`；无法回锚 → `FUZZY_NOT_ANCHORED`；文本型显著性判语（"not significant" 等）→ `NOT_VERIFIABLE` 且禁 promotion；比较符双侧在场才比较（单侧缺失不误挡，`±/~` 单侧仍阻断）；派生量纲 mg/L、µg/L、cells/mL、ind/L、ppm/ppb 已注册（25 与 999 mg/L 可区分）。**残余边界**：默认策略仍容忍 FUZZY 的 1-token 抽取伪影本身（`--strict` 才判失败，防伪关键值建议使用）；纯描述性文本值不参与数值对齐（全量文本核验随契约回合）；区间负号（"83 −85%"）按分隔符处理、字母紧邻负号（"at-20.5"）标 `AMBIGUOUS_SIGN` 交人工 |
+| 数值—引句锚定（含单位与量纲） | `CODE_VERIFIED` | 完整数量解析（符号/数值/指数/单位）后按数值+量纲比较；同量纲按**精确十进制**因子换算（2.5 mL == 2500 µL，1 nL ≠ 2 nL），跨量纲不匹配；`bp`=1、`kb`=1000 分列（`mb` **不登记**——基因组学是 megabase、大气科学是 millibar，登记会把气压值悄悄换算成碱基数，见下行），`%`=1/100、`‰`=1/1000；`%` ↔ 裸比例仅在字段声明 `value_type` 时互认。**H-03 半边修复（2026-09-13 第二轮，同 commit）**：FUZZY 命中的引句不再自证——其抽取值必须回**源文侧匹配窗口**（同句范围）核验，被篡改数值判 `NOT_IN_QUOTE_CONTEXT`/`NOT_FOUND_IN_SOURCE`；无法回锚 → `FUZZY_NOT_ANCHORED`；文本型显著性判语（"not significant" 等）→ `NOT_VERIFIABLE` 且禁 promotion；比较符双侧在场才比较（单侧缺失不误挡，`±/~` 单侧仍阻断）；派生量纲 mg/L、µg/L、cells/mL、ind/L、ppm/ppb 已注册（25 与 999 mg/L 可区分）。**残余边界**：默认策略仍容忍 FUZZY 的 1-token 抽取伪影本身（`--strict` 才判失败，防伪关键值建议使用）；纯描述性文本值不参与数值对齐（全量文本核验随契约回合）；区间负号（"83 −85%"）按分隔符处理、字母紧邻负号（"at-20.5"）标 `AMBIGUOUS_SIGN` 交人工 |
 | 未知/复合单位的诚实阻断 | `CODE_VERIFIED` | 单位不在表内（如 `Gy`、`Sv`、`m/s`、`m2`）→ `dimension="unknown"`、保留原文，判 `UNKNOWN_UNIT` 并阻断；源文扫描**保留大小写**（`Gy` 不会被折成 `gy`），抽取值悄悄丢单位也会被 `UNIT_MISMATCH` 挡住；只有字段声明 `value_type=count/dimensionless` 且另一侧确实无量纲时才按数值比较 |
 | 数值字面量边界（千分位/比较符/全角） | `CODE_VERIFIED` | 多组千分位（`1,234,567`、`1.234.567`）与英/欧两种 locale；单组点分 `0.005` 仍按小数；比较符（`< > ≤ ≥ ± ~`）参与比较；抽取值侧与源文侧同源 confusable 归一化 |
 | 引句长度与空白边界 | `CODE_VERIFIED` | `MAX_QUOTE_LEN=2000`：整篇/大段文本当引句 → `QUOTE_TOO_LONG` 阻断（否则数值锚定恒真）；含 CJK 的引句允许折行空白不敏感匹配（拉丁文不放宽，避免 `the rapist`/`therapist` 假命中） |
@@ -164,7 +166,7 @@
 | 授权事件的真实性边界 | `CODE_VERIFIED` | 用户确认事件必须是已生效事件（`applied=false` → `CONFIRMATION_EVENT_NOT_APPLIED`）；同一 `event_id` 出现多次 → `CONFIRMATION_EVENT_AMBIGUOUS`；事件日志损坏 → `CONFIRMATION_CONTEXT_UNREADABLE`（与"没给上下文"区分） |
 | **事件先行可信重放基底** | `PARTIAL` | `seal_checkpoint()`：封存全量状态 + 事件前缀摘要 + `event_count` + `last_event_id`，未封存会话一律报 `SNAPSHOT_BASE_UNVERIFIED`；重放边界以 `event_count` 为准（零事件检查点不会跳过后续事件），并校验前缀摘要/边界一致性。**未完成**：`save_snapshot()` 仍只是调用约定（无法从代码上阻止写入未记录字段），尚无强制事件先行的写入入口 |
 | 检查点信任边界与历史导入 | `CODE_VERIFIED` | 检查点自述 `inherited_fields` + `trust_boundary` + `import_mode/reason/source`；已有检查点后引入新的、事件未记录的业务字段必须显式 `import_mode=True` 并给出理由与来源，否则拒绝封存。**不得宣称"全部业务状态由事件证明"** |
-| 并发写入与损坏快照 | `CODE_VERIFIED` | `_atomic_write_text` 临时名带 pid+随机后缀（原固定 `.tmp` 会被并发写坏）；`save_snapshot` 读-改-写用 `O_EXCL` 会话锁串行化，**锁临界区已覆盖 `append_event` 与 `append_usage`（usage ledger）追加**——Windows CRT `_O_APPEND` 是 lseek+write 两步而非原子追加，check-then-append 无锁时并发互相覆盖（修复前 5 进程×200 自报成功实落 866 条、台账 600 自报仅 443 可解析；修复后实测 1000/1000 零丢失、300/300 恒合法 JSONL）。锁三项加固：①锁文件 pid 属主核对（释放只删自己的锁，不误删后到者）；②等待 deadline 全路径生效（持锁者存活也按时抛 `RevisionConflict`，无"永远等下去"分支）；③stale/孤儿锁 rename-aside 回收（`.session.lock.stale-*` 留档可审计；Windows 活锁因句柄占用不可被夺，POSIX 回收前探活）。损坏快照抛结构化 `SnapshotCorrupt` 而非裸 `JSONDecodeError`。实测（2026-09-13 第二轮集群测试 B3 批，D:\ NTFS 本机路径）：5 进程×200 并发 append 自报 1000 = 实落 1000、3 进程×100 台账恒合法、20 次 kill 中断恢复诚实全绿 |
+| 并发写入与损坏快照 | `CODE_VERIFIED` | `_atomic_write_text` 临时名带 pid+随机后缀（原固定 `.tmp` 会被并发写坏）；`save_snapshot` 读-改-写用 `O_EXCL` 会话锁串行化，**锁临界区已覆盖 `append_event` 与 `append_usage`（usage ledger）追加**——Windows CRT `_O_APPEND` 是 lseek+write 两步而非原子追加，check-then-append 无锁时并发互相覆盖（修复前 5 进程×200 自报成功实落 866 条、台账 600 自报仅 443 可解析；修复后实测 1000/1000 零丢失、300/300 恒合法 JSONL）。锁三项加固：①锁文件 pid 属主核对（释放只删自己的锁，不误删后到者）；②等待 deadline 全路径生效（持锁者存活也按时抛 `RevisionConflict`，无"永远等下去"分支）；③stale/孤儿锁 rename-aside 回收（`.session.lock.stale-*` 留档可审计；Windows 活锁因句柄占用不可被夺，POSIX 回收前探活）。损坏快照抛结构化 `SnapshotCorrupt` 而非裸 `JSONDecodeError`。实测（2026-09-13 第二轮集群测试 B3 批，D:\ NTFS 本机路径）：5 进程×200 并发 append 自报 1000 = 实落 1000、3 进程×100 台账恒合法、20 次 kill 中断恢复诚实全绿。**2026-09-15 补（该行此前把"某次跑通"读成了"稳定成立"）**：Windows 上 `O_CREAT\|O_EXCL` 在目标文件被他人持有或处于删除挂起态时返回 **EACCES 而非 EEXIST**，而 `_acquire_file_lock` 只捕获 `FileExistsError`，异常直接逃逸打死 worker——实测旧路径下 **2/10 次**以 `PermissionError: [Errno 13] … .session.lock` 崩溃（属既有缺陷，非本轮引入）。现已将 `PermissionError` 并入竞争重试路径（真权限故障仍按 deadline 抛结构化 `RevisionConflict`），修复后 32 次连续并发用例零失败。**另**：`seal_checkpoint()` 此前与 `save_snapshot()` 写同一 `session_path` 却不持锁，现已同锁（回归：`test_concurrent_seal_checkpoint_has_exactly_one_winner`）|
 | 两文件一致提交与中断识别 | `CODE_VERIFIED` | 封存前完成 revision 校验（失败时快照与检查点均不变）；快照与检查点经 `commit_journal.json` 一致提交，中断留下提交日志 → `consistency_report()` 报 `INCOMPLETE_COMMIT`，`recover_commit()` 完成或回滚；CLI `seal` 支持 `--import-mode/--import-reason/--import-source` |
 | **契约校验前置到修复路径** | `CODE_VERIFIED` | `heal_referential_integrity()` 生成的占位立即过 `research_debate_gap.schema.json`；不合规输出转入 `repair_proposals` 而非正式 `gap_requests` |
 | **外键修复不得制造授权** | `CODE_VERIFIED` | `heal_referential_integrity()` 只生成 `PENDING` 占位，不伪造 `CONFIRMED`（F06/R06）；占位以 `healed_placeholder=true` 显式标记，Schema 据此放开空关联并强制 `execution_status=NOT_STARTED`；测试 `tests/test_research_debate_session_store.py` |
@@ -225,12 +227,12 @@
 |---|---|---|
 | 统一执行深度三档 | `CODE_VERIFIED` | 预设 ≠ 运行授权；未确认配置不得保存 |
 | 运行配置契约与往返一致性 | `CODE_VERIFIED` | `RunExecutionConfig` + schema 校验 + 原子写入 |
-| 运行级预算与阶段计划 | `PARTIAL` | `RunContext`；模型/数据库请求分开计数。**第二轮实测（H-19）**：重新实例化 RunContext 不回放 usage_ledger——已终结 run 配额重置满额发放；台账负数记账/删除投毒未设防（H-47，下轮） |
+| 运行级预算与阶段计划 | `PARTIAL` | `RunContext`；模型/数据库请求分开计数。**H-19 已修（`e8bd775`，B6）**：重新实例化 RunContext 时构造即强制回放 usage_ledger，已终结 run 拒写。**残余**：台账负数记账/删除投毒未设防（H-47，下轮） |
 | Token 计量诚实性 | `CODE_VERIFIED` | 由观测计数推导；部分观测标注为下界 |
 | 预算硬上限（抢占式） | `NOT_SUPPORTED` | 请求 `hard` 会显式降级为 `best_effort` 并写入回执 |
 | 跨运行资源授权隔离 | `CODE_VERIFIED` | 绑定 `run_id`；证据可用但授权不转移 |
 | 阻塞态恢复 | `CODE_VERIFIED` | `resume_input()` / `RunContext.resume()` |
-| 一键安装运行时完整性 | `CODE_VERIFIED` | 单一 `shared` 副本 + 隔离解释器验收 |
+| 一键安装运行时完整性 | `CODE_VERIFIED` | 单一 `shared` 副本 + 隔离解释器验收。**2026-09-15 修（本条曾被实测证伪）**：验收原先只探测 `agent_search.py`——它是唯一自带双布局定位器的脚本，因此该验收**结构上不可能失败**；实测装出去的树里 `claim_alignment` / `extraction_pipeline` / `context_expansion` 解析不到引擎（`_HAS_SHARED_POLARITY` True→False、词表 31/56→0/27，极性门禁静默降级而退出码仍为 0），`install.ps1` 更整段不复制 `schemas/`。现两安装器验收 **7 个门禁入口** + 引擎身份核对（拒绝解析到安装根之外的 `shared`，可捕获残留的 `pip install -e .`）；回归见 `tests/test_install_runtime_integrity.py`（跨平台、不依赖 bash，旧验收在 Linux 上只测 `agent_search.py`、在 Windows 上整类跳过）|
 | 断点续跑（阶段中途精确接续） | `PARTIAL` | 可重建剩余额度，不支持单篇处理中途接续 |
 | 宿主图表理解能力 | `HOST_EXECUTED` | 记为能力缺口，不输出"已穷尽审计" |
 | 真实论文质量评测（Level 3–4） | `NOT_SUPPORTED` | 尚未建设真实金标测试集 |
@@ -244,8 +246,8 @@
 以下是文档中**仍然存在**但与本表冲突的表述，按本表为准：
 
 1. README「9 大学术争议分类学体系」——实际实现 3 类（见 §3）。
-2. README「四级级联去重」——实际两级（见 §1）。
-3. README「Stage 8B 浏览器兜底」——无实现（见 §1）。
+2. ~~README「四级级联去重」——实际两级（见 §1）。~~ **已修正（2026-09-15 核实）**：README 现写「DOI 精确 + 标题精确 两级」（`:160`、`:283`），本条不再成立，保留于此作审计留痕。
+3. ~~README「Stage 8B 浏览器兜底」——无实现（见 §1）。~~ **已修正（2026-09-15 核实）**：README 全文已无 `8B` 字样；SKILL.md 保留的 Stage 8B 段落显式标注 `NOT_SUPPORTED` 且声明「正常路由不进入该分支」。本条不再成立，保留作留痕。
 4. README/SKILL 中把 `HOST_EXECUTED` 项以 `[DETERMINISTIC]` / `[PROTOCOL]` 标签呈现的部分（如双盲初筛、Devil's Advocate）——标签描述的是**规程性质**，不是执行保证。
 5. `benchmarks/` 中 Discovery 与 Extraction 两项为**合成夹具自检**，不代表在线召回或真实抽取质量。
 6. SKILL.md 称 Stage 0A「自动识别多队列/多数据集、已知约束自动确认」——实际为约 5 类固定正则、
@@ -277,12 +279,22 @@
 19. 威胁模型：机械门禁不承诺对抗持盘攻击者（见 §5 威胁模型声明）。
 20. fail-closed 拒绝目前**无专用人工裁决队列**，仅靠产物 summary 计数暴露
     （`UNRESOLVED`/`UNPARSEABLE`/`UNKNOWN_METRIC_DIRECTION`/`INVALID_STANCE`）。
+21. 事件写入无 schema 门禁：`research_debate_event.schema.json` 全仓无执行点，
+    伪造的确认事件可直接 `append_event` 并被派发门禁接受（集群测试 P1，未修）。
+22. `depth` 标签与资源上限解耦：`ExecutionProfile` 的 `depth=quick` 可携带 deep 预算
+    并通过校验与 preflight（集群测试 P1，未修）。
+23. 检索台账跨作用域虚报：查询数与台账行数不等、`hits=0` 仍可判 `COMPLETE`、
+    覆盖率 `rate > 1`（集群测试 P1，未修）。
+24. 「一键安装运行时完整性」曾被谎报为已验收：安装器只探测 `agent_search.py`（唯一
+    自带双布局定位器的脚本），验收恒 PASS，而装出去的树里三个脚本静默丢失引擎
+    （见 §5）。2026-09-15 已修并加跨平台回归。
 
 ---
 
 ## 7. 本表的验证绑定
 
-- **实现提交**：`cb343aa`（第二轮集群测试 B1–B6 修复：B1 `737200a`、B2 `1ed632a`、B3 `2ff5a6f`、B4 `19efaea`、B5 `97c3f7a`、B6 `cb343aa`；第一轮 6 P0 + 8 P1 见 `7278934`）
+- **实现提交**：第二轮 B1–B6 修复依次为 `f592665`(B1) / `a1a6c1e`(B2) / `ee8f3ab`(B3) / `c32d6cc`(B4) / `ea25d0d`(B5) / `e8bd775`(B6)，C7 收尾 `51f1e7c`；第一轮 6 P0 `32ab679` + 8 P1 `7278934`。**部署层修复（2026-09-15）见 `scripts/stamp_build.py --check` 输出的当前盖章提交。**
+- **提交可达性（2026-09-15 修）**：本表此前引用的 `cb343aa`/`737200a`/`1ed632a`/`2ff5a6f`/`97c3f7a`/`19efaea`，经 `git merge-base --is-ancestor` 逐一核验**全部不在当前分支**（期间发生过 rebase）；`shared/build_stamp.py` 内嵌的 `BUILD_COMMIT` 也指向 `git cat-file` 取不到的孤儿对象，四个 CLI 的 `--version` 因此都在打印一个证明不了任何东西的哈希。现已重新盖章为可达提交，并新增 `scripts/stamp_build.py --check`（rc=1 可作 CI 门禁）与 `scripts/verify_package_assets.py` 的可达性告警，使这类腐烂下次不再静默。
 - **测试结果**：`Ran 1168 tests ... OK`（skipped=4；另 `SCHOLARFLOW_STRICT_CONTRACT_CI=1` 下契约四件套 50 用例 OK；跳过 ≠ 通过）
 - **报告**：`docs/implementation/ScholarFlow_集群端到端测试报告2_2026-09-13.md`（22 agent 第二轮：190 原始发现 → 112 去重，8 P0 全着落；4 panelist 两轮辩论 + moderator 合议见 `docs/CROSS_SKILL_CONTRACT_DECISIONS_2026-09-13.md` 契约拍板）
   、`docs/implementation/ScholarFlow_集群端到端测试报告_2026-09-13.md`（第一轮 18 agent，6 P0 已修 / P1–P2 留档）
@@ -291,9 +303,3 @@
   `ScholarFlow_四技能审查修复批次报告_2026-09-12.md`，后者已标注"全部验收"表述过度）
 
 > 本表的 `CODE_VERIFIED` 仅覆盖上表 L1/L2 层，且只对该提交有效；实现变更后须重新核对本表。
-15. 事件写入无 schema 门禁：`research_debate_event.schema.json` 全仓无执行点，
-    伪造的确认事件可直接 `append_event` 并被派发门禁接受（集群测试 P1，未修）。
-16. `depth` 标签与资源上限解耦：`ExecutionProfile` 的 `depth=quick` 可携带 deep 预算
-    并通过校验与 preflight（集群测试 P1，未修）。
-17. 检索台账跨作用域虚报：查询数与台账行数不等、`hits=0` 仍可判 `COMPLETE`、
-    覆盖率 `rate > 1`（集群测试 P1，未修）。

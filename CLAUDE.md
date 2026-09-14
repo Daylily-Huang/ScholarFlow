@@ -63,7 +63,7 @@ python skills/research-idea-debate/scripts/session_store_cli.py --help
 
 ## 能力状态真相来源
 
-`docs/CAPABILITY_STATUS.md` 是**四个**技能能力的**唯一权威说明**，能力分四级：`CODE_VERIFIED`（有代码+测试，**仅覆盖结构与行为两层，不含科研正确性**）/ `PARTIAL`（部分路径已实现，缺口明确未实现）/ `HOST_EXECUTED`（只有规程和提示词，效果取决于宿主 Agent 遵循度）/ `HUMAN_CONFIRMED`（必须人工裁定）/ `NOT_SUPPORTED`（不交付）。
+`docs/CAPABILITY_STATUS.md` 是**四个**技能能力的**唯一权威说明**，能力状态共**六种**（以该文档的状态定义表为准）：`CODE_VERIFIED`（有代码+测试，**仅覆盖结构与行为两层，不含科研正确性**）/ `PARTIAL`（部分路径已实现，缺口明确未实现）/ `DEFERRED`（已判定应做但本轮明确暂缓，行为保守宁可阻断）/ `HOST_EXECUTED`（只有规程和提示词，效果取决于宿主 Agent 遵循度）/ `HUMAN_CONFIRMED`（必须人工裁定）/ `NOT_SUPPORTED`（不交付）。
 
 写代码或修改文档前必读，尤其注意：
 

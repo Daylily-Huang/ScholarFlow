@@ -27,10 +27,10 @@
 2. **防幻觉设计（Grounding-by-Design）**：核心数据必须锚定带页码的原文逐字引用与上下文协同校验。
 3. **拒绝流水账（Controversy-Driven）**：综述绝非“张三做了 A、李四做了 B”，而是以科学冲突、方法论根因与适用边界为主线。
 4. **拒绝文献民主投票（Weighted Evidence）**：严禁简单比拼文献篇数多数决，单篇高精度独立复现研究可一票降权粗放旧成果。
-5. **全生命周期闭环（Upstream Gap Loop & Handoff）**：构想推敲中遇到经验事实缺口、或综合分析发现文献断裂时，自动生成结构化任务载荷驱动上游补充检索与精准核验。
+5. **缺口载荷与交接协议（Upstream Gap Loop & Handoff）**：构想推敲中遇到经验事实缺口、或综合分析发现文献断裂时，按规程产出结构化缺口载荷（`SEARCH GAP` / `EXTRACTION GAP`）驱动上游补充检索与精准核验。**边界**：字段与模板已定义，但**载荷的生成与回流由宿主 Agent 按规程执行**（能力表 §3 标 `HOST_EXECUTED`）；端到端合环**尚不可达**（§3.5 标 `NOT_SUPPORTED`）。
 6. **轻量与零强制第三方依赖（Zero Mandatory Third-Party Runtime Dependencies）**：所有核心业务逻辑与 CLI 脚本均基于 Python 3 标准库构建，可选依赖（如 `pypdf`）通过 `pip install "scholarflow[pdf]"` 按需启用。
 7. **极性防御与数值锚定（Fail-Closed Polarity & Unit Alignment）**：内置跨技能共享否定词表与三值极性机制（`shared.text.polarity`），对反向命题冒充支持实施 Fail-Closed 熔断拦截；扩充复合浓度（如 `mg/L`）与派生量纲库，杜绝实证论文引句数值对齐时的假阴性误报。
-8. **版本可观测性与零漂移交付（Build Stamp & Zero-Drift Guarantee）**：核心引擎与四大 CLI 工具全量内置构建戳（`--version` 显示规范版本、Commit Hash 与时间戳），提供 `verify_package_assets.py --install-dir` 实现已安装 Agent 技能与源码库的 113 个文件资产 MD5 自动化防漂移校验。
+8. **版本可观测性与漂移检测（Build Stamp & Drift Detection）**：核心引擎与四大 CLI 工具全量内置构建戳（`--version` 显示规范版本、Commit Hash 与时间戳），提供 `verify_package_assets.py --install-dir` 对已安装 Agent 技能与源码库做 113 个文件的 MD5 比对。**边界**：该比对**只告警、不改退出码**——它检测漂移，不阻止漂移；且构建戳在 rebase/压缩提交后会指向不可达对象从而失去证明力（2026-09-15 实测中确已发生），故另有 `scripts/stamp_build.py --check`（rc=1，可作 CI 门禁）作为可达性门禁。
 
 ### 🌟 核心设计信条 (Core Epistemic Principles)
 - **Principle 1: Domain-neutral core, domain-aware execution (核心学科中立，视角按需注入)**：核心协议与证据纪律保持全学科中立，领域特有概念与风险点通过按需加载的 Domain Lens 动态注入。
@@ -474,22 +474,26 @@ python benchmarks/run_benchmarks.py
 
 为确保在真实分布式科研场景下的工程健壮度，ScholarFlow 组织了 **22 个独立专业 Agent 构成的集群演练与全流程闭环实测**（详见 [`docs/implementation/ScholarFlow_集群端到端测试报告2_2026-09-13.md`](docs/implementation/ScholarFlow_集群端到端测试报告2_2026-09-13.md)）：
 
-- **全生命周期闭环打通**：完整走通 `Debate (构想推敲)` → `Discovery (文献发现)` → `Extraction (证据抽取)` → `Synthesis (争议综合)` 跨阶段协同，实现 0 丢失、0 幻觉污染。
-- **真实发表论文严苛抽检**：以 *Frontiers in Toxicology*（2025 年 12 页实测论文）微塑料神经毒性研究为样本，验证第一手实证数据 100% 准确提取，复合单位（`100 mg/L`）规范对齐；对恶意/错误极性反转实施 100% Fail-Closed 熔断拦截。
+- **四个技能的单技能域内流程均已走通**：`Debate (构想推敲)` → `Discovery (文献发现)` → `Extraction (证据抽取)` → `Synthesis (争议综合)` 各自的域内流程经集群实测跑通。**但跨技能合环不成立**：入向适配缺失导致真实证据回流 100% 落 `UNRESOLVED`，能力表 §3.5「缺口确认 → 上游返回 → 支持/反证回流 → 保存 → 恢复」一行状态为 `NOT_SUPPORTED`（见 [docs/CAPABILITY_STATUS.md](docs/CAPABILITY_STATUS.md)）。
+- **真实发表论文抽检（单样本行为验证）**：以 *Frontiers in Toxicology*（2025 年 12 页实测论文）微塑料神经毒性研究为样本，该样本的复合单位（如 `100 mg/L`）对齐与极性反转拦截均按预期触发。**这是单样本的 L1/L2 行为验证，不构成任何总体准确率结论**——L3 科研质量与 L4 工作流质量均未建设，不得据此声称「100% 准确提取」或「100% 熔断拦截」。
 - **NTFS / 跨平台高并发耐久**：底层会话存储经受 1000/1000 并发原子写入与崩溃断点恢复测试，引用完整性违例数为 0。
 
 ---
 
 ## 🧭 能力状态表 (Capability Status)
 
-每一分钟投入前，建议先读 [`docs/CAPABILITY_STATUS.md`](docs/CAPABILITY_STATUS.md)：它把四个 Skill 的每项能力标注为四种状态之一——
+每一分钟投入前，建议先读 [`docs/CAPABILITY_STATUS.md`](docs/CAPABILITY_STATUS.md)：它把四个 Skill 的每项能力标注为**六种状态**之一——
 
 | 状态 | 含义 |
 |---|---|
-| `CODE_VERIFIED` | 有执行路径且有行为测试；可直接依赖 |
+| `CODE_VERIFIED` | 有执行路径且有行为测试；可直接依赖（**仅覆盖结构 L1 与行为 L2，不含科研正确性**） |
+| `PARTIAL` | 部分路径已实现；列出的缺口明确未实现 |
+| `DEFERRED` | 已判定应做但本轮明确暂缓，当前行为保守（宁可阻断） |
 | `HOST_EXECUTED` | 只有规程与提示词，效果取决于宿主 Agent 的遵循程度 |
 | `HUMAN_CONFIRMED` | 自动判断不足以保证正确，必须人工裁定 |
 | `NOT_SUPPORTED` | 明确不交付；调用会得到显式缺口或错误 |
+
+> **状态以 [`docs/CAPABILITY_STATUS.md`](docs/CAPABILITY_STATUS.md) 的状态定义表为准**；本表若与它不一致，以该文档为准。
 
 > [!IMPORTANT]
 > `HOST_EXECUTED` **不等于**已实现。SKILL.md 里的 `[PROTOCOL]` 标签描述的是规程性质，不是执行保证。该文档第 6 节还列出了当前文档中**仍会误导用户**的表述（如"9 类争议"实为 3 类、Stage 0 上下文自动识别范围远小于文档描述），以该文档为准。
