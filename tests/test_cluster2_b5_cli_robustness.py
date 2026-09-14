@@ -44,6 +44,7 @@ def _validator_env(clean_deployment=False):
     env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
     if not clean_deployment:
         env["PYTHONPATH"] = str(REPO_ROOT)
+    env["PYTHONIOENCODING"] = "utf-8"
     return env
 
 
@@ -53,15 +54,18 @@ def _run_validator(path, clean_deployment=False, extra_args=()):
         cmd.append("-S")
     cmd.extend([str(VALIDATOR), str(path), "--json"])
     cmd.extend(extra_args)
-    proc = subprocess.run(cmd, capture_output=True, text=True,
+    proc = subprocess.run(cmd, capture_output=True, encoding="utf-8", errors="replace",
                           env=_validator_env(clean_deployment), cwd=str(REPO_ROOT))
     return proc.returncode, proc.stdout, proc.stderr
 
 
 def _run_audit(source_path, *extra_args):
+    env = dict(os.environ)
+    env["PYTHONIOENCODING"] = "utf-8"
     proc = subprocess.run([sys.executable, str(AUDIT_CLAIMS), "-i", str(source_path)]
                           + [str(a) for a in extra_args],
-                          capture_output=True, text=True, cwd=str(REPO_ROOT))
+                          capture_output=True, encoding="utf-8", errors="replace",
+                          env=env, cwd=str(REPO_ROOT))
     return proc.returncode, proc.stdout, proc.stderr
 
 

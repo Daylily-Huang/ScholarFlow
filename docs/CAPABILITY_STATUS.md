@@ -282,9 +282,10 @@
 
 ## 7. 本表的验证绑定
 
-- **实现提交**：`7278934`（集群测试 6 P0 + 8 P1；此前 RFC-017 `e8b3d14`、预算映射 `bc5555f`、F1/F2 `b091516`、T01–T05 主体 `8a267e2`）
-- **测试结果**：`Ran 900 tests ... OK`（本机 0 项跳过；跳过 ≠ 通过）
-- **报告**：`docs/implementation/ScholarFlow_集群端到端测试报告_2026-09-13.md`（18 agent 集群测试，6 P0 已修 / P1–P2 留档）
+- **实现提交**：`cb343aa`（第二轮集群测试 B1–B6 修复：B1 `737200a`、B2 `1ed632a`、B3 `2ff5a6f`、B4 `19efaea`、B5 `97c3f7a`、B6 `cb343aa`；第一轮 6 P0 + 8 P1 见 `7278934`）
+- **测试结果**：`Ran 1168 tests ... OK`（skipped=4；另 `SCHOLARFLOW_STRICT_CONTRACT_CI=1` 下契约四件套 50 用例 OK；跳过 ≠ 通过）
+- **报告**：`docs/implementation/ScholarFlow_集群端到端测试报告2_2026-09-13.md`（22 agent 第二轮：190 原始发现 → 112 去重，8 P0 全着落；4 panelist 两轮辩论 + moderator 合议见 `docs/CROSS_SKILL_CONTRACT_DECISIONS_2026-09-13.md` 契约拍板）
+  、`docs/implementation/ScholarFlow_集群端到端测试报告_2026-09-13.md`（第一轮 18 agent，6 P0 已修 / P1–P2 留档）
   、`docs/implementation/ScholarFlow_第三次修改验收修复报告_2026-09-13.md`
   （前两轮：`ScholarFlow_R01-R06第二轮修复报告_2026-09-13.md`、
   `ScholarFlow_四技能审查修复批次报告_2026-09-12.md`，后者已标注"全部验收"表述过度）
