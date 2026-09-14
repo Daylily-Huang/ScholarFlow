@@ -14,6 +14,7 @@ happened at all and a clean exit would misreport "checked, all fine".
 import argparse
 import hashlib
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -209,6 +210,44 @@ def compare_install_dir(repo_root: Path, install_dir: Path) -> bool:
     return True
 
 
+def verify_build_stamp_reachability(repo_root: Path) -> bool:
+    """Check the embedded BUILD_COMMIT still names a commit git can read.
+
+    H-36 embedded the build stamp so ``--version`` makes deployment drift
+    visible. A rebase or squash silently breaks that: the stamp keeps printing
+    a hash that no longer resolves (measured 2026-09-15 -- ``cb343aa...`` was
+    readable by neither ``git cat-file`` nor ``git merge-base``), so the
+    provenance claim quietly becomes false. Warn rather than fail, matching the
+    existing install-drift convention: provenance rot is not a runtime fault,
+    but it must not be silent. Fix with ``python scripts/stamp_build.py``.
+    """
+    try:
+        import shared.build_stamp as stamp
+    except Exception as exc:  # pragma: no cover - import guarded by caller
+        print("[WARNING] build stamp unavailable: %s" % exc)
+        return True
+    commit = (getattr(stamp, "BUILD_COMMIT", "") or "").strip()
+    if not commit:
+        print("[WARNING] build stamp carries no commit (source checkout, not a stamped build)")
+        return True
+    try:
+        proc = subprocess.run(
+            ["git", "cat-file", "-e", commit + "^{commit}"],
+            cwd=str(repo_root), capture_output=True, text=True,
+            encoding="utf-8", errors="replace",
+        )
+    except OSError as exc:
+        print("[WARNING] cannot reach git to check the build stamp: %s" % exc)
+        return True
+    if proc.returncode != 0:
+        print("[WARNING] BUILD_COMMIT %s is not reachable from this repository; "
+              "`--version` on the four skill CLIs now prints a hash that proves nothing. "
+              "Fix: python scripts/stamp_build.py" % commit[:12])
+    else:
+        print("[PASS] Build stamp commit is reachable (%s)" % commit[:12])
+    return True
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="ScholarFlow package assets & distribution verifier "
@@ -233,6 +272,7 @@ def main():
         print("ScholarFlow build stamp (H-36): unavailable (%s)" % exc)
 
     success = verify_repo_assets(repo_root)
+    verify_build_stamp_reachability(repo_root)
     if args.install_dir and not compare_install_dir(repo_root, Path(args.install_dir)):
         sys.exit(2)  # usage error: nothing was compared (H-36 contract)
     sys.exit(0 if success else 1)
