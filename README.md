@@ -6,6 +6,8 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Version-0.6.6-blue.svg" alt="Version 0.6.6">
+  <img src="https://img.shields.io/badge/Tests-1168%20Passed-brightgreen.svg" alt="1168 Tests Passed">
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
   <img src="https://img.shields.io/badge/Python-3.9%2B-brightgreen.svg" alt="Python Version">
   <img src="https://img.shields.io/badge/Dependencies-Zero%20Mandatory%20Pip-orange.svg" alt="Zero Mandatory Dependencies">
@@ -27,6 +29,8 @@
 4. **拒绝文献民主投票（Weighted Evidence）**：严禁简单比拼文献篇数多数决，单篇高精度独立复现研究可一票降权粗放旧成果。
 5. **全生命周期闭环（Upstream Gap Loop & Handoff）**：构想推敲中遇到经验事实缺口、或综合分析发现文献断裂时，自动生成结构化任务载荷驱动上游补充检索与精准核验。
 6. **轻量与零强制第三方依赖（Zero Mandatory Third-Party Runtime Dependencies）**：所有核心业务逻辑与 CLI 脚本均基于 Python 3 标准库构建，可选依赖（如 `pypdf`）通过 `pip install "scholarflow[pdf]"` 按需启用。
+7. **极性防御与数值锚定（Fail-Closed Polarity & Unit Alignment）**：内置跨技能共享否定词表与三值极性机制（`shared.text.polarity`），对反向命题冒充支持实施 Fail-Closed 熔断拦截；扩充复合浓度（如 `mg/L`）与派生量纲库，杜绝实证论文引句数值对齐时的假阴性误报。
+8. **版本可观测性与零漂移交付（Build Stamp & Zero-Drift Guarantee）**：核心引擎与四大 CLI 工具全量内置构建戳（`--version` 显示规范版本、Commit Hash 与时间戳），提供 `verify_package_assets.py --install-dir` 实现已安装 Agent 技能与源码库的 113 个文件资产 MD5 自动化防漂移校验。
 
 ### 🌟 核心设计信条 (Core Epistemic Principles)
 - **Principle 1: Domain-neutral core, domain-aware execution (核心学科中立，视角按需注入)**：核心协议与证据纪律保持全学科中立，领域特有概念与风险点通过按需加载的 Domain Lens 动态注入。
@@ -423,26 +427,29 @@ ScholarFlow 明确区分两层分发界面，保障按需使用与依赖极简�
 
 ## 🧪 测试与科研基准 (Testing & Benchmarks)
 
-### 1. 自动化单元与契约测试套件
+### 1. 自动化单元与契约测试套件 (1168 Tests Passed)
 
-本仓库测试套件仅使用 Python 标准库（`unittest`），零第三方强制依赖：
+本仓库测试套件仅使用 Python 标准库（`unittest`），零第三方强制依赖，持续在 CI 中保持 **1168 项测试全部通过（0 failures, 0 errors）**：
 
 ```bash
-# 运行全量单元、契约、跨学科中立性与对抗测试
+# 运行全量 1168 项单元、契约、跨学科中立性与对抗测试
 python -m unittest discover -s tests -v
+
+# 验证核心资产完整性与本地已安装 Skill 零漂移比对
+python scripts/verify_package_assets.py --install-dir <path_to_installed_skills>
 ```
 
 覆盖范围：
 - **构想规程机械门禁**：`validate_session.py`（RV01–RV50 共 50 项规程规则程序化硬核验与引用完整性自愈）；
-- **单写者事件真源重放**：`test_research_debate_session_store.py`（并发写入冲突拦截、版本演进与快照重放一致性）；
+- **单写者事件真源重放**：`test_research_debate_session_store.py`（并发写入冲突拦截、版本演进、O_EXCL 互斥临界区与快照重放一致性）；
 - **查证缺口受控交接与对齐**：`test_research_debate_handoff.py`（授权指纹防重、任务包双向转换与严格命题直接对齐）；
-- **统计学闭式解**：双评阅人 Cohen's $\kappa$ 数学统计检验（闭式解验证）；
-- **外部题录硬解析**：知网 CNKI Refworks、RIS、EndNote `.enw` 与 CSV 四格式解析；
-- **机械审计门禁**：引句回查校验门（`quote_audit.py`）与 Claim ID 可溯源门禁（`claim_linter.py`）；
-- **数据契约防错**：`schemas/` 校验，确保 `support_type: NOT_REPORTED` 绝对赋予 0.0 权重；
+- **统计学闭式解**：双评阅人 Cohen's $\kappa$ 数学统计检验与覆盖率门禁（闭式解验证）；
+- **外部题录硬解析**：知网 CNKI 冒号格式拆解、GB18030 字符回退、UTF-8 BOM 头自动剥离与 DOI v2 归一化；
+- **极性与数值机械门禁**：引句回查校验门（`quote_audit.py`，含派生量纲与复合单位对齐）、三值极性与共享否定词表（`shared.text.polarity`）；
+- **数据契约防错**：`schemas/` 校验，确保非证据记录（NOT_REPORTED 等）绝对赋予 0.0 权重，词表外 stance 自动移出有效共识分母；
 - **上下文决策门禁**：Context-Aware Grill-Me 9 大场景测试，验证上下文自动继承、同级冲突仲裁与正交隔离；
 - **跨学科中立性审查**：Domain Neutrality Linter 自动化扫描核心协议与门禁，严禁单一学科偏置；
-- **跨平台 CI**：GitHub Actions（`.github/workflows/ci.yml`）自动在 Python 3.9 / 3.11 / 3.13 上运行测试与基准。
+- **跨平台 CI**：GitHub Actions（`.github/workflows/ci.yml`）自动在 Python 3.9 / 3.11 / 3.13 上运行全量测试。
 
 ### 2. ScholarFlow 评测集与内部回归基准 (Internal Regression Benchmark v0.1)
 
@@ -462,6 +469,14 @@ python benchmarks/run_benchmarks.py
 | **综合争议 (Synthesis)** | **Consensus Calibration** (共识梯队与边界标定准确率) | 100.0% | `100.0%` | **[PASS]** |
 | **主张—证据关系对齐 (Relation Alignment)** | **False-Relation Rate** (共现误判为关系率) | 0.00% | `0.0%` | **[PASS]** |
 | **上下文充分性 (Context Expansion)** | **False Promotion Rate** (候选命中误升格为证据率) | 0.00% | `0.0%` | **[PASS]** |
+
+### 3. 多智能体集群端到端实战验证 (Multi-Agent Cluster E2E Benchmark)
+
+为确保在真实分布式科研场景下的工程健壮度，ScholarFlow 组织了 **22 个独立专业 Agent 构成的集群演练与全流程闭环实测**（详见 [`docs/implementation/ScholarFlow_集群端到端测试报告2_2026-09-13.md`](docs/implementation/ScholarFlow_集群端到端测试报告2_2026-09-13.md)）：
+
+- **全生命周期闭环打通**：完整走通 `Debate (构想推敲)` → `Discovery (文献发现)` → `Extraction (证据抽取)` → `Synthesis (争议综合)` 跨阶段协同，实现 0 丢失、0 幻觉污染。
+- **真实发表论文严苛抽检**：以 *Frontiers in Toxicology*（2025 年 12 页实测论文）微塑料神经毒性研究为样本，验证第一手实证数据 100% 准确提取，复合单位（`100 mg/L`）规范对齐；对恶意/错误极性反转实施 100% Fail-Closed 熔断拦截。
+- **NTFS / 跨平台高并发耐久**：底层会话存储经受 1000/1000 并发原子写入与崩溃断点恢复测试，引用完整性违例数为 0。
 
 ---
 
