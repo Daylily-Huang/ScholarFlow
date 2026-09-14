@@ -17,7 +17,13 @@ rewriting any of the underlying research algorithms:
 * separate counters for model requests and database/HTTP requests;
 * a single finalisation path (normal end, error, timeout) that persists the
   usage ledger, receipt and outstanding work;
-* resumption that reuses the persisted ledger instead of granting a fresh quota.
+* resumption that reuses the persisted ledger instead of granting a fresh
+  quota -- and since H-19 this is enforced at *construction* time: any
+  ``RunContext`` built over a run bundle that already carries a usage ledger
+  force-replays it (usage counted, ``run_resumed`` event persisted), an
+  unreadable ledger fails explicitly instead of silently starting fresh, and a
+  terminated bundle (completed / exhausted / aborted receipt) refuses new
+  usage write-backs.
 
 Pure Python standard library (zero external runtime dependencies).
 """
@@ -43,6 +49,104 @@ class BudgetLimitError(Exception):
     def __init__(self, message: str, stop_reason: Optional[str] = None):
         super().__init__(message)
         self.stop_reason = stop_reason
+
+
+class LedgerReplayError(Exception):
+    """A persisted usage ledger exists but cannot be replayed (H-19).
+
+    Raised instead of silently starting from a fresh budget when the ledger is
+    unreadable, malformed, or belongs to a different run. The exception carries
+    structured fields so hosts can surface a machine-readable failure instead
+    of a silent quota reset.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        run_id: Optional[str] = None,
+        ledger_path: Optional[str] = None,
+        line_no: Optional[int] = None,
+        error_code: str = "LEDGER_REPLAY_FAILED",
+    ):
+        super().__init__(message)
+        self.run_id = run_id
+        self.ledger_path = ledger_path
+        self.line_no = line_no
+        self.error_code = error_code
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "error": str(self),
+            "error_code": self.error_code,
+            "run_id": self.run_id,
+            "ledger_path": self.ledger_path,
+            "line_no": self.line_no,
+        }
+
+
+class RunTerminatedError(Exception):
+    """New usage was offered to an already terminated run bundle (H-19).
+
+    Writing usage back into a run whose receipt already closed it would create
+    a mixed ledger/receipt snapshot (contract violation), so the write-back is
+    refused with a structured error. Start a new run (new ``run_id``) instead.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        run_id: Optional[str] = None,
+        terminal_status: Optional[str] = None,
+    ):
+        super().__init__(message)
+        self.run_id = run_id
+        self.terminal_status = terminal_status
+        self.error_code = "RUN_TERMINATED"
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "error": str(self),
+            "error_code": self.error_code,
+            "run_id": self.run_id,
+            "terminal_status": self.terminal_status,
+        }
+
+
+#: Receipt statuses that terminate a run bundle (H-19). "partial" without an
+#: exhaustion stop reason is deliberately *not* terminal: a run closed with
+#: outstanding work is exactly what ``RunContext.resume`` continues.
+_TERMINAL_RECEIPT_STATUSES = {
+    "completed": "COMPLETED",
+    "failed": "ABORTED",
+}
+
+#: Stop reasons that mark a budget-exhausted (therefore terminated) run even
+#: when the receipt status is "partial".
+_EXHAUSTION_STOP_REASONS = frozenset(
+    {"request_limit", "active_time_limit", "token_ceiling_reached", "budget_exhausted"}
+)
+
+#: Ledger event kinds that carry quota semantics. A usage event from a foreign
+#: run makes the bundle's budget ambiguous and is refused on replay; foreign
+#: lifecycle bookkeeping (stage plans, seals, ...) is tolerated and skipped.
+_USAGE_EVENT_KINDS = frozenset(
+    {"model_request", "tokens", "database_request", "candidates_consumed"}
+)
+
+
+def terminal_reason_from_receipt(receipt: Dict[str, Any]) -> Optional[str]:
+    """Map a persisted execution receipt to a terminal label (H-19).
+
+    Returns ``"COMPLETED"``, ``"EXHAUSTED"`` or ``"ABORTED"`` when the receipt
+    closes the run bundle, else ``None`` (still resumable / not finalised).
+    """
+    status = str(receipt.get("status") or "").strip().lower()
+    if status in _TERMINAL_RECEIPT_STATUSES:
+        return _TERMINAL_RECEIPT_STATUSES[status]
+    stop_reason = receipt.get("stop_reason")
+    if isinstance(stop_reason, str) and stop_reason.strip().lower() in _EXHAUSTION_STOP_REASONS:
+        return "EXHAUSTED"
+    return None
 
 
 class StageKind(str, Enum):
@@ -170,6 +274,19 @@ class RunContext:
         self._resumed = False
         #: Run-level candidate ceiling consumption (per instance, never shared).
         self.candidates_processed = 0
+        # ------------------------------------------------------------------
+        # H-19: constructing over an existing run bundle must never hand out a
+        # fresh budget. A fresh/empty directory behaves exactly as before; a
+        # directory that already carries a usage ledger is always replayed and
+        # marked resumed, and a terminated bundle refuses new usage write-backs.
+        # ------------------------------------------------------------------
+        self._replayed_from_ledger = False
+        self._terminal_reason = self._detect_terminal_reason()
+        if self._ledger_has_content():
+            self._replay_ledger()
+            self._replayed_from_ledger = True
+            self._resumed = True
+            self.record_event("run_resumed", {"run_id": self.config.run_id})
 
     # ------------------------------------------------------------------
     # Construction helpers
@@ -199,7 +316,11 @@ class RunContext:
         """Resume a persisted run without granting a fresh budget (R05).
 
         The remaining allowance is reconstructed from the persisted usage
-        ledger, so restarting a run cannot reset consumption.
+        ledger, so restarting a run cannot reset consumption. Since H-19 the
+        constructor itself force-replays any existing ledger, so this method
+        only keeps the explicit resume contract: the ``run_id`` is checked
+        against the persisted bundle and the ``run_resumed`` event is recorded
+        exactly once (also when the bundle had no ledger yet).
         """
         config = RunExecutionConfig.load(run_dir)
         if run_id is not None and run_id != config.run_id:
@@ -207,10 +328,66 @@ class RunContext:
                 "Cannot resume run %r from a bundle belonging to %r" % (run_id, config.run_id)
             )
         context = cls(config, run_dir=run_dir)
-        context._replay_ledger()
         context._resumed = True
-        context.record_event("run_resumed", {"run_id": config.run_id})
+        if not context._replayed_from_ledger:
+            context.record_event("run_resumed", {"run_id": config.run_id})
         return context
+
+    # ------------------------------------------------------------------
+    # H-19: ledger replay / termination guards
+    # ------------------------------------------------------------------
+    @property
+    def resumed(self) -> bool:
+        """Whether this context replayed a persisted usage ledger (H-19)."""
+        return self._resumed
+
+    @property
+    def terminal_reason(self) -> Optional[str]:
+        """Terminal label (COMPLETED / EXHAUSTED / ABORTED) of the run bundle."""
+        return self._terminal_reason
+
+    def _ledger_has_content(self) -> bool:
+        """Whether the run bundle already carries a non-empty usage ledger."""
+        path = self._ledger_path()
+        if not path or not os.path.exists(path):
+            return False
+        try:
+            with open(path, "r", encoding="utf-8") as handle:
+                return any(line.strip() for line in handle)
+        except (OSError, ValueError):
+            # Unreadable ledger: route into the forced replay path, which
+            # surfaces the failure as a structured LedgerReplayError instead of
+            # silently continuing from a fresh budget (H-19).
+            return True
+
+    def _detect_terminal_reason(self) -> Optional[str]:
+        """Detect from the persisted receipt whether the run bundle is closed."""
+        if not self.run_dir:
+            return None
+        receipt_path = os.path.join(self.run_dir, "execution_receipt.json")
+        if not os.path.exists(receipt_path):
+            return None
+        try:
+            with open(receipt_path, "r", encoding="utf-8") as handle:
+                payload = json.load(handle)
+        except (OSError, ValueError):
+            # An unreadable receipt cannot close the bundle; ledger integrity
+            # is enforced independently by the replay path.
+            return None
+        if not isinstance(payload, dict):
+            return None
+        return terminal_reason_from_receipt(payload)
+
+    def _assert_run_accepts_usage(self) -> None:
+        """Refuse new usage write-backs into a terminated run bundle (H-19)."""
+        if self._terminal_reason:
+            raise RunTerminatedError(
+                "Run %r is already terminated (%s); new usage must not be written "
+                "into its ledger. Start a new run with a fresh run_id instead."
+                % (self.config.run_id, self._terminal_reason),
+                run_id=self.config.run_id,
+                terminal_status=self._terminal_reason,
+            )
 
     def _ledger_path(self) -> Optional[str]:
         if not self.run_dir:
@@ -229,34 +406,85 @@ class RunContext:
         path = self._ledger_path()
         if not path or not os.path.exists(path):
             return
-        with open(path, "r", encoding="utf-8") as handle:
-            for line in handle:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    event = json.loads(line)
-                except ValueError:
-                    continue
-                kind = event.get("event")
-                if kind == "model_request":
-                    self.budget.requests_bucket.used += int(event.get("count", 1))
-                elif kind == "tokens":
-                    tokens = event.get("tokens")
-                    if tokens is None:
-                        self.budget._token_unobserved_calls += 1
-                    else:
-                        self.budget.tokens_bucket.used += int(tokens)
-                        self.budget.measured_tokens = (self.budget.measured_tokens or 0) + int(tokens)
-                        self.budget._token_observed_calls += 1
-                elif kind == "database_request":
-                    self.database_requests += int(event.get("count", 1))
-                elif kind == "candidates_consumed":
-                    self.candidates_processed += int(event.get("granted", 0))
-                elif kind == "pending_work":
-                    self.budget.record_pending_work(str(event.get("item")))
-                elif kind == "scope_progress":
-                    self.budget.record_scope_progress(str(event.get("item")))
+        try:
+            with open(path, "r", encoding="utf-8") as handle:
+                for line_no, line in enumerate(handle, start=1):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        event = json.loads(line)
+                    except ValueError as exc:
+                        raise LedgerReplayError(
+                            "usage ledger %s line %d is not valid JSON; refusing to "
+                            "silently start from a fresh budget (H-19)" % (path, line_no),
+                            run_id=self.config.run_id,
+                            ledger_path=path,
+                            line_no=line_no,
+                        ) from exc
+                    if not isinstance(event, dict):
+                        raise LedgerReplayError(
+                            "usage ledger %s line %d is not a JSON object; refusing to "
+                            "silently start from a fresh budget (H-19)" % (path, line_no),
+                            run_id=self.config.run_id,
+                            ledger_path=path,
+                            line_no=line_no,
+                        )
+                    event_run_id = event.get("run_id")
+                    if event_run_id and event_run_id != self.config.run_id:
+                        if event.get("event") in _USAGE_EVENT_KINDS:
+                            raise LedgerReplayError(
+                                "usage ledger %s carries quota usage of run %r, not %r; "
+                                "resource authorisation never transfers across runs (H-19)"
+                                % (path, event_run_id, self.config.run_id),
+                                run_id=self.config.run_id,
+                                ledger_path=path,
+                                line_no=line_no,
+                                error_code="LEDGER_RUN_ID_MISMATCH",
+                            )
+                        # Foreign lifecycle bookkeeping: tolerated (bundles may
+                        # legitimately share a directory timeline), never applied.
+                        continue
+                    try:
+                        kind = event.get("event")
+                        if kind == "model_request":
+                            self.budget.requests_bucket.used += int(event.get("count", 1))
+                        elif kind == "tokens":
+                            tokens = event.get("tokens")
+                            if tokens is None:
+                                self.budget._token_unobserved_calls += 1
+                            else:
+                                self.budget.tokens_bucket.used += int(tokens)
+                                self.budget.measured_tokens = (
+                                    self.budget.measured_tokens or 0
+                                ) + int(tokens)
+                                self.budget._token_observed_calls += 1
+                        elif kind == "database_request":
+                            self.database_requests += int(event.get("count", 1))
+                        elif kind == "candidates_consumed":
+                            self.candidates_processed += int(event.get("granted", 0))
+                        elif kind == "pending_work":
+                            self.budget.record_pending_work(str(event.get("item")))
+                        elif kind == "scope_progress":
+                            self.budget.record_scope_progress(str(event.get("item")))
+                    except (TypeError, ValueError) as exc:
+                        raise LedgerReplayError(
+                            "usage ledger %s line %d carries a non-integer usage "
+                            "value; refusing to replay it (H-19)" % (path, line_no),
+                            run_id=self.config.run_id,
+                            ledger_path=path,
+                            line_no=line_no,
+                        ) from exc
+        except (OSError, ValueError) as exc:
+            # LedgerReplayError raised above is neither OSError nor ValueError
+            # and propagates unchanged; this catch handles unreadable/undecodable
+            # ledger files (H-19).
+            raise LedgerReplayError(
+                "usage ledger %s exists but cannot be read; refusing to silently "
+                "start from a fresh budget (H-19): %s" % (path, exc),
+                run_id=self.config.run_id,
+                ledger_path=path,
+            ) from exc
         self.budget._refresh_state()
 
     # ------------------------------------------------------------------
@@ -280,6 +508,7 @@ class RunContext:
     # ------------------------------------------------------------------
     def begin_model_request(self, estimated_tokens: int = 0) -> str:
         """Reserve one model request; raises when the budget is exhausted."""
+        self._assert_run_accepts_usage()
         reservation = self.budget.reserve(requests=1, estimated_tokens=estimated_tokens)
         if reservation is None:
             raise BudgetLimitError(
@@ -303,6 +532,7 @@ class RunContext:
 
     def count_database_request(self, count: int = 1) -> int:
         """Record database/API requests separately from model requests (R05)."""
+        self._assert_run_accepts_usage()
         self.database_requests += count
         self.record_event("database_request", {"count": count})
         return self.database_requests
@@ -323,6 +553,7 @@ class RunContext:
 
         Returns the number actually granted; the caller must not process more.
         """
+        self._assert_run_accepts_usage()
         granted = max(0, min(count, self.remaining_candidates))
         self.candidates_processed += granted
         # The candidate ceiling is a *run-level total*, independent of the
@@ -438,6 +669,11 @@ class RunContext:
             with open(tmp_path, "w", encoding="utf-8") as handle:
                 json.dump(receipt.to_dict(), handle, indent=2, ensure_ascii=False)
             os.replace(tmp_path, receipt_path)
+            # H-19: once this context has closed its own bundle, further usage
+            # on the same instance must not be written back either.
+            self._terminal_reason = (
+                terminal_reason_from_receipt(receipt.to_dict()) or self._terminal_reason
+            )
 
             pending_items = [
                 {"stage": self.config.depth.value, "item": item}

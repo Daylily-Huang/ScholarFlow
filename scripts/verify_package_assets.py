@@ -3,8 +3,16 @@
 
 Verifies that essential engine packages, domain lenses, canonical schemas,
 and skill manifests are present and intact across development and installed environments.
+
+H-36 (panel decision B6): ``--install-dir <dir>`` md5-compares the installed
+skill copies against the repo originals. Drift is reported as WARNING lines
+and the run still exits 0 -- the verifier informs, it does not gate. A missing
+``--install-dir`` path is a usage error (exit 2), because then no comparison
+happened at all and a clean exit would misreport "checked, all fine".
 """
 
+import argparse
+import hashlib
 import os
 import sys
 from pathlib import Path
@@ -51,6 +59,7 @@ def verify_installed_wheel() -> bool:
     try:
         import shared
         import shared.version
+        import shared.build_stamp  # H-36: the build stamp ships inside shared*
         import shared.grill_me
         import shared.context_resolution
         import shared.execution
@@ -83,10 +92,12 @@ def verify_repo_assets(repo_root: Path) -> bool:
     try:
         import shared
         import shared.version
+        import shared.build_stamp  # H-36: the build stamp ships inside shared*
         import shared.context_resolution
         import shared.grill_me
         import shared.execution
         print(f"[PASS] Python engine packages importable (version: {shared.version.__version__})")
+        print(f"[PASS] Build stamp (H-36): {shared.build_stamp.format_version_line()}")
     except Exception as e:
         print(f"[FAIL] Engine import failed: {e}")
         missing.append(f"Engine import error: {e}")
@@ -128,9 +139,102 @@ def verify_repo_assets(repo_root: Path) -> bool:
     return True
 
 
+def _md5_of(path: Path) -> str:
+    digest = hashlib.md5()
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(65536), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _resolve_installed_skills_root(install_dir: Path) -> Path:
+    """Locate the skills root inside an installed tree (H-36).
+
+    Accepts either the skills root itself (``<dest>/skills``-style layouts such
+    as ``.agents\\skills``) or a parent that contains a ``skills/`` directory.
+    """
+    for candidate in (install_dir, install_dir / "skills"):
+        if candidate.is_dir() and any(
+            (candidate / rel.split("/")[0]).exists() for rel in REQUIRED_SKILLS
+        ):
+            return candidate
+    return install_dir
+
+
+def compare_install_dir(repo_root: Path, install_dir: Path) -> bool:
+    """H-36: md5-compare installed skill copies against the repo originals.
+
+    Drift (DIFFER / MISSING) is printed as a WARNING list and the run stays
+    green (exit 0) -- panel decision: only warn, never fail. ``True`` is
+    returned only for a real comparison run; ``False`` signals the usage error
+    (install dir absent), which the caller maps to exit 2.
+    """
+    repo_skills = repo_root / "skills"
+    print("\n--------------------------------------------------")
+    print("  Installed-copy drift check (H-36): %s" % install_dir)
+    print("--------------------------------------------------")
+    if not install_dir.is_dir():
+        print("[ERROR] --install-dir does not exist or is not a directory: %s" % install_dir)
+        return False
+    skills_root = _resolve_installed_skills_root(install_dir)
+    warnings = []
+    checked = 0
+    for path in sorted(repo_skills.rglob("*")):
+        if not path.is_file() or "__pycache__" in path.parts or path.suffix == ".pyc":
+            continue
+        rel = path.relative_to(repo_skills)
+        checked += 1
+        counterpart = skills_root / rel
+        if not counterpart.exists():
+            warnings.append("MISSING in install dir: %s" % rel.as_posix())
+            continue
+        repo_md5 = _md5_of(path)
+        inst_md5 = _md5_of(counterpart)
+        if repo_md5 == inst_md5:
+            print("[SAME] %s" % rel.as_posix())
+        else:
+            warnings.append(
+                "DIFFER %s (repo md5=%s, install md5=%s)" % (rel.as_posix(), repo_md5, inst_md5)
+            )
+    for item in warnings:
+        print("[WARNING] %s" % item)
+    if warnings:
+        print(
+            "\n[WARNING] Installed copy drifted from the repo in %d of %d files; "
+            "reinstall skills/ (and shared/) before trusting local gates (H-36 / EXT-R-13)."
+            % (len(warnings), checked)
+        )
+    else:
+        print("\n[PASS] Installed copy matches the repo (%d files compared)." % checked)
+    return True
+
+
 def main():
+    parser = argparse.ArgumentParser(
+        description="ScholarFlow package assets & distribution verifier "
+                    "(add --install-dir to md5-compare an installed skill copy)"
+    )
+    parser.add_argument(
+        "--install-dir",
+        metavar="DIR",
+        default=None,
+        help="Installed tree to md5-compare against the repo skill files "
+             "(e.g. C:\\Users\\<user>\\.agents\\skills). Drift only warns; exit stays 0.",
+    )
+    args = parser.parse_args()
+
     repo_root = Path(__file__).resolve().parent.parent
+    if str(repo_root) not in sys.path:
+        sys.path.insert(0, str(repo_root))
+    try:
+        from shared.build_stamp import format_version_line
+        print("ScholarFlow build stamp (H-36): %s" % format_version_line())
+    except Exception as exc:  # version visibility must never break verification
+        print("ScholarFlow build stamp (H-36): unavailable (%s)" % exc)
+
     success = verify_repo_assets(repo_root)
+    if args.install_dir and not compare_install_dir(repo_root, Path(args.install_dir)):
+        sys.exit(2)  # usage error: nothing was compared (H-36 contract)
     sys.exit(0 if success else 1)
 
 

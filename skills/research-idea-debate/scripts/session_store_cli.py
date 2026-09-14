@@ -74,8 +74,20 @@ def _parse(text, what):
         raise ValueError("%s 不是合法 JSON：%s" % (what, exc))
 
 
+def _scholarflow_stamp_line() -> str:
+    """H-36: build stamp for --version；复用 shared 引擎路径自举，失败时诚实降级。"""
+    try:
+        _ensure_import_path()
+        from shared.build_stamp import format_version_line
+        return format_version_line()
+    except ImportError as exc:
+        return "scholarflow (build stamp unavailable: %s)" % exc
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description="research-idea-debate 会话持久化 CLI")
+    ap.add_argument("--version", action="version", version=_scholarflow_stamp_line(),
+                    help="打印 ScholarFlow 构建戳（版本/提交/时间戳）后退出")
     ap.add_argument("command", choices=[
         "append", "rebuild", "check", "recover", "recover-commit", "snapshot", "seal",
         "append-usage", "read-usage",

@@ -185,6 +185,21 @@ def audit_challenge_channels(challenges: List[Dict[str, Any]]) -> Dict[str, List
 
 
 
+def _scholarflow_stamp_line() -> str:
+    """H-36: build stamp for --version; bootstraps the shared engine path."""
+    try:
+        from shared.build_stamp import format_version_line
+    except ImportError:
+        _resolved = Path(__file__).resolve()
+        for _root in (_resolved.parents[3], _resolved.parents[2], _resolved.parents[1]):
+            if (_root / "shared").is_dir():
+                if str(_root) not in sys.path:
+                    sys.path.insert(0, str(_root))
+                break
+        from shared.build_stamp import format_version_line
+    return format_version_line()
+
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Literature Controversy & Consensus Diagnostic Analyzer",
@@ -239,6 +254,12 @@ Example JSON input structure:
         "-t", "--topic",
         default=None,
         help="Filter analysis to a specific research topic substring."
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=_scholarflow_stamp_line(),
+        help="Print the ScholarFlow build stamp (version/commit/timestamp) and exit."
     )
     return parser.parse_args()
 

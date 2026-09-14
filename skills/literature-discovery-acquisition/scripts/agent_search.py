@@ -1229,11 +1229,29 @@ def run_headless_search(
     return 1 if status == "FAILED" else 0
 
 
+def _scholarflow_stamp_line() -> str:
+    """H-36: build stamp for --version; bootstraps the shared engine path."""
+    try:
+        from shared.build_stamp import format_version_line
+    except ImportError:
+        import pathlib as _pathlib
+        _resolved = _pathlib.Path(__file__).resolve()
+        for _root in (_resolved.parents[3], _resolved.parents[2], _resolved.parents[1]):
+            if (_root / "shared").is_dir():
+                if str(_root) not in sys.path:
+                    sys.path.insert(0, str(_root))
+                break
+        from shared.build_stamp import format_version_line
+    return format_version_line()
+
+
 def main():
     parser = argparse.ArgumentParser(description="Headless Literature Search & Snowballing Pipeline for AI Agents")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-q", "--query", help="Research query or topic string")
     group.add_argument("-s", "--snowball", help="Seed DOI or OpenAlex ID for dual-direction citation snowballing")
+    parser.add_argument("--version", action="version", version=_scholarflow_stamp_line(),
+                        help="Print the ScholarFlow build stamp (version/commit/timestamp) and exit")
 
     parser.add_argument(
         "--execution-depth",

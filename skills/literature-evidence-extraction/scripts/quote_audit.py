@@ -1194,6 +1194,21 @@ def load_source_text(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="replace")
 
 
+def _scholarflow_stamp_line() -> str:
+    """H-36: build stamp for --version; bootstraps the shared engine path."""
+    try:
+        from shared.build_stamp import format_version_line
+    except ImportError:
+        _resolved = Path(__file__).resolve()
+        for _root in (_resolved.parents[3], _resolved.parents[2], _resolved.parents[1]):
+            if (_root / "shared").is_dir():
+                if str(_root) not in sys.path:
+                    sys.path.insert(0, str(_root))
+                break
+        from shared.build_stamp import format_version_line
+    return format_version_line()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="ScholarFlow mechanical quote back-verification gate",
@@ -1204,6 +1219,8 @@ Examples:
   python quote_audit.py -i evidence.json -s paper.txt --strict -o audit_report.json
 Exit codes: 0 all verified | 1 gate failed | 2 input error
         """)
+    parser.add_argument("--version", action="version", version=_scholarflow_stamp_line(),
+                        help="Print the ScholarFlow build stamp (version/commit/timestamp) and exit")
     parser.add_argument("-i", "--evidence", required=True,
                         help="Evidence JSON following schemas/extraction_result.schema.json")
     parser.add_argument("-s", "--source", required=True, help="Source document (.pdf or .txt)")
