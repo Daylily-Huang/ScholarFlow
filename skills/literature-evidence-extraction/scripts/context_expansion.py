@@ -394,8 +394,29 @@ def get_structured_figure_context(figure_data: Dict[str, Any], locator: Dict[str
 # AECE 层使用其中刻意收窄的 AECE 子集（AECE 把"有否定"直接当 CONTRADICTS_TARGET，
 # 语义比极性层重，故 rarely/lack 等强度词留给极性层）。仓库结构不可用时退回
 # 内联正则（部署兜底，内容与 2026-09-11 版一致）。
-_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-if _REPO_ROOT not in sys.path:
+# 运行时根定位（2026-09-15 部署层修复）：技能脚本有两种部署形态——仓库内
+# `<repo>/skills/<skill>/scripts/`（引擎在 `<repo>/shared`）与安装树
+# `<dest>/<skill>/scripts/`（引擎由安装器落在 `<dest>/shared`）。原先硬编码
+# `../../..` 只对前者成立；装出去的树会静默退回下面的内联正则兜底，AECE 层
+# 否定判定随之降级且无告警。改为逐级探测"真正含 shared/__init__.py 的那一层"。
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if _SCRIPT_DIR not in sys.path:
+    # 兄弟模块导入：`-I` 隔离模式不会自动带上脚本目录。
+    sys.path.insert(0, _SCRIPT_DIR)
+
+
+def _locate_runtime_root():
+    """返回包含 ``shared`` 包的目录；两种布局都探测，找不到返回 None。"""
+    _dir = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(4):
+        _dir = os.path.dirname(_dir)
+        if os.path.isfile(os.path.join(_dir, "shared", "__init__.py")):
+            return _dir
+    return None
+
+
+_REPO_ROOT = _locate_runtime_root()
+if _REPO_ROOT is not None and _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
 try:

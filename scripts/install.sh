@@ -64,21 +64,69 @@ for dest in "${DESTINATIONS[@]}"; do
     fi
 done
 
-# Post-install verification: the engine must resolve from an isolated
-# interpreter with no site-packages, otherwise the install must not be
-# reported as a complete success.
+# Post-install verification: every entry point that drives a gate must resolve
+# its runtime from an isolated interpreter with no site-packages, otherwise the
+# install must not be reported as a complete success.
+#
+# Scope (2026-09-15 部署层修复): this loop used to probe agent_search.py only.
+# That script carries its own layout-tolerant locator, so the check could not
+# fail even when every other script had silently lost the engine -- the
+# acceptance gate was structurally unfalsifiable. The list below covers the
+# entries that import `shared` or a sibling module; the engine-identity probe
+# additionally rejects a `shared` that resolves OUTSIDE the install root (e.g.
+# a stale `pip install -e .` pointing at a repository checkout).
 echo ""
 echo "[*] Verifying installed runtime (isolated interpreter, no site-packages)..."
 VERIFY_FAILED=0
+VERIFY_ENTRIES=(
+    "literature-discovery-acquisition/scripts/agent_search.py"
+    "literature-evidence-extraction/scripts/extraction_pipeline.py"
+    "literature-evidence-extraction/scripts/claim_alignment.py"
+    "literature-evidence-extraction/scripts/quote_audit.py"
+    "literature-synthesis/scripts/controversy_analyzer.py"
+    "literature-synthesis/scripts/evidence_to_claim.py"
+    "research-idea-debate/scripts/session_store_cli.py"
+)
+# Runs the target the way a host agent would, then asserts the engine it
+# actually imported lives under the expected install root.
+ENGINE_PROBE='
+import runpy, sys, os
+target, expected = sys.argv[1], os.path.realpath(sys.argv[2])
+sys.argv = [target, "--help"]
+try:
+    runpy.run_path(target, run_name="__main__")
+except SystemExit:
+    pass
+except Exception as exc:
+    sys.stderr.write("running %s raised %s: %s\n" % (target, type(exc).__name__, exc))
+module = sys.modules.get("shared")
+if module is None:
+    sys.stderr.write("the engine was never imported\n")
+    raise SystemExit(3)
+found = os.path.realpath(os.path.dirname(module.__file__))
+if found != expected:
+    sys.stderr.write("engine resolved to %s, expected %s\n" % (found, expected))
+    raise SystemExit(4)
+'
 for dest in "${DESTINATIONS[@]}"; do
-    ENTRY="$dest/literature-discovery-acquisition/scripts/agent_search.py"
-    if [ ! -f "$ENTRY" ]; then
-        continue
-    fi
-    if (cd "$(dirname "$ENTRY")" && python3 -I -S "$(basename "$ENTRY")" --help >/dev/null 2>&1); then
-        echo "  [PASS] $ENTRY resolves the shared engine"
-    else
-        echo "  [FAIL] $ENTRY cannot resolve the shared engine"
+    for rel in "${VERIFY_ENTRIES[@]}"; do
+        ENTRY="$dest/$rel"
+        if [ ! -f "$ENTRY" ]; then
+            echo "  [FAIL] $rel is missing from $dest"
+            VERIFY_FAILED=1
+            continue
+        fi
+        if ! (cd "$(dirname "$ENTRY")" && python3 -I -S "$(basename "$ENTRY")" --help >/dev/null 2>&1); then
+            echo "  [FAIL] $rel cannot resolve its runtime"
+            VERIFY_FAILED=1
+            continue
+        fi
+        echo "  [PASS] $rel"
+    done
+    if ! python3 -I -S -c "$ENGINE_PROBE" \
+            "$dest/literature-evidence-extraction/scripts/claim_alignment.py" \
+            "$dest/shared" >/dev/null 2>&1; then
+        echo "  [FAIL] the installed tree does not resolve $dest/shared"
         VERIFY_FAILED=1
     fi
 done

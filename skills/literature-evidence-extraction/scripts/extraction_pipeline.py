@@ -16,10 +16,30 @@ import sys
 from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional, Tuple
 
-# Allow `python extraction_pipeline.py ...` (and CI jobs) to import shared.*
-# regardless of the current working directory.
-_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-if _REPO_ROOT not in sys.path:
+# 运行时根定位（2026-09-15 部署层修复）：技能脚本有两种部署形态——仓库内
+# `<repo>/skills/<skill>/scripts/`（引擎在 `<repo>/shared`）与安装树
+# `<dest>/<skill>/scripts/`（引擎由安装器落在 `<dest>/shared`）。原先硬编码
+# `../../..` 只对前者成立，装出去的树解析不到引擎（schema gate 与共享词表
+# 一并失效）。改为逐级探测"真正含 shared/__init__.py 的那一层"。
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if _SCRIPT_DIR not in sys.path:
+    # 兄弟模块导入（context_expansion / claim_alignment / quote_audit）：
+    # `-I` 隔离模式不会自动带上脚本目录。
+    sys.path.insert(0, _SCRIPT_DIR)
+
+
+def _locate_runtime_root():
+    """返回包含 ``shared`` 包的目录；两种布局都探测，找不到返回 None。"""
+    _dir = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(4):
+        _dir = os.path.dirname(_dir)
+        if os.path.isfile(os.path.join(_dir, "shared", "__init__.py")):
+            return _dir
+    return None
+
+
+_REPO_ROOT = _locate_runtime_root()
+if _REPO_ROOT is not None and _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
 try:

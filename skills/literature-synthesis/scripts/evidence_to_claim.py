@@ -14,6 +14,13 @@ import sys
 import re
 from typing import Dict, List, Any, Optional, Tuple
 
+# 兄弟模块导入（2026-09-15 部署层修复）：原先只有裸 `from evidence_states import`，
+# 依赖"脚本目录恰好落在 sys.path 上"。`-I` 隔离模式（安装器验收即用此模式）
+# 不会自动带上脚本目录，本模块随之 ModuleNotFoundError。显式补上。
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if _SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPT_DIR)
+
 from evidence_states import classify_non_evidence, resolve_non_evidence_class  # noqa: E402
 
 

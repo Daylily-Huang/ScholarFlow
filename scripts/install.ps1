@@ -77,31 +77,68 @@ foreach ($dest in $Destinations) {
     Copy-Item -Path $SharedSource -Destination $sharedDest -Recurse -Force
     Get-ChildItem -Path $sharedDest -Recurse -Directory -Filter "__pycache__" -ErrorAction SilentlyContinue |
         Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+
+    # Canonical schemas live at the repository root; skill scripts resolve them
+    # relative to the installed tree, so they must ship alongside `shared`.
+    # (2026-09-15 部署层修复: the POSIX installer already did this; this one
+    # silently omitted it, leaving the schema gate unreachable on Windows.)
+    $schemasSource = Join-Path $RepoRoot "schemas"
+    if (Test-Path $schemasSource) {
+        $schemasDest = Join-Path $dest "schemas"
+        Write-Host "  -> Installing canonical schemas (single copy)..." -ForegroundColor Green
+        if (Test-Path $schemasDest) {
+            Remove-Item -LiteralPath $schemasDest -Recurse -Force
+        }
+        Copy-Item -Path $schemasSource -Destination $schemasDest -Recurse -Force
+        Get-ChildItem -Path $schemasDest -Recurse -Directory -Filter "__pycache__" -ErrorAction SilentlyContinue |
+            Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+    } else {
+        Write-Host "  [!] schemas directory not found at: $schemasSource" -ForegroundColor Yellow
+    }
 }
 
 if (-not $SkipVerification) {
     Write-Host ""
     Write-Host "[*] Verifying installed runtime (isolated interpreter, no site-packages)..." -ForegroundColor Yellow
     $verifyFailed = $false
+    # Scope (2026-09-15 部署层修复): this loop used to probe agent_search.py only.
+    # That script carries its own layout-tolerant locator, so the check could not
+    # fail even when every other script had silently lost the engine. The list
+    # below covers the entries that import `shared` or a sibling module.
+    $verifyEntries = @(
+        "literature-discovery-acquisition\scripts\agent_search.py",
+        "literature-evidence-extraction\scripts\extraction_pipeline.py",
+        "literature-evidence-extraction\scripts\claim_alignment.py",
+        "literature-evidence-extraction\scripts\quote_audit.py",
+        "literature-synthesis\scripts\controversy_analyzer.py",
+        "literature-synthesis\scripts\evidence_to_claim.py",
+        "research-idea-debate\scripts\session_store_cli.py"
+    )
     foreach ($dest in $Destinations) {
-        $entry = Join-Path $dest "literature-discovery-acquisition\scripts\agent_search.py"
-        if (-not (Test-Path $entry)) { continue }
-        $entryDir = Split-Path -Parent $entry
-        $entryName = Split-Path -Leaf $entry
-        Push-Location $entryDir
-        try {
-            & python -I -S $entryName --help *> $null
-            if ($LASTEXITCODE -eq 0) {
-                Write-Host "  [PASS] $entry resolves the shared engine" -ForegroundColor Green
-            } else {
-                Write-Host "  [FAIL] $entry cannot resolve the shared engine" -ForegroundColor Red
+        foreach ($rel in $verifyEntries) {
+            $entry = Join-Path $dest $rel
+            if (-not (Test-Path $entry)) {
+                Write-Host "  [FAIL] $rel is missing from $dest" -ForegroundColor Red
                 $verifyFailed = $true
+                continue
             }
-        } catch {
-            Write-Host "  [FAIL] $entry could not be executed: $_" -ForegroundColor Red
-            $verifyFailed = $true
-        } finally {
-            Pop-Location
+            $entryDir = Split-Path -Parent $entry
+            $entryName = Split-Path -Leaf $entry
+            Push-Location $entryDir
+            try {
+                & python -I -S $entryName --help *> $null
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Host "  [PASS] $rel" -ForegroundColor Green
+                } else {
+                    Write-Host "  [FAIL] $rel cannot resolve its runtime" -ForegroundColor Red
+                    $verifyFailed = $true
+                }
+            } catch {
+                Write-Host "  [FAIL] $rel could not be executed: $_" -ForegroundColor Red
+                $verifyFailed = $true
+            } finally {
+                Pop-Location
+            }
         }
     }
 
