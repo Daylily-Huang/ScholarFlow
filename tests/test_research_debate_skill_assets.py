@@ -57,7 +57,7 @@ def _run_validator(*args):
     env = dict(os.environ)
     env["PYTHONPATH"] = str(REPO_ROOT)
     proc = subprocess.run([sys.executable, str(VALIDATOR), *args],
-                          capture_output=True, text=True, env=env, cwd=str(REPO_ROOT))
+                          capture_output=True, text=True, encoding="utf-8", errors="replace", env=env, cwd=str(REPO_ROOT))
     return proc.returncode, proc.stdout + proc.stderr
 
 

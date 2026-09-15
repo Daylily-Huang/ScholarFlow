@@ -611,7 +611,7 @@ class TestH27IdenticalSources(unittest.TestCase):
             proc = subprocess.run(
                 [sys.executable, str(KAPPA_SCRIPT), "-a", str(same),
                  "-b", str(same), "-o", str(out_md)],
-                capture_output=True, text=True,
+                capture_output=True, text=True, encoding="utf-8", errors="replace",
             )
         self.assertEqual(proc.returncode, 1)
         self.assertIn("IDENTICAL_SOURCES", proc.stderr)
@@ -668,7 +668,7 @@ class TestH27CoverageWarning(unittest.TestCase):
             proc = subprocess.run(
                 [sys.executable, str(KAPPA_SCRIPT), "-a", str(full),
                  "-b", str(part), "-o", str(out_md)],
-                capture_output=True, text=True,
+                capture_output=True, text=True, encoding="utf-8", errors="replace",
             )
             self.assertEqual(proc.returncode, 0)
             self.assertIn("Reviewer coverage gap", proc.stderr)

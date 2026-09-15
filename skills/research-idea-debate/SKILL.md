@@ -180,9 +180,10 @@ description: 研究构想与假说推敲技能。从一句模糊直觉或一个�
 - **保存（必须真的执行，不能只在文本里声称）**：会话目录 `runs/<run_id>/research-debate/<session_id>/`，含 `session.json`、`events.jsonl`、`usage_ledger.jsonl`、`summaries/`。
   - 每轮结束调用 `python scripts/session_store_cli.py append <session_dir> --event-json '<事件>'` 落盘该轮事件；
   - 阶段小结/检查点调用 `... snapshot <session_dir> --expected-revision N` 原子写快照；
-  - 会话恢复调用 `... recover <session_dir>`，以事件重放为准并报告与快照的差异。
+  - **可信重放基底**调用 `... seal <session_dir> --expected-revision N`（封存检查点）：只有封存过的会话，其"快照 = 事件重放结果"才可被机械核验；未封存时 `consistency_report()` 报 `SNAPSHOT_BASE_UNVERIFIED`。
+  - 会话恢复调用 `... recover <session_dir>`，以事件重放为准并报告与快照的差异；仅需收敛未完成提交时用 `... recover-commit <session_dir>`。
   - 主 agent 单写；事件先落盘再原子替换快照；`event_id` 去重 + `last_applied_event_id` 重放；`events.jsonl` 是追加式真源。
-  - **一致性边界（第二轮披露）**：`append`+`snapshot` 组合若在中断点留下未完成提交序列，`consistency_report()` 会报 `INCOMPLETE_COMMIT`——恢复必须走 `recover_commit()`（含提交日志核验），不能以 rebuild 代替；`summaries/` 目录当前无自动生成点（本文件列出仅为目录契约预留）。
+  - **一致性边界（第二轮披露，2026-09-15 更正归因）**：`INCOMPLETE_COMMIT` 的**唯一**来源是 `seal` —— `commit_journal.json` 只在 `seal_checkpoint()` 内写入，`save_snapshot()` 完全不碰它，因此 `append`+`snapshot` 无论怎样中断都产生不了未完成提交序列（本节此前把它归因于该组合，与实现不符）。中断恢复必须走 `recover-commit`（含提交日志三守卫核验），不能以 rebuild 代替；`summaries/` 目录当前无自动生成点（本文件列出仅为目录契约预留）。
   - **若结构化记录不可用，必须在回复中声明「状态未从结构化记录核实」**，不得凭印象给出轮次、S1 判定或收尾结论。
 - **恢复简报 ≤10 行**：当前问题 / 上一轮角色与焦点问题 / 用户最新输入 / 待处理项 / 预算剩余 / 三个可选动作。**不得重问已知信息，不得把恢复当作新授权。**
 - 完整规程见 [references/convergence_and_recovery.md](./references/convergence_and_recovery.md)。

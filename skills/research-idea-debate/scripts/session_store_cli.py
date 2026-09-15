@@ -33,6 +33,16 @@ import json
 import os
 import sys
 
+# P2-08（2026-09-15 集群审查）：本技能两个 CLI 缺乏其余技能脚本普遍使用的 UTF-8
+# stdout 强制。zh-CN Windows 上控制台默认 cp936，本 CLI 又用 `ensure_ascii=False`
+# 输出中文 JSON——严格按 UTF-8 读取 stdout 的上游会解码失败。
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _SKILL_ROOT = os.path.dirname(_HERE)
 
@@ -74,6 +84,37 @@ def _parse(text, what):
         raise ValueError("%s 不是合法 JSON：%s" % (what, exc))
 
 
+def _resolve_session(store, args):
+    """确定 `snapshot` / `seal` 要写入的会话状态（P2-07）。
+
+    优先级：显式提供（`--session-json` 或 `--session-file`）→ 已有快照 →
+    **由事件日志引导**（`project({}, events)`）。
+
+    末档是本次修复的核心：此前没有快照时只能内联 `--session-json`，而真实会话 JSON
+    远超 Windows 命令行长度上限（32K）——"第一份快照"因此在 Windows 上根本无法产生，
+    而事件日志本来就是系统真源，用它引导快照正是事件先行协议的本意。
+    """
+    if args.session_json and args.session_file:
+        raise ValueError("--session-json 与 --session-file 只能给一个")
+    if args.session_file:
+        if args.session_file == "-":
+            text = sys.stdin.read()
+        else:
+            with open(args.session_file, "r", encoding="utf-8") as fh:
+                text = fh.read()
+        return _parse(text, "--session-file")
+    if args.session_json:
+        return _parse(args.session_json, "--session-json")
+    try:
+        return store.load_snapshot()
+    except FileNotFoundError:
+        read = store._read_events()
+        if read.get("quarantined_tail"):
+            raise ValueError(
+                "事件日志尾部损坏，拒绝据此引导快照：请先执行 recover/rebuild")
+        return store.project({}, read["events"])
+
+
 def _scholarflow_stamp_line() -> str:
     """H-36: build stamp for --version；复用 shared 引擎路径自举，失败时诚实降级。"""
     try:
@@ -95,6 +136,11 @@ def main(argv=None):
     ap.add_argument("session_dir")
     ap.add_argument("--event-json")
     ap.add_argument("--session-json")
+    # P2-07（2026-09-15 集群审查）：真实会话的 JSON 远超 Windows 命令行长度上限
+    # （32K），把它内联在参数里必被截断。加文件入口，`-` 表示 stdin。
+    ap.add_argument("--session-file",
+                    help="从文件读取会话 JSON（`-` 表示 stdin）；用于超出命令行"
+                         "长度上限的真实会话")
     ap.add_argument("--entry-json")
     ap.add_argument("--expected-revision", type=int)
     ap.add_argument("--import-mode", action="store_true",
@@ -143,10 +189,7 @@ def main(argv=None):
         if args.command == "snapshot":
             if args.expected_revision is None:
                 return _emit({"status": "INPUT_ERROR", "error": "snapshot 需要 --expected-revision"}, 2)
-            if args.session_json:
-                session = _parse(args.session_json, "--session-json")
-            else:
-                session = store.load_snapshot()
+            session = _resolve_session(store, args)
             saved = store.save_snapshot(session, args.expected_revision)
             return _emit({"status": "OK", "revision": saved["revision"]})
 
@@ -154,10 +197,7 @@ def main(argv=None):
             # 事件先行：封存可信重放基底（checkpoint.json）+ 快照。
             if args.expected_revision is None:
                 return _emit({"status": "INPUT_ERROR", "error": "seal 需要 --expected-revision"}, 2)
-            if args.session_json:
-                session = _parse(args.session_json, "--session-json")
-            else:
-                session = store.load_snapshot()
+            session = _resolve_session(store, args)
             return _emit({"status": "OK", **store.seal_checkpoint(
                 session, args.expected_revision, import_mode=args.import_mode,
                 import_reason=args.import_reason, import_source=args.import_source)})
@@ -170,6 +210,9 @@ def main(argv=None):
 
         if args.command == "read-usage":
             return _emit({"status": "OK", "entries": store.read_usage()})
+
+    except ValueError as exc:
+        return _emit({"status": "INPUT_ERROR", "error": str(exc)}, 2)
 
     except CorruptEventLog as exc:
         return _emit({"status": "CORRUPT_EVENT_LOG", "error": str(exc), **exc.details}, 1)

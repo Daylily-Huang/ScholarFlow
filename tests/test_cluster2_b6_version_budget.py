@@ -416,7 +416,7 @@ class TestH36CliVersionFlags(unittest.TestCase):
         env.pop("PYTHONPATH", None)  # exercise the CLI's own engine bootstrap
         return subprocess.run(
             [sys.executable, str(script), "--version"],
-            capture_output=True, text=True, cwd=str(REPO_ROOT), env=env,
+            capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=str(REPO_ROOT), env=env,
         )
 
     def _assert_stamp(self, proc):
@@ -458,7 +458,7 @@ class TestH36VerifyPackageAssetsInstallDir(unittest.TestCase):
     def _run(self, *args):
         return subprocess.run(
             [sys.executable, str(VERIFY_ASSETS), *args],
-            capture_output=True, text=True, cwd=str(REPO_ROOT),
+            capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=str(REPO_ROOT),
         )
 
     def test_normal_path_still_passes(self):

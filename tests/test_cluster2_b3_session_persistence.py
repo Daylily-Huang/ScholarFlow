@@ -151,7 +151,7 @@ def _run_cli(*args):
     env = dict(os.environ)
     env["PYTHONPATH"] = REPO_ROOT
     proc = subprocess.run([sys.executable, CLI, *args],
-                          capture_output=True, text=True, env=env, cwd=REPO_ROOT)
+                          capture_output=True, text=True, encoding="utf-8", errors="replace", env=env, cwd=REPO_ROOT)
     try:
         payload = json.loads(proc.stdout)
     except json.JSONDecodeError:
@@ -337,7 +337,7 @@ class TestLockHardening(unittest.TestCase):
         with open(script_path, "w", encoding="utf-8") as fh:
             fh.write(holder_script)
         holder = subprocess.Popen([sys.executable, script_path, REPO_ROOT, self.folder],
-                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace")
         try:
             deadline_hit = None
             store = SessionStore(self.folder)
@@ -977,7 +977,7 @@ class TestKillRecoveryHonesty(unittest.TestCase):
 
     def _run_child(self, script, folder):
         proc = subprocess.run([sys.executable, script, REPO_ROOT, folder],
-                              capture_output=True, text=True, timeout=60)
+                              capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60)
         self.assertEqual(proc.returncode, 137,
                          "kill 夹具应止步于 os._exit(137)：%s%s" % (proc.stdout, proc.stderr))
 

@@ -213,7 +213,7 @@ class LocatorWiringTest(unittest.TestCase):
             proc = subprocess.run(
                 [sys.executable, os.path.join(SCRIPTS, "pdf_evidence_locator.py"),
                  "-i", pdf, "-q", "Hello,world", "-o", out],
-                capture_output=True, text=True, timeout=300)
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300)
             self.assertEqual(proc.returncode, 0, proc.stderr[-500:])
             with open(out, encoding="utf-8") as f:
                 data = json.load(f)

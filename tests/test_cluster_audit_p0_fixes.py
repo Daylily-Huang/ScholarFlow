@@ -260,7 +260,7 @@ class TestP0ConcurrentSnapshotWrites(unittest.TestCase):
             with open(script_path, "w", encoding="utf-8") as fh:
                 fh.write(script)
             procs = [subprocess.Popen([sys.executable, script_path, tag],
-                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace")
                      for tag in ("A", "B")]
             written = 0
             errors = ""

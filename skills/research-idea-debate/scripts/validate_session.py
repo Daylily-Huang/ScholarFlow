@@ -28,6 +28,16 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SKILL_ROOT = os.path.dirname(HERE)
 ASSETS = os.path.join(SKILL_ROOT, "assets")
 
+# P2-08（2026-09-15 集群审查）：本技能两个 CLI 缺乏其余技能脚本普遍使用的 UTF-8
+# stdout 强制；zh-CN Windows 默认 cp936，而本 CLI 以 ensure_ascii=False 输出中文
+# JSON——严格按 UTF-8 读取 stdout 的上游会解码失败。
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 
 def _ensure_engine_import_path():
     """把含 `shared/` 的运行时根加入 sys.path（双布局，2026-09-15 P2-05）。

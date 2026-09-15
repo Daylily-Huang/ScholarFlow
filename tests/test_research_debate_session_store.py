@@ -293,7 +293,7 @@ class TestCliSurface(unittest.TestCase):
         env = dict(os.environ)
         env["PYTHONPATH"] = str(REPO_ROOT)
         proc = subprocess.run([sys.executable, str(CLI), *args],
-                              capture_output=True, text=True, env=env, cwd=str(REPO_ROOT))
+                              capture_output=True, text=True, encoding="utf-8", errors="replace", env=env, cwd=str(REPO_ROOT))
         try:
             payload = json.loads(proc.stdout)
         except json.JSONDecodeError:
@@ -345,7 +345,7 @@ class TestCliSurface(unittest.TestCase):
 
     def test_self_test_via_helpers_is_importable(self):
         proc = subprocess.run([sys.executable, "-m", "py_compile", str(CLI)],
-                              capture_output=True, text=True)
+                              capture_output=True, text=True, encoding="utf-8", errors="replace")
         self.assertEqual(proc.returncode, 0, proc.stderr)
 
 

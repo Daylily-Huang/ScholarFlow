@@ -259,12 +259,12 @@ class TestValidatorActuallyRuns(unittest.TestCase):
         env = dict(os.environ)
         env["PYTHONPATH"] = str(REPO_ROOT)
         proc = subprocess.run([sys.executable, str(VALIDATOR), *args],
-                              capture_output=True, text=True, env=env, cwd=str(REPO_ROOT))
+                              capture_output=True, text=True, encoding="utf-8", errors="replace", env=env, cwd=str(REPO_ROOT))
         return proc.returncode, proc.stdout + proc.stderr
 
     def test_validator_compiles(self):
         proc = subprocess.run([sys.executable, "-m", "py_compile", str(VALIDATOR)],
-                              capture_output=True, text=True)
+                              capture_output=True, text=True, encoding="utf-8", errors="replace")
         self.assertEqual(proc.returncode, 0, proc.stderr)
 
     def test_self_check_reports_canonical_schemas(self):
