@@ -265,20 +265,54 @@ def to_session_budget(depth: Any) -> Dict[str, int]:
     return dict(DEBATE_SESSION_BUDGETS[normalized.value])
 
 
+def _session_selection_source(selection: Any) -> Optional[str]:
+    """把确认记录的来源映射为**会话 schema** 的 `source` 枚举；无法确定返回 None。
+
+    注意两套 schema 的字段名不同：run 级 `execution_profile.schema.json` 用
+    `selection_source`（`cross_skill_contract.md` 列为规范名），会话级
+    `research_debate_session.schema.json` 的 execution 块用 `source`。本函数产出的是
+    会话块，因此必须用后者——首轮集群测试 F12/V22 报的"字段名漂移"即此处。
+
+    枚举里没有"未知"取值，因此**宁可不写也不写错**：编造一个来源比缺字段更糟。
+    """
+    from shared.execution.selection import DepthSelectionSource
+
+    raw = getattr(selection, "source", None)
+    if raw is None or isinstance(raw, (dict, list, tuple, set, bool)):
+        return None
+    value = getattr(raw, "value", raw)
+    value = str(value).upper()
+    return value if value in {s.value for s in DepthSelectionSource} else None
+
+
 def to_session_execution(config: Any, rounds_used: int = 0,
                          review_batches_used: int = 0, events_written: int = 0,
                          active_seconds_metering: str = "ESTIMATED") -> Dict[str, Any]:
-    """把已确认的 run 级配置映射为会话 `execution` 块（Stage 0C 快照用）。
+    """把**已确认的** run 级配置映射为会话 `execution` 块（Stage 0C 快照用）。
 
     只搬运**该搬的**：深度、选择状态与来源、映射后的技能级预算；usage 从零起算，
     观测不到的量如实标 `UNAVAILABLE`（不得写 0 冒充已计量）。
+
+    **授权不得默认放宽（2026-09-15 集群审查 P1）**：旧实现写作
+    `getattr(selection, "status", "confirmed")`，而 `ExecutionProfile`——文档明确
+    定义为"资源上限模板，不等于运行授权"——**没有** `selection` 属性，于是把资源
+    模板喂进来就会静默铸出 `selection_status="confirmed"` + 来源
+    `interactive_confirmed`，执行深度门禁在本技能上降级为无门禁（该块随后通过
+    validate_session.py 的 schema 校验与 S-EXEC 枚举检查，rc=0）。现在拿不到显式
+    确认记录一律 `pending`，且不编造 `source`。
     """
+    from shared.execution.config import SELECTION_STATUSES
+
     depth = getattr(config, "depth", config)
     selection = getattr(config, "selection", None)
-    return {
+
+    status = getattr(selection, "status", None)
+    if status not in SELECTION_STATUSES:
+        status = "pending"
+
+    block: Dict[str, Any] = {
         "depth": getattr(depth, "value", depth),
-        "selection_status": getattr(selection, "status", "confirmed"),
-        "selection_source": getattr(selection, "source", "interactive_confirmed"),
+        "selection_status": status,
         "budget": to_session_budget(depth),
         "usage": {
             "rounds_used": rounds_used,
@@ -292,6 +326,10 @@ def to_session_execution(config: Any, rounds_used: int = 0,
                                  "session.execution.budget 字段不重叠，"
                                  "由 to_session_budget() 显式映射"),
     }
+    source = _session_selection_source(selection)
+    if source is not None:
+        block["source"] = source
+    return block
 
 
 #: 可作为用户授权的确认事件类型。CHECKPOINT / ROLE_RESPONSE 等一律不算授权。

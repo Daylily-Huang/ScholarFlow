@@ -13,6 +13,7 @@
 - 与仓库既有 `quote_audit.py` 的引句归一化口径一致。
 """
 
+import json
 import sys
 import unittest
 
@@ -421,6 +422,39 @@ class TestSessionBudgetMapping(unittest.TestCase):
         for leaked in ("max_search_candidates", "snowball_rounds", "extraction_unit_limit",
                        "max_token_ceiling", "max_model_requests"):
             self.assertNotIn(leaked, block["budget"], leaked)
+
+    # ---- P1（2026-09-15 集群审查）：授权不得默认放宽 ----
+    def test_execution_profile_does_not_mint_a_confirmed_selection(self):
+        """资源上限模板不得换来一份"已授权"执行块。
+
+        `ExecutionProfile` 没有 `selection` 属性——CLAUDE.md 硬门禁 #1 明说它
+        "只是资源上限模板，不等于运行授权"。旧实现用
+        `getattr(selection, "status", "confirmed")` 取默认值，于是把模板喂进来
+        即静默铸出 `selection_status="confirmed"` + 来源 `interactive_confirmed`，
+        该块随后通过 schema 校验与 S-EXEC 枚举检查（rc=0）——执行深度门禁在本
+        技能上被降级为无门禁。
+        """
+        from shared.execution.profiles import ExecutionDepth, get_profile
+        block = to_session_execution(get_profile(ExecutionDepth.STANDARD))
+        self.assertEqual(block["selection_status"], "pending",
+                         "资源模板不得产出已确认状态")
+        self.assertNotIn("source", block, "来源无法确定时不得编造")
+
+    def test_confirmed_config_keeps_its_selection_using_the_session_key(self):
+        """真授权仍须如实映射，且键名/枚举按**会话** schema（`source`，大写）。"""
+        from shared.execution import RunExecutionConfig
+        block = to_session_execution(RunExecutionConfig.confirmed("deep", run_id="run-test"))
+        self.assertEqual(block["selection_status"], "confirmed")
+        self.assertEqual(block["source"], "INTERACTIVE_CONFIRMED")
+        # run 级 schema 才叫 selection_source；会话块用 source，不得把上游名搬下来
+        self.assertNotIn("selection_source", block)
+
+        schema = json.loads(
+            (REPO_ROOT / "schemas" / "research_debate_session.schema.json")
+            .read_text(encoding="utf-8"))
+        exec_props = schema["properties"]["execution"]["properties"]
+        self.assertIn(block["selection_status"], exec_props["selection_status"]["enum"])
+        self.assertIn(block["source"], exec_props["source"]["enum"])
 
 
 class TestQuoteNormalisationParity(unittest.TestCase):
