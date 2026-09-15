@@ -241,6 +241,14 @@ def check_session(rep, s):
     ex = s.get("execution", {})
     _enum(rep, ex.get("selection_status"), {"pending", "confirmed", "rejected"},
           "S-EXEC", "session.execution", "selection_status")
+    # P2-01（2026-09-15 集群审查）：本字段原只做取值枚举，全仓没有第二条规则把它与
+    # 会话进展绑定——一份自记「深度尚未确认／已被拒绝」的会话照样能跑满实质轮次并判
+    # rc=0，执行深度门禁（未确认不得进入实质讨论）在会话记录上完全不可核验。
+    rep.ok()
+    if ex.get("selection_status") != "confirmed" and counted_rounds(s) > 0:
+        rep.add("S-EXEC", "session.execution",
+                "selection_status=%r 却已记录 %d 个实质轮次（未确认不得进入实质讨论）"
+                % (ex.get("selection_status"), counted_rounds(s)))
     budget, usage = ex.get("budget", {}), ex.get("usage", {})
     # P1 修复：token 类上限不得只认字面 "max_tokens"（旧写法漏掉 token_ceiling 等变体）
     for key in list(budget):
@@ -306,8 +314,24 @@ def check_ideas(rep, s):
                 rep.add("ID-MAT", iid, "成熟度历史必须从 RAW 开始")
             for h in hist:
                 rep.ok()
-                if order.get(h.get("to"), -1) - order.get(h.get("from"), -2) != 1:
-                    rep.add("ID-MAT", iid, "成熟度不得跳级：%r -> %r" % (h.get("from"), h.get("to")))
+                delta = order.get(h.get("to"), -1) - order.get(h.get("from"), -2)
+                if delta == 1:
+                    continue  # 逐级上升：正常路径
+                if delta == -1:
+                    # P2-03（2026-09-15 集群审查）：`references/maturation_and_gates.md`
+                    # 不变量 6 写「只升不降；用户修订命题导致回落时**必须记录回落理由**」，
+                    # 且 schema 早已为该段保留 `reason` 字段——原机检却对任何下降段一律
+                    # 拒绝，恰好否定了这条不变量自己的第二个分句，而该节注还声称此不变量
+                    # "已由校验器强制"。现按文档实现：单级回落须带非空 reason 方可通过。
+                    # （下降是保守方向：命题更不成熟只会让 P3/最小验证方案门禁更难满足，
+                    #  不构成绕过面。）
+                    if str(h.get("reason") or "").strip():
+                        continue
+                    rep.add("ID-MAT", iid,
+                            "成熟度回落 %r -> %r 未记录回落理由（reason 不得为空）"
+                            % (h.get("from"), h.get("to")))
+                    continue
+                rep.add("ID-MAT", iid, "成熟度不得跳级：%r -> %r" % (h.get("from"), h.get("to")))
             # H-11（集群第二轮 M4 实测）：段间必须连续——上一段 to 即下一段 from。
             # 旧实现只查单段不跳级，攻击者插入"合法"片段（如 RAW→DEVELOPING 后再
             # RAW→DEVELOPING→TESTABLE）即可绕过逐级检查。
@@ -515,6 +539,18 @@ def check_gaps(rep, s):
             rep.add("GP5", where, "拒绝查证后缺口须保留")
 
 
+def counted_rounds(s):
+    """会话已发生的**实质轮次**：总轮次减去 CONFIGURATION 与 CHECKPOINT。
+
+    这是 `execution.usage.rounds_used` 的定义口径（实测：specimen 23−4−1=18、
+    live-run 8−1−1=6，与各自自报值一致）。**必须由记录本身派生**，不能读自报值：
+    P2-02（2026-09-15 集群审查）实测把 `rounds_used` 写 0 即可让 18 个实质轮对
+    8 轮上限的超支零告警（ST6 的条件 `if cap and used` 被 0 短路）。
+    """
+    return sum(1 for r in (s.get("rounds") or [])
+               if r.get("kind") not in ("CONFIGURATION", "CHECKPOINT"))
+
+
 def check_reviews(rep, s):
     gaps = {g.get("gap_id") for g in s.get("gap_requests", [])}
     batches = {b.get("batch_id"): b.get("subtasks", []) for b in s.get("review_batches", [])}
@@ -673,8 +709,21 @@ def check_stopping(rep, s):
             rep.add("ST5", where, "停止的追问未保留已知信息")
     used = s.get("execution", {}).get("usage", {}).get("rounds_used")
     cap = s.get("execution", {}).get("budget", {}).get("max_rounds")
+    actual = counted_rounds(s)
+    # P2-02（2026-09-15 集群审查）：原判据读**自报**的 `rounds_used`，且条件
+    # `if cap and used` 会被 0 短路——把它写 0 即可让 18 个实质轮对 8 轮上限的
+    # 超支零告警。现在上限判据一律由记录派生的 `actual` 决定；自报值与实际不符
+    # 本身也记违规（自报计数不得作为上限判据）。
+    # 只罚**少报**：写小才能掩盖超支，多报是保守方向（与「自声明空值不得关停门禁」
+    # 同一原则——只堵危险的那一侧）。各会话对 Config/Checkpoint 是否计入口径不一，
+    # 不据此判"不一致"。
     rep.ok()
-    if cap and used and used >= cap and not s.get("budget_exhausted_at_round"):
+    if isinstance(used, int) and used < actual:
+        rep.add("ST8", "session.execution.usage",
+                "自报 rounds_used=%d 少于记录实际的 %d 个实质轮次"
+                "（少报可掩盖超支；自报计数不得用作上限判据）" % (used, actual))
+    rep.ok()
+    if cap and actual >= cap and not s.get("budget_exhausted_at_round"):
         rep.add("ST6", "session", "实质轮次已达上限但未记录预算耗尽位置与待办")
     if s.get("state") in ("CHECKPOINT", "CLOSED"):
         triggers = [r.get("trigger") for r in s.get("rounds", [])]

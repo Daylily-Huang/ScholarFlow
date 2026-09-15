@@ -419,7 +419,9 @@
         "approved_idea_version": 2
       },
       "execution_status": "REFUSED_BY_USER",
-      "result_refs": []
+      "result_refs": [],
+      "schema_version": "0.1",
+      "session_id": "SESS-DEBATE-SPECIMEN-001"
     },
     {
       "gap_id": "GAP-002",
@@ -446,7 +448,9 @@
         "scope_fingerprint": "fp-35e917cf415dc48f"
       },
       "execution_status": "NOT_STARTED",
-      "result_refs": []
+      "result_refs": [],
+      "schema_version": "0.1",
+      "session_id": "SESS-DEBATE-SPECIMEN-001"
     },
     {
       "gap_id": "GAP-003",
@@ -467,7 +471,9 @@
         "scope_fingerprint": "fp-112540266769920c"
       },
       "execution_status": "NOT_STARTED",
-      "result_refs": []
+      "result_refs": [],
+      "schema_version": "0.1",
+      "session_id": "SESS-DEBATE-SPECIMEN-001"
     },
     {
       "gap_id": "GAP-004",
@@ -485,11 +491,13 @@
       "approval": {
         "status": "INVALIDATED",
         "confirmed_event_id": null,
-        "scope_fingerprint": "fp-5e415fee9dd1166a"
+        "scope_fingerprint": "fp-5e415fee9dd1166a",
+        "invalidation_reason": "用户在第 24 轮把范围扩大到包含整地方式对比，与确认时的指纹不符。"
       },
       "execution_status": "NOT_STARTED",
       "result_refs": [],
-      "invalidation_reason": "用户在第 24 轮把范围扩大到包含整地方式对比，与确认时的指纹不符。"
+      "schema_version": "0.1",
+      "session_id": "SESS-DEBATE-SPECIMEN-001"
     }
   ],
   "review_requests": [

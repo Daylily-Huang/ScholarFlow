@@ -913,8 +913,26 @@
     },
     "gap_requests": {
       "type": "array",
+      "description": "P2-09：原为裸 object（items 只写 type=object），夹具里 4 条 gap_request 各缺 schema_version/session_id、invalidation_reason 错放在顶层，所有门禁仍判合规。此处内联 canonical 缺口契约的必填集（不 $ref：本 loader 以裸 $id 作 base URI，相对 $ref 无法解析；两份清单的一致性由 test_research_debate_gap_contract 守护）。",
       "items": {
-        "type": "object"
+        "type": "object",
+        "required": [
+          "schema_version",
+          "gap_id",
+          "idea_id",
+          "idea_version",
+          "gap_type",
+          "target_skill",
+          "question",
+          "reason",
+          "decision_impact",
+          "blocking",
+          "scope",
+          "approval",
+          "execution_status",
+          "result_refs",
+          "session_id"
+        ]
       }
     },
     "rounds": {

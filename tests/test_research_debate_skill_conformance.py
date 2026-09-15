@@ -28,6 +28,9 @@ SPECIMEN = REPO_ROOT / "tests" / "fixtures" / "specimen_session_debate.json"
 LIVE_SESSION = REPO_ROOT / ".planning" / "research-idea-debate" / "live-run" / "session.json"
 
 SKILL_MD = SKILL / "SKILL.md"
+
+#: 哨兵：区分"字段不存在"与"字段值为空"
+_ABSENT = object()
 ROLE_FILES = {
     "moderator": SKILL / "role" / "moderator.md",
     "concept_clarifier": SKILL / "role" / "concept_clarifier.md",
@@ -314,6 +317,75 @@ class TestValidatorActuallyRuns(unittest.TestCase):
                     code, 0,
                     "缺 review_request 必须 fail-closed，实得 rc=0：%s" % out[:200])
                 self.assertIn("RV17", out, "应报 RV17（批次无对应请求）")
+
+    def _run_mutated(self, mutate, *args):
+        """在规范夹具上注入一处改动，跑生产校验器，回读 rc 与规则集。"""
+        s = json.loads(SPECIMEN.read_text(encoding="utf-8"))
+        mutate(s)
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "session.json"
+            p.write_text(json.dumps(s, ensure_ascii=False), encoding="utf-8")
+            code, out = self._run(str(p), "--json", *args)
+        try:
+            payload = json.loads(out)
+            rules = sorted({v.get("rule") for v in (payload.get("violations") or [])
+                            if isinstance(v, dict)})
+        except ValueError:
+            rules = []
+        return code, rules, out
+
+    def test_unauthorised_execution_depth_is_caught(self):
+        """P2-01：selection_status 原只做取值枚举，没有规则把它与会话进展绑定——
+        一份自记「深度尚未确认／已被拒绝」的会话照样跑满实质轮次并判 rc=0。"""
+        for status in ("pending", "rejected"):
+            with self.subTest(selection_status=status):
+                code, rules, _ = self._run_mutated(
+                    lambda s: s["execution"].__setitem__("selection_status", status))
+                self.assertNotEqual(code, 0)
+                self.assertIn("S-EXEC", rules)
+
+    def test_underreported_rounds_are_caught(self):
+        """P2-02：ST6 原读**自报**的 rounds_used 且条件被 0 短路——写 0 即可让
+        超出上限的实质轮次零告警。现在上限判据由记录派生，少报本身也记违规。"""
+        code, rules, _ = self._run_mutated(
+            lambda s: s["execution"]["usage"].__setitem__("rounds_used", 0))
+        self.assertNotEqual(code, 0)
+        self.assertIn("ST8", rules)
+
+    def test_budget_cap_uses_derived_round_count(self):
+        """上限判据必须由记录派生：把上限压到低于实际实质轮次且不记耗尽位置即违规。"""
+        code, rules, _ = self._run_mutated(
+            lambda s: (s["execution"]["budget"].__setitem__("max_rounds", 8),
+                       s.pop("budget_exhausted_at_round", None)))
+        self.assertNotEqual(code, 0)
+        self.assertIn("ST6", rules)
+
+    def test_maturity_rollback_requires_a_recorded_reason(self):
+        """P2-03：不变量 6 写「只升不降；回落时必须记录回落理由」，且 schema 早已保留
+        `reason` 字段——原机检却对任何下降段一律拒绝，否定了该条自己的第二个分句。"""
+        order = {"RAW": 0, "DEVELOPING": 1, "TESTABLE": 2}
+        rev = {v: k for k, v in order.items()}
+
+        def _descend(reason):
+            def mutate(s):
+                hist = s["ideas"][0]["maturity_history"]
+                prev = rev[order[hist[-1]["to"]] - 1]
+                seg = {"from": hist[-1]["to"], "to": prev, "round": hist[-1].get("round", 1)}
+                if reason is not _ABSENT:
+                    seg["reason"] = reason
+                hist.append(seg)
+                s["ideas"][0]["maturation"] = prev
+            return mutate
+
+        code, rules, _ = self._run_mutated(_descend("用户修订命题，承重前提被推翻"))
+        self.assertEqual(code, 0, "带理由的回落应被接受：%s" % rules)
+        self.assertNotIn("ID-MAT", rules)
+
+        for label, reason in (("缺 reason", _ABSENT), ("reason 为空白", "   ")):
+            with self.subTest(case=label):
+                code, rules, _ = self._run_mutated(_descend(reason))
+                self.assertNotEqual(code, 0)
+                self.assertIn("ID-MAT", rules)
 
     def test_duplicate_lens_is_caught_even_without_the_request(self):
         """同批重复视角是**批次固有属性**，不因 review_requests 缺失而免检。"""

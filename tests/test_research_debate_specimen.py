@@ -326,5 +326,43 @@ class TestNewRuleBehaviour(unittest.TestCase):
         self.assertNotIn("RV15", _rules(sc.check_all(s)))
 
 
+class TestGapRequestsAreContractChecked(unittest.TestCase):
+    """P2-09（2026-09-15 集群审查）：会话里的 gap_requests 必须受缺口契约约束。
+
+    原 `research_debate_session.schema.json` 把 `gap_requests` 写成裸
+    `{"type":"array","items":{"type":"object"}}`——**任何形状都通过**。实测规范夹具里
+    4 条 gap_request 各缺 `schema_version` / `session_id`，其中一条还把
+    `invalidation_reason` 错放在顶层（契约里它在 `approval` 之下），而所有门禁照旧
+    判它合规——"canonical 示例"本身就不是合法 GapRequest，会作为模板扩散。
+
+    该字段现内联缺口契约的必填集；不写 `$ref` 是因为本 loader 以裸 `$id`（文件名）
+    作 base URI，相对 `$ref` 解析不到。两份清单的一致性由本测试守护。
+    """
+
+    SCHEMAS = Path(__file__).resolve().parents[1] / "schemas"
+
+    def _json(self, name):
+        return json.loads((self.SCHEMAS / name).read_text(encoding="utf-8"))
+
+    def test_session_gap_items_require_the_gap_contract_fields(self):
+        items = self._json("research_debate_session.schema.json")["properties"]["gap_requests"]["items"]
+        self.assertIn("required", items,
+                      "gap_requests.items 又变成对形状不设限的裸 object")
+        self.assertEqual(sorted(items["required"]),
+                         sorted(self._json("research_debate_gap.schema.json")["required"]),
+                         "会话内联的缺口必填集与 canonical 缺口契约已漂移")
+
+    def test_specimen_gap_requests_satisfy_the_gap_contract(self):
+        required = set(self._json("research_debate_gap.schema.json")["required"])
+        gaps = _load().get("gap_requests", [])
+        self.assertGreater(len(gaps), 0, "夹具没有 gap_request，测试无效")
+        for g in gaps:
+            with self.subTest(gap=g.get("gap_id")):
+                self.assertEqual(sorted(required - set(g)), [],
+                                 "%s 缺缺口契约必填字段" % g.get("gap_id"))
+                self.assertNotIn("invalidation_reason", g,
+                                 "invalidation_reason 属 approval 之下，不得放在缺口顶层")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
