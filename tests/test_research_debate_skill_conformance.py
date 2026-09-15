@@ -10,10 +10,12 @@
 """
 
 import io
+import json
 import os
 import re
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -280,6 +282,54 @@ class TestValidatorActuallyRuns(unittest.TestCase):
             self.assertEqual(code, 1, out)
             self.assertIn("[RD1]", out)
             self.assertIn("[RV15]", out)
+
+    def test_missing_review_request_is_fail_closed(self):
+        """P1（2026-09-15 集群审查）：`review_requests` 曾是 RV1–RV6 的**唯一入口**。
+
+        把该数组置空或删键，六条独立评估门禁（输入白名单隔离 / 分别提交 /
+        交叉回应上限 / 单批上限 / 同批重复视角 / input_version 绑定）会整体消失，
+        同一份会话由 rc=1 变 rc=0，而校验器仍打印"无结构性违规"——与已修的 MT2
+        「清空 maturity_history 即绕过配额」是同一失败模式。
+        现在批次必须被某个 request 覆盖（RV17），缺请求即违规。
+        """
+        if not SPECIMEN.is_file():
+            self.skipTest("夹具不存在")
+        base = json.loads(SPECIMEN.read_text(encoding="utf-8"))
+
+        def cleared(s):
+            s["review_requests"] = []
+
+        def deleted(s):
+            s.pop("review_requests", None)
+
+        for label, mutate in (("置空数组", cleared), ("删除键", deleted)):
+            with self.subTest(action=label):
+                s = json.loads(json.dumps(base))
+                mutate(s)
+                with tempfile.TemporaryDirectory() as td:
+                    p = Path(td) / "session.json"
+                    p.write_text(json.dumps(s, ensure_ascii=False), encoding="utf-8")
+                    code, out = self._run(str(p), "--json")
+                self.assertNotEqual(
+                    code, 0,
+                    "缺 review_request 必须 fail-closed，实得 rc=0：%s" % out[:200])
+                self.assertIn("RV17", out, "应报 RV17（批次无对应请求）")
+
+    def test_duplicate_lens_is_caught_even_without_the_request(self):
+        """同批重复视角是**批次固有属性**，不因 review_requests 缺失而免检。"""
+        if not SPECIMEN.is_file():
+            self.skipTest("夹具不存在")
+        s = json.loads(SPECIMEN.read_text(encoding="utf-8"))
+        b = s["review_batches"][0]
+        b["subtasks"][1]["lens"] = b["subtasks"][0]["lens"]
+        s["review_requests"] = []
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "session.json"
+            p.write_text(json.dumps(s, ensure_ascii=False), encoding="utf-8")
+            code, out = self._run(str(p), "--json")
+        self.assertNotEqual(code, 0, out[:200])
+        self.assertIn("RV5", out, "同批重复视角必须仍被检出")
+        self.assertIn("RV17", out)
 
 
 class TestHandoffBoundaryDeclarations(unittest.TestCase):

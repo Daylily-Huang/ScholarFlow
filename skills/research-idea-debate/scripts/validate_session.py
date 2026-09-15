@@ -496,8 +496,17 @@ def check_reviews(rep, s):
     gaps = {g.get("gap_id") for g in s.get("gap_requests", [])}
     batches = {b.get("batch_id"): b.get("subtasks", []) for b in s.get("review_batches", [])}
     cap = s.get("execution", {}).get("budget", {}).get("max_subtasks_per_batch")
+    # 2026-09-15（集群审查 P1）：`review_requests` 曾是 RV1–RV6 的**唯一入口**——
+    # 把这一个数组置空或删键，六条独立评估门禁整体消失，而校验器仍打印"无结构性
+    # 违规"（置空后同一份含造假记录的会话由 rc=1 变 rc=0）。这与已修的 MT2
+    # 「清空 maturity_history 即绕过配额」是同一失败模式，当时只修了成熟度那处。
+    # 现在：批次必须被某个 request 覆盖（RV17），悬空 batch_id 记 RV18；批次固有
+    # 属性（子任务上限 RV4、同批重复视角 RV5）移入批次循环，不再依赖 request。
+    covered = set()
     for r in s.get("review_requests", []):
         where = "review %s" % r.get("request_id")
+        bid = r.get("batch_id")
+        covered.add(bid)
         excluded = " ".join(r.get("excluded", []))
         for must in ("其他评估者", "主持人"):
             rep.ok()
@@ -509,21 +518,32 @@ def check_reviews(rep, s):
         rep.ok()
         if r.get("cross_talk_rounds", 0) > 1:
             rep.add("RV3", where, "交叉回应超过 1 轮")
-        tasks = batches.get(r.get("batch_id"), [])
         rep.ok()
-        if cap is not None and len(tasks) > cap:
-            rep.add("RV4", where, "单批子任务超限")
-        lenses = [t.get("lens") for t in tasks]
-        rep.ok()
-        if len(lenses) != len(set(lenses)):
-            rep.add("RV5", where, "同批使用了重复视角")
-        for t in tasks:
+        if bid not in batches:
+            rep.add("RV18", where,
+                    "review_request 指向不存在的批次 %r：该批次的评分隔离与版本绑定"
+                    "无从核验（悬空引用不得视为无违规）" % (bid,))
+        for t in batches.get(bid, []):
             rep.ok()
             if t.get("input_version") != r.get("input_version"):
                 rep.add("RV6", where, "任务 %s 的 input_version 与请求不一致" % t.get("task_id"))
     for b in s.get("review_batches", []):
         where = "batch %s" % b.get("batch_id")
         subs = b.get("subtasks", [])
+        rep.ok()
+        if b.get("batch_id") not in covered:
+            rep.add("RV17", where,
+                    "批次没有对应的 review_request：输入白名单隔离、分别提交、"
+                    "交叉回应上限与 input_version 绑定均无从核验"
+                    "（缺请求不得视为无违规）")
+        # 批次固有属性：与是否存在 review_request 无关
+        rep.ok()
+        if cap is not None and len(subs) > cap:
+            rep.add("RV4", where, "单批子任务超限")
+        lenses = [sub.get("lens") for sub in subs]
+        rep.ok()
+        if len(lenses) != len(set(lenses)):
+            rep.add("RV5", where, "同批使用了重复视角")
         done = [t for t in subs if t.get("status") == "COMPLETE"]
         # P1 修复（集群测试）：评估者数量必须按**去重身份**计。两个子任务共用同一
         # task_id（或同一 lens）只是同一个人写了两遍，不能冒充两名独立评估者。

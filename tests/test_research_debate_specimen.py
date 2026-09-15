@@ -199,6 +199,29 @@ class TestFaultInjection(unittest.TestCase):
             s["review_batches"][0]["subtasks"][1]["lens"] = "premise_evidence_examiner"
         self._inject(mutate, {"RV5"})
 
+    # ---- P1（2026-09-15）：review_requests 曾是 RV1–RV6 的唯一入口 ----
+    def test_catch_batch_without_review_request(self):
+        def mutate(s):
+            s["review_requests"] = []
+        self._inject(mutate, {"RV17"})
+
+    def test_catch_deleted_review_requests_key(self):
+        def mutate(s):
+            s.pop("review_requests")
+        self._inject(mutate, {"RV17"})
+
+    def test_catch_request_pointing_at_unknown_batch(self):
+        def mutate(s):
+            s["review_requests"][0]["batch_id"] = "RB-DOES-NOT-EXIST"
+        self._inject(mutate, {"RV18"})
+
+    def test_same_lens_still_caught_without_the_request(self):
+        """批次固有属性不因 request 缺失而免检。"""
+        def mutate(s):
+            s["review_batches"][0]["subtasks"][1]["lens"] = "premise_evidence_examiner"
+            s["review_requests"] = []
+        self._inject(mutate, {"RV5", "RV17"})
+
     # ---- 停止与未决 ----
     def test_catch_checkpoint_claiming_resolution(self):
         def mutate(s):

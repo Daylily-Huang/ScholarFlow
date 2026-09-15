@@ -395,8 +395,13 @@ def check_reviews(session: Dict[str, Any]) -> List[SpecViolation]:
     batch_sub = {b.get("batch_id"): b.get("subtasks", []) for b in session.get("review_batches", [])}
     cap = session.get("execution", {}).get("budget", {}).get("max_subtasks_per_batch")
 
+    # 2026-09-15（P1）：批次必须被某个 review_request 覆盖（RV17），悬空 batch_id
+    # 记 RV18；RV4/RV5 是批次固有属性，移入批次循环后不再依赖 request 的存在。
+    covered = set()
     for r in session.get("review_requests", []):
         where = "review %s" % r.get("request_id")
+        bid = r.get("batch_id")
+        covered.add(bid)
         # RV1：输入白名单必须显式排除主持人倾向与其他评估者结果
         excluded = " ".join(r.get("excluded", []))
         for must in ("其他评估者", "主持人"):
@@ -406,19 +411,26 @@ def check_reviews(session: Dict[str, Any]) -> List[SpecViolation]:
             _v(out, "RV2", where, "评估结果未分别提交")
         if r.get("cross_talk_rounds", 0) > 1:
             _v(out, "RV3", where, "交叉回应超过 1 轮（当前 %s）" % r.get("cross_talk_rounds"))
-        tasks = batch_sub.get(r.get("batch_id"), [])
-        lenses = [t.get("lens") for t in tasks]
-        if cap is not None and len(tasks) > cap:
-            _v(out, "RV4", where, "单批子任务 %d 超过上限 %d" % (len(tasks), cap))
-        if len(lenses) != len(set(lenses)):
-            _v(out, "RV5", where, "同批使用了重复视角，无法形成最大分歧")
-        for t in tasks:
+        if bid not in batch_sub:
+            _v(out, "RV18", where,
+               "review_request 指向不存在的批次 %r：该批次的评分隔离与版本绑定无从核验" % (bid,))
+        for t in batch_sub.get(bid, []):
             if t.get("input_version") != r.get("input_version"):
                 _v(out, "RV6", where, "任务 %s 的 input_version 与请求不一致" % t.get("task_id"))
 
     for b in session.get("review_batches", []):
         where = "batch %s" % b.get("batch_id")
         subs = b.get("subtasks", [])
+        if b.get("batch_id") not in covered:
+            _v(out, "RV17", where,
+               "批次没有对应的 review_request：输入白名单隔离、分别提交、交叉回应上限"
+               "与 input_version 绑定均无从核验（缺请求不得视为无违规）")
+        # 批次固有属性：与是否存在 review_request 无关
+        lenses = [sub.get("lens") for sub in subs]
+        if cap is not None and len(subs) > cap:
+            _v(out, "RV4", where, "单批子任务 %d 超过上限 %d" % (len(subs), cap))
+        if len(lenses) != len(set(lenses)):
+            _v(out, "RV5", where, "同批使用了重复视角，无法形成最大分歧")
         done = [t for t in subs if t.get("status") == "COMPLETE"]
         ds = b.get("disagreement_signal")
         if ds not in DISAGREEMENT:

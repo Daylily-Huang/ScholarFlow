@@ -1228,6 +1228,8 @@ Ran 473 tests ... OK
 | `RV7` | §9.4 | disagreement_signal 非法 |
 | `RV8` | §7.3 | 分歧非确定性程序判定 |
 | `RV9` | §7.3 | 评估者不足 2 个却判 LOW |
+| `RV17` | §7.1 输入白名单 | 批次没有对应的 review_request，隔离条件无从核验 |
+| `RV18` | §7.1 输入白名单 | review_request 指向不存在的批次（悬空引用） |
 | `S-ENUM` | §4.1/§4.2/§6 | mode/state 取值非法 |
 | `S-EXEC` | §9.1 | selection_status 非法 |
 | `S-FIELD` | §10.2 Session 必填字段 | 缺必填字段 |
