@@ -557,7 +557,11 @@ def normalize_claim(raw: Dict[str, Any]) -> Dict[str, Any]:
         "confidence_interval": raw.get("confidence_interval"),
         "evidence_strength": strength,
         "evidence_tier": strength,  # Backward compatibility
-        "support_type": support_type if support_type else None,
+        # P1（2026-09-15 集群审查）：本键原先**无条件写入**（无值时为 None），
+        # 使归一化产物在二次分类时被读成"显式空声明 → UNPARSEABLE"。为绕开这个自造
+        # 的坑，消费端 `resolve_non_evidence_class` 只好无条件信任入参自声明的
+        # `non_evidence_class` 键——而那正是宿主 Agent 可以随手加 `null` 关停整个
+        # 非证据门禁的入口。治源：与 `claim_status` 同样只在有值时写键。
         "appraisal": appraisal if isinstance(appraisal, dict) and appraisal else None,
         "weight": final_weight,
         "weight_factors": weight_factors,
@@ -588,6 +592,14 @@ def normalize_claim(raw: Dict[str, Any]) -> Dict[str, Any]:
         normalized["stance_mapping_status"] = raw.get("stance_mapping_status")
     if "claim_status" in raw:
         normalized["claim_status"] = raw.get("claim_status")
+    # P1（2026-09-15 集群审查）：`support_type` 原先在字面量里**无条件写入**（无值
+    # 时为 None），使归一化产物在二次分类时被读成"显式空声明 → UNPARSEABLE"。
+    # 为绕开这个自造的坑，消费端 `resolve_non_evidence_class` 只好无条件信任入参
+    # 自声明的 `non_evidence_class` 键——那正是宿主 Agent 加一个 `null` 就能关停整个
+    # 非证据门禁的入口（实测伪造后 weight=1.0、3 条即产出 Level 1 强共识）。
+    # 治源：与 `claim_status` 一致，只在有值时写键。
+    if support_type:
+        normalized["support_type"] = support_type
     if "claim_status_upstream" in raw:
         normalized["claim_status_upstream"] = raw.get("claim_status_upstream")
     return normalized

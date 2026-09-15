@@ -103,15 +103,21 @@ def classify_non_evidence(raw: Dict[str, Any]) -> Optional[str]:
 
 
 def resolve_non_evidence_class(record: Any) -> Optional[str]:
-    """消费端统一入口：优先读归一化时基于**原始输入**判定的 `non_evidence_class`。
+    """消费端统一入口：**一律从状态字段重新判定**，不信任入参的自声明结论。
 
-    归一化产物（controversy_analyzer.normalize_claim）总是携带 `support_type=None`
-    键（即使上游未声明该字段）；若在归一化产物上重新跑 `classify_non_evidence`，
-    会把「上游未声明」误判成「显式空声明」。归一化时已按原始输入判定并存入
-    `non_evidence_class`，此处直接消费，两种路径语义保持一致。
+    **P1（2026-09-15 集群审查）：自声明字段不得成为关停开关。** 旧实现只要
+    `"non_evidence_class" in record` 就无条件返回其值，而 `load_input_data()` 接受宿主
+    Agent 任意构造的 claim 对象——给一条 `support_type="NOT REPORTED"` 的记录加
+    `"non_evidence_class": null` 即可跳过全部状态字段分类，该记录改由 `evidence_strength`
+    计权（实测 weight=1.0、consensus_eligible=True、excluded_from_consensus 为空），
+    3 条即产出 Level 1「Strong Prevailing Consensus」。这正是本套件威胁模型要防的
+    「把自声明字段当授权依据」（README 明文否定「传了字段即已授权」的同类）。
+
+    该短路原本是为幂等而设：归一化产物旧会**无条件写入** `support_type=None`，二次分类
+    会把「上游未声明」误读成「显式空声明」。现已治源——`normalize_claim` 改为只在有值
+    时写键（与 `claim_status` 一致），分类在原始输入与归一化产物上均幂等，短路随之
+    移除，分类结果只由状态字段决定。
     """
-    if isinstance(record, dict) and "non_evidence_class" in record:
-        return record.get("non_evidence_class")
     return classify_non_evidence(record)
 
 

@@ -617,5 +617,51 @@ class TestFacility1SummaryCounts(unittest.TestCase):
         self.assertIn("ACTIVE_CONTROVERSY", payload)
 
 
+class TestP1SelfDeclaredNonEvidenceCannotDisableTheGate(unittest.TestCase):
+    """P1（2026-09-15 集群审查）：自声明的空值不得成为门禁关停开关。
+
+    旧 `resolve_non_evidence_class` 只要 `"non_evidence_class" in record` 就无条件返回
+    其值，而 `load_input_data()` 接受宿主 Agent 任意构造的 claim 对象——给一条
+    `support_type="NOT REPORTED"` 的记录加 `"non_evidence_class": null` 即可跳过全部
+    状态字段分类，该记录改由 `evidence_strength` 计权。实测伪造后 weight=1.0、
+    consensus_eligible=True、excluded_from_consensus 为空，3 条即产出
+    Level 1「Strong Prevailing Consensus - Replicated Evidence」。
+    这正是本套件威胁模型要防的「把自声明字段当授权依据」。
+    """
+
+    BASE = {"topic": "forged gate", "support_type": "NOT REPORTED",
+            "evidence_strength": "DIRECT_EMPIRICAL"}
+
+    def test_falsy_self_declaration_cannot_disable_classification(self):
+        for extra in ({}, {"non_evidence_class": None}, {"non_evidence_class": ""}):
+            with self.subTest(extra=extra):
+                n = ca.normalize_claim(dict(self.BASE, **extra))
+                self.assertEqual(n["weight"], 0.0,
+                                 "非证据记录必须零权（自声明空值不得放行）")
+                self.assertFalse(n["consensus_eligible"])
+
+    def test_explicit_null_support_type_is_still_unparseable(self):
+        """治源不得削弱 H-05：宿主显式给 null 仍须 fail-closed。"""
+        n = ca.normalize_claim({"topic": "t", "support_type": None,
+                                "evidence_strength": "DIRECT_EMPIRICAL"})
+        self.assertEqual(n["weight"], 0.0)
+        self.assertFalse(n["consensus_eligible"])
+
+    def test_normalization_is_idempotent(self):
+        """归一化产物再归一化结果必须一致（短路移除的前提）。"""
+        n1 = ca.normalize_claim(dict(self.BASE))
+        n2 = ca.normalize_claim(n1)
+        self.assertEqual(n1["weight"], n2["weight"])
+        self.assertEqual(n1["consensus_eligible"], n2["consensus_eligible"])
+        self.assertFalse(n1["consensus_eligible"])
+
+    def test_ordinary_evidence_record_keeps_full_weight(self):
+        """反向：正常证据记录不得被误判出局。"""
+        n = ca.normalize_claim({"topic": "t", "support_type": "EXPLICIT",
+                                "evidence_strength": "DIRECT_EMPIRICAL",
+                                "stance": "SUPPORT", "claim_status": "SUPPORTED"})
+        self.assertGreater(n["weight"], 0.0)
+
+
 if __name__ == "__main__":
     unittest.main()
