@@ -144,7 +144,7 @@ description: 研究构想与假说推敲技能。从一句模糊直觉或一个�
 
 - **输入白名单**：`idea_id` + `version` + 逐字命题、用户约束、原始证据引用、指定视角、输出格式。**禁止**提供：其他评估者的结果、主持人的倾向或预期答案、历史总结与措辞。
 - **输出结构化**：`verdict`（`SUPPORTED`／`CHALLENGED`／`BOUNDED`／`INSUFFICIENT`）、承重前提、最强反例（找不到写 `NONE_FOUND` 并说明所查范围）、可区分证据、**`change_condition`（必填）**、`limitations`。只保留可审阅理由，不索取隐藏思维过程。
-- **分歧判定由确定性程序完成**，不靠模型自评：`LOW_DIVERGENCE` 仅当 `verdict` 相同 **且** 承重前提高度重合 **且** 反例同一；否则 `HIGH_DIVERGENCE`。
+- **分歧判定由确定性程序完成**，不靠模型自评：`LOW_DIVERGENCE` 仅当 `verdict` 相同 **且** 反例**类型标签**相同 **且** 无相互否定的反例；否则 `HIGH_DIVERGENCE`。**不得用承重前提的文本重合度参与判定**——实测曾因此把"结论一致、表述不同"误报为方向级分歧，机检 RV15 亦明确禁止（见 [references/independent_review.md](./references/independent_review.md)）。
 - `HIGH_DIVERGENCE` 时**分别陈示双方最强理由与各自改判条件，给出一个判别问题交回用户**；不投票、不取平均、不写"综合来看"。交叉回应上限 1 轮且不允许直接改判。
 - 子 agent 不可用/失败：记 `UNAVAILABLE`／`FAILED`／`PARTIAL`，最多重试 1 次；降级只能标 `视角自检（非独立评估）`，不得进入 `LOW_DIVERGENCE`，不得满足"收敛前独立评估"这一前提。
 - **不得声称模型或知识来源相互独立**：同一模型的两个任务只表示分别作答。
