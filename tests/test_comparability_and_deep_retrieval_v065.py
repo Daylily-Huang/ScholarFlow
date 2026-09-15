@@ -744,5 +744,48 @@ class TestComparabilityAndDeepRetrievalV065(unittest.TestCase):
         self.assertEqual(CONSENSUS_LEVELS_REQUIRING_HUMAN_ASSIGNMENT, ["EMERGING_VIEW"])
 
 
+class TestSubjectDimensionStaysInSchema(unittest.TestCase):
+    """P1（2026-09-15 集群审查）：`subject` 维不得产出 schema 之外的取值。
+
+    `evaluate_dimension_subject()` 原在「主题词有交集但任一方向都不构成子集」时返回
+    `COMPATIBLE`，而 `schemas/comparison_record.schema.json` 对 `dimension_evaluations.subject`
+    只允许 MATCH / HIERARCHICAL_SUBSET / DISCREPANT / UNKNOWN（COMPATIBLE 是
+    `intervention_or_method` 与 `comparator` 的取值）。该分支因此**必然产出 schema 非法
+    记录**；更危险的是 `DIRECTLY_COMPARABLE` 分支把 COMPATIBLE 当作可比，于是仅凭共享
+    一个通用名词（soil / forest）就把两条关于不同对象的主张判成"完全可比"，绕过本模块
+    「防止把不可比研究合并成假共识」的设计目标。
+    """
+
+    ALLOWED = ("MATCH", "HIERARCHICAL_SUBSET", "DISCREPANT", "UNKNOWN")
+
+    def _subject(self, a, b):
+        rec = evaluate_claim_comparability(
+            {"claim_id": "A", "subject": a, "metric": "yield", "method": "SECR"},
+            {"claim_id": "B", "subject": b, "metric": "yield", "method": "SECR"})
+        return rec["dimension_evaluations"]["subject"], rec
+
+    def test_generic_noun_overlap_is_not_directly_comparable(self):
+        subj, rec = self._subject("soil nitrogen", "soil phosphorus")
+        self.assertIn(subj, self.ALLOWED, "subject 维取值越界：%r" % (subj,))
+        self.assertEqual(subj, "UNKNOWN")
+        status = (rec.get("comparability") or {}).get("status") or rec.get("status")
+        self.assertNotEqual(status, "DIRECTLY_COMPARABLE",
+                            "仅共享通用名词不得判为完全可比")
+
+    def test_identical_and_subset_still_directly_comparable(self):
+        """反向：真正相同/包含关系仍应判可比，不得因收紧而误伤。"""
+        for a, b, expect in (("Pinus massoniana", "Pinus massoniana", "MATCH"),
+                             ("Pinus", "Pinus massoniana", "HIERARCHICAL_SUBSET")):
+            with self.subTest(subject=a):
+                subj, _ = self._subject(a, b)
+                self.assertEqual(subj, expect)
+                self.assertIn(subj, self.ALLOWED)
+
+    def test_disjoint_subjects_are_not_comparable(self):
+        subj, _ = self._subject("red panda", "snow leopard")
+        self.assertEqual(subj, "DISCREPANT")
+        self.assertIn(subj, self.ALLOWED)
+
+
 if __name__ == "__main__":
     unittest.main()

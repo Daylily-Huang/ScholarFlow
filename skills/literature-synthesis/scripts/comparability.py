@@ -135,7 +135,16 @@ def evaluate_dimension_subject(
     if informative_common:
         if words_a.issubset(words_b) or words_b.issubset(words_a):
             return DimensionStatus.HIERARCHICAL_SUBSET
-        return DimensionStatus.COMPATIBLE
+        # P1（2026-09-15 集群审查）：此处原返回 `COMPATIBLE`，两个后果都很实在：
+        # ① `subject` 维在 `schemas/comparison_record.schema.json` 只允许
+        #    MATCH / HIERARCHICAL_SUBSET / DISCREPANT / UNKNOWN（COMPATIBLE 是
+        #    intervention_or_method 与 comparator 的取值），本分支因此**必然产出
+        #    schema 非法记录**；② 该值又被 DIRECTLY_COMPARABLE 分支当作可比，
+        #    于是仅仅共享一个通用名词（soil / forest）就把两条关于不同对象的
+        #    主张判成"完全可比"，直接绕过本模块"防止把不可比研究合并成假共识"
+        #    的设计目标。
+        # 交叠但互不为子集 = 无法建立可比性 → UNKNOWN（保守，且不改写 schema）。
+        return DimensionStatus.UNKNOWN
 
     return DimensionStatus.DISCREPANT
 
@@ -306,7 +315,7 @@ def evaluate_claim_comparability(
     elif metric_eval == DimensionStatus.CONVERTIBLE:
         status = ComparabilityStatus.COMPARABLE_AFTER_TRANSFORM
         rationale = f"Metrics are convertible with transformation rule: {transform_rule}."
-    elif subj_eval in (DimensionStatus.MATCH, DimensionStatus.HIERARCHICAL_SUBSET, DimensionStatus.COMPATIBLE) and \
+    elif subj_eval in (DimensionStatus.MATCH, DimensionStatus.HIERARCHICAL_SUBSET) and \
          meth_eval in (DimensionStatus.MATCH, DimensionStatus.COMPATIBLE) and \
          metric_eval == DimensionStatus.MATCH:
         status = ComparabilityStatus.DIRECTLY_COMPARABLE
