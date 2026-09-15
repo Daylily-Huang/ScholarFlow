@@ -62,6 +62,19 @@ for dest in "${DESTINATIONS[@]}"; do
     else
         echo "  [!] schemas directory not found: $SCHEMAS_SRC"
     fi
+
+    # P2-06：技能文档按仓库布局写死了上溯级数（`../../schemas/` 等），而安装树
+    # 平铺为 `<dest>/<skill>/`，比仓库少一层 `skills/`，于是这些相对链接装后全部
+    # 断链（`references/` 下的文档级数又不同）。链接级数是布局的算术结果，静态
+    # 文本无法同时满足两种布局——装后按实际深度改写，并补上被引用的那一份文档。
+    if [ -f "$REPO_ROOT/docs/CAPABILITY_STATUS.md" ]; then
+        mkdir -p "$dest/docs"
+        cp "$REPO_ROOT/docs/CAPABILITY_STATUS.md" "$dest/docs/"
+    fi
+    if [ -f "$REPO_ROOT/scripts/fix_installed_doc_links.py" ]; then
+        python3 "$REPO_ROOT/scripts/fix_installed_doc_links.py" "$dest" \
+            || echo "  [!] 文档链接改写跳过（python3 不可用）"
+    fi
 done
 
 # Post-install verification: every entry point that drives a gate must resolve
@@ -86,6 +99,7 @@ VERIFY_ENTRIES=(
     "literature-synthesis/scripts/controversy_analyzer.py"
     "literature-synthesis/scripts/evidence_to_claim.py"
     "research-idea-debate/scripts/session_store_cli.py"
+    "research-idea-debate/scripts/validate_session.py"
 )
 # Runs the target the way a host agent would, then asserts the engine it
 # actually imported lives under the expected install root.

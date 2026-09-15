@@ -17,6 +17,7 @@
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -44,6 +45,10 @@ GATE_ENTRIES = (
     "literature-synthesis/scripts/controversy_analyzer.py",
     "literature-synthesis/scripts/evidence_to_claim.py",
     "research-idea-debate/scripts/session_store_cli.py",
+    # P2-05（2026-09-15）：本入口此前漏在验收之外——它没有任何 sys.path 引导，
+    # 装出去后 `from shared.execution import scope_fingerprint` 必然失败，
+    # **GP6 授权指纹门禁因此从不执行**，而安装器与 self-check 双双报绿。
+    "research-idea-debate/scripts/validate_session.py",
 )
 
 #: 在两种布局下都必须解析到引擎的脚本（本缺陷的受害面）。
@@ -89,6 +94,10 @@ def _build_installed_tree(dest: Path) -> None:
                     ignore=shutil.ignore_patterns("__pycache__"))
     shutil.copytree(REPO_ROOT / "schemas", dest / "schemas",
                     ignore=shutil.ignore_patterns("__pycache__"))
+    # 安装器还会补一份被技能文档引用的能力表（P2-06），夹具须同步
+    docs = dest / "docs"
+    docs.mkdir(exist_ok=True)
+    shutil.copy2(REPO_ROOT / "docs" / "CAPABILITY_STATUS.md", docs / "CAPABILITY_STATUS.md")
 
 
 def _probe(entry: Path, dest: Path, modname: str):
@@ -186,6 +195,68 @@ class TestInstalledRuntimeIntegrity(unittest.TestCase):
             self.assertEqual(
                 payload.get(key), want,
                 "安装布局下极性门禁降级：%s 期望 %r，实得 %r" % (key, want, payload.get(key)))
+
+
+class TestInstalledDocLinksResolve(unittest.TestCase):
+    """P2-06（2026-09-15 集群审查）：安装树里的技能文档相对链接必须可解析。
+
+    技能文档按仓库布局写死了上溯级数（SKILL.md 用 `../../schemas/`，references 下用
+    `../../../schemas/`）。安装器把技能平铺为 `<dest>/<skill>/`，比仓库少一层 `skills/`，
+    于是这些链接装后**全部断链**——而仓库内的 `test_doc_consistency.py` 只验仓库布局，
+    断链因此无机械门禁。
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls._tmp = tempfile.TemporaryDirectory(prefix="sf_install_links_")
+        cls.dest = Path(cls._tmp.name) / "dest"
+        cls.dest.mkdir(parents=True)
+        _build_installed_tree(cls.dest)
+        sys.path.insert(0, str(REPO_ROOT / "scripts"))
+        try:
+            import fix_installed_doc_links as fixer  # noqa: WPS433
+        finally:
+            sys.path.pop(0)
+        cls.stats = fixer.fix_tree(str(cls.dest))
+
+    @classmethod
+    def tearDownClass(cls):
+        cls._tmp.cleanup()
+
+    def test_rewriter_actually_rewrote_something(self):
+        """前置自检：夹具若没有可改写的链接，下面的断言就是空操作。
+
+        （实测踩过：`depth` 公式多加一级时算出的前缀与原文相同，改写数恒为 0，
+        测试静默通过。）
+        """
+        self.assertGreater(self.stats["links_rewritten"], 0,
+                           "改写器一条都没改，断言已失去判别力")
+        self.assertGreater(self.stats["files_rewritten"], 0)
+
+    def test_no_broken_relative_links_in_installed_tree(self):
+        bad = []
+        total = 0
+        for root, dirs, files in os.walk(str(self.dest)):
+            dirs[:] = [d for d in dirs if d != "__pycache__"]
+            for name in files:
+                if not name.endswith(".md"):
+                    continue
+                path = Path(root) / name
+                for m in re.finditer(r"\]\(((?:\.\./)+)([^)\s]+)\)",
+                                     path.read_text(encoding="utf-8")):
+                    total += 1
+                    target = (Path(root) / (m.group(1) + m.group(2))).resolve()
+                    if not target.exists():
+                        bad.append("%s -> %s" % (path.relative_to(self.dest),
+                                                 m.group(1) + m.group(2)))
+        self.assertGreater(total, 0, "没扫到任何相对链接，测试无效")
+        self.assertEqual(bad, [], "安装树存在断链：\n" + "\n".join(bad[:10]))
+
+    def test_repo_layout_links_are_left_untouched(self):
+        """改写器只作用于安装树；仓库内的链接由 test_doc_consistency 守护。"""
+        readme = (REPO_ROOT / "skills" / "literature-discovery-acquisition" / "SKILL.md")
+        self.assertIn("../../schemas/", readme.read_text(encoding="utf-8"),
+                      "仓库布局的链接形态被误改")
 
 
 class TestInstallerScriptsStayHonest(unittest.TestCase):

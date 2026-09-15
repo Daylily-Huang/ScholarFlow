@@ -39,6 +39,11 @@ if (-not (Test-Path (Join-Path $SharedSource "__init__.py"))) {
 $Destinations = @()
 if ($Target) {
     $Destinations += $Target
+} elseif ($env:SCHOLARFLOW_SKILLS_DEST) {
+    # P2-30（2026-09-15 集群审查）：POSIX 安装器早已识别该环境变量，Windows 侧
+    # 却不认——CI/脚本按 install.sh 的约定设了它，本脚本仍会静默改写**全局**技能
+    # 目录（%USERPROFILE%\.agents\skills 与 .claude\skills），在别人机器上覆盖真实配置。
+    $Destinations += $env:SCHOLARFLOW_SKILLS_DEST
 } else {
     $UserHome = [Environment]::GetFolderPath("UserProfile")
     $Destinations += (Join-Path $UserHome ".agents\skills")
@@ -95,6 +100,22 @@ foreach ($dest in $Destinations) {
     } else {
         Write-Host "  [!] schemas directory not found at: $schemasSource" -ForegroundColor Yellow
     }
+
+    # P2-06：技能文档按仓库布局写死了上溯级数，安装树平铺为 <dest>\<skill>\，
+    # 比仓库少一层 skills\，这些相对链接装后全部断链。装后按实际深度改写，
+    # 并补上被引用的那一份文档（docs\CAPABILITY_STATUS.md）。
+    $docsSource = Join-Path $RepoRoot "docs\CAPABILITY_STATUS.md"
+    if (Test-Path $docsSource) {
+        $docsDest = Join-Path $dest "docs"
+        if (-not (Test-Path $docsDest)) {
+            New-Item -ItemType Directory -Path $docsDest -Force | Out-Null
+        }
+        Copy-Item -Path $docsSource -Destination (Join-Path $docsDest "CAPABILITY_STATUS.md") -Force
+    }
+    $linkFixer = Join-Path $RepoRoot "scripts\fix_installed_doc_links.py"
+    if (Test-Path $linkFixer) {
+        & python $linkFixer $dest
+    }
 }
 
 if (-not $SkipVerification) {
@@ -112,7 +133,8 @@ if (-not $SkipVerification) {
         "literature-evidence-extraction\scripts\quote_audit.py",
         "literature-synthesis\scripts\controversy_analyzer.py",
         "literature-synthesis\scripts\evidence_to_claim.py",
-        "research-idea-debate\scripts\session_store_cli.py"
+        "research-idea-debate\scripts\session_store_cli.py",
+        "research-idea-debate\scripts\validate_session.py"
     )
     foreach ($dest in $Destinations) {
         foreach ($rel in $verifyEntries) {

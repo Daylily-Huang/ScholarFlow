@@ -270,16 +270,51 @@ class TestGP6ImportFailureReporting(ValidatorFixtureCase):
         messages = " ".join(v["message"] for v in data["violations"])
         self.assertIn("范围已变更", messages)
 
-    def test_clean_deployment_reports_failed_import_and_nonzero_exit(self):
-        """V1 实测场景：干净部署（python -S）下 GP6 曾静默失效（exit=0）——
-        修复后必须显式 FAILED_IMPORT、计入违规、退出码非零。"""
+    def test_clean_deployment_still_runs_gp6(self):
+        """干净部署（python -S、无 PYTHONPATH）下 GP6 必须**真的执行**。
+
+        本条原先断言 `gp6.status == "FAILED_IMPORT"`——那记录的是 P2-05 缺陷本身：
+        `validate_session.py` 没有任何 sys.path 引导，引擎只在 cwd 侥幸可达时才找得到，
+        干净部署下必然导入失败，**GP6 授权指纹门禁从不执行**（H-12 会留痕，但安装器
+        与 self-check 双双报绿）。补上双布局定位器后引擎可达，门禁才真正跑起来——
+        指纹不符照旧被检出（rc=1），但状态是 OK 而非 FAILED_IMPORT。
+        """
         rc, data = self.write_and_run(self.gap_session(), clean_deployment=True)
         self.assertEqual(rc, 1)
-        self.assertEqual(data["gp6"]["status"], "FAILED_IMPORT")
-        self.assertIn("shared", data["gp6"]["error"] or "")
-        self.assertIn("GP6", self.rule_set(data))
+        self.assertEqual(data["gp6"]["status"], "OK",
+                         "GP6 引擎在干净部署下不可达：%r" % (data["gp6"],))
+        self.assertIsNone(data["gp6"].get("error"))
         messages = " ".join(v["message"] for v in data["violations"])
-        self.assertIn("FAILED_IMPORT", messages)
+        self.assertIn("范围已变更", messages)
+
+    def test_genuinely_missing_engine_is_reported_and_counts_toward_exit(self):
+        """H-12 契约本身仍然成立：引擎确实不可达时，必须显式 FAILED_IMPORT 且计入退出码。
+
+        构造方式：把校验器复制到**任何祖先目录都不含 `shared/`** 的隔离临时目录——
+        双布局定位器因而找不到引擎，正是 H-12 要覆盖的真实失效态。
+        """
+        import shutil
+        isolated = Path(tempfile.mkdtemp(prefix="cluster2-b5-noengine-"))
+        self.addCleanup(shutil.rmtree, isolated, ignore_errors=True)
+        copied = isolated / "validate_session.py"
+        shutil.copy2(VALIDATOR, copied)
+
+        path = isolated / "fixture.json"
+        path.write_text(json.dumps(self.gap_session(), ensure_ascii=False), encoding="utf-8")
+        # 必须带 -S：本机 site-packages 里有一个指向仓库的 editable 安装
+        # (`__editable__.scholarflow-*.pth`)，会经 .pth 把 `shared` 兜住，
+        # 隔离目录因而不隔离（实测：不加 -S 得 OK，加 -S 才是 FAILED_IMPORT）。
+        env = dict(os.environ)
+        env.pop("PYTHONPATH", None)
+        proc = subprocess.run([sys.executable, "-S", str(copied), str(path), "--json"],
+                              capture_output=True, encoding="utf-8", errors="replace",
+                              cwd=str(isolated), env=env)
+        data = json.loads(proc.stdout) if proc.stdout.strip() else {}
+        self.assertEqual(data.get("gp6", {}).get("status"), "FAILED_IMPORT",
+                         "引擎不可达时必须显式报告，不得静默：%r" % (data.get("gp6"),))
+        self.assertIn("shared", data["gp6"].get("error") or "")
+        self.assertIn("GP6", self.rule_set(data))
+        self.assertNotEqual(proc.returncode, 0)
 
     def test_clean_deployment_without_gaps_still_passes(self):
         """无缺口会话在干净部署下不受牵连（GP6 状态 NOT_RUN，零违规 rc=0）。"""

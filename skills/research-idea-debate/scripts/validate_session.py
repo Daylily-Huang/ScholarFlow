@@ -29,6 +29,29 @@ SKILL_ROOT = os.path.dirname(HERE)
 ASSETS = os.path.join(SKILL_ROOT, "assets")
 
 
+def _ensure_engine_import_path():
+    """把含 `shared/` 的运行时根加入 sys.path（双布局，2026-09-15 P2-05）。
+
+    本模块原先**没有任何 sys.path 引导**——仓库布局下靠 cwd 侥幸可用，安装布局
+    （`<dest>/<skill>/scripts/`，引擎在同级 `<dest>/shared`）下
+    `from shared.execution import scope_fingerprint` 必然失败，**GP6 授权指纹门禁
+    因此从不执行**（H-12 会留痕，但安装器与 self-check 双双报绿，无人察觉）。
+    与 extraction 三脚本、`agent_search.py` 同策略：逐级探测真正含
+    `shared/__init__.py` 的那一层。
+    """
+    probe = HERE
+    for _ in range(4):
+        probe = os.path.dirname(probe)
+        if os.path.isfile(os.path.join(probe, "shared", "__init__.py")):
+            if probe not in sys.path:
+                sys.path.insert(0, probe)
+            return probe
+    return None
+
+
+_ENGINE_ROOT = _ensure_engine_import_path()
+
+
 def _locate_schemas(start):
     """向上查找 canonical `schemas/` 目录。
 
