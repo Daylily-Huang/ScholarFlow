@@ -23,11 +23,27 @@ flowchart TD
     Success & FlagErr --> GenLedger[生成全文获取台账 download_ledger.md]
 ```
 
+> **上图是设计目标，不是当前实现（2026-09-15 更正）**：`S2` / `S3` / `S4` 三个解析器
+> **尚无代码**，当前只有 `S1`（OpenAlex）一路。各数据源的实现状态见 §二 开头的状态表。
+
 ---
 
 ## 二、合法开放获取 (OA) 解析机制与数据源调度
 
 严格依托合法、公共可访问的官方学术 API 与开放协议解析 PDF 直链，绝对禁止使用任何非法爬虫：
+
+> **实现状态（2026-09-15 更正）**——本节此前把下面四个数据源都写成"既有机制"，但
+> `scripts/download_oa_papers.py` 里**只有第 1 个**有代码：
+> `grep -n "europepmc\|arxiv\|unpaywall\|biorxiv" download_oa_papers.py` 无任何命中。
+> 第 2–4 节因此是**设计规格**（待实现），不是当前能力；按它们调度会让台账在只试过
+> OpenAlex 的情况下被当成"已穷尽合法渠道"。实现前不得据此判 Gate B 第 8 项 PASS。
+
+| 节 | 数据源 | 实现状态 |
+|---|---|---|
+| 1 | OpenAlex REST API | **已实现**（`query_openalex_oa()`） |
+| 2 | Europe PMC 官方开放仓储 | **未实现**（无解析器） |
+| 3 | bioRxiv / medRxiv / arXiv 预印本 | **未实现**（无解析器） |
+| 4 | Unpaywall | **未实现**（无解析器） |
 
 ### 1. OpenAlex REST API 解析
 - **查询路径**：`https://api.openalex.org/works/https://doi.org/<DOI>`
@@ -100,7 +116,7 @@ flowchart TD
 | 获取状态代码 | 标识 | 定义与用户指导建议 |
 |---|:---:|---|
 | **OA_DOWNLOADED** | `[已下载]` | 官方期刊同行评议正式版本已成功下载至本地，且通过了 `%PDF-` 完整性校验。 |
-| **PREPRINT_AVAILABLE** | `[预印本]` | 期刊正式见刊版受商业数据库付费墙限制，但已成功从 bioRxiv/arXiv 获取到作者自存档预印本全文。 |
+| **PREPRINT_AVAILABLE** | `[自存档版]` | **2026-09-15 更正定义**：本状态由 OpenAlex `open_access.oa_status == "green"` 触发（`download_oa_papers.py:383`），含义是"出版方版本之外另有一份作者自存档免费版本"——可能是机构库中的录用稿（postprint），**不必然**是 bioRxiv/arXiv 预印本，且当前**没有**预印本服务器解析器（见 §二 实现状态）。面向用户的文案须写"已获取作者自存档版"，不得断言其为预印本。 |
 | **OA_BOT_BLOCKED** | `[OA-反爬拦截]` | 出版方**实质开放获取**（gold/hybrid/diamond OA），但反爬系统（Cloudflare 等）拦截自动化下载。**不得标为 PAYWALLED 误导用户付费**；报告中逐条给出官方 DOI 直链，浏览器人工打开即可免费获取。 |
 | **PAYWALLED** | `[需商业权限]` | 全球合法开放渠道均未找到免费公开全文（通常为 Elsevier/Springer/Wiley 等需付费订阅文献）。**报告中自动生成该论文的官方 DOI 直达链接与校外机构代理访问建议**，提醒用户在学校/机构 IP 内一键补充下载。 |
 

@@ -282,8 +282,9 @@ flowchart TD
 
 对初筛为 `Include`（及可选 `Uncertain`）的文献，自动执行全文下载与入库闭环（详见 [stage8_oa_download.md](references/stage8_oa_download.md)、[zotero_watch_folder.md](references/zotero_watch_folder.md) 与执行脚本 `scripts/download_oa_papers.py`）：
 
-1. **多源合法 OA 解析**：
-   - 自动提取 OpenAlex `best_oa_location.pdf_url`、Europe PMC 官方全文直链、bioRxiv/arXiv 预印本 PDF 与高校机构知识库直链；
+1. **合法 OA 解析（当前**仅 OpenAlex 一路已实现**）**：
+   - **已实现**：OpenAlex `best_oa_location.pdf_url` 与备选 `primary_location.pdf_url`（`download_oa_papers.py: query_openalex_oa()`）；
+   - **未实现**：Europe PMC 全文直链、bioRxiv/medRxiv/arXiv 预印本、Unpaywall 与机构知识库绿色 OA。`references/stage8_oa_download.md` §二 把它们写成了既有机制，但脚本内**无对应解析器**（`grep -n "europepmc\|arxiv\|unpaywall\|biorxiv" download_oa_papers.py` 无命中）。因此只跑过 OpenAlex 的台账**不得**据此声称"穷尽合法 OA 与机构获取路径"（见 Gate B 第 8 项）；未覆盖渠道须列入待获取缺口；
 2. **流式安全下载至本地目录**：
    - 默认保存在 `papers/downloads/`（用户可配置为 Zotero 自动监听文件夹 Watch Folder）；
    - 标准化命名：普通论文 `<Year>_<FirstAuthor>_<TitleSlug>.pdf`，学位论文 `<Year>_<Degree>_<Author>_<TitleSlug>.pdf`；
@@ -336,7 +337,7 @@ flowchart TD
 - [ ] 7. **检索缺口显式声明**：若存在任何未执行或截断库，必须显式输出 `Retrieval Gaps` 科学风险预警。
 
 ### Gate B — 全文获取与学术诚信门禁 (Full-Text Acquisition Gate — 后续执行)
-- [ ] 8. **初筛候选尽力获取**：对所有 `Include` 及 `Uncertain` 题录穷尽合法 OA 与机构获取路径；
+- [ ] 8. **初筛候选尽力获取**：对所有 `Include` 及 `Uncertain` 题录穷尽合法 OA 与机构获取路径。**覆盖边界（2026-09-15 更正）**：当前只有 OpenAlex 一路解析器（见 Stage 8 第 1 条），Europe PMC / 预印本 / Unpaywall / 机构库**均未接线**——本项**不得**在只跑过 OpenAlex 的台账上判 PASS；未尝试的渠道必须显式列入待获取缺口（Acquisition Gaps），并写明"本台账仅覆盖 OpenAlex"；
 - [ ] 9. **候选保留红线 (Rule 4)**：严禁因全文下载失败从候选文献全集中删除题录，未获得全文记录必须永久保留并归入《手动补检清单》；
 - [ ] 10. **全文文件真实性**：本地 PDF 均通过 `%PDF-` 魔数与 $\ge 10\text{ KB}$ 体量校验，彻底杜绝 HTML 伪装损坏文件；
 - [ ] 11. **零伪造红线**：无法核验 DOI 标记 `DOI = NR`，严禁从摘要凭空捏造全文实验细节与参数；
