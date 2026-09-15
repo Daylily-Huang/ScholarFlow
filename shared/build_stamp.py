@@ -32,10 +32,10 @@ STAMP_VERSION = _PROJECT_VERSION
 
 #: Full git commit hash this build was stamped from. Empty or "dev" means the
 #: checkout has not been stamped -> dev fallback.
-BUILD_COMMIT = "395e8e24b5e80478f57114fe6f6b8de782eb57e2"
+BUILD_COMMIT = "0fd4554288796d0f1c3f390bdea8d466388727b7"
 
 #: UTC build timestamp, ISO-8601 with seconds and an explicit "Z" suffix.
-BUILD_TIMESTAMP = "2026-09-14T17:03:02Z"
+BUILD_TIMESTAMP = "2026-09-15T07:15:35Z"
 
 #: Marker constant for unstamped source checkouts.
 _DEV_MARKER = "dev"
