@@ -817,8 +817,15 @@ def classify_semantic_role(
         or cjk_ref.search(context_text)
     ):
         if "result" not in sec_lower:
+            # P1（2026-09-15 集群审查）：原判据只认 previous/prior/reported/suggested/
+            # showed/earlier，于是"Fecal DNA was extracted following Waits et al. (2001)."
+            # 落 BACKGROUND——而 SKILL.md §四 明定转引他文的行必须是 support_type=
+            # REFERENCED（E3）/ 二手证据。`_resolve_support_type` 的 REFERENCED 分支
+            # 随之不命中，他文结论被冒充为本研究明示结果（学术不端风险）。
+            # 引文标记（et al. / [n] / (year) / 转引…）本身就是"内容归于他人"的判据。
             if re.search(r"\b(?:previous|prior|reported|suggested|showed|earlier)\b", text_lower) \
-                    or re.search(r"转引|引自|参见|见文献|据.{0,8}报道|前人|已有(研究|报道)", context_text):
+                    or _CITATION_MARKER_RE.search(text_lower) \
+                    or _CITATION_MARKER_RE.search(context_text):
                 return SemanticRole.REFERENCED_WORK, "Candidate describes prior literature citation in background context"
             return SemanticRole.BACKGROUND, "Candidate is located in introductory/background text"
 
@@ -836,7 +843,18 @@ def classify_semantic_role(
             text_lower):
         return SemanticRole.CURRENT_STUDY_METHOD, "Candidate specifies experimental methodology or setup"
     if "method" in sec_lower or "materials" in sec_lower or "procedure" in sec_lower or "protocol" in sec_lower:
-        if re.search(r"\b(were\s+performed|was\s+measured|protocol|assay|sequencing|synthesized|recruited)\b", text_lower):
+        # P1（2026-09-15 集群审查）：原式写作 `were\s+performed|was\s+measured`——把
+        # 单复数与两个动词各自绑死，于是 `was performed` / `were measured` /
+        # `was carried out` 全部落空。后果是本技能**主用例**（方法学参数抽取：PCR
+        # 体积、温度、浓度、引物）在管道路径上被常态化误杀：SKILL.md §四 表格第 1 行
+        # 自己的示例句 "PCR was performed in a total volume of 20 μL" 判 UNKNOWN，
+        # 随即被 promote_candidate_to_evidence 以 "Semantic role is UNKNOWN" 阻断。
+        # 现在主/被动两种数在方法类章节内一致展开。
+        if re.search(
+                r"\b(?:was|were)\s+(?:performed|measured|carried\s+out|conducted|"
+                r"prepared|amplified|sequenced|extracted)\b"
+                r"|\b(?:protocol|assay|sequencing|synthesized|recruited)\b",
+                text_lower):
             return SemanticRole.CURRENT_STUDY_METHOD, "Candidate specifies experimental methodology or setup"
 
     # 4. Discussion Speculation
@@ -1194,10 +1212,36 @@ def verify_candidate_lifecycle_transition(cur_state: str, next_state: str) -> Tu
         return False, f"Illegal lifecycle jump from {cur_state} to {next_state} (skipped required stages: {skipped})"
 
 
+#: 「本篇未报告」哨兵值。canonical 词表当前位于
+#: `skills/literature-synthesis/scripts/evidence_states.py: NON_EVIDENCE_CLASSES`；
+#: 抽取侧只需判断"抽出的值本身是否为该哨兵"，故此处只做识别、不另立第三份扩写
+#: （三处词表各自为政正是 H-02 的根因）。两处词表收敛进 `shared/text/` 是后续项，
+#: 已在能力表 §6 登记。
+_NR_SENTINELS = frozenset({
+    "nr", "n r", "n/r", "n.r.", "not reported", "notreported", "not_reported",
+    "n/a", "n.a.", "na", "none", "null", "not available",
+    "未报告", "未提及", "未给出",
+})
+
+#: 引文标记：文本本身把内容归属于他人研究（E3/REFERENCED 的判据）。
+_CITATION_MARKER_RE = re.compile(
+    r"\bet\s+al\.?|\[\d+\]|\(\d{4}\)|previously\s+reported|prior\s+studies|"
+    r"转引|引自|参见|见文献|据.{0,8}报道|前人|已有(研究|报道)")
+
+
+def _is_nr_sentinel(value: Any) -> bool:
+    """抽出的值是否为"本篇未报告"哨兵（`NR` / `N/A` / `未报告` …）。"""
+    if value is None:
+        return False
+    text = str(value).strip().lower()
+    return bool(text) and text in _NR_SENTINELS
+
+
 def _resolve_support_type(
     ccr: Dict[str, Any],
     sem_role: str,
     verbatim_quote: str,
+    extracted_value: Any = None,
 ) -> Tuple[str, str]:
     """Derive the extraction-provenance dimension for a promoted record.
 
@@ -1218,7 +1262,11 @@ def _resolve_support_type(
     if sem_role == SemanticRole.REFERENCED_WORK:
         return "REFERENCED", "Value is attributed to cited prior work, not this study"
 
-    if ccr.get("not_reported") or ccr.get("extracted_value_is_nr"):
+    # P1（2026-09-15 集群审查）：本分支原先依赖 `ccr["not_reported"]` /
+    # `ccr["extracted_value_is_nr"]`，而全仓**从无写入者**（grep 仅命中这一行读取处）
+    # ——死分支，于是 `extracted_value="NR"` 也走"verbatim_quote 非空 → EXPLICIT"，
+    # 本篇未报告被记成已明示支持。现在直接识别抽出的值本身。
+    if _is_nr_sentinel(extracted_value) or ccr.get("not_reported") or ccr.get("extracted_value_is_nr"):
         return "NOT_REPORTED", "Source does not report this value"
 
     if str(verbatim_quote or "").strip():
@@ -1302,7 +1350,14 @@ def promote_candidate_to_evidence(
     else:
         source_type = "Text"
 
-    if sem_role in (SemanticRole.CURRENT_STUDY_RESULT, SemanticRole.CURRENT_STUDY_OBSERVATION):
+    # P1（2026-09-15 集群审查）：原映射只列 4 条，`CURRENT_STUDY_METHOD` 落到
+    # else → "UNKNOWN"。后果是技能**主产物**（方法学参数证据）在跨技能交接后被
+    # 下游资格门禁判为不合格：`controversy_analyzer.normalize_claim` 的 is_eligible
+    # 要求 strength 不在 {"UNKNOWN", …}，`evidence_to_claim.evaluate_consensus_eligibility`
+    # 也会追加 "has UNKNOWN evidence strength"。而 SKILL.md §四 的产出契约把
+    # "PCR volume 20 μL" 这类方法学参数标为证据强度"直接实证"（DIRECT_EMPIRICAL）。
+    if sem_role in (SemanticRole.CURRENT_STUDY_RESULT, SemanticRole.CURRENT_STUDY_OBSERVATION,
+                    SemanticRole.CURRENT_STUDY_METHOD):
         ev_strength = "DIRECT_EMPIRICAL"
     elif sem_role == SemanticRole.DISCUSSION_INTERPRETATION:
         ev_strength = "AUTHOR_INTERPRETATION"
@@ -1324,7 +1379,8 @@ def promote_candidate_to_evidence(
     # support_type answers "how did this value come from the paper's text?".
     # It must not be a constant: a referenced value is not an explicit one, and
     # a derived value carries a formula rather than a verbatim quote.
-    support_type, support_rationale = _resolve_support_type(ccr, sem_role, verbatim_quote)
+    support_type, support_rationale = _resolve_support_type(
+        ccr, sem_role, verbatim_quote, extracted_value)
 
     structured_locator = ccr.get("context_expansion", {}).get("evidence_span", {}) or {}
     if isinstance(structured_locator, dict):

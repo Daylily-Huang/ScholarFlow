@@ -357,5 +357,110 @@ class TestCrossDisciplinaryMatrix(unittest.TestCase):
         self.assertEqual(ev["status"], "CONTRADICTORY")
 
 
+class TestPassiveMethodSentenceClassification(unittest.TestCase):
+    """P1（2026-09-15 集群审查）：方法学被动句的单复数必须一致展开。
+
+    原式写作 `were\\s+performed|was\\s+measured`——把单复数与两个动词各自绑死，
+    于是 `was performed` / `were measured` / `was carried out` 全部落空。后果是本
+    技能的**主用例**（方法学参数抽取）在管道路径上被常态化误杀：SKILL.md §四 表格
+    第 1 行自己的示例句被判 UNKNOWN，随即被 `promote_candidate_to_evidence` 以
+    "Semantic role is UNKNOWN" 阻断，产出为空。
+    """
+
+    SECTION = "2. Materials and Methods"
+
+    def _role(self, text):
+        role, _ = classify_semantic_role(text, section_heading=self.SECTION)
+        return role.value if hasattr(role, "value") else str(role)
+
+    def test_singular_and_plural_passives_are_both_methods(self):
+        for text in (
+            "PCR was performed in a total volume of 20 uL containing 1x buffer.",  # SKILL.md 原句
+            "PCR was carried out in a total volume of 20 uL.",
+            "PCR was measured in a total volume of 20 uL.",
+            "Samples were measured for protein content.",
+            "DNA was extracted from all samples.",
+            "The primer sequences were prepared as described.",
+            "Cells were sequenced on the NovaSeq platform.",
+        ):
+            with self.subTest(text=text):
+                self.assertEqual(self._role(text), "CURRENT_STUDY_METHOD", text)
+
+    def test_results_sentence_is_not_reclassified_as_method(self):
+        """反向：放宽被动式不得把 Results 句吞进方法类。"""
+        role, _ = classify_semantic_role(
+            "The results showed a significant increase in yield.", section_heading="3. Results")
+        self.assertNotEqual(role.value if hasattr(role, "value") else str(role),
+                            "CURRENT_STUDY_METHOD")
+
+
+class TestPromotionProvenanceAndStrength(unittest.TestCase):
+    """P1（2026-09-15 集群审查）：E3/REFERENCED 与 NR 契约、方法学证据强度。
+
+    SKILL.md §四 的产出契约把三类行分别钉死为：转引他文 → `support_type=REFERENCED`
+    （E3）/ 二手证据；本篇未报告 → `NOT_REPORTED` / 抽取值 `NR`；方法学参数 →
+    证据强度"直接实证"。实测三条在补升路径上全部走反。
+    """
+
+    DOC = ("The elution volume was measured for every sample and remained constant "
+           "throughout the run.")
+
+    def _promote(self, role, value):
+        hit = "elution volume"
+        cand = {"type": CandidateType.TEXT_SENTENCE, "hit_text": hit,
+                "offset": self.DOC.find(hit)}
+        ctx = expand_candidate_context(self.DOC, cand)
+        tin = {"task_type": TINTaskType.CLAIM, "target_claim": "The elution volume is 20 uL"}
+        align = evaluate_target_alignment(tin, ctx)
+        ccr = build_candidate_context_record("C1", "T1", CandidateType.TEXT_SENTENCE, hit,
+                                             ctx, role, align, allow_contradiction=True)
+        return promote_candidate_to_evidence(ccr, "R1", "elution_volume", value)
+
+    def test_method_role_gets_direct_empirical_strength(self):
+        """方法学参数按其契约强度进入下游。
+
+        原映射只列 RESULT/OBSERVATION/DISCUSSION_INTERPRETATION/REFERENCED_WORK 四条，
+        `CURRENT_STUDY_METHOD` 落到 else → `UNKNOWN`。下游 literature-synthesis 的资格
+        门禁把 UNKNOWN 视为非承载（`controversy_analyzer.normalize_claim` 的 is_eligible
+        要求 strength 不在 {"UNKNOWN", …}），于是技能主产物（PCR 体积、温度、浓度、
+        引物）在跨技能交接后被静默排除或按 0.3 权重打折。
+        """
+        ev, err = self._promote(SemanticRole.CURRENT_STUDY_METHOD, "20 uL")
+        self.assertIsNotNone(ev, err)
+        self.assertEqual(ev["evidence_strength"], "DIRECT_EMPIRICAL")
+
+    def test_referenced_role_maps_to_secondary_evidence(self):
+        ev, err = self._promote(SemanticRole.REFERENCED_WORK, "20 uL")
+        self.assertIsNotNone(ev, err)
+        self.assertEqual(ev["support_type"], "REFERENCED")
+        self.assertEqual(ev["evidence_strength"], "SECONDARY_EVIDENCE")
+
+    def test_nr_sentinel_maps_to_not_reported(self):
+        """本篇未报告不得被记成已明示支持。
+
+        `_resolve_support_type` 的 NOT_REPORTED 分支原先依赖 `ccr["not_reported"]` /
+        `ccr["extracted_value_is_nr"]`，而全仓从无写入者——死分支，于是
+        `extracted_value="NR"` 也走"verbatim_quote 非空 → EXPLICIT"。
+        """
+        for value in ("NR", "N/R", "N/A", "not reported", "未报告"):
+            with self.subTest(value=value):
+                ev, err = self._promote(SemanticRole.BACKGROUND, value)
+                self.assertIsNotNone(ev, err)
+                self.assertEqual(ev["support_type"], "NOT_REPORTED")
+
+    def test_ordinary_value_stays_explicit(self):
+        """反向：NR 识别不得把正常值也吞掉。"""
+        ev, err = self._promote(SemanticRole.BACKGROUND, "20 uL")
+        self.assertIsNotNone(ev, err)
+        self.assertEqual(ev["support_type"], "EXPLICIT")
+
+    def test_citation_sentence_classifies_as_referenced_work(self):
+        """`following X et al. (2001)` 是转引，不是背景。"""
+        role, _ = classify_semantic_role(
+            "Fecal DNA was extracted following Waits et al. (2001).",
+            section_heading="3. Materials and Methods")
+        self.assertEqual(getattr(role, "value", role), "REFERENCED_WORK")
+
+
 if __name__ == "__main__":
     unittest.main()
