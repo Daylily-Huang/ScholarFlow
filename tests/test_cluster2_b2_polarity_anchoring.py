@@ -713,6 +713,51 @@ class TestH37PipelineAttributeValueVerification(unittest.TestCase):
         res = self._run(self.DOC_REAL, "20 mL", hit="20 uL")
         self.assertFalse(res["promoted"])
 
+    # ---- P1（2026-09-15 集群审查）：锚定对象是引句，不是 AECE 扩展上下文 ----
+    #: 引句无数字 ⇒ 完整性检查判 NUMERIC_VALUE 缺失 ⇒ AECE 逐级升到 PARAGRAPH
+    #: （零空行文本 = 整段即整篇，pypdf 常态）；值 `25 uL` 落在远离引句的另一实验里。
+    _HIT = "The PCR reaction volume was recorded for every sample."
+    DOC_FAR_VALUE = ("Results " + _HIT + " "
+                     + ("The study site is described in detail elsewhere in this report. " * 4)
+                     + "In a separate assay the PCR reaction volume was 25 uL.")
+
+    def test_fixture_really_reaches_paragraph_expansion(self):
+        """前置自检：本夹具必须真的把 AECE 推到 PARAGRAPH 级。
+
+        AECE 若只停在 SENTENCE / ADJACENT_SENTENCES，`context_text` 本来就窄，
+        下一条测的就不是本缺陷（实测：带编号标题 `3. Results` 时那个 `3` 会满足
+        NUMERIC_VALUE 检查，AECE 停在邻句级，测试静默失去判别力）。
+        """
+        doc = self.DOC_FAR_VALUE
+        cand = {"id": "C-1", "type": CandidateType.TEXT_SENTENCE, "text": type(self)._HIT,
+                "offset": doc.find(type(self)._HIT), "section": "Results"}
+        ctx = expand_candidate_context(doc, cand, tin=self._tin())
+        self.assertEqual(ctx.get("level_reached"), "PARAGRAPH",
+                         "夹具不再触发 PARAGRAPH 扩级，本类测试已失去判别力")
+        self.assertIn("25 uL", ctx.get("context_text", ""))
+
+    def test_value_far_outside_the_quote_is_not_anchoring(self):
+        """引句外的数值不得锚定。
+
+        AECE 扩到 PARAGRAPH 级时 `context_text` 就是**整段（零空行文本下即整篇）**
+        （H-35 注释自承：pypdf 文本零空行时实测 80,701 字符）。于是"值锚定在扩展
+        上下文"退化为"该数值在论文任何位置出现过"——别的实验、别的句子里的数字都能
+        挂到任意字段上，跨实验数值污染（`assay_context_isolation` 与 E4 隔离要防的）
+        被机械门禁盖章为 EXPLICIT。现在比较对象是引句及其同句窗口（±200 字符）。
+        """
+        res = self._run(self.DOC_FAR_VALUE, "25 uL",
+                        hit=type(self)._HIT)
+        self.assertFalse(res["promoted"], "另一实验里的数值不得锚定到本引句")
+        self.assertIsNone(res["evidence_record"])
+
+    def test_anchor_text_is_a_window_not_the_whole_context(self):
+        from extraction_pipeline import VALUE_ANCHOR_WINDOW, _value_anchor_text
+        doc = ("P" * 500) + "QUOTE" + ("S" * 500)
+        anchor = _value_anchor_text({"text": "QUOTE"}, doc)
+        self.assertLess(len(anchor), len(doc), "锚定文本不得等于整篇文档")
+        self.assertLessEqual(len(anchor), len("QUOTE") + 2 * VALUE_ANCHOR_WINDOW)
+        self.assertIn("QUOTE", anchor)
+
 
 # ---------------------------------------------------------------------------
 # H-17 quote_audit 信封侧

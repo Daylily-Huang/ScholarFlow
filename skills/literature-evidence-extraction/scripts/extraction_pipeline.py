@@ -133,6 +133,36 @@ CLAIM_TASK_TYPES = {
 }
 
 
+#: 引句同句窗口半径（字符）。与 quote_audit 判 `NOT_IN_QUOTE_CONTEXT` 的口径一致。
+VALUE_ANCHOR_WINDOW = 200
+
+
+def _value_anchor_text(candidate: Dict[str, Any], doc_text: str) -> str:
+    """构造 ATTRIBUTE 数值锚定的比较文本：**引句本身 + 其同句窗口**。
+
+    P1（2026-09-15 集群审查）：锚定对象原先是 `expanded_ctx["context_text"]`——AECE
+    扩到 PARAGRAPH 级时那就是**整篇文档**（代码在 H-35 注释里自承：pypdf 文本零空行
+    时 PARAGRAPH 级 context 实测 80,701 字符）。于是"值锚定在扩展上下文"退化为
+    "该数值在论文任何位置出现过"：别的实验、别的句子里的数字都能挂到任意字段上，
+    跨实验数值污染（正是 `assay_context_isolation` 与 E4 隔离要防的）被机械门禁盖章
+    为 EXPLICIT/DIRECT_EMPIRICAL。实测：引句在 `Results`、值 `25 uL` 在 588 字符外的
+    另一段（另一实验）——旧实现照常升级 SUPPORTED/EXPLICIT。
+
+    现在比较对象是引句与其同句窗口（±`VALUE_ANCHOR_WINDOW`），与 quote_audit 判
+    `NOT_IN_QUOTE_CONTEXT` 同口径。
+    """
+    hit = str(candidate.get("hit_text") or candidate.get("text") or "")
+    if not hit:
+        return ""
+    doc = doc_text or ""
+    pos = doc.find(hit)
+    if pos < 0:
+        return hit
+    start = max(0, pos - VALUE_ANCHOR_WINDOW)
+    end = min(len(doc), pos + len(hit) + VALUE_ANCHOR_WINDOW)
+    return doc[start:end]
+
+
 def _verify_attribute_value_anchoring(extracted_value: Any,
                                       context_text: str) -> Optional[Dict[str, Any]]:
     """H-37（2026-09-13 第二轮集群测试）：ATTRIBUTE 数值核验。
@@ -215,10 +245,12 @@ def process_candidate(
 
     # 3b. H-37: ATTRIBUTE 数值核验（复用 quote_audit.extract_quantities）
     # 伪造值（上下文唯一数字是 1985 的 "25 uL"）不得升级 SUPPORTED/EXPLICIT。
+    # P1（2026-09-15）：锚定对象必须是**引句及其同句窗口**，不是 AECE 扩展上下文
+    # ——后者在 PARAGRAPH 级等于整篇文档，会让"论文别处的数字"锚定到任意字段。
     value_anchoring = None
     if task_type not in CLAIM_TASK_TYPES and extracted_value is not None:
         value_anchoring = _verify_attribute_value_anchoring(
-            extracted_value, expanded_ctx.get("context_text", ""))
+            extracted_value, _value_anchor_text(candidate, doc_text))
         if value_anchoring is not None and not value_anchoring.get("anchored", True):
             alignment = {
                 "status": AlignmentStatus.NOT_ALIGNED,
