@@ -37,6 +37,8 @@ $$\text{Research Question} = \text{Unresolved Controversy} + \text{Uncontrolled 
 
 当综合分析受阻时，必须自动在报告末尾生成机器可直接消费的【上游技能任务请求包】：
 
+> **字段口径（2026-09-16 更正）**：**canonical 字段集以 [`assets/upstream_gap_request_template.md`](../assets/upstream_gap_request_template.md) 为准**（`gap_id` / `source_skill` / `target_skill` / `timestamp` / `search_payload{recommended_queries, date_range{start_year,end_year}, must_include_keywords, must_exclude_keywords, target_method_filters, rationale}`）。本节下方两段是**人类可读示意**，其字段名与 `date_range` 类型都与模板互斥，**不得**直接作为机器契约使用——两份文档此前各说各话且无人对账（P2-29）。
+
 ### 1. `SEARCH GAP` 任务包（发往下游 `literature-discovery-acquisition`）
 ```markdown
 ```json
@@ -45,7 +47,7 @@ $$\text{Research Question} = \text{Unresolved Controversy} + \text{Uncontrolled 
   "target_skill": "literature-discovery-acquisition",
   "reason": "缺乏 2020 年后采用 SECR 空间模型评估该物种密度的现代实证研究",
   "suggested_query": "(\"Panthera uncia\" OR \"Felidae\") AND (\"spatially explicit capture-recapture\" OR \"SECR\") AND (\"density\" OR \"abundance\")",
-  "date_range": "2020-2026",
+  "date_range": {"start_year": 2020, "end_year": 2026},
   "mode": "deep"
 }
 ```

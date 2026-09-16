@@ -3,7 +3,7 @@
 Provides standard GrillDimension definitions for:
 - literature-discovery-acquisition (D1 - D14)
 - literature-evidence-extraction (E1 - E9)
-- literature-synthesis (S1 - S11)
+- literature-synthesis (S1 - S12)
 """
 
 from shared.grill_me.response_parser import (
@@ -518,6 +518,24 @@ def get_synthesis_dimensions() -> list[GrillDimension]:
             ],
             default_key="A",
             default_value="claims_first_narrative",
+        ),
+        # P2-27（2026-09-15 集群审查）：`S12 交付格式` 此前只在技能文档里出现——
+        # `references/grill_dimensions.md` 把它**重号成 S10**（与"知识空白"撞号），
+        # 而本引擎的维度表只到 S11，于是 SKILL.md 声称的"默认三轨全套并写入快照
+        # [DEFAULTED]"在引擎侧根本不成立。现登记为正式维度，使该默认真正生效。
+        GrillDimension(
+            id="S12",
+            name="交付格式",
+            priority=PriorityTier.DEFAULTABLE,
+            description="最终产物的交付格式组合。",
+            options=[
+                DimensionOption("A", "三轨全套：MD 底稿 + JSON/CSV 数据 + HTML 报告", is_recommended=True,
+                                rationale="同时满足人读、机读与审阅需求", confidence="high", value="tri_track"),
+                DimensionOption("B", "仅 Markdown 底稿", is_recommended=False,
+                                rationale="只需人读时的精简交付", confidence="medium", value="md_only"),
+            ],
+            default_key="A",
+            default_value="tri_track",
         ),
     ]
 

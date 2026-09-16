@@ -136,7 +136,11 @@ def claim_consensus_issues(claim_record: Dict[str, Any]) -> List[str]:
     if str(claim_record.get("stance", "") or "").upper() == "NEUTRAL":
         issues.append("NEUTRAL_STANCE")
 
-    mapping_status = claim_record.get("stance_mapping_status")
+    # P2-24（2026-09-15 集群审查）：原为**精确且大小写敏感**的比较，于是
+    # `"unresolved"` / `"Unresolved"` / `" unresolved "` 一律绕过 UNRESOLVED 与
+    # DIFFERENT_PROPOSITION 拒绝门禁，以满权重进入共识。本文件其余状态字段
+    # （`claim_status` 等）都做 `.strip().upper()` 归一，此处遗漏。
+    mapping_status = str(claim_record.get("stance_mapping_status") or "").strip().upper()
     if mapping_status == "DIFFERENT_PROPOSITION":
         issues.append("DIFFERENT_PROPOSITION")
     elif mapping_status == "UNRESOLVED":

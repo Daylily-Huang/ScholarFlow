@@ -373,7 +373,10 @@ _APPRAISAL_LEGAL = {
     "directness": {"HIGH", "MEDIUM", "LOW"},
     "independence": {"HIGH", "MEDIUM", "LOW"},
     "risk_of_bias": {"LOW", "MEDIUM", "HIGH"},
-    "replication": {"HIGH", "LOW"},
+    # P2-25（2026-09-15 集群审查）：`replication` 原只认 HIGH/LOW，而其余三个维度
+    # 都接受 MEDIUM；schema 未对 appraisal 设枚举，`replication="MEDIUM"` 因此是
+    # **合法输入**却被判非法值 → 记 `appraisal_incomplete` 并当 UNKNOWN 处理。
+    "replication": {"HIGH", "MEDIUM", "LOW"},
 }
 _APPRAISAL_ALIASES = {
     "directness": {"VERY_LOW": "LOW", "VERY_HIGH": "HIGH"},
@@ -479,6 +482,10 @@ def resolve_evidence_weight(raw: Dict[str, Any]) -> Tuple[float, str, List[str]]
         elif rep_val == "LOW":
             mult *= 0.9
             factors.append("unreplicated(-0.1)")
+        elif rep_val == "MEDIUM":
+            # P2-25：显式中等复现 —— 不调权，但留痕，使"声明了中等"与"未声明"
+            # 在 factors 里可区分（未声明走 UNKNOWN → appraisal_incomplete）。
+            factors.append("replication_medium(0)")
         elif rep_val == "UNKNOWN":
             has_incomplete = True
 

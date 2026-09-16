@@ -249,10 +249,17 @@ class TestPresetDimensionsIntegrity(unittest.TestCase):
             self.assertTrue(len(rec.rationale) > 0)
 
     def test_synthesis_dimensions(self):
+        """S1–S12。P2-27（2026-09-16）：原断言 11。
+
+        `S12 交付格式` 一直存在于技能维度表（`references/grill_dimensions.md`）里，
+        只是那时被**重号成 S10**，且从未登记进引擎——于是 SKILL.md 声称的
+        「默认三轨全套并写入快照 [DEFAULTED]」在引擎侧根本不成立。现登记为正式维度，
+        维度总数由 11 修正为 12。
+        """
         dims = get_synthesis_dimensions()
-        self.assertEqual(len(dims), 11)
+        self.assertEqual(len(dims), 12)
         dim_ids = [d.id for d in dims]
-        for i in range(1, 12):
+        for i in range(1, 13):
             self.assertIn(f"S{i}", dim_ids)
 
         for d in dims:

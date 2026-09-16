@@ -48,6 +48,13 @@ NON_EVIDENCE_CLASSES = {
     "CITEDONLY": "CITED_ONLY",
     "REFERENCED_ONLY": "CITED_ONLY",  # 二级转引与 CITED_ONLY 同层零权（H-05/SYN-R-01）
     "REFERENCEDONLY": "CITED_ONLY",
+    # P2-23（2026-09-15 集群审查）：`REFERENCED` 是**抽取域 `support_type` 的 canonical
+    # 取值**（SKILL.md §四：转引他文的行必须是 support_type=REFERENCED，即 E3 二手证据；
+    # 抽取侧由 `_resolve_support_type` 产出）。而本表此前只列 `REFERENCED_ONLY` /
+    # `CITED_ONLY`——两侧词表对不上，二级转引以**满权重**进入共识分母。
+    # （抽取侧修复后 REFERENCED 被正确产出，该缺口的实际暴露面随之变大。）
+    "REFERENCED": "CITED_ONLY",
+    "REFERENCED_WORK": "CITED_ONLY",  # 语义角色名，同层零权
 }
 
 #: 显式给出但无法解析出任何语义的值（空串/纯标点/显式 null）→ UNPARSEABLE：
