@@ -13,8 +13,18 @@ Pure Python standard library (zero external runtime dependencies).
 
 import os
 import sys
+
 from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional, Tuple
+
+# 保证中文产物在 zh-CN Windows（默认 cp936）上以 UTF-8 输出：上游按 UTF-8
+# 读取 stdout 时不再解码失败（P2-08 同类项，2026-09-16 普查补齐）。
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 # 运行时根定位（2026-09-15 部署层修复）：技能脚本有两种部署形态——仓库内
 # `<repo>/skills/<skill>/scripts/`（引擎在 `<repo>/shared`）与安装树

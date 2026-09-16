@@ -771,24 +771,57 @@ def run_standard_search(query_str, limit=50, include_theses=True, profile=None):
 
 
 def build_prisma_s_audit(mode: str, snowball_seed: str = None) -> dict:
-    """Itemized PRISMA-S 16-item audit structure (P1-11)."""
+    """Itemized PRISMA-S (2021) 16-item audit structure.
+
+    P2-14（2026-09-15 集群审查）：本清单此前**不是 PRISMA-S**——16 项里有 10 项与
+    技能自带的 `references/prisma_s_checklist.md` 对不上，其中 4 项（全文筛选标准、
+    研究选择流程、数据收集流程、偏倚风险评估）是 **PRISMA 2020 主清单**条目，不属于
+    PRISMA-S 的"检索报告"范围；第 9/10 项还被对调（全量检索式呈现 ↔ 检索式同行评议）。
+    现已逐项对齐 canonical 清单 `references/prisma_s_checklist.md` 的 Item 1–16。
+    """
     items = [
-        {"item": 1, "name": "Database name", "status": "PASS", "evidence": "OpenAlex API"},
-        {"item": 2, "name": "Multi-database translation", "status": "USER_ASSISTED", "evidence": "OpenAlex automated; subscription bases require user export"},
-        {"item": 3, "name": "Search strategies recorded", "status": "PARTIAL", "evidence": "Query recorded in search_protocol"},
-        {"item": 4, "name": "Search dates documented", "status": "PASS", "evidence": "Execution timestamp logged"},
-        {"item": 5, "name": "Full search query recorded", "status": "PASS", "evidence": "Recorded verbatim in search_protocol"},
-        {"item": 6, "name": "Search limits applied", "status": "NOT_APPLICABLE", "evidence": "Headless pipeline does not support year/language/type filter parameters (headless 管道不支持年份/语言/类型过滤参数); no such limits were applied, so none are claimed"},
-        {"item": 7, "name": "Search filters described", "status": "PASS", "evidence": "Type filter and thesis preference documented"},
-        {"item": 8, "name": "Prior search strategies updated", "status": "NOT_APPLICABLE", "evidence": "Single initial retrieval run"},
-        {"item": 9, "name": "Peer review of search strategy", "status": "USER_ASSISTED", "evidence": "PRESS peer review requires human supervisor"},
-        {"item": 10, "name": "Citation searching", "status": "PASS" if snowball_seed or mode == "deep" else "NOT_EVALUATED", "evidence": "Dual-direction citation snowballing"},
-        {"item": 11, "name": "Contacting authors/experts", "status": "NOT_APPLICABLE", "evidence": "Automated headless retrieval phase"},
-        {"item": 12, "name": "Deduplication procedure defined", "status": "PASS", "evidence": "DOI and title normalized deduplication"},
-        {"item": 13, "name": "Full-text screening criteria", "status": "NOT_EVALUATED", "evidence": "Deferred to extraction stage"},
-        {"item": 14, "name": "Study selection process", "status": "USER_ASSISTED", "evidence": "Screening status uncertain pending agent review"},
-        {"item": 15, "name": "Data collection process", "status": "NOT_EVALUATED", "evidence": "Deferred to extraction stage"},
-        {"item": 16, "name": "Study risk of bias assessment", "status": "NOT_EVALUATED", "evidence": "Deferred to synthesis stage"}
+        {"item": 1, "name": "数据库名称与服务商 (Database name and platform)",
+         "status": "PASS", "evidence": "OpenAlex REST API（含服务商与访问方式）"},
+        {"item": 2, "name": "多数据库联合检索 (Multi-database searching)",
+         "status": "USER_ASSISTED",
+         "evidence": "OpenAlex 自动检索；CNKI/WoS/Scopus 等订阅库需用户导出题录后 ingest"},
+        {"item": 3, "name": "临床试验与预注册库 (Registries)",
+         "status": "NOT_APPLICABLE",
+         "evidence": "headless 检索管道不覆盖试验注册库；医学/临床课题须在上游补齐"},
+        {"item": 4, "name": "网络与搜索引擎 (Online resources and web engines)",
+         "status": "NOT_APPLICABLE",
+         "evidence": "headless 管道不发起 Web/Scholar 探测；如执行须由宿主在台账中显式记录"},
+        {"item": 5, "name": "其他检索方法·引文双向追踪 (Other methods: citation chasing)",
+         "status": "PASS" if snowball_seed or mode == "deep" else "NOT_EVALUATED",
+         "evidence": "referenced_works + cites 双向滚雪球；非深度档未启用即如实记 NOT_EVALUATED"},
+        {"item": 6, "name": "限定条件与理由 (Limits and restrictions)",
+         "status": "NOT_APPLICABLE",
+         "evidence": "headless 管道不支持年份/语言/类型过滤参数，未施加任何限定，故不声称"},
+        {"item": 7, "name": "检索过滤式 (Search filters)",
+         "status": "NOT_APPLICABLE",
+         "evidence": "未使用经同行验证的方法学过滤器（如 MeSH 限词、JCR 来源限定）"},
+        {"item": 8, "name": "前人检索参考 (Prior strategies)",
+         "status": "NOT_APPLICABLE",
+         "evidence": "本次为独立初始检索，未复用前人系统评价的检索式"},
+        {"item": 9, "name": "全量检索式呈现 (Full search strategies)",
+         "status": "PASS", "evidence": "检索式逐字记录于 search_protocol.query"},
+        {"item": 10, "name": "检索式同行评议 (Peer review of strategy)",
+         "status": "USER_ASSISTED",
+         "evidence": "PRESS 同行评议须人工/独立第三方执行；headless 管道不做"},
+        {"item": 11, "name": "分库检索命中数 (Records found per source)",
+         "status": "PASS", "evidence": "每次检索的 reported_total_hits / pages_fetched 计入 Ledger A"},
+        {"item": 12, "name": "去重软件与流程 (Managing records and deduplication)",
+         "status": "PASS",
+         "evidence": "归一化 DOI + 归一化标题两级去重；PMID/arXiv/相似度两级**未实现**，报告中须如实披露"},
+        {"item": 13, "name": "检索更新频次 (Updating searches)",
+         "status": "NOT_APPLICABLE", "evidence": "单次初始检索运行，无更新重跑"},
+        {"item": 14, "name": "检索执行日期 (Dates of searches)",
+         "status": "PASS", "evidence": "执行时间戳记录于产物元数据"},
+        {"item": 15, "name": "纳入排除标准一致性 (Eligibility and screening)",
+         "status": "NOT_EVALUATED", "evidence": "初筛在 Stage 5 执行；headless 检索阶段不判"},
+        {"item": 16, "name": "PRISMA 流转账本 (PRISMA flow diagram data)",
+         "status": "PARTIAL",
+         "evidence": "识别/去重数字可出；初筛与纳入数字须待初筛阶段回填"},
     ]
     return {
         "framework": "PRISMA-S-2021",

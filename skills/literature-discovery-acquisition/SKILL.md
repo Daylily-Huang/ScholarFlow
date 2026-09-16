@@ -57,8 +57,10 @@ description: >-
 
 ### 阶段 2：用户确认模式后的分支加载策略
 
+> **数值口径（2026-09-15 更正）**：下列分支的**检索候选上限**即 §2.1 表与 `shared/execution/profiles.py` 的 `max_search_candidates`（quick 20 / standard 50 / deep 100）——本节此前写作 50/200/600，与本文件 §2.1 表格和代码常量**三方冲突**，已改正。**全文上限**（5/20/50）是工作流规程建议值，无代码承载，属 `HOST_EXECUTED`，不得当作已强制的硬约束。
+
 #### 🚀 分支 A：用户选择 `Quick Search`（快速探索模式，增量按需加载，精简上下文）
-- **适用**：组会讨论、热点速览、快速获取 10–30 篇顶刊代表作（候选上限 50 篇，全文上限 5 篇）。
+- **适用**：组会讨论、热点速览、快速获取 10–30 篇顶刊代表作（检索候选上限 **20** 篇，全文上限 5 篇）。
 - **允许按需读取（仅 3 篇，随用随读）**：
   1. `references/concept_matrix.md`（仅参考核心概念展开规则）
   2. `references/databases_and_tools.md`（仅参考数据源调用逻辑）
@@ -71,14 +73,14 @@ description: >-
   - `examples/` 目录下除快速案例外的长篇案例
 
 #### ⚖️ 分支 B：用户选择 `Standard Search`（标准检索模式，推荐基准，适度展开）
-- **适用**：常规文献调研、技术方案比选、概念矩阵展开与 1 轮引文扩展（候选上限 200 篇，全文上限 20 篇）。
+- **适用**：常规文献调研、技术方案比选、概念矩阵展开与 1 轮引文扩展（检索候选上限 **50** 篇，全文上限 20 篇）。
 - **按需渐进读取**：
   - `references/concept_matrix.md` 与 `references/databases_and_tools.md`（概念展开与跨源多库调用）；
   - `references/saturation_and_qc.md`（双台账覆盖核实与轻量质控）；
   - 若需要全文下载且落盘时，加载 `references/stage8_oa_download.md`。
 
 #### 🔬 分支 C：用户选择 `Deep Search`（深度系统检索模式，严格按工作流阶段流水推进）
-- **适用**：学位论文开题、基金立项申报、PRISMA 系统评价、期刊文献综述（候选上限 600 篇，全文上限 50 篇，多轮引文滚雪球）。
+- **适用**：学位论文开题、基金立项申报、PRISMA 系统评价、期刊文献综述（检索候选上限 **100** 篇，全文上限 50 篇，多轮引文滚雪球）。
 - **严禁跨阶段提前预加载**，推进到特定 Stage 时方可加载对应文件（Just-In-Time Loading）：
   - **进入 Stage 1-2 时**：读取 `references/concept_matrix.md` 与 `references/journal_mapping.md`；
   - **进入 Stage 3 时**：读取 `references/databases_and_tools.md`（若确认需学位论文，才加载 `references/theses_retrieval.md`）；

@@ -30,8 +30,19 @@ import hashlib
 import json
 import math
 import sys
+
 from pathlib import Path
 from typing import Dict, List, Tuple, Any, Optional
+
+# 保证中文产物在 zh-CN Windows（默认 cp936）上以 UTF-8 输出：上游按 UTF-8
+# 读取 stdout 时不再解码失败（P2-08 同类项，2026-09-16 普查补齐）。
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 
 VALID_STATUSES = ["Include", "Exclude", "Uncertain"]
 
@@ -178,6 +189,32 @@ def compute_source_fingerprint(path: Path) -> Optional[str]:
     return "sha256:" + hashlib.sha256(data).hexdigest()
 
 
+def compute_canonical_fingerprint(records: Dict[str, Dict[str, Any]]) -> str:
+    """裁决内容的**规范化**指纹（P2-10，2026-09-15 集群审查）。
+
+    字节级指纹只需改一个空格（重排键序、换行风格、缩进）即失效——而"同一份初筛
+    结果换个格式喂两次"是同源洗白的典型手法。此指纹与序列化形式无关。
+
+    必须覆盖**全部裁决字段**，而不只是 id→status：只看裁决大类会把"两份各自独立、
+    恰好判得一样"的正常双评阅误判为同源（既有测试
+    `test_independent_files_with_full_agreement_allowed` 正是这种情形——两份文件的
+    理由码不同）。把理由码/理由说明/任务号/置信度一并纳入，则"同一份结果换格式"
+    仍然同指纹，而独立评阅之间的实质差异得以保留。
+    """
+    parts = []
+    for rid, rec in sorted(records.items()):
+        parts.append("|".join(str(rec.get(k) or "") for k in (
+            rid, "status", "reason_code", "reason_detail", "task_id", "confidence_score")))
+    canonical = "\n".join(parts)
+    return "canon:" + hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+#: κ 的最小共同评阅样本量（P2-10）。低于此值时 κ 的方差极大，"自选子集"极易
+#: 刷出 1.000；该阈值与既有 `coverage_status` 同一约定：**告警不阻断**（rc 仍为 0），
+#: 但报告与产物必须显示非 PASS，使"小样本一致性"无法被当成顶级一致性证据。
+MIN_COMMON_RECORDS = 5
+
+
 def check_source_independence(
     path_a: Path,
     path_b: Path,
@@ -202,6 +239,16 @@ def check_source_independence(
     fp_b = compute_source_fingerprint(path_b)
     common_ids = sorted(set(rev_a_data) & set(rev_b_data))
     reasons: List[str] = []
+
+    # P2-10：字节级之外再看内容级——同一份裁决换格式（键序/缩进/换行）喂两次，
+    # 字节指纹不同但语义同源，同样必须在签发 κ 之前拦下。
+    canon_a = compute_canonical_fingerprint(rev_a_data)
+    canon_b = compute_canonical_fingerprint(rev_b_data)
+    if canon_a == canon_b and common_ids:
+        reasons.append(
+            "Reviewer A and Reviewer B carry the SAME decisions after canonicalisation "
+            "(keys/order/whitespace differences do not make two screenings independent); "
+            "kappa computed from one screening relabelled twice is not dual review.")
 
     if fp_a and fp_b and fp_a == fp_b and common_ids:
         fully_agree = all(
@@ -399,6 +446,10 @@ def calculate_cohens_kappa(
 
     return {
         "sample_size": n,
+        # P2-10：低于最小样本量时 κ 方差极大，"自选子集"极易刷出 1.000。
+        # 与 coverage_status 同一约定：告警不阻断，但产物必须显示非 PASS。
+        "sample_status": "PASS" if n >= MIN_COMMON_RECORDS else "UNDERPOWERED",
+        "min_common_records": MIN_COMMON_RECORDS,
         "categories": categories,
         "confusion_matrix": matrix,
         "observed_agreement": round(po, 4),
@@ -674,6 +725,14 @@ Examples:
     # blocking legitimately complete inputs (rc stays 0).
     coverage = check_reviewer_coverage(rev_a_data, rev_b_data)
     metrics["coverage"] = coverage
+    # P2-10：低于最小共同样本量时必须显式告警——κ 在小样本上方差极大，
+    # "自选若干条一致的记录"即可刷出 1.000，不得当作顶级一致性证据。
+    if metrics.get("sample_status") == "UNDERPOWERED":
+        sys.stderr.write(
+            "[WARNING] sample too small: only %d common record(s) (minimum %d); "
+            "kappa is not reliable at this size and a hand-picked agreeing subset "
+            "will trivially reach 1.000.\n"
+            % (metrics.get("sample_size"), metrics.get("min_common_records")))
     if coverage["coverage_warning"]:
         sys.stderr.write(
             "[WARNING] Reviewer coverage gap: Reviewer A reviewed %d/%d records, "

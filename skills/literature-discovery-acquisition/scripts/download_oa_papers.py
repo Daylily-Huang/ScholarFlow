@@ -12,6 +12,7 @@ download_oa_papers.py
 
 import os
 import sys
+
 import json
 import csv
 import re
@@ -21,8 +22,47 @@ import urllib.request
 import urllib.error
 import urllib.parse
 
+# 保证中文产物在 zh-CN Windows（默认 cp936）上以 UTF-8 输出：上游按 UTF-8
+# 读取 stdout 时不再解码失败（P2-08 同类项，2026-09-16 普查补齐）。
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 (Academic Retrieval Bot; mailto:academic_support@openacademic.org)"
 MIN_PDF_BYTES = 10240  # 10 KB
+
+
+#: 记录身份键：canonical 是 `record_id`（schemas/literature_record.schema.json），
+#: `id` 是历史别名。P2-12/15（2026-09-15 集群审查）：本模块原先只认 `id`，而
+#: `ingest_external_records.py` 只产出 `record_id`——ingest→下载这条正常链路上
+#: `rec.get("id")` 恒为 None，覆盖率门禁因此**恒报失败 rc=2**。
+RECORD_ID_KEYS = ("record_id", "id", "rec_id", "doi")
+
+
+def record_key(rec):
+    """记录的唯一身份；全部别名都缺席时返回 None（调用方须显式处理）。"""
+    for k in RECORD_ID_KEYS:
+        v = rec.get(k)
+        if v is not None and str(v).strip():
+            return str(v)
+    return None
+
+
+def screening_status_of(rec):
+    """已声明的初筛裁决；**未声明返回 None**。
+
+    P2-11（2026-09-15 集群审查）：原实现写作 `rec.get("screening_status", "Include")`
+    ——**从未初筛**的记录因此被当成 Include 直接进入 Stage 8 下载与全文获取台账。
+    「没筛过」与「筛成纳入」必须是两件事。
+    """
+    v = rec.get("screening_status")
+    if v is None:
+        return None
+    v = str(v).strip()
+    return v or None
 
 
 def sanitize_filename(title, authors=None, year=None, doc_type=None, degree_level=None):
@@ -296,6 +336,7 @@ def load_candidate_records(input_path):
 
 def run_pipeline(input_path, output_dir, max_downloads=None):
     os.makedirs(output_dir, exist_ok=True)
+    unscreened = []  # P2-11：未声明初筛裁决而被跳过的记录
 
     # 1. Parse input records. Not understanding the input is an error; an empty
     #    but well-formed result is not, and a failed upstream is preserved.
@@ -331,13 +372,19 @@ def run_pipeline(input_path, output_dir, max_downloads=None):
             print(f"[!] Reached max download limit: {max_downloads}")
             break
 
-        rec_id = rec.get("id", f"REC{idx+1:03d}")
+        rec_id = record_key(rec) or f"REC{idx+1:03d}"
         title = rec.get("title", "Untitled")
         authors = rec.get("authors", [])
         year = rec.get("year")
         doi = rec.get("doi", "NR")
-        status = rec.get("screening_status", "Include")
-        
+        status = screening_status_of(rec)
+
+        # P2-11（2026-09-15 集群审查）：未声明初筛裁决的记录**不得**被当成 Include。
+        # 它不是"筛成纳入"，而是"从未初筛"——放进 Stage 8 下载即等于绕过初筛门禁，
+        # 未初筛记录还会作为"已纳入"进入《全文获取台账》。
+        if status is None:
+            unscreened.append(rec_id)
+            continue
         # 只下载 Include 与 Uncertain
         if status not in ["Include", "Uncertain"]:
             continue
@@ -461,9 +508,10 @@ def run_pipeline(input_path, output_dir, max_downloads=None):
     # 4. 台账覆盖度自检 (Ledger Coverage Guard)：每一条 Include/Uncertain 输入
     #    记录必须出现在台账中并带三级状态之一；缺失即 FAIL（exit 2）。
     #    2026-09-06 端到端测试发现：无直链文献被静默跳过会导致台账残缺。
-    eligible = [r for r in records if r.get("screening_status", "Include") in ["Include", "Uncertain"]]
-    covered = {e.get("id") for e in ledger}
-    missing = [r.get("id", "?") for r in eligible if r.get("id") not in covered]
+    eligible = [r for r in records
+                if screening_status_of(r) in ("Include", "Uncertain")]
+    covered = {record_key(e) for e in ledger}
+    missing = [record_key(r) or "?" for r in eligible if record_key(r) not in covered]
     if missing:
         print(f"\n[!] LEDGER COVERAGE FAILURE: {len(missing)} 条 Include/Uncertain 记录未入台账: {missing[:10]}")
         print("    stage8_oa_download.md 五: 所有初筛合格文献必须归入三级状态之一。")
@@ -471,6 +519,12 @@ def run_pipeline(input_path, output_dir, max_downloads=None):
     else:
         coverage_ok = True
         print(f"\n[+] Ledger coverage check PASSED: {len(covered)}/{len(eligible)} eligible records classified.")
+
+    # P2-11：未声明初筛裁决而被跳过的记录必须显式披露，不得静默消失。
+    if unscreened:
+        print(f"\n[!] {len(unscreened)} 条记录**未声明初筛裁决**，已跳过"
+              f"（不计入下载，也不当作 Include）: {unscreened[:10]}")
+        print("    先完成双评阅人初筛并写入 screening_status，再进入 Stage 8。")
 
     print(f"\n[+] Pipeline completed!")
     print(f"    Downloaded: {downloaded_count}, Paywalled: {paywalled_count}, Failed: {failed_count}")

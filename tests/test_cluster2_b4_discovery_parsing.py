@@ -693,14 +693,21 @@ class TestH27CoverageWarning(unittest.TestCase):
 
 class TestH60PrismaItem6(unittest.TestCase):
     def test_item6_not_applicable_with_disclosure(self):
+        """P2-14：Item 6 的名称须对齐 `references/prisma_s_checklist.md`。
+
+        原断言 `"Search limits applied"` 记录的是**错版**清单——该审计此前 10 项与
+        技能自带清单对不上，其中 4 项还是 PRISMA 2020 主清单条目。canonical 的
+        Item 6 是「限定条件与理由 (Limits & Restrictions)」。
+        """
         audit = ags.build_prisma_s_audit("standard", None)
         item6 = next(i for i in audit["items"] if i["item"] == 6)
-        self.assertEqual(item6["name"], "Search limits applied")
+        self.assertIn("限定条件与理由", item6["name"])
+        self.assertIn("Limits", item6["name"])
         self.assertEqual(item6["status"], "NOT_APPLICABLE")
         evidence = item6["evidence"]
-        self.assertIn("filter", evidence.lower())
         self.assertIn("不支持", evidence)
         self.assertIn("年份", evidence)
+        self.assertIn("过滤", evidence)
 
     def test_item6_not_applicable_for_deep_and_snowball(self):
         for mode, seed in (("deep", None), ("standard", "10.1000/seed")):

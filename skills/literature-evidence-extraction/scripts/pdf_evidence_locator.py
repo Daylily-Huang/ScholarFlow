@@ -14,10 +14,20 @@ Usage:
 
 import os
 import sys
+
 import re
 import json
 import argparse
 from typing import List, Dict, Any, Optional
+
+# 保证中文产物在 zh-CN Windows（默认 cp936）上以 UTF-8 输出：上游按 UTF-8
+# 读取 stdout 时不再解码失败（P2-08 同类项，2026-09-16 普查补齐）。
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 # Attempt to import PyPDF if available, otherwise use text fallback or pure parser
 PYPDF_AVAILABLE = False

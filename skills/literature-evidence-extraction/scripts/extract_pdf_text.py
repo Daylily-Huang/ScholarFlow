@@ -41,8 +41,19 @@
 from __future__ import annotations
 
 import re
+import sys
 import zlib
 from typing import Any, Dict, List, Optional, Tuple
+
+# 保证中文产物在 zh-CN Windows（默认 cp936）上以 UTF-8 输出：本脚本以
+# `ensure_ascii=False` 输出含中文的抽取 JSON，上游按 UTF-8 读取 stdout 时
+# 不再解码失败（P2-08 同类项，2026-09-16 普查补齐）。
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 ENGINE_NAME = "pure-python-fallback"
 
