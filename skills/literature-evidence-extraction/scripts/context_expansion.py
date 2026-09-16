@@ -876,7 +876,14 @@ def classify_semantic_role(
         r"\b(we\s+hypothesize|we\s+speculate|it\s+is\s+tempting\s+to|might\s+suggest|"
         r"may\s+(?:suggest|indicate|reflect|be\s+due)|suggest(?:s|ing)?\s+that|"
         r"indicat(?:es|ing)\s+that|impl(?:ies|ying)\s+that|presumably|arguably|"
-        r"future\s+work|our\s+interpretation)\b", text_lower)
+        r"future\s+work|our\s+interpretation)\b"
+        # P2-22（2026-09-15 集群审查）：上方各支一律要求 `suggesting/indicating that`，
+        # 于是 SKILL.md 点名的那个句式——逗号 + 分词引导的解释性小句，且**没有 that**
+        # （"，suggesting a fertilization effect"）——完全漏网：Results 章里的
+        # "…showed X, suggesting Y" 被记为 CURRENT_STUDY_RESULT，与本文件
+        # interpretation_boundary 的禁令相反。逗号是这种尾随解释小句的形态判据。
+        r"|,\s*(?:suggest|indicat|impl)(?:s|ing|ed)\b",
+        text_lower)
     if is_speculation or en_speculation or cjk_discussion.search(context_text):
         return SemanticRole.DISCUSSION_INTERPRETATION, "Candidate is an interpretive statement (speculation/mechanism)"
 
@@ -1510,6 +1517,29 @@ def audit_context_sufficiency(
         checks["answers_target_need"] = True
     else:
         failures.append(f"Evidence status is {status}, not supported")
+
+    # 6. Context unit / cohort anchored
+    # P2-21（2026-09-15 集群审查）：本键原为**硬编码 True** 的死检查——初始化后再无任何
+    # 写入点，8 点清单第 6 条因此恒过，"上下文单元已锚定"从未被真正核验。现按记录的
+    # 实际绑定派生：引句所属上下文单元（实验/队列/批次）有显式标识，或候选来自结构化
+    # 定位（表/图/补充材料）才算锚定；否则如实记失败，交人工确认是否跨实验混拼。
+    unit = (evidence_record.get("context_unit")
+            or evidence_record.get("assay_context")
+            or evidence_record.get("experiment_id")
+            or (evidence_record.get("locator") or {}).get("context_unit"))
+    if not unit and candidate_context:
+        ctx_exp = candidate_context.get("context_expansion") or {}
+        unit = (ctx_exp.get("context_unit")
+                or (candidate_context.get("locator") or {}).get("context_unit"))
+        if not unit and (ctx_exp.get("structured_spans") or ctx_exp.get("spans")):
+            unit = "structured"  # 结构化定位本身就限定了上下文单元
+    if unit:
+        checks["context_unit_anchored"] = True
+    else:
+        checks["context_unit_anchored"] = False
+        failures.append(
+            "Context unit (assay / cohort / batch) is not anchored to the record; "
+            "multi-experiment isolation cannot be verified from it")
 
     # 8. Check long-distance stitching if spans provided
     if candidate_context:

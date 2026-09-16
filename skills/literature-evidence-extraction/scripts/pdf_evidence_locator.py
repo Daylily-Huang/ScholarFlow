@@ -220,10 +220,26 @@ def main():
         pages = extract_pages_from_text(input_path)
 
     total_text = " ".join([p["text"] for p in pages])
+    # P2-19（2026-09-15 集群审查）：降级标记原先只进 stderr 与内存中的
+    # `pages[0].warnings`——机器可读产物里**一个字都没有**，调用方拿到的 JSON
+    # 与"正常检索但没命中"完全同形。(a) 把抽取健康度写进产物；(b) 文本不可用时
+    # 以非零退出码硬失败，使工具性失败无法被当成"文献里没有这句话"。
+    page_warnings = []
+    for p in pages:
+        for w in (p.get("warnings") or []):
+            if w not in page_warnings:
+                page_warnings.append(w)
+    text_unavailable = "TEXT_UNAVAILABLE" in page_warnings or not total_text.strip()
     output_data = {
         "file": input_path,
         "total_pages": len(pages),
         "total_character_count": len(total_text),
+        "text_extraction": {
+            "engine": (pages[0].get("extraction_engine") if pages else None),
+            "degraded": bool(pages and pages[0].get("degraded")),
+            "text_unavailable": text_unavailable,
+            "warnings": page_warnings,
+        },
         "queries": [],
         "ocr_anomalies": []
     }
@@ -245,6 +261,15 @@ def main():
         print(f"Evidence locator results written to: {args.output}")
     else:
         print(json_str)
+
+    # P2-19：文本不可用是**工具性失败**，不是"关键词未命中"。必须以非零退出码
+    # 暴露，否则上游会把它读成"文献里没有这句话"（本文件上方注释记载的真实误判）。
+    if text_unavailable:
+        sys.stderr.write(
+            "[ERROR] TEXT_UNAVAILABLE: 未提取到任何文本（疑似扫描版/CID 编码或抽取器失败）。"
+            "产物中的 queries/ocr_anomalies 均不可作为「文献未报告」的证据；"
+            "请改用 OCR 后重跑。\n")
+        sys.exit(3)
 
 
 if __name__ == "__main__":

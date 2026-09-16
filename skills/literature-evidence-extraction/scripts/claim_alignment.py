@@ -134,6 +134,19 @@ LOWER_IS_BETTER_METRICS = (
     "latency", "delay", "cost", "failure",
 )
 
+
+def _metric_matches(metric: str, keywords) -> bool:
+    """指标名是否含给定关键词之一（**词边界**匹配）。
+
+    P2-18：原实现用 `k in m_lower` 裸子串匹配，短词根会误命中（如 `mae` 落在
+    `formed`/`maize` 内、`cost` 落在 `costal` 内）。按词边界匹配消除该类噪声。
+    """
+    text = str(metric or "").lower()
+    for k in keywords:
+        if re.search(r"(?<![a-z0-9])%s(?![a-z0-9])" % re.escape(k), text):
+            return True
+    return False
+
 # Relation/claim intent markers across disciplines (used for semantic intent routing)
 CLAIM_INTENT_PATTERNS = [
     r"(是否|怎样|如何)?(影响|导致|促成|抑制|降低|提高|增加|诱发|调控|优于|胜过|超越|取食|捕食)",
@@ -707,10 +720,21 @@ def _verify_claim_alignment_impl(
             # 白名单外的指标一律 UNKNOWN_METRIC_DIRECTION + eligible=False，交人工。
             metric_direction = table_bundle.get("metric_direction")
             if not metric_direction:
-                m_lower = metric.lower()
-                if any(k in m_lower for k in HIGHER_IS_BETTER_METRICS):
+                # P2-18（2026-09-15 集群审查）：原实现 (a) 用**子串**匹配、(b) 先判
+                # HIGHER——于是 `yield loss` / `germination failure` / `biomass loss`
+                # 都命中 HIGHER 侧词根，被判 HIGHER_IS_BETTER，**反向结论被确认为
+                # SUPPORTED**。(b) 单纯调换顺序同样不行：`loss reduction` 该判 HIGHER
+                # 而 `yield loss` 该判 LOWER，任何"一侧优先"的规则都会猜错一类。
+                # 因此：两侧都命中 = 信号冲突 = UNKNOWN（fail-closed，交人工），
+                # 与本文件 H-04 的取向一致（白名单外一律 UNKNOWN_METRIC_DIRECTION
+                # 且 eligible=False）；仅一侧命中才判方向。词边界匹配消除子串误命中。
+                higher_hit = _metric_matches(metric, HIGHER_IS_BETTER_METRICS)
+                lower_hit = _metric_matches(metric, LOWER_IS_BETTER_METRICS)
+                if higher_hit and lower_hit:
+                    metric_direction = None  # 冲突：不猜，交人工
+                elif higher_hit:
                     metric_direction = "HIGHER_IS_BETTER"
-                elif any(k in m_lower for k in LOWER_IS_BETTER_METRICS):
+                elif lower_hit:
                     metric_direction = "LOWER_IS_BETTER"
 
             if metric_direction == "HIGHER_IS_BETTER":

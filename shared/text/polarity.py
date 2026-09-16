@@ -452,6 +452,7 @@ def check_polarity(claim_text: str, evidence_text: str,
             elif merged_side != side:
                 merged[idx] = "BOTH"
     relevant_negated = all(neg_flags) if neg_flags else False
+    evidence_direction_missing = False  # P2-17：证据侧无任何方向词
 
     # 1) 反义类比较（方向词折算否定/反转后比）
     claim_classes = claim_sig["classes"]
@@ -479,11 +480,26 @@ def check_polarity(claim_text: str, evidence_text: str,
                             "reason": ("polarity unresolved: claim direction (class %d) "
                                        "has no comparable direction token in the bound "
                                        "evidence clause" % idx)}
+                # P2-17（2026-09-15 集群审查）：证据侧**完全没有任何方向词**时，旧实现
+                # 静默 `continue`——循环走完返回 None，被当作"方向一致"。于是词表外的
+                # 反向结论（attenuated / blunted 等未收录的反义词）会被确认为
+                # SUPPORTED 且 is_confirmed_eligible=true、退出码 0。"证据没给方向"
+                # 不是"方向一致"，而是**不可比**。
+                # 不在此处直接返回：先让其余反义类跑完，避免掩蔽真正的 CONTRADICTORY，
+                # 循环结束后仍无矛盾再按 fail-closed 交人工。
+                evidence_direction_missing = True
                 continue
             if ev_side != claim_side:
                 return {"verdict": "CONTRADICTORY",
                         "reason": ("polarity mismatch on antonym class %d: claim=%s "
                                    "evidence=%s" % (idx, claim_side, ev_side))}
+        if evidence_direction_missing:
+            # P2-17：主张有方向而证据侧一个方向词都没有 —— 不可比，不得当作一致。
+            # （必须放在本分支的 `return None` 之前：该 return 是"方向一致"的出口。）
+            return {"verdict": "UNRESOLVED",
+                    "reason": ("polarity unresolved: the claim carries a direction but "
+                               "the bound evidence contains no comparable direction token; "
+                               "absence of a direction word is not agreement")}
         return None
 
     # 2) 无反义类可比时，退回否定奇偶比较（限定相关子句；多子句奇偶打架 → 交人工）

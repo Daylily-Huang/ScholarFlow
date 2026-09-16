@@ -189,15 +189,23 @@ def test_pipeline_cli_evidence_chain_flag():
 
 
 def test_builder_validates_by_default():
-    """build_extraction_result 默认必须真的校验（修复前只字未提校验）。"""
+    """build_extraction_result_envelope 默认必须真的校验（修复前只字未提校验）。
+
+    P2-20（2026-09-16 集群审查）：本测试原写作
+    `if not hasattr(ep, "build_extraction_result"): return`——而**该函数名根本不存在**
+    （真实名是 `build_extraction_result_envelope`），于是这条断言从未执行过一次，
+    却一直显示为通过。守卫"防脆弱"的写法把测试变成了永久空操作。
+    现改为**显式断言函数存在**，并在名字再变时立刻失败。
+    """
     sys.path.insert(0, str(REPO / "skills" / "literature-evidence-extraction" / "scripts"))
     import importlib.util
     spec = importlib.util.spec_from_file_location("ep", PIPELINE)
     ep = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(ep)
-    if not hasattr(ep, "build_extraction_result"):
-        return  # 函数名变动则跳过，避免测试脆弱
-    env = ep.build_extraction_result(
+    assert hasattr(ep, "build_extraction_result_envelope"), (
+        "extraction_pipeline 未导出 build_extraction_result_envelope；"
+        "SKILL.md 与测试必须同步改名（不得再用 hasattr 静默跳过）")
+    env = ep.build_extraction_result_envelope(
         paper_metadata={"title": "T", "authors": ["A"], "year": 2007},
         evidence_records=[{
             "schema_version": "1.0", "evidence_id": "E1", "record_id": "R1",

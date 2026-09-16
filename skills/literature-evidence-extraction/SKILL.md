@@ -191,7 +191,7 @@ flowchart TD
 python skills/literature-evidence-extraction/scripts/extraction_pipeline.py -i <result.json> --evidence-chain
 ```
 - `shared/validation/schema_gate.py`：有 `jsonschema` 时走 Draft 2020-12 + `$ref` 解析；无则退化为 stdlib 结构校验（模式标为 `structural-fallback`），**不会静默不校验**。
-- `build_extraction_result(..., validate=True)` 默认校验，违约即抛 `SchemaGateError`。
+- `build_extraction_result_envelope(..., validate=True)` 默认校验，违约即抛 `SchemaGateError`。（2026-09-16 更正：本节此前写作 `build_extraction_result`，**该函数不存在**；守护它的回归测试因带 `hasattr` 守卫而永久空操作，两边一起静默。）
 - `--evidence-chain` 校验**审计交接完整性**：auditor 裁决必须带 evidence id 且覆盖全部记录。实测四环节 record_id 交集为 0（specialist `SF2-A1-…` / auditor `'G1 T105'` / merge `R3-A-01`），导致报告中任一证据无法反查原始记录。
 - **schema 不能替代值核验**：`extracted_value` 为字符串类型，`"95.4%"` 与 `"55.4%"` 在 schema 眼里同构；忠实性由 `quote_audit.py` 的值—引文对齐负责。
 
