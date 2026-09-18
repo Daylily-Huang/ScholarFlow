@@ -287,16 +287,17 @@ flowchart TD
 1. **合法 OA 解析（当前**仅 OpenAlex 一路已实现**）**：
    - **已实现**：OpenAlex `best_oa_location.pdf_url` 与备选 `primary_location.pdf_url`（`download_oa_papers.py: query_openalex_oa()`）；
    - **未实现**：Europe PMC 全文直链、bioRxiv/medRxiv/arXiv 预印本、Unpaywall 与机构知识库绿色 OA。`references/stage8_oa_download.md` §二 把它们写成了既有机制，但脚本内**无对应解析器**（`grep -n "europepmc\|arxiv\|unpaywall\|biorxiv" download_oa_papers.py` 无命中）。因此只跑过 OpenAlex 的台账**不得**据此声称"穷尽合法 OA 与机构获取路径"（见 Gate B 第 8 项）；未覆盖渠道须列入待获取缺口；
-2. **流式安全下载至本地目录**：
-   - 默认保存在 `papers/downloads/`（用户可配置为 Zotero 自动监听文件夹 Watch Folder）；
+2. **流式安全下载与分类归档 (Categorized Storage & .intermediate Hiding)**：
+   - **产物分类隔离**：全文 PDF 自动保存至 `pdfs/`，HTML 全文与交互报告保存至 `htmls/`，终版数据集保存至 `metadata/`，交付综述报告保存至 `reports/`；
+   - **中间过程隐藏**：单篇独立配对的 `<Name>.csl.json`、双盲初筛过程记录（`reviewer_a/b.json`、`screening_dual_audit.csv`）、检索覆盖原始流水（`raw_discovery.json`）与临时抽取文本统一收纳入 `.intermediate/`（系统默认隐藏目录），既保留严谨可追溯证据链，又实现工作区清爽；
    - 标准化命名：普通论文 `<Year>_<FirstAuthor>_<TitleSlug>.pdf`，学位论文 `<Year>_<Degree>_<Author>_<TitleSlug>.pdf`；
 3. **严苛二进制魔数核验 (%PDF-)**：
    - 检查文件前 5 字节必须以 `%PDF-` 开头，且体积 $\ge 10\text{ KB}$；彻底拦截 403/404 HTML 伪装页面；
 4. **双层 CSL-JSON 生成 (Zotero 原生导入)**：
-   - 为每个成功下载的 PDF 在同级目录配套生成单篇同名 `<Name>.csl.json`；
-   - 自动在下载目录根部编译生成全局总汇池 `zotero_import.csl.json`；
+   - 为每个成功下载的 PDF 在 `.intermediate/csl_singles/` 配套生成单篇同名 `<Name>.csl.json`；
+   - 自动在 `metadata/`（并兼容镜像至根目录）编译生成全局总汇池 `zotero_import.csl.json`，其中 `file` 字段相对路径自动适配为 `pdfs/<filename>`；
 5. **输出《全文获取台账》**：
-   - 分类汇总 `OA_DOWNLOADED`、`PREPRINT_AVAILABLE`、`PAYWALLED`（附带官方 DOI 与机构/校园网访问指引）。
+   - 分类汇总 `OA_DOWNLOADED`、`PREPRINT_AVAILABLE`、`PAYWALLED`（附带官方 DOI 与机构/校园网访问指引），写入 `reports/download_ledger.md` 并镜像至根目录。
 
 ---
 

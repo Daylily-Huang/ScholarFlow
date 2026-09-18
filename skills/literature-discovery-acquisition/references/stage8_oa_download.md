@@ -69,9 +69,13 @@ flowchart TD
 
 ## 三、下载流控与文件命名标准化规范
 
-### 1. 存储路径标准
-默认保存至项目文献库的下载子目录：
-`papers/downloads/`（或根据用户在 Grill-Me 环节指定的目录）。
+### 1. 存储路径与分类归档标准
+默认在项目文献目录（如 `papers/`）启用**结构化分类与隐藏收纳**：
+- **`pdfs/`**：存放所有通过 `%PDF-` 完整性核验的有效 PDF 全文文件；
+- **`htmls/`**：存放 HTML 全文网页快照与可视化交互报告；
+- **`metadata/`**：存放汇总的结构化数据（`discovery_result.json`、`zotero_import.csl.json`、`download_ledger.json`）；
+- **`reports/`**：存放面向阅读的最终报告（`download_ledger.md`）；
+- **`.intermediate/`**：收纳隐藏中间产物（单篇 `.csl.json` 归于 `csl_singles/`，初筛快照归于 `screening/`，临时文本归于 `text_dumps/`）。
 
 ### 2. 标准化文件命名 (Sanitized Naming)
 为了保证跨操作系统兼容性与清晰检索，文件名统一采用以下结构：

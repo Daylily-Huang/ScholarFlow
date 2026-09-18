@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 download_oa_papers.py
@@ -334,9 +334,29 @@ def load_candidate_records(input_path):
     raise InputContractError("Unsupported file format: %s" % input_path)
 
 
-def run_pipeline(input_path, output_dir, max_downloads=None):
+def run_pipeline(input_path, output_dir, max_downloads=None, categorized=True):
     os.makedirs(output_dir, exist_ok=True)
     unscreened = []  # P2-11：未声明初筛裁决而被跳过的记录
+
+    if categorized:
+        pdf_dir = os.path.join(output_dir, "pdfs")
+        html_dir = os.path.join(output_dir, "htmls")
+        meta_dir = os.path.join(output_dir, "metadata")
+        reports_dir = os.path.join(output_dir, "reports")
+        intermediate_dir = os.path.join(output_dir, ".intermediate")
+        csl_singles_dir = os.path.join(intermediate_dir, "csl_singles")
+        os.makedirs(pdf_dir, exist_ok=True)
+        os.makedirs(html_dir, exist_ok=True)
+        os.makedirs(meta_dir, exist_ok=True)
+        os.makedirs(reports_dir, exist_ok=True)
+        os.makedirs(csl_singles_dir, exist_ok=True)
+    else:
+        pdf_dir = output_dir
+        html_dir = output_dir
+        meta_dir = output_dir
+        reports_dir = output_dir
+        intermediate_dir = output_dir
+        csl_singles_dir = output_dir
 
     # 1. Parse input records. Not understanding the input is an error; an empty
     #    but well-formed result is not, and a failed upstream is preserved.
@@ -421,23 +441,24 @@ def run_pipeline(input_path, output_dir, max_downloads=None):
             doc_type = rec.get("document_type")
             degree_level = rec.get("degree_level")
             filename = sanitize_filename(title, authors, year, doc_type, degree_level)
-            target_path = os.path.join(output_dir, filename)
+            target_path = os.path.join(pdf_dir, filename)
+            saved_relative = f"pdfs/{filename}" if categorized else filename
             
             print(f"    Downloading to: {filename}")
             ok, msg = download_file(pdf_url, target_path)
             if ok:
                 downloaded_count += 1
                 ledger_entry["status"] = "OA_DOWNLOADED" if oa_status != "green" else "PREPRINT_AVAILABLE"
-                ledger_entry["saved_file"] = filename
+                ledger_entry["saved_file"] = saved_relative
                 ledger_entry["note"] = f"Downloaded successfully ({msg})"
                 print(f"    [+] Success: {filename}")
 
-                # 1. 生成单篇配对的 CSL-JSON
-                csl_item = build_csl_item(rec, saved_filename=filename)
+                # 1. 生成单篇配对的 CSL-JSON (在 .intermediate/csl_singles 或 output_dir)
+                csl_item = build_csl_item(rec, saved_filename=saved_relative)
                 csl_library.append(csl_item)
                 
                 base_name = os.path.splitext(filename)[0]
-                csl_single_path = os.path.join(output_dir, f"{base_name}.csl.json")
+                csl_single_path = os.path.join(csl_singles_dir, f"{base_name}.csl.json")
                 with open(csl_single_path, 'w', encoding='utf-8') as f_csl:
                     json.dump(csl_item, f_csl, indent=2, ensure_ascii=False)
             else:
@@ -462,48 +483,60 @@ def run_pipeline(input_path, output_dir, max_downloads=None):
         time.sleep(0.5)  # 礼貌请求间隔
 
     # 2. 输出台账 (JSON & Markdown)
-    ledger_json_path = os.path.join(output_dir, "download_ledger.json")
+    ledger_json_path = os.path.join(meta_dir, "download_ledger.json")
     with open(ledger_json_path, 'w', encoding='utf-8') as f:
         json.dump(ledger, f, indent=2, ensure_ascii=False)
+    if categorized:
+        with open(os.path.join(output_dir, "download_ledger.json"), 'w', encoding='utf-8') as f:
+            json.dump(ledger, f, indent=2, ensure_ascii=False)
 
     # 3. 输出全局 Zotero 导入集合 CSL-JSON
     if csl_library:
-        zotero_csl_path = os.path.join(output_dir, "zotero_import.csl.json")
+        zotero_csl_path = os.path.join(meta_dir, "zotero_import.csl.json")
         with open(zotero_csl_path, 'w', encoding='utf-8') as f_zot:
             json.dump(csl_library, f_zot, indent=2, ensure_ascii=False)
         print(f"    [+] Generated Zotero Watch Folder pool: {zotero_csl_path} ({len(csl_library)} items)")
+        if categorized:
+            with open(os.path.join(output_dir, "zotero_import.csl.json"), 'w', encoding='utf-8') as f_zot:
+                json.dump(csl_library, f_zot, indent=2, ensure_ascii=False)
 
-    ledger_md_path = os.path.join(output_dir, "download_ledger.md")
-    with open(ledger_md_path, 'w', encoding='utf-8') as f:
-        f.write("# 全文文献获取台账 (Full-Text Acquisition Ledger)\n\n")
-        f.write(f"- **总审查记录数**：{len(ledger)}\n")
-        f.write(f"- **已下载成功 (OA / 预印本)**：{downloaded_count}\n")
-        f.write(f"- **需商业权限 (Paywalled)**：{paywalled_count}\n")
-        f.write(f"- **下载受阻失败**：{failed_count}\n\n")
-        f.write("## 详细文献获取明细\n\n")
-        f.write("| ID | 标题 | 第一作者 | 年份 | DOI | 获取状态 | 本地文件名 / 访问指引 |\n")
-        f.write("|---|---|---|:---:|---|:---:|---|\n")
-        for entry in ledger:
-            st = entry["status"]
-            if st in ["OA_DOWNLOADED", "PREPRINT_AVAILABLE"]:
-                badge = "🟢 已下载"
-            elif st == "PAYWALLED":
-                badge = "🔒 付费墙"
-            elif st == "OA_BOT_BLOCKED":
-                badge = "🟠 OA-反爬拦截(免费)"
-            else:
-                badge = "🔴 失败"
-            author = entry["authors"][0] if entry.get("authors") else "Unknown"
-            doi_link = f"[{entry['doi']}](https://doi.org/{entry['doi']})" if entry.get("doi") and entry["doi"] != "NR" else "NR"
-            if entry["saved_file"]:
-                loc = entry["saved_file"]
-            elif st == "OA_BOT_BLOCKED":
-                loc = "浏览器打开上方 DOI 直链免费下载"
-            elif st == "PAYWALLED":
-                loc = "校园网 IP 内访问 DOI / 馆际互借(CALIS/NSTL)"
-            else:
-                loc = entry["note"]
-            f.write(f"| {entry['id']} | {entry['title']} | {author} | {entry['year']} | {doi_link} | {badge} | {loc} |\n")
+    ledger_md_path = os.path.join(reports_dir, "download_ledger.md")
+
+    def _write_ledger_md(target_md_path):
+        with open(target_md_path, 'w', encoding='utf-8') as f:
+            f.write("# 全文文献获取台账 (Full-Text Acquisition Ledger)\n\n")
+            f.write(f"- **总审查记录数**：{len(ledger)}\n")
+            f.write(f"- **已下载成功 (OA / 预印本)**：{downloaded_count}\n")
+            f.write(f"- **需商业权限 (Paywalled)**：{paywalled_count}\n")
+            f.write(f"- **下载受阻失败**：{failed_count}\n\n")
+            f.write("## 详细文献获取明细\n\n")
+            f.write("| ID | 标题 | 第一作者 | 年份 | DOI | 获取状态 | 本地文件名 / 访问指引 |\n")
+            f.write("|---|---|---|:---:|---|:---:|---|\n")
+            for entry in ledger:
+                st = entry["status"]
+                if st in ["OA_DOWNLOADED", "PREPRINT_AVAILABLE"]:
+                    badge = "🟢 已下载"
+                elif st == "PAYWALLED":
+                    badge = "🔒 付费墙"
+                elif st == "OA_BOT_BLOCKED":
+                    badge = "🟠 OA-反爬拦截(免费)"
+                else:
+                    badge = "🔴 失败"
+                author = entry["authors"][0] if entry.get("authors") else "Unknown"
+                doi_link = f"[{entry['doi']}](https://doi.org/{entry['doi']})" if entry.get("doi") and entry["doi"] != "NR" else "NR"
+                if entry["saved_file"]:
+                    loc = entry["saved_file"]
+                elif st == "OA_BOT_BLOCKED":
+                    loc = "浏览器打开上方 DOI 直链免费下载"
+                elif st == "PAYWALLED":
+                    loc = "校园网 IP 内访问 DOI / 馆际互借(CALIS/NSTL)"
+                else:
+                    loc = entry["note"]
+                f.write(f"| {entry['id']} | {entry['title']} | {author} | {entry['year']} | {doi_link} | {badge} | {loc} |\n")
+
+    _write_ledger_md(ledger_md_path)
+    if categorized:
+        _write_ledger_md(os.path.join(output_dir, "download_ledger.md"))
 
     # 4. 台账覆盖度自检 (Ledger Coverage Guard)：每一条 Include/Uncertain 输入
     #    记录必须出现在台账中并带三级状态之一；缺失即 FAIL（exit 2）。
@@ -532,14 +565,92 @@ def run_pipeline(input_path, output_dir, max_downloads=None):
     return 0 if coverage_ok else 2
 
 
+def organize_directory(target_dir: str):
+    """整理已有杂乱目录：将各类文件归拢到规范子目录，隐藏单篇 CSL 与临时中间文件。"""
+    if not os.path.isdir(target_dir):
+        raise NotADirectoryError(f"Directory not found: {target_dir}")
+
+    import shutil
+
+    pdf_dir = os.path.join(target_dir, "pdfs")
+    html_dir = os.path.join(target_dir, "htmls")
+    meta_dir = os.path.join(target_dir, "metadata")
+    reports_dir = os.path.join(target_dir, "reports")
+    intermediate_dir = os.path.join(target_dir, ".intermediate")
+    csl_dir = os.path.join(intermediate_dir, "csl_singles")
+    screening_dir = os.path.join(intermediate_dir, "screening")
+    text_dir = os.path.join(intermediate_dir, "text_dumps")
+
+    for d in (pdf_dir, html_dir, meta_dir, reports_dir, csl_dir, screening_dir, text_dir):
+        os.makedirs(d, exist_ok=True)
+
+    stats = {
+        "pdfs": 0,
+        "htmls": 0,
+        "csl_singles": 0,
+        "text_dumps": 0,
+        "screening": 0,
+        "metadata": 0,
+        "reports": 0
+    }
+
+    for item in os.listdir(target_dir):
+        src = os.path.join(target_dir, item)
+        if not os.path.isfile(src):
+            continue
+        lower = item.lower()
+
+        if lower.endswith(".pdf"):
+            shutil.move(src, os.path.join(pdf_dir, item))
+            stats["pdfs"] += 1
+        elif lower.endswith(".html") or lower.endswith(".htm"):
+            shutil.move(src, os.path.join(html_dir, item))
+            stats["htmls"] += 1
+        elif lower.endswith(".csl.json"):
+            if "zotero_import" in lower:
+                shutil.copy2(src, os.path.join(meta_dir, item))
+                stats["metadata"] += 1
+            else:
+                shutil.move(src, os.path.join(csl_dir, item))
+                stats["csl_singles"] += 1
+        elif lower.endswith(".txt") and item not in ("executable_query.txt", "requirements.txt"):
+            shutil.move(src, os.path.join(text_dir, item))
+            stats["text_dumps"] += 1
+        elif ("reviewer" in lower or "screening" in lower) and (lower.endswith(".json") or lower.endswith(".csv")):
+            shutil.move(src, os.path.join(screening_dir, item))
+            stats["screening"] += 1
+        elif item in ("download_ledger.json", "discovery_result.json", "raw_discovery.json", "external_ingested.json"):
+            shutil.copy2(src, os.path.join(meta_dir, item))
+            stats["metadata"] += 1
+        elif lower.endswith(".md"):
+            shutil.copy2(src, os.path.join(reports_dir, item))
+            stats["reports"] += 1
+
+    return stats
+
+
 def main():
     parser = argparse.ArgumentParser(description="Download Open Access academic papers and audit integrity.")
-    parser.add_argument("-i", "--input", required=True, help="Path to candidate literature JSON or CSV file")
+    parser.add_argument("-i", "--input", help="Path to candidate literature JSON or CSV file")
     parser.add_argument("-o", "--output-dir", default="papers/downloads", help="Directory to save downloaded PDFs")
     parser.add_argument("--max-downloads", type=int, default=None, help="Maximum number of papers to download")
+    parser.add_argument("--flat", action="store_true", default=False, help="Use legacy flat output directory layout")
+    parser.add_argument("--organize", type=str, default=None, help="Reorganize an existing cluttered output directory into categorized folders")
 
     args = parser.parse_args()
-    sys.exit(run_pipeline(args.input, args.output_dir, args.max_downloads))
+
+    if args.organize:
+        stats = organize_directory(args.organize)
+        print(f"[+] Successfully reorganized: {args.organize}")
+        for k, v in stats.items():
+            if v > 0:
+                print(f"    - {k}: {v} files organized")
+        sys.exit(0)
+
+    if not args.input:
+        parser.error("-i/--input is required when not using --organize")
+
+    sys.exit(run_pipeline(args.input, args.output_dir, args.max_downloads, categorized=not args.flat))
 
 
 if __name__ == "__main__":
