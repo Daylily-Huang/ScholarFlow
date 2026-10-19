@@ -1,0 +1,27 @@
+name: editable-research-ppt
+on:
+  push:
+    paths: ['skills/editable-research-ppt/**', '.github/workflows/research-ppt.yml']
+  pull_request:
+    paths: ['skills/editable-research-ppt/**', '.github/workflows/research-ppt.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  portable-generation:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ['3.10', '3.12']
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: skills/editable-research-ppt
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -I -S -B scripts/check_environment.py
+      - run: python -I -S -B tests/test_portable.py

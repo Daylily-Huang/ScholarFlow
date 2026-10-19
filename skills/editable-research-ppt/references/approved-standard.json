@@ -1,0 +1,16 @@
+{
+  "id": "approved-solid-v1.1",
+  "user_approved_date": "2026-10-19",
+  "rule": "保留确认的字号、图文比例、原生对象与左右留白。换内容先精简或拆页，不自动缩小字号；颜色只使用已确认主题。",
+  "approved_examples": {
+    "solid-showcase.pptx": "bbd0b165176023f14ad37f63321ae8b7d66006e43f2a8f02d9842e6109b018a4",
+    "solid-all-layouts.pptx": "b81f3b00131ef7ecaa21bb90848552c28e1c0ce82f27825956c2a3a4a17aedbc",
+    "fill-comparison.pptx": "d27e54d4495ff840a605e7bd6d8405d3cb7aa12f3fe18a787470be71fadccad7"
+  },
+  "design_files": {
+    "scripts/generate.py": "cd35f9ad12220741e52964cf3cb6fcb0c6fbe0b52b2145c00e846034897f5379",
+    "scripts/fill_styles.py": "701fade93e2123c0834c1936cdfa6a49b5268bd5267fdab789213f9a22b37dee",
+    "assets/templates/library.pptx": "da7b2f6d3109357d7aea7e3d206859d271ae8385fa416e77a5e9e06afbbae780",
+    "assets/templates/bindings.json": "a784832d40efc3857cd56166302b3bc06c8fa3f6fac3319e20917c0d5b1771e0"
+  }
+}

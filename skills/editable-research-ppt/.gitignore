@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+~$*
+test-output/
+my-talk.pptx
+editing-probe.pptx

@@ -17,6 +17,18 @@
 
 ---
 
+## 🖥️ 可编辑科研 PPT 扩展
+
+新增 [editable-research-ppt](skills/editable-research-ppt/README.md)：学术分享、课程作业、实验进展三种场景，六套配色、两种填充风格、十四种版式。文字、框图、表格与数据图优先保留原生可编辑对象。
+
+[![四页实际 PowerPoint 效果](skills/editable-research-ppt/examples/promo/overview.png)](skills/editable-research-ppt/examples/promo/README.md)
+
+[下载四页可编辑 PPTX](skills/editable-research-ppt/examples/promo/showcase.pptx) · [更多样板与安装方法](skills/editable-research-ppt/README.md) · [三场景换内容样板](skills/editable-research-ppt/examples/stable-academic.pptx)
+
+PPT 扩展仅需 Python 3.10+ 标准库，随包提供 OFL 字体；生成无需 Office，预览/编辑需演示软件。代码与文档为 MIT，字体保留 OFL 许可。精细插画为独立图片，所有演示数据均为合成示意。本扩展独立于下方四个科研构想与文献核心技能，不改变其科研证据契约。
+
+---
+
 ## 📖 简介 (Introduction)
 
 **ScholarFlow** 是为 AI 编程助手与自主智能体（Claude Code、Google Antigravity、Codex、Cursor 等）量身定制的**全生命周期科研构想推敲与文献调研智能体技能套件（Agent Skills Suite）**。

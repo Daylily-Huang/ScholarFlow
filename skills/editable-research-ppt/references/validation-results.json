@@ -1,0 +1,487 @@
+{
+  "academic": {
+    "source": "academic.pptx",
+    "application": "PowerPoint",
+    "opened": true,
+    "slides": [
+      {
+        "slide": 1,
+        "text": 7,
+        "charts": 0,
+        "pictures": 1,
+        "tables": 0,
+        "shapes": 21
+      },
+      {
+        "slide": 2,
+        "text": 25,
+        "charts": 0,
+        "pictures": 0,
+        "tables": 0,
+        "shapes": 80
+      },
+      {
+        "slide": 3,
+        "text": 9,
+        "charts": 0,
+        "pictures": 1,
+        "tables": 0,
+        "shapes": 44
+      },
+      {
+        "slide": 4,
+        "text": 37,
+        "charts": 1,
+        "pictures": 1,
+        "tables": 0,
+        "shapes": 153
+      },
+      {
+        "slide": 5,
+        "text": 14,
+        "charts": 0,
+        "pictures": 7,
+        "tables": 1,
+        "shapes": 30
+      },
+      {
+        "slide": 6,
+        "text": 28,
+        "charts": 2,
+        "pictures": 0,
+        "tables": 0,
+        "shapes": 91
+      },
+      {
+        "slide": 7,
+        "text": 21,
+        "charts": 4,
+        "pictures": 0,
+        "tables": 0,
+        "shapes": 41
+      },
+      {
+        "slide": 8,
+        "text": 8,
+        "charts": 0,
+        "pictures": 1,
+        "tables": 0,
+        "shapes": 53
+      }
+    ],
+    "overflows": [],
+    "edit_probe": true,
+    "version": "16.0",
+    "slide_count": 8,
+    "text_persisted": true,
+    "move_persisted": true,
+    "workbook_value_persisted": true,
+    "probe_original_value": 4.0,
+    "sha256": "cf3aa00deecaa631e0c4097c3e21e3cbf7f69a7bd610ad01ce702581ff1c0147",
+    "structure": {
+      "ok": true,
+      "file": "academic.pptx",
+      "counts": {
+        "slides": 8,
+        "text_shapes": 149,
+        "charts": 7,
+        "tables": 1,
+        "connectors": 14,
+        "pictures": 11,
+        "cache_cells": 272
+      },
+      "errors": [],
+      "scope": "Structure and cached series/workbook agreement; no scientific validation or rendered-layout proof. Custom error bars are literal, not workbook-linked."
+    },
+    "rendered_sha256": "b9e931f7cc4fe8eea93b0c713821bb3b747f7cec90f688093acdc74ed7dfdc56",
+    "post_render_change": "Chart source labels added to notes only; all other package parts byte-identical."
+  },
+  "coursework": {
+    "source": "coursework.pptx",
+    "application": "PowerPoint",
+    "opened": true,
+    "slides": [
+      {
+        "slide": 1,
+        "text": 7,
+        "charts": 0,
+        "pictures": 1,
+        "tables": 0,
+        "shapes": 21
+      },
+      {
+        "slide": 2,
+        "text": 18,
+        "charts": 2,
+        "pictures": 0,
+        "tables": 1,
+        "shapes": 83
+      },
+      {
+        "slide": 3,
+        "text": 14,
+        "charts": 0,
+        "pictures": 7,
+        "tables": 1,
+        "shapes": 30
+      },
+      {
+        "slide": 4,
+        "text": 34,
+        "charts": 0,
+        "pictures": 0,
+        "tables": 0,
+        "shapes": 124
+      },
+      {
+        "slide": 5,
+        "text": 27,
+        "charts": 0,
+        "pictures": 0,
+        "tables": 0,
+        "shapes": 90
+      },
+      {
+        "slide": 6,
+        "text": 8,
+        "charts": 0,
+        "pictures": 1,
+        "tables": 0,
+        "shapes": 53
+      }
+    ],
+    "overflows": [],
+    "edit_probe": true,
+    "version": "16.0",
+    "slide_count": 6,
+    "text_persisted": true,
+    "move_persisted": true,
+    "workbook_value_persisted": true,
+    "probe_original_value": 25.0,
+    "sha256": "7e05e7f314f40cfe9875975ce05682074f11dff9eea39d650b82fb5fb2cb8227",
+    "structure": {
+      "ok": true,
+      "file": "coursework.pptx",
+      "counts": {
+        "slides": 6,
+        "text_shapes": 108,
+        "charts": 2,
+        "tables": 2,
+        "connectors": 0,
+        "pictures": 9,
+        "cache_cells": 16
+      },
+      "errors": [],
+      "scope": "Structure and cached series/workbook agreement; no scientific validation or rendered-layout proof. Custom error bars are literal, not workbook-linked."
+    },
+    "rendered_sha256": "fd2c86f50320372bb87320f54d8255174c028b954875c6311db090b9523ea7b8",
+    "post_render_change": "Chart source labels added to notes only; all other package parts byte-identical."
+  },
+  "progress": {
+    "source": "progress.pptx",
+    "application": "PowerPoint",
+    "opened": true,
+    "slides": [
+      {
+        "slide": 1,
+        "text": 7,
+        "charts": 0,
+        "pictures": 1,
+        "tables": 0,
+        "shapes": 21
+      },
+      {
+        "slide": 2,
+        "text": 24,
+        "charts": 2,
+        "pictures": 1,
+        "tables": 0,
+        "shapes": 98
+      },
+      {
+        "slide": 3,
+        "text": 23,
+        "charts": 0,
+        "pictures": 0,
+        "tables": 1,
+        "shapes": 72
+      },
+      {
+        "slide": 4,
+        "text": 25,
+        "charts": 1,
+        "pictures": 0,
+        "tables": 1,
+        "shapes": 141
+      },
+      {
+        "slide": 5,
+        "text": 21,
+        "charts": 4,
+        "pictures": 0,
+        "tables": 0,
+        "shapes": 41
+      },
+      {
+        "slide": 6,
+        "text": 8,
+        "charts": 0,
+        "pictures": 1,
+        "tables": 0,
+        "shapes": 53
+      }
+    ],
+    "overflows": [],
+    "edit_probe": true,
+    "version": "16.0",
+    "slide_count": 6,
+    "text_persisted": true,
+    "move_persisted": true,
+    "workbook_value_persisted": true,
+    "probe_original_value": 50.0,
+    "sha256": "d3796520bbf1d836196fbf2106192797c04b0a8e05873dfbdc213ea083e71d5a",
+    "structure": {
+      "ok": true,
+      "file": "progress.pptx",
+      "counts": {
+        "slides": 6,
+        "text_shapes": 108,
+        "charts": 7,
+        "tables": 2,
+        "connectors": 3,
+        "pictures": 3,
+        "cache_cells": 386
+      },
+      "errors": [],
+      "scope": "Structure and cached series/workbook agreement; no scientific validation or rendered-layout proof. Custom error bars are literal, not workbook-linked."
+    },
+    "rendered_sha256": "86d150a1067f173256cbf7294f697524c4e061a1a8dba31ed743bc47b8f429d6",
+    "post_render_change": "Chart source labels added to notes only; all other package parts byte-identical."
+  },
+  "palettes": {
+    "source": "palettes.pptx",
+    "application": "PowerPoint",
+    "opened": true,
+    "slides": [
+      {
+        "slide": 1,
+        "text": 21,
+        "charts": 4,
+        "pictures": 0,
+        "tables": 0,
+        "shapes": 41
+      },
+      {
+        "slide": 2,
+        "text": 21,
+        "charts": 4,
+        "pictures": 0,
+        "tables": 0,
+        "shapes": 41
+      },
+      {
+        "slide": 3,
+        "text": 21,
+        "charts": 4,
+        "pictures": 0,
+        "tables": 0,
+        "shapes": 41
+      },
+      {
+        "slide": 4,
+        "text": 21,
+        "charts": 4,
+        "pictures": 0,
+        "tables": 0,
+        "shapes": 41
+      },
+      {
+        "slide": 5,
+        "text": 21,
+        "charts": 4,
+        "pictures": 0,
+        "tables": 0,
+        "shapes": 41
+      },
+      {
+        "slide": 6,
+        "text": 21,
+        "charts": 4,
+        "pictures": 0,
+        "tables": 0,
+        "shapes": 41
+      }
+    ],
+    "overflows": [],
+    "edit_probe": true,
+    "version": "16.0",
+    "slide_count": 6,
+    "text_persisted": true,
+    "move_persisted": true,
+    "workbook_value_persisted": true,
+    "probe_original_value": 80.0,
+    "sha256": "661a01388226b089310bd4235eb64c61c12c01582c75bd6dcf3f66ed45be67fa",
+    "structure": {
+      "ok": true,
+      "file": "palettes.pptx",
+      "counts": {
+        "slides": 6,
+        "text_shapes": 126,
+        "charts": 24,
+        "tables": 0,
+        "connectors": 0,
+        "pictures": 0,
+        "cache_cells": 1224
+      },
+      "errors": [],
+      "scope": "Structure and cached series/workbook agreement; no scientific validation or rendered-layout proof. Custom error bars are literal, not workbook-linked."
+    },
+    "rendered_sha256": "31076fd2984ce46a56c3212c7485e59718aa82d2f8b8a130a75ecab1daef4447",
+    "post_render_change": "Chart source labels added to notes only; all other package parts byte-identical."
+  },
+  "all-layouts": {
+    "source": "all-layouts.pptx",
+    "application": "PowerPoint",
+    "opened": true,
+    "slides": [
+      {
+        "slide": 1,
+        "text": 25,
+        "charts": 1,
+        "pictures": 0,
+        "tables": 1,
+        "shapes": 141
+      },
+      {
+        "slide": 2,
+        "text": 24,
+        "charts": 2,
+        "pictures": 1,
+        "tables": 0,
+        "shapes": 98
+      },
+      {
+        "slide": 3,
+        "text": 18,
+        "charts": 2,
+        "pictures": 0,
+        "tables": 1,
+        "shapes": 83
+      },
+      {
+        "slide": 4,
+        "text": 23,
+        "charts": 0,
+        "pictures": 0,
+        "tables": 1,
+        "shapes": 72
+      },
+      {
+        "slide": 5,
+        "text": 7,
+        "charts": 0,
+        "pictures": 1,
+        "tables": 0,
+        "shapes": 21
+      },
+      {
+        "slide": 6,
+        "text": 25,
+        "charts": 0,
+        "pictures": 0,
+        "tables": 0,
+        "shapes": 80
+      },
+      {
+        "slide": 7,
+        "text": 9,
+        "charts": 0,
+        "pictures": 1,
+        "tables": 0,
+        "shapes": 44
+      },
+      {
+        "slide": 8,
+        "text": 37,
+        "charts": 1,
+        "pictures": 1,
+        "tables": 0,
+        "shapes": 153
+      },
+      {
+        "slide": 9,
+        "text": 14,
+        "charts": 0,
+        "pictures": 7,
+        "tables": 1,
+        "shapes": 30
+      },
+      {
+        "slide": 10,
+        "text": 28,
+        "charts": 2,
+        "pictures": 0,
+        "tables": 0,
+        "shapes": 91
+      },
+      {
+        "slide": 11,
+        "text": 21,
+        "charts": 4,
+        "pictures": 0,
+        "tables": 0,
+        "shapes": 41
+      },
+      {
+        "slide": 12,
+        "text": 34,
+        "charts": 0,
+        "pictures": 0,
+        "tables": 0,
+        "shapes": 124
+      },
+      {
+        "slide": 13,
+        "text": 27,
+        "charts": 0,
+        "pictures": 0,
+        "tables": 0,
+        "shapes": 90
+      },
+      {
+        "slide": 14,
+        "text": 8,
+        "charts": 0,
+        "pictures": 1,
+        "tables": 0,
+        "shapes": 53
+      }
+    ],
+    "overflows": [],
+    "edit_probe": true,
+    "version": "16.0",
+    "slide_count": 14,
+    "text_persisted": true,
+    "move_persisted": true,
+    "workbook_value_persisted": true,
+    "probe_original_value": 10.0,
+    "sha256": "a5d977a90a974f376adeb854887509792447d26d5e300deb9441f1885285c6a6",
+    "structure": {
+      "ok": true,
+      "file": "all-layouts.pptx",
+      "counts": {
+        "slides": 14,
+        "text_shapes": 300,
+        "charts": 12,
+        "tables": 4,
+        "connectors": 17,
+        "pictures": 12,
+        "cache_cells": 470
+      },
+      "errors": [],
+      "scope": "Structure and cached series/workbook agreement; no scientific validation or rendered-layout proof. Custom error bars are literal, not workbook-linked."
+    },
+    "rendered_sha256": "b55abd2a78ce4ef7ab33438a6eafd94ca2cb27731379c531beb6da5584ee9364",
+    "post_render_change": "Chart source labels added to notes only; all other package parts byte-identical."
+  }
+}

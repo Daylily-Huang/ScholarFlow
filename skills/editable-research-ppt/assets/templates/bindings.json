@@ -1,0 +1,2653 @@
+{
+  "L1": {
+    "slide": "ppt/slides/slide1.xml",
+    "fields": [
+      {
+        "shape": "142",
+        "path": "title"
+      },
+      {
+        "shape": "9",
+        "path": "stages.0.title"
+      },
+      {
+        "shape": "10",
+        "path": "stages.0.body"
+      },
+      {
+        "shape": "34",
+        "path": "stages.1.title"
+      },
+      {
+        "shape": "35",
+        "path": "stages.1.body"
+      },
+      {
+        "shape": "49",
+        "path": "chart.xTitle"
+      },
+      {
+        "shape": "50",
+        "path": "chart.yTitle"
+      },
+      {
+        "shape": "56",
+        "path": "stages.2.title"
+      },
+      {
+        "shape": "57",
+        "path": "stages.2.body"
+      },
+      {
+        "shape": "62",
+        "path": "stages.2.items.0"
+      },
+      {
+        "shape": "64",
+        "path": "stages.2.items.1"
+      },
+      {
+        "shape": "66",
+        "path": "stages.2.items.2"
+      },
+      {
+        "shape": "80",
+        "path": "stages.3.title"
+      },
+      {
+        "shape": "81",
+        "path": "stages.3.body"
+      },
+      {
+        "shape": "94",
+        "path": "stages.3.items.0"
+      },
+      {
+        "shape": "96",
+        "path": "stages.3.items.1"
+      },
+      {
+        "shape": "98",
+        "path": "stages.3.items.2"
+      },
+      {
+        "shape": "104",
+        "path": "stages.0.short"
+      },
+      {
+        "shape": "118",
+        "path": "stages.1.short"
+      },
+      {
+        "shape": "123",
+        "path": "stages.2.short"
+      },
+      {
+        "shape": "136",
+        "path": "stages.3.short"
+      },
+      {
+        "shape": "137",
+        "path": "center"
+      },
+      {
+        "shape": "139",
+        "path": "takeaway"
+      },
+      {
+        "shape": "140",
+        "special": "footer"
+      },
+      {
+        "shape": "141",
+        "special": "page"
+      }
+    ],
+    "tables": [
+      {
+        "shape": "19",
+        "path": "table"
+      }
+    ],
+    "charts": [
+      {
+        "rid": "Rd3976b09d88d407c",
+        "path": "chart"
+      }
+    ],
+    "default": {
+      "layout": "L1",
+      "title": "研究框架｜监测与分析的反馈循环",
+      "sources": [
+        "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。"
+      ],
+      "center": "持续监测\n迭代验证",
+      "stages": [
+        {
+          "title": "数据获取",
+          "short": "数据获取",
+          "body": "整合相机与样点记录，保留来源与时间",
+          "icon": "camera",
+          "items": []
+        },
+        {
+          "title": "模型分析",
+          "short": "模型分析",
+          "body": "定义响应与解释变量，比较候选模型",
+          "icon": "network",
+          "items": []
+        },
+        {
+          "title": "现场验证",
+          "short": "现场验证",
+          "body": "开展独立复测，核对预测与现场记录",
+          "icon": "check",
+          "items": [
+            "样地复测",
+            "保留差异记录",
+            "核对检测过程"
+          ]
+        },
+        {
+          "title": "反馈修订",
+          "short": "反馈修订",
+          "body": "追查偏差来源，调整采样与分析方案",
+          "icon": "clipboard",
+          "items": [
+            "优化采样设计",
+            "补充关键样点",
+            "更新模型设定"
+          ]
+        }
+      ],
+      "table": [
+        [
+          "数据",
+          "内容",
+          "时间"
+        ],
+        [
+          "相机",
+          "物种与位置",
+          "日"
+        ]
+      ],
+      "chart": {
+        "type": "scatter",
+        "title": "模型拟合效果",
+        "series": [
+          {
+            "name": "示意数据",
+            "xValues": [
+              10.0,
+              12.2,
+              14.4,
+              16.6,
+              18.8,
+              21.0,
+              23.2,
+              25.4,
+              27.6,
+              29.8,
+              32.0,
+              34.2,
+              36.4,
+              38.6,
+              40.8,
+              43.0,
+              45.2,
+              47.4,
+              49.6,
+              51.8,
+              54.0,
+              56.2,
+              58.4,
+              60.6,
+              62.8,
+              65.0
+            ],
+            "values": [
+              10.0,
+              16.7,
+              10.6,
+              15.2,
+              23.7,
+              18.3,
+              20.5,
+              30.4,
+              26.2,
+              26.0,
+              36.6,
+              34.2,
+              31.9,
+              42.4,
+              42.2,
+              38.1,
+              48.0,
+              50.0,
+              44.6,
+              53.3,
+              57.7,
+              51.6,
+              58.5,
+              65.1,
+              59.0,
+              63.7
+            ]
+          }
+        ],
+        "source": "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。",
+        "xTitle": "预测值",
+        "yTitle": "观测值",
+        "xMin": 0,
+        "xMax": 80,
+        "xMajor": 20,
+        "yMin": 0,
+        "yMax": 80,
+        "yMajor": 20
+      },
+      "takeaway": "研究重点：用验证结果修订下一轮观测与分析",
+      "emphasis": [
+        "验证结果"
+      ]
+    },
+    "fixed_labels": []
+  },
+  "L2": {
+    "slide": "ppt/slides/slide2.xml",
+    "fields": [
+      {
+        "shape": "99",
+        "path": "title"
+      },
+      {
+        "shape": "14",
+        "path": "observations.0.title"
+      },
+      {
+        "shape": "15",
+        "path": "observations.0.body"
+      },
+      {
+        "shape": "32",
+        "path": "observations.1.title"
+      },
+      {
+        "shape": "33",
+        "path": "observations.1.body"
+      },
+      {
+        "shape": "40",
+        "path": "observations.2.title"
+      },
+      {
+        "shape": "41",
+        "path": "observations.2.body"
+      },
+      {
+        "shape": "49",
+        "path": "steps.0"
+      },
+      {
+        "shape": "61",
+        "path": "steps.1"
+      },
+      {
+        "shape": "75",
+        "path": "steps.2"
+      },
+      {
+        "shape": "80",
+        "path": "steps.3"
+      },
+      {
+        "shape": "84",
+        "path": "feedback"
+      },
+      {
+        "shape": "85",
+        "path": "charts.0.title"
+      },
+      {
+        "shape": "88",
+        "path": "charts.0.series.0.name"
+      },
+      {
+        "shape": "90",
+        "path": "charts.0.series.1.name"
+      },
+      {
+        "shape": "91",
+        "path": "charts.0.xTitle"
+      },
+      {
+        "shape": "92",
+        "path": "charts.1.title"
+      },
+      {
+        "shape": "94",
+        "path": "charts.1.xTitle"
+      },
+      {
+        "shape": "96",
+        "path": "takeaway"
+      },
+      {
+        "shape": "97",
+        "special": "footer"
+      },
+      {
+        "shape": "98",
+        "special": "page"
+      }
+    ],
+    "tables": [],
+    "charts": [
+      {
+        "rid": "Rd2fd00bda74e4d93",
+        "path": "charts.0"
+      },
+      {
+        "rid": "Re728cd7a426649f7",
+        "path": "charts.1"
+      }
+    ],
+    "default": {
+      "layout": "L2",
+      "title": "技术路线｜森林动物监测与生境分析",
+      "sources": [
+        "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。"
+      ],
+      "observations": [
+        {
+          "title": "相机记录",
+          "body": "物种 · 时间 · 样点",
+          "icon": "camera"
+        },
+        {
+          "title": "植被调查",
+          "body": "盖度 · 高度 · 结构",
+          "icon": "tree"
+        },
+        {
+          "title": "环境变量",
+          "body": "地形 · 道路 · 生境",
+          "icon": "map"
+        }
+      ],
+      "steps": [
+        "数据核对",
+        "统一时间窗",
+        "候选模型",
+        "诊断与验证"
+      ],
+      "feedback": "异常回查：回到原始记录与采样过程",
+      "charts": [
+        {
+          "type": "line",
+          "title": "观测记录的季节变化",
+          "series": [
+            {
+              "name": "物种甲",
+              "values": [
+                50,
+                80,
+                115,
+                133,
+                112,
+                83,
+                54,
+                30,
+                18,
+                24,
+                31,
+                47
+              ]
+            },
+            {
+              "name": "物种乙",
+              "values": [
+                22,
+                31,
+                40,
+                47,
+                37,
+                32,
+                40,
+                52,
+                78,
+                97,
+                52,
+                30
+              ]
+            }
+          ],
+          "source": "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。",
+          "categories": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12"
+          ],
+          "xTitle": "月份",
+          "yTitle": "记录数",
+          "yMin": 0,
+          "yMax": 160,
+          "yMajor": 40
+        },
+        {
+          "type": "scatter",
+          "title": "丰富度沿梯度变化",
+          "series": [
+            {
+              "name": "示意观测",
+              "xValues": [
+                0.0,
+                0.025,
+                0.05,
+                0.075,
+                0.1,
+                0.125,
+                0.15,
+                0.175,
+                0.2,
+                0.225,
+                0.25,
+                0.275,
+                0.3,
+                0.325,
+                0.35,
+                0.375,
+                0.4,
+                0.425,
+                0.45,
+                0.475,
+                0.5,
+                0.525,
+                0.55,
+                0.575,
+                0.6,
+                0.625,
+                0.65,
+                0.675,
+                0.7,
+                0.725,
+                0.75,
+                0.775,
+                0.8,
+                0.825,
+                0.85,
+                0.875,
+                0.9,
+                0.925,
+                0.95,
+                0.975,
+                1.0
+              ],
+              "values": [
+                80.0,
+                85.9,
+                67.0,
+                81.2,
+                76.1,
+                63.6,
+                80.3,
+                65.5,
+                63.5,
+                75.9,
+                56.3,
+                64.9,
+                67.9,
+                50.2,
+                65.7,
+                57.7,
+                47.8,
+                63.9,
+                47.2,
+                48.2,
+                58.5,
+                38.7,
+                49.7,
+                49.8,
+                33.6,
+                50.0,
+                39.3,
+                32.1,
+                47.3,
+                29.1,
+                33.1,
+                40.9,
+                21.5,
+                34.5,
+                31.5,
+                17.4,
+                34.1,
+                20.8,
+                16.7,
+                30.4,
+                11.2
+              ]
+            }
+          ],
+          "source": "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。",
+          "xTitle": "干扰强度",
+          "yTitle": "物种数",
+          "xMin": 0,
+          "xMax": 1,
+          "xMajor": 0.25,
+          "yMin": 0,
+          "yMax": 100,
+          "yMajor": 25
+        }
+      ],
+      "takeaway": "分析原则：保留原始记录，区分观测差异与模型解释",
+      "emphasis": [
+        "原始记录"
+      ]
+    },
+    "fixed_labels": [
+      "观\n测\n层",
+      "分\n析\n层",
+      "输\n出\n层"
+    ]
+  },
+  "L3": {
+    "slide": "ppt/slides/slide3.xml",
+    "fields": [
+      {
+        "shape": "84",
+        "path": "title"
+      },
+      {
+        "shape": "4",
+        "path": "left.title"
+      },
+      {
+        "shape": "10",
+        "path": "left.chart.categories.0"
+      },
+      {
+        "shape": "16",
+        "path": "left.chart.categories.1"
+      },
+      {
+        "shape": "22",
+        "path": "left.chart.categories.2"
+      },
+      {
+        "shape": "28",
+        "path": "left.chart.categories.3"
+      },
+      {
+        "shape": "31",
+        "path": "right.title"
+      },
+      {
+        "shape": "37",
+        "path": "right.chart.categories.0"
+      },
+      {
+        "shape": "43",
+        "path": "right.chart.categories.1"
+      },
+      {
+        "shape": "49",
+        "path": "right.chart.categories.2"
+      },
+      {
+        "shape": "55",
+        "path": "right.chart.categories.3"
+      },
+      {
+        "shape": "79",
+        "path": "formula"
+      },
+      {
+        "shape": "81",
+        "path": "takeaway"
+      },
+      {
+        "shape": "82",
+        "special": "footer"
+      },
+      {
+        "shape": "83",
+        "special": "page"
+      }
+    ],
+    "tables": [
+      {
+        "shape": "78",
+        "path": "metrics"
+      }
+    ],
+    "charts": [
+      {
+        "rid": "R9e4b51eb44254abd",
+        "path": "left.chart"
+      },
+      {
+        "rid": "Rc49d4862ef9e4b9a",
+        "path": "right.chart"
+      }
+    ],
+    "default": {
+      "layout": "L3",
+      "title": "课程作业｜两种群落结构的对照分析",
+      "sources": [
+        "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。"
+      ],
+      "left": {
+        "title": "群落甲：分布均匀",
+        "chart": {
+          "type": "bar",
+          "title": "均匀群落",
+          "series": [
+            {
+              "name": "群落甲",
+              "values": [
+                25,
+                25,
+                25,
+                25
+              ]
+            }
+          ],
+          "source": "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。",
+          "categories": [
+            "物种1",
+            "物种2",
+            "物种3",
+            "物种4"
+          ],
+          "xTitle": "物种",
+          "yTitle": "个体数",
+          "yMin": 0,
+          "yMax": 80,
+          "yMajor": 40
+        }
+      },
+      "right": {
+        "title": "群落乙：优势集中",
+        "chart": {
+          "type": "bar",
+          "title": "优势群落",
+          "series": [
+            {
+              "name": "群落乙",
+              "values": [
+                10,
+                10,
+                10,
+                70
+              ]
+            }
+          ],
+          "source": "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。",
+          "categories": [
+            "物种1",
+            "物种2",
+            "物种3",
+            "物种4"
+          ],
+          "xTitle": "物种",
+          "yTitle": "个体数",
+          "yMin": 0,
+          "yMax": 80,
+          "yMajor": 40
+        }
+      },
+      "metrics": [
+        [
+          "群落甲",
+          "指标",
+          "群落乙"
+        ],
+        [
+          "4",
+          "物种数",
+          "4"
+        ],
+        [
+          "100",
+          "个体总数",
+          "100"
+        ],
+        [
+          "1.386",
+          "Shannon H′",
+          "0.940"
+        ]
+      ],
+      "formula": "H′ = −Σ pᵢ ln(pᵢ)      pᵢ = nᵢ / N",
+      "takeaway": "解释重点：物种数相同，均匀度不同",
+      "emphasis": [
+        "均匀度"
+      ]
+    },
+    "fixed_labels": [
+      "物种组成",
+      "计数分布",
+      "指标比较"
+    ]
+  },
+  "L4": {
+    "slide": "ppt/slides/slide4.xml",
+    "fields": [
+      {
+        "shape": "73",
+        "path": "title"
+      },
+      {
+        "shape": "7",
+        "path": "milestones.0.title"
+      },
+      {
+        "shape": "8",
+        "path": "milestones.0.body"
+      },
+      {
+        "shape": "14",
+        "path": "milestones.1.title"
+      },
+      {
+        "shape": "15",
+        "path": "milestones.1.body"
+      },
+      {
+        "shape": "28",
+        "path": "milestones.2.title"
+      },
+      {
+        "shape": "29",
+        "path": "milestones.2.body"
+      },
+      {
+        "shape": "45",
+        "path": "issues.0",
+        "prefix": "1  "
+      },
+      {
+        "shape": "46",
+        "path": "issues.1",
+        "prefix": "2  "
+      },
+      {
+        "shape": "62",
+        "path": "actions.0"
+      },
+      {
+        "shape": "65",
+        "path": "actions.1"
+      },
+      {
+        "shape": "68",
+        "path": "actions.2"
+      },
+      {
+        "shape": "70",
+        "path": "takeaway"
+      },
+      {
+        "shape": "71",
+        "special": "footer"
+      },
+      {
+        "shape": "72",
+        "special": "page"
+      }
+    ],
+    "tables": [
+      {
+        "shape": "38",
+        "path": "matrix"
+      }
+    ],
+    "charts": [],
+    "default": {
+      "layout": "L4",
+      "title": "实验进展｜复测完成情况与问题追踪",
+      "sources": [
+        "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。"
+      ],
+      "milestones": [
+        {
+          "title": "样地建档",
+          "body": "编号与位置",
+          "icon": "map"
+        },
+        {
+          "title": "三轮复测",
+          "body": "同步观测",
+          "icon": "camera"
+        },
+        {
+          "title": "记录核对",
+          "body": "疑点回查",
+          "icon": "clipboard"
+        }
+      ],
+      "matrix": [
+        [
+          "样地",
+          "建档",
+          "第1轮",
+          "第2轮",
+          "第3轮",
+          "核对"
+        ],
+        [
+          "样地A",
+          "●",
+          "●",
+          "●",
+          "●",
+          "●"
+        ],
+        [
+          "样地B",
+          "●",
+          "●",
+          "●",
+          "△",
+          "○"
+        ],
+        [
+          "样地C",
+          "●",
+          "●",
+          "●",
+          "○",
+          "○"
+        ],
+        [
+          "样地D",
+          "●",
+          "●",
+          "●",
+          "●",
+          "△"
+        ]
+      ],
+      "issues": [
+        "部分记录时间不一致",
+        "失访与死亡标记混用"
+      ],
+      "actions": [
+        "回查原始记录与事件标记",
+        "针对存疑样地补充现场复核",
+        "按核对结果更新分析输入"
+      ],
+      "takeaway": "汇报重点：完成情况可核查，问题与下一步一一对应"
+    },
+    "fixed_labels": [
+      "样地 × 工作环节",
+      "● 完成     △ 待核对     ○ 待开展",
+      "!",
+      "待核对事项",
+      "下一步行动",
+      "1",
+      "2",
+      "3"
+    ]
+  },
+  "L5": {
+    "slide": "ppt/slides/slide5.xml",
+    "fields": [
+      {
+        "shape": "2",
+        "special": "scenario"
+      },
+      {
+        "shape": "3",
+        "path": "lines",
+        "join": "\n"
+      },
+      {
+        "shape": "4",
+        "path": "subtitle"
+      },
+      {
+        "shape": "8",
+        "path": "presenter"
+      },
+      {
+        "shape": "19",
+        "path": "date"
+      },
+      {
+        "shape": "20",
+        "special": "footer"
+      },
+      {
+        "shape": "21",
+        "special": "page"
+      }
+    ],
+    "tables": [],
+    "charts": [],
+    "default": {
+      "layout": "L5",
+      "title": "栖息地变化与生物多样性响应",
+      "sources": [
+        "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。"
+      ],
+      "lines": [
+        "栖息地变化与",
+        "生物多样性响应"
+      ],
+      "subtitle": "景观格局、群落响应与生态机制",
+      "presenter": "汇报人：待填写",
+      "date": "日期：待填写"
+    },
+    "fixed_labels": []
+  },
+  "L6": {
+    "slide": "ppt/slides/slide6.xml",
+    "fields": [
+      {
+        "shape": "4",
+        "path": "chapters.0.title",
+        "prefix": "01  "
+      },
+      {
+        "shape": "5",
+        "path": "chapters.1.title",
+        "prefix": "02  "
+      },
+      {
+        "shape": "6",
+        "path": "chapters.2.title",
+        "prefix": "03  "
+      },
+      {
+        "shape": "7",
+        "path": "chapters.3.title",
+        "prefix": "04  "
+      },
+      {
+        "shape": "8",
+        "path": "title"
+      },
+      {
+        "shape": "14",
+        "path": "chapters.0.title"
+      },
+      {
+        "shape": "15",
+        "path": "chapters.0.focus"
+      },
+      {
+        "shape": "16",
+        "path": "chapters.0.body"
+      },
+      {
+        "shape": "36",
+        "path": "chapters.1.title"
+      },
+      {
+        "shape": "37",
+        "path": "chapters.1.focus"
+      },
+      {
+        "shape": "38",
+        "path": "chapters.1.body"
+      },
+      {
+        "shape": "59",
+        "path": "chapters.2.title"
+      },
+      {
+        "shape": "60",
+        "path": "chapters.2.focus"
+      },
+      {
+        "shape": "61",
+        "path": "chapters.2.body"
+      },
+      {
+        "shape": "73",
+        "path": "chapters.3.title"
+      },
+      {
+        "shape": "74",
+        "path": "chapters.3.focus"
+      },
+      {
+        "shape": "75",
+        "path": "chapters.3.body"
+      },
+      {
+        "shape": "79",
+        "special": "footer"
+      },
+      {
+        "shape": "80",
+        "special": "page"
+      }
+    ],
+    "tables": [],
+    "charts": [],
+    "default": {
+      "layout": "L6",
+      "title": "汇报结构｜从问题到证据",
+      "sources": [
+        "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。"
+      ],
+      "chapters": [
+        {
+          "title": "研究背景",
+          "focus": "界定问题与研究对象",
+          "body": "明确研究对象、范围与现实问题",
+          "icon": "search"
+        },
+        {
+          "title": "机制与假设",
+          "focus": "把解释转化为可检验预测",
+          "body": "提出竞争解释及可比较的预测",
+          "icon": "network"
+        },
+        {
+          "title": "数据与证据",
+          "focus": "联合观测、比较与模型分析",
+          "body": "组织结果，并检验稳健性与不确定性",
+          "icon": "chart"
+        },
+        {
+          "title": "结论与展望",
+          "focus": "明确支持范围与下一步检验",
+          "body": "区分已有支持、未决问题与后续工作",
+          "icon": "compass"
+        }
+      ]
+    },
+    "fixed_labels": [
+      "目录",
+      "CONTENTS",
+      "01",
+      "02",
+      "03",
+      "04"
+    ]
+  },
+  "L7": {
+    "slide": "ppt/slides/slide7.xml",
+    "fields": [
+      {
+        "shape": "2",
+        "path": "section"
+      },
+      {
+        "shape": "4",
+        "path": "lines",
+        "join": "\n"
+      },
+      {
+        "shape": "5",
+        "path": "intro"
+      },
+      {
+        "shape": "18",
+        "path": "chapters.0"
+      },
+      {
+        "shape": "31",
+        "path": "chapters.1"
+      },
+      {
+        "shape": "37",
+        "path": "chapters.2"
+      },
+      {
+        "shape": "42",
+        "path": "chapters.3"
+      },
+      {
+        "shape": "43",
+        "special": "footer"
+      },
+      {
+        "shape": "44",
+        "special": "page"
+      }
+    ],
+    "tables": [],
+    "charts": [],
+    "default": {
+      "layout": "L7",
+      "title": "数据与证据",
+      "sources": [
+        "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。"
+      ],
+      "section": "03",
+      "lines": [
+        "数据与证据",
+        "从观测到解释"
+      ],
+      "intro": "结合空间格局、群落指标与模型结果，\n逐步检验生态机制。",
+      "chapters": [
+        "研究背景",
+        "机制与假设",
+        "数据与证据",
+        "结论与展望"
+      ],
+      "active": 2
+    },
+    "fixed_labels": []
+  },
+  "L8": {
+    "slide": "ppt/slides/slide8.xml",
+    "fields": [
+      {
+        "shape": "154",
+        "path": "title"
+      },
+      {
+        "shape": "9",
+        "path": "columnTitles.0"
+      },
+      {
+        "shape": "15",
+        "path": "columnTitles.1"
+      },
+      {
+        "shape": "21",
+        "path": "columnTitles.2"
+      },
+      {
+        "shape": "25",
+        "path": "observations.0.title"
+      },
+      {
+        "shape": "26",
+        "path": "observations.0.body"
+      },
+      {
+        "shape": "35",
+        "path": "observations.1.title"
+      },
+      {
+        "shape": "36",
+        "path": "observations.1.body"
+      },
+      {
+        "shape": "42",
+        "path": "observations.2.title"
+      },
+      {
+        "shape": "43",
+        "path": "observations.2.body"
+      },
+      {
+        "shape": "52",
+        "path": "inputs.0.title"
+      },
+      {
+        "shape": "53",
+        "path": "inputs.0.body"
+      },
+      {
+        "shape": "59",
+        "path": "inputs.1.title"
+      },
+      {
+        "shape": "60",
+        "path": "inputs.1.body"
+      },
+      {
+        "shape": "67",
+        "path": "inputs.2.title"
+      },
+      {
+        "shape": "68",
+        "path": "inputs.2.body"
+      },
+      {
+        "shape": "73",
+        "path": "steps.0"
+      },
+      {
+        "shape": "86",
+        "path": "steps.1"
+      },
+      {
+        "shape": "100",
+        "path": "steps.2"
+      },
+      {
+        "shape": "114",
+        "path": "branches.0.title"
+      },
+      {
+        "shape": "115",
+        "path": "branches.0.body"
+      },
+      {
+        "shape": "122",
+        "path": "branches.1.title"
+      },
+      {
+        "shape": "123",
+        "path": "branches.1.body"
+      },
+      {
+        "shape": "127",
+        "path": "final"
+      },
+      {
+        "shape": "130",
+        "path": "chart.title"
+      },
+      {
+        "shape": "132",
+        "path": "chart.labels.0"
+      },
+      {
+        "shape": "133",
+        "path": "chart.labels.1"
+      },
+      {
+        "shape": "134",
+        "path": "chart.labels.2"
+      },
+      {
+        "shape": "135",
+        "path": "chart.labels.3"
+      },
+      {
+        "shape": "136",
+        "path": "chart.xTitle"
+      },
+      {
+        "shape": "137",
+        "path": "columnTitles.2"
+      },
+      {
+        "shape": "141",
+        "path": "checks.0"
+      },
+      {
+        "shape": "145",
+        "path": "checks.1"
+      },
+      {
+        "shape": "149",
+        "path": "checks.2"
+      },
+      {
+        "shape": "151",
+        "path": "takeaway"
+      },
+      {
+        "shape": "152",
+        "special": "footer"
+      },
+      {
+        "shape": "153",
+        "special": "page"
+      }
+    ],
+    "tables": [],
+    "charts": [
+      {
+        "rid": "Rb01c90e26ef64a2d",
+        "path": "chart"
+      }
+    ],
+    "default": {
+      "layout": "L8",
+      "title": "技术体系｜多源生态数据如何形成证据",
+      "sources": [
+        "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。"
+      ],
+      "columnTitles": [
+        "观测基础",
+        "分析架构",
+        "证据核查"
+      ],
+      "observations": [
+        {
+          "title": "遥感影像",
+          "body": "土地覆盖与空间格局",
+          "icon": "layers"
+        },
+        {
+          "title": "样地调查",
+          "body": "群落记录与植被结构",
+          "icon": "leaf"
+        },
+        {
+          "title": "相机监测",
+          "body": "物种检出与活动记录",
+          "icon": "camera"
+        }
+      ],
+      "inputs": [
+        {
+          "title": "景观格局",
+          "body": "斑块特征与连通性",
+          "icon": "layers"
+        },
+        {
+          "title": "环境变量",
+          "body": "气候、地形与干扰",
+          "icon": "map"
+        },
+        {
+          "title": "群落数据",
+          "body": "物种组成与多度",
+          "icon": "leaf"
+        }
+      ],
+      "steps": [
+        "尺度统一",
+        "质量检查",
+        "特征构建"
+      ],
+      "branches": [
+        {
+          "title": "格局分析",
+          "body": "识别空间结构与梯度",
+          "icon": "grid"
+        },
+        {
+          "title": "响应模型",
+          "body": "比较效应方向与不确定性",
+          "icon": "chart"
+        }
+      ],
+      "final": "机制比较",
+      "checks": [
+        "核对来源与尺度一致性",
+        "比较替代模型和参数设定",
+        "明确适用区域与外推边界"
+      ],
+      "chart": {
+        "type": "effects",
+        "title": "效应与不确定性",
+        "series": [
+          {
+            "name": "效应估计",
+            "values": [
+              0.42,
+              -0.24,
+              0.31,
+              -0.44
+            ]
+          }
+        ],
+        "source": "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。",
+        "labels": [
+          "生境面积",
+          "隔离程度",
+          "植被覆盖",
+          "人为干扰"
+        ],
+        "errors": [
+          {
+            "lower": [
+              0.19,
+              -0.41,
+              0.1,
+              -0.62
+            ],
+            "upper": [
+              0.65,
+              -0.07,
+              0.53,
+              -0.24
+            ]
+          }
+        ],
+        "xTitle": "标准化效应值",
+        "xMin": -0.8,
+        "xMax": 0.8,
+        "xMajor": 0.4
+      },
+      "takeaway": "技术路线的核心：每一步处理都能追溯到研究问题"
+    },
+    "fixed_labels": []
+  },
+  "L9": {
+    "slide": "ppt/slides/slide9.xml",
+    "fields": [
+      {
+        "shape": "31",
+        "path": "title"
+      },
+      {
+        "shape": "5",
+        "path": "left.title"
+      },
+      {
+        "shape": "6",
+        "path": "left.statement"
+      },
+      {
+        "shape": "10",
+        "path": "left.before"
+      },
+      {
+        "shape": "11",
+        "path": "left.after"
+      },
+      {
+        "shape": "12",
+        "path": "left.prediction"
+      },
+      {
+        "shape": "15",
+        "path": "right.title"
+      },
+      {
+        "shape": "16",
+        "path": "right.statement"
+      },
+      {
+        "shape": "23",
+        "path": "right.before"
+      },
+      {
+        "shape": "24",
+        "path": "right.after"
+      },
+      {
+        "shape": "25",
+        "path": "right.prediction"
+      },
+      {
+        "shape": "28",
+        "path": "takeaway"
+      },
+      {
+        "shape": "29",
+        "special": "footer"
+      },
+      {
+        "shape": "30",
+        "special": "page"
+      }
+    ],
+    "tables": [
+      {
+        "shape": "26",
+        "path": "table"
+      }
+    ],
+    "charts": [],
+    "default": {
+      "layout": "L9",
+      "title": "竞争解释｜生境面积还是空间隔离？",
+      "sources": [
+        "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。"
+      ],
+      "left": {
+        "title": "假说 A：生境面积效应",
+        "statement": "固定隔离程度，比较生境面积变化对应的群落响应。",
+        "before": "大面积生境",
+        "after": "小面积生境",
+        "prediction": "预测：丰富度随面积改变"
+      },
+      "right": {
+        "title": "假说 B：空间隔离效应",
+        "statement": "固定生境总面积，比较斑块分离后的扩散与组成变化。",
+        "before": "连续生境",
+        "after": "隔离的生境斑块",
+        "prediction": "预测：组成随隔离改变"
+      },
+      "table": [
+        [
+          "检验维度",
+          "面积效应",
+          "隔离效应"
+        ],
+        [
+          "控制条件",
+          "固定隔离程度",
+          "固定总面积"
+        ],
+        [
+          "关键预测",
+          "丰富度随面积变化",
+          "组成随隔离变化"
+        ],
+        [
+          "需要证据",
+          "面积梯度比较",
+          "连通性梯度比较"
+        ]
+      ],
+      "takeaway": "两种机制可能共同作用；需通过对照设计区分",
+      "emphasis": [
+        "共同作用",
+        "对照设计"
+      ]
+    },
+    "fixed_labels": []
+  },
+  "L10": {
+    "slide": "ppt/slides/slide10.xml",
+    "fields": [
+      {
+        "shape": "92",
+        "path": "title"
+      },
+      {
+        "shape": "14",
+        "path": "inputs.0.title"
+      },
+      {
+        "shape": "15",
+        "path": "inputs.0.body"
+      },
+      {
+        "shape": "20",
+        "path": "inputs.1.title"
+      },
+      {
+        "shape": "21",
+        "path": "inputs.1.body"
+      },
+      {
+        "shape": "26",
+        "path": "inputs.2.title"
+      },
+      {
+        "shape": "27",
+        "path": "inputs.2.body"
+      },
+      {
+        "shape": "32",
+        "path": "nodes.0.title"
+      },
+      {
+        "shape": "38",
+        "path": "nodes.1.title"
+      },
+      {
+        "shape": "45",
+        "path": "nodes.2.title"
+      },
+      {
+        "shape": "59",
+        "path": "nodes.3.title"
+      },
+      {
+        "shape": "63",
+        "path": "nodes.4.title"
+      },
+      {
+        "shape": "70",
+        "path": "nodes.5.title"
+      },
+      {
+        "shape": "77",
+        "path": "center"
+      },
+      {
+        "shape": "78",
+        "path": "charts.0.title"
+      },
+      {
+        "shape": "80",
+        "path": "charts.0.labels.0"
+      },
+      {
+        "shape": "81",
+        "path": "charts.0.labels.1"
+      },
+      {
+        "shape": "82",
+        "path": "charts.0.labels.2"
+      },
+      {
+        "shape": "83",
+        "path": "charts.0.labels.3"
+      },
+      {
+        "shape": "84",
+        "path": "charts.0.xTitle"
+      },
+      {
+        "shape": "85",
+        "path": "charts.1.title"
+      },
+      {
+        "shape": "87",
+        "path": "charts.1.xTitle"
+      },
+      {
+        "shape": "89",
+        "path": "takeaway"
+      },
+      {
+        "shape": "90",
+        "special": "footer"
+      },
+      {
+        "shape": "91",
+        "special": "page"
+      }
+    ],
+    "tables": [],
+    "charts": [
+      {
+        "rid": "R131fe6ba7eb5426e",
+        "path": "charts.0"
+      },
+      {
+        "rid": "R272f144416c24f5b",
+        "path": "charts.1"
+      }
+    ],
+    "default": {
+      "layout": "L10",
+      "title": "机制模型｜连接景观、群落与生态过程",
+      "sources": [
+        "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。"
+      ],
+      "inputs": [
+        {
+          "title": "景观格局",
+          "body": "斑块大小、形状及其空间配置",
+          "icon": "map"
+        },
+        {
+          "title": "环境梯度",
+          "body": "温度、地形与人为干扰的变化",
+          "icon": "layers"
+        },
+        {
+          "title": "群落记录",
+          "body": "物种出现、多度与时间记录",
+          "icon": "database"
+        }
+      ],
+      "nodes": [
+        {
+          "title": "生境面积",
+          "icon": "layers"
+        },
+        {
+          "title": "空间隔离",
+          "icon": "map"
+        },
+        {
+          "title": "资源供给",
+          "icon": "leaf"
+        },
+        {
+          "title": "扩散过程",
+          "icon": "network"
+        },
+        {
+          "title": "物种共存",
+          "icon": "tree"
+        },
+        {
+          "title": "群落稳定性",
+          "icon": "chart"
+        }
+      ],
+      "edges": [
+        {
+          "from": 0,
+          "to": 2,
+          "alternative": false
+        },
+        {
+          "from": 1,
+          "to": 3,
+          "alternative": false
+        },
+        {
+          "from": 2,
+          "to": 4,
+          "alternative": false
+        },
+        {
+          "from": 3,
+          "to": 5,
+          "alternative": false
+        },
+        {
+          "from": 4,
+          "to": 5,
+          "alternative": false
+        }
+      ],
+      "center": "可检验的\n机制路径",
+      "charts": [
+        {
+          "type": "effects",
+          "title": "效应与不确定性",
+          "series": [
+            {
+              "name": "效应估计",
+              "values": [
+                0.42,
+                -0.24,
+                0.31,
+                -0.44
+              ]
+            }
+          ],
+          "source": "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。",
+          "labels": [
+            "生境面积",
+            "隔离程度",
+            "植被覆盖",
+            "人为干扰"
+          ],
+          "errors": [
+            {
+              "lower": [
+                0.19,
+                -0.41,
+                0.1,
+                -0.62
+              ],
+              "upper": [
+                0.65,
+                -0.07,
+                0.53,
+                -0.24
+              ]
+            }
+          ],
+          "xTitle": "标准化效应值",
+          "xMin": -0.8,
+          "xMax": 0.8,
+          "xMajor": 0.4
+        },
+        {
+          "type": "scatter",
+          "title": "模型拟合效果",
+          "series": [
+            {
+              "name": "示意数据",
+              "xValues": [
+                10.0,
+                12.2,
+                14.4,
+                16.6,
+                18.8,
+                21.0,
+                23.2,
+                25.4,
+                27.6,
+                29.8,
+                32.0,
+                34.2,
+                36.4,
+                38.6,
+                40.8,
+                43.0,
+                45.2,
+                47.4,
+                49.6,
+                51.8,
+                54.0,
+                56.2,
+                58.4,
+                60.6,
+                62.8,
+                65.0
+              ],
+              "values": [
+                10.0,
+                16.7,
+                10.6,
+                15.2,
+                23.7,
+                18.3,
+                20.5,
+                30.4,
+                26.2,
+                26.0,
+                36.6,
+                34.2,
+                31.9,
+                42.4,
+                42.2,
+                38.1,
+                48.0,
+                50.0,
+                44.6,
+                53.3,
+                57.7,
+                51.6,
+                58.5,
+                65.1,
+                59.0,
+                63.7
+              ]
+            }
+          ],
+          "source": "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。",
+          "xTitle": "预测值",
+          "yTitle": "观测值",
+          "xMin": 0,
+          "xMax": 80,
+          "xMajor": 20,
+          "yMin": 0,
+          "yMax": 80,
+          "yMajor": 20
+        }
+      ],
+      "takeaway": "模型用于组织证据，因果解释仍需研究设计支持",
+      "emphasis": [
+        "因果解释",
+        "研究设计"
+      ]
+    },
+    "fixed_labels": [
+      "输入证据",
+      "机制模型",
+      "检验输出"
+    ]
+  },
+  "L11": {
+    "slide": "ppt/slides/slide11.xml",
+    "fields": [
+      {
+        "shape": "42",
+        "path": "title"
+      },
+      {
+        "shape": "7",
+        "path": "charts.0.title"
+      },
+      {
+        "shape": "9",
+        "path": "charts.0.xTitle"
+      },
+      {
+        "shape": "14",
+        "path": "charts.1.title"
+      },
+      {
+        "shape": "20",
+        "path": "charts.2.title"
+      },
+      {
+        "shape": "23",
+        "path": "charts.2.series.0.name"
+      },
+      {
+        "shape": "25",
+        "path": "charts.2.series.1.name"
+      },
+      {
+        "shape": "26",
+        "path": "charts.2.xTitle"
+      },
+      {
+        "shape": "31",
+        "path": "charts.3.title"
+      },
+      {
+        "shape": "33",
+        "path": "charts.3.labels.0"
+      },
+      {
+        "shape": "34",
+        "path": "charts.3.labels.1"
+      },
+      {
+        "shape": "35",
+        "path": "charts.3.labels.2"
+      },
+      {
+        "shape": "36",
+        "path": "charts.3.labels.3"
+      },
+      {
+        "shape": "37",
+        "path": "charts.3.xTitle"
+      },
+      {
+        "shape": "39",
+        "path": "takeaway"
+      },
+      {
+        "shape": "40",
+        "special": "footer"
+      },
+      {
+        "shape": "41",
+        "special": "page"
+      }
+    ],
+    "tables": [],
+    "charts": [
+      {
+        "rid": "R0f90f39fb5cf47f3",
+        "path": "charts.0"
+      },
+      {
+        "rid": "R5ffc3bee95974730",
+        "path": "charts.1"
+      },
+      {
+        "rid": "R5911ad34a6c7462d",
+        "path": "charts.2"
+      },
+      {
+        "rid": "Rffaaf39a0267400e",
+        "path": "charts.3"
+      }
+    ],
+    "default": {
+      "layout": "L11",
+      "title": "结果展示｜多维证据共同刻画群落响应",
+      "sources": [
+        "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。"
+      ],
+      "charts": [
+        {
+          "type": "scatter",
+          "title": "丰富度沿梯度变化",
+          "series": [
+            {
+              "name": "示意观测",
+              "xValues": [
+                0.0,
+                0.025,
+                0.05,
+                0.075,
+                0.1,
+                0.125,
+                0.15,
+                0.175,
+                0.2,
+                0.225,
+                0.25,
+                0.275,
+                0.3,
+                0.325,
+                0.35,
+                0.375,
+                0.4,
+                0.425,
+                0.45,
+                0.475,
+                0.5,
+                0.525,
+                0.55,
+                0.575,
+                0.6,
+                0.625,
+                0.65,
+                0.675,
+                0.7,
+                0.725,
+                0.75,
+                0.775,
+                0.8,
+                0.825,
+                0.85,
+                0.875,
+                0.9,
+                0.925,
+                0.95,
+                0.975,
+                1.0
+              ],
+              "values": [
+                80.0,
+                85.9,
+                67.0,
+                81.2,
+                76.1,
+                63.6,
+                80.3,
+                65.5,
+                63.5,
+                75.9,
+                56.3,
+                64.9,
+                67.9,
+                50.2,
+                65.7,
+                57.7,
+                47.8,
+                63.9,
+                47.2,
+                48.2,
+                58.5,
+                38.7,
+                49.7,
+                49.8,
+                33.6,
+                50.0,
+                39.3,
+                32.1,
+                47.3,
+                29.1,
+                33.1,
+                40.9,
+                21.5,
+                34.5,
+                31.5,
+                17.4,
+                34.1,
+                20.8,
+                16.7,
+                30.4,
+                11.2
+              ]
+            }
+          ],
+          "source": "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。",
+          "xTitle": "干扰强度",
+          "yTitle": "物种数",
+          "xMin": 0,
+          "xMax": 1,
+          "xMajor": 0.25,
+          "yMin": 0,
+          "yMax": 100,
+          "yMajor": 25
+        },
+        {
+          "type": "box",
+          "title": "不同生境的群落差异",
+          "series": [
+            {
+              "name": "连续林",
+              "values": [
+                1.45,
+                1.682,
+                1.422,
+                1.288,
+                1.615,
+                1.696,
+                1.38,
+                1.412,
+                1.751,
+                1.663,
+                1.378,
+                1.571,
+                1.838,
+                1.608,
+                1.432,
+                1.739,
+                1.867,
+                1.559
+              ]
+            },
+            {
+              "name": "过渡带",
+              "values": [
+                0.95,
+                1.182,
+                0.922,
+                0.788,
+                1.115,
+                1.196,
+                0.88,
+                0.912,
+                1.251,
+                1.163,
+                0.878,
+                1.071,
+                1.338,
+                1.108,
+                0.932,
+                1.239,
+                1.367,
+                1.059
+              ]
+            },
+            {
+              "name": "破碎林",
+              "values": [
+                0.43,
+                0.662,
+                0.402,
+                0.268,
+                0.595,
+                0.676,
+                0.36,
+                0.392,
+                0.731,
+                0.643,
+                0.358,
+                0.551,
+                0.818,
+                0.588,
+                0.412,
+                0.719,
+                0.847,
+                0.539
+              ]
+            }
+          ],
+          "source": "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。",
+          "xTitle": "生境类型",
+          "yTitle": "多样性指数",
+          "yMin": 0,
+          "yMax": 2.5,
+          "yMajor": 0.5
+        },
+        {
+          "type": "interval",
+          "title": "季节动态",
+          "series": [
+            {
+              "name": "情景 A",
+              "values": [
+                0.78,
+                0.9,
+                1.1,
+                1.3,
+                1.48,
+                1.32,
+                1.1,
+                0.92,
+                0.83,
+                0.72,
+                0.66,
+                0.6
+              ]
+            },
+            {
+              "name": "情景 B",
+              "values": [
+                0.24,
+                0.32,
+                0.44,
+                0.61,
+                0.72,
+                0.6,
+                0.52,
+                0.38,
+                0.31,
+                0.27,
+                0.25,
+                0.24
+              ]
+            }
+          ],
+          "source": "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。",
+          "categories": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12"
+          ],
+          "lower": [
+            0.61,
+            0.71,
+            0.9,
+            1.09,
+            1.28,
+            1.13,
+            0.91,
+            0.73,
+            0.64,
+            0.53,
+            0.47,
+            0.42
+          ],
+          "upper": [
+            0.95,
+            1.09,
+            1.3,
+            1.51,
+            1.68,
+            1.51,
+            1.29,
+            1.11,
+            1.02,
+            0.91,
+            0.85,
+            0.78
+          ],
+          "xTitle": "月份",
+          "yTitle": "相对活动指数",
+          "yMin": 0,
+          "yMax": 2,
+          "yMajor": 0.5
+        },
+        {
+          "type": "effects",
+          "title": "效应与不确定性",
+          "series": [
+            {
+              "name": "效应估计",
+              "values": [
+                0.42,
+                -0.24,
+                0.31,
+                -0.44
+              ]
+            }
+          ],
+          "source": "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。",
+          "labels": [
+            "生境面积",
+            "隔离程度",
+            "植被覆盖",
+            "人为干扰"
+          ],
+          "errors": [
+            {
+              "lower": [
+                0.19,
+                -0.41,
+                0.1,
+                -0.62
+              ],
+              "upper": [
+                0.65,
+                -0.07,
+                0.53,
+                -0.24
+              ]
+            }
+          ],
+          "xTitle": "标准化效应值",
+          "xMin": -0.8,
+          "xMax": 0.8,
+          "xMajor": 0.4
+        }
+      ],
+      "takeaway": "读图顺序：趋势 → 组间差异 → 动态 → 不确定性"
+    },
+    "fixed_labels": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  "L12": {
+    "slide": "ppt/slides/slide12.xml",
+    "fields": [
+      {
+        "shape": "125",
+        "path": "title"
+      },
+      {
+        "shape": "9",
+        "path": "items.0.title"
+      },
+      {
+        "shape": "15",
+        "path": "items.0.problem"
+      },
+      {
+        "shape": "18",
+        "path": "items.0.response"
+      },
+      {
+        "shape": "28",
+        "path": "items.1.title"
+      },
+      {
+        "shape": "37",
+        "path": "items.1.problem"
+      },
+      {
+        "shape": "40",
+        "path": "items.1.response"
+      },
+      {
+        "shape": "47",
+        "path": "items.2.title"
+      },
+      {
+        "shape": "53",
+        "path": "items.2.problem"
+      },
+      {
+        "shape": "56",
+        "path": "items.2.response"
+      },
+      {
+        "shape": "71",
+        "path": "items.3.title"
+      },
+      {
+        "shape": "85",
+        "path": "items.3.problem"
+      },
+      {
+        "shape": "88",
+        "path": "items.3.response"
+      },
+      {
+        "shape": "96",
+        "path": "items.4.title"
+      },
+      {
+        "shape": "103",
+        "path": "items.4.problem"
+      },
+      {
+        "shape": "106",
+        "path": "items.4.response"
+      },
+      {
+        "shape": "112",
+        "path": "items.5.title"
+      },
+      {
+        "shape": "117",
+        "path": "items.5.problem"
+      },
+      {
+        "shape": "120",
+        "path": "items.5.response"
+      },
+      {
+        "shape": "122",
+        "path": "takeaway"
+      },
+      {
+        "shape": "123",
+        "special": "footer"
+      },
+      {
+        "shape": "124",
+        "special": "page"
+      }
+    ],
+    "tables": [],
+    "charts": [],
+    "default": {
+      "layout": "L12",
+      "title": "研究局限｜证据缺口与改进路径",
+      "sources": [
+        "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。"
+      ],
+      "items": [
+        {
+          "title": "样本覆盖",
+          "problem": "样点空间分布不均",
+          "response": "分层补充样点",
+          "icon": "map"
+        },
+        {
+          "title": "尺度匹配",
+          "problem": "数据空间粒度存在差异",
+          "response": "开展多尺度比较",
+          "icon": "grid"
+        },
+        {
+          "title": "检测偏差",
+          "problem": "未检出不等于不存在",
+          "response": "重复调查与检测模型",
+          "icon": "camera"
+        },
+        {
+          "title": "机制识别",
+          "problem": "相关关系难以区分解释",
+          "response": "完善对照与干预",
+          "icon": "network"
+        },
+        {
+          "title": "模型稳健性",
+          "problem": "结果可能依赖模型设定",
+          "response": "比较替代模型",
+          "icon": "chart"
+        },
+        {
+          "title": "外推边界",
+          "problem": "情景条件可能改变",
+          "response": "明确适用范围",
+          "icon": "compass"
+        }
+      ],
+      "takeaway": "下一步工作围绕可识别的证据缺口展开",
+      "emphasis": [
+        "证据缺口"
+      ]
+    },
+    "fixed_labels": [
+      "问题",
+      "应对",
+      "问题",
+      "应对",
+      "问题",
+      "应对",
+      "问题",
+      "应对",
+      "问题",
+      "应对",
+      "问题",
+      "应对"
+    ]
+  },
+  "L13": {
+    "slide": "ppt/slides/slide13.xml",
+    "fields": [
+      {
+        "shape": "91",
+        "path": "title"
+      },
+      {
+        "shape": "6",
+        "path": "lanes.0.label"
+      },
+      {
+        "shape": "7",
+        "path": "lanes.0.question"
+      },
+      {
+        "shape": "12",
+        "path": "lanes.0.before"
+      },
+      {
+        "shape": "14",
+        "path": "lanes.0.action"
+      },
+      {
+        "shape": "15",
+        "path": "lanes.0.detail"
+      },
+      {
+        "shape": "21",
+        "path": "lanes.0.after"
+      },
+      {
+        "shape": "36",
+        "path": "lanes.1.label"
+      },
+      {
+        "shape": "37",
+        "path": "lanes.1.question"
+      },
+      {
+        "shape": "43",
+        "path": "lanes.1.before"
+      },
+      {
+        "shape": "45",
+        "path": "lanes.1.action"
+      },
+      {
+        "shape": "46",
+        "path": "lanes.1.detail"
+      },
+      {
+        "shape": "59",
+        "path": "lanes.1.after"
+      },
+      {
+        "shape": "67",
+        "path": "lanes.2.label"
+      },
+      {
+        "shape": "68",
+        "path": "lanes.2.question"
+      },
+      {
+        "shape": "71",
+        "path": "lanes.2.before"
+      },
+      {
+        "shape": "73",
+        "path": "lanes.2.action"
+      },
+      {
+        "shape": "74",
+        "path": "lanes.2.detail"
+      },
+      {
+        "shape": "78",
+        "path": "lanes.2.after"
+      },
+      {
+        "shape": "82",
+        "path": "actions.0"
+      },
+      {
+        "shape": "85",
+        "path": "actions.1"
+      },
+      {
+        "shape": "88",
+        "path": "actions.2"
+      },
+      {
+        "shape": "89",
+        "special": "footer"
+      },
+      {
+        "shape": "90",
+        "special": "page"
+      }
+    ],
+    "tables": [],
+    "charts": [],
+    "default": {
+      "layout": "L13",
+      "title": "研究展望｜格局描述与机制检验",
+      "sources": [
+        "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。"
+      ],
+      "lanes": [
+        {
+          "label": "观察层面",
+          "question": "回答“是什么”",
+          "icon": "search",
+          "before": "格局描述",
+          "beforeIcon": "map",
+          "action": "增加梯度与重复观测",
+          "detail": "扩展空间范围与观测时间",
+          "after": "过程变化",
+          "afterIcon": "chart"
+        },
+        {
+          "label": "解释层面",
+          "question": "回答“为什么”",
+          "icon": "network",
+          "before": "相关关系",
+          "beforeIcon": "chart",
+          "action": "比较竞争假说与对照情景",
+          "detail": "区分多个可能解释",
+          "after": "机制检验",
+          "afterIcon": "network"
+        },
+        {
+          "label": "应用层面",
+          "question": "回答“哪里适用”",
+          "icon": "leaf",
+          "before": "局部结论",
+          "beforeIcon": "tree",
+          "action": "跨地点验证与情景评估",
+          "detail": "识别适用条件与外推边界",
+          "after": "适用范围",
+          "afterIcon": "layers"
+        }
+      ],
+      "actions": [
+        "补充观测",
+        "优化设计",
+        "外部验证"
+      ]
+    },
+    "fixed_labels": [
+      "1",
+      "2",
+      "3"
+    ]
+  },
+  "L14": {
+    "slide": "ppt/slides/slide14.xml",
+    "fields": [
+      {
+        "shape": "2",
+        "path": "lines",
+        "join": "\n"
+      },
+      {
+        "shape": "4",
+        "path": "question"
+      },
+      {
+        "shape": "32",
+        "path": "presenter"
+      },
+      {
+        "shape": "44",
+        "path": "anchors.0"
+      },
+      {
+        "shape": "47",
+        "path": "anchors.1"
+      },
+      {
+        "shape": "51",
+        "path": "anchors.2"
+      },
+      {
+        "shape": "52",
+        "special": "footer"
+      },
+      {
+        "shape": "53",
+        "special": "page"
+      }
+    ],
+    "tables": [],
+    "charts": [],
+    "default": {
+      "layout": "L14",
+      "title": "讨论与结束",
+      "sources": [
+        "本样板人工构造的合成数据，仅测试版式与编辑功能，不代表真实研究。"
+      ],
+      "lines": [
+        "汇报完毕",
+        "敬请讨论"
+      ],
+      "question": "哪些解释仍需进一步检验？",
+      "presenter": "汇报人：待填写",
+      "anchors": [
+        "研究设计",
+        "证据边界",
+        "下一步工作"
+      ]
+    },
+    "fixed_labels": []
+  }
+}

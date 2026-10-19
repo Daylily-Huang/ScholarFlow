@@ -1,0 +1,22 @@
+{
+  "version": "1.1.0",
+  "sha256": {
+    "assets/template-system.json": "7e6ce10b54de03eb465b70877cb32c409f9e8c3ce422891ef1bb60fbc6625ba9",
+    "README.md": "127633850ce6eb3aa51ce5cf7f3d8fe4058af44b726ca8f4f7f0624d9a9ace2d",
+    "references/candidate-hashes.json": "37744e1435bb103c6c592c9777efcf556206c291c44fd211ba99b6775103e337",
+    "references/fill-and-typography.md": "add595d0cb00a84318dc2883275ada5410af7b26cd9a674b0e8118fbef5df79a",
+    "references/input-and-templates.md": "f65265aa724b02fb4211b7df966ca34c2eaf68110455d095e137a511210fda81",
+    "references/review.md": "89b4ec1b8e39cbc96ad796774c0929f9a9179a0e2cdff6f873c83932242cd1d3",
+    "references/validation-results.json": "b6ca9e76784b965e23319e5d7f04becd3008fa56bbee29c2e06418d6d8ab8291",
+    "references/validation-solid.json": "eec8fe90150c271b55c4518b2ad41b5d4ab10daf891da957aeed3a52c575f24b",
+    "references/validation.md": "20b57814e5af7d828b9d7dbeba3603a88ace43d2fb6797b8123551d0a3624ef9",
+    "scripts/audit.py": "37ecbd3521bbeec040204225064c96adab9894b1426f20f6bc62abf7d9436e7d",
+    "scripts/check_environment.py": "db535cf31cfd0ab1bc2a09c78c4c353234c74e6191c645bb3506d68a6ca36a6a",
+    "scripts/fill_styles.py": "701fade93e2123c0834c1936cdfa6a49b5268bd5267fdab789213f9a22b37dee",
+    "scripts/generate.py": "cd35f9ad12220741e52964cf3cb6fcb0c6fbe0b52b2145c00e846034897f5379",
+    "scripts/install_fonts.py": "fd762430dc53f7be6bd94baed1554cb5ba90f9307c26e9c21ab43061684d8060",
+    "scripts/render_powerpoint.ps1": "8edcb4b483d4d6ccf680a5cb87fe449b031128c0b3fda8ed14e04605d1a9e72b",
+    "SKILL.md": "a3521068579627edb6c7b11e4f42442f2ed792c14d9aa9df5430c6ee56ec1ae6",
+    "tests/test_portable.py": "70fa838fff64d0be84248c2aec572efa76558aeb6d896955d5472cff18fb84e6"
+  }
+}

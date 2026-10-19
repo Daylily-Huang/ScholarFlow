@@ -1,0 +1,321 @@
+{
+  "version": "1.1.1",
+  "approved_date": "2026-10-19",
+  "canvas": {
+    "width": 1280,
+    "height": 720
+  },
+  "default_palette": "P1",
+  "fonts": {
+    "heading": "Noto Serif CJK SC",
+    "body": "Noto Sans CJK SC",
+    "latin": "Noto Sans CJK SC"
+  },
+  "sizes": {
+    "title": 36,
+    "section": 25,
+    "body": 20,
+    "chart": 16,
+    "footnote": 12
+  },
+  "spacing": {
+    "margin": 24,
+    "gap": 18,
+    "header_bottom": 70,
+    "body_top": 86,
+    "body_bottom": 652,
+    "footer_top": 690
+  },
+  "palettes": {
+    "P1": {
+      "name": "蓝白朱红",
+      "primary": "#173D67",
+      "secondary": "#718EAA",
+      "accent": "#AF3D3D",
+      "paper": "#FFFFFF",
+      "tint": "#EEF3F8",
+      "description": "crisp porcelain white, rich ink navy, subtle slate blue, restrained vermilion. Precise, formal and luminous."
+    },
+    "P2": {
+      "name": "松绿米白",
+      "primary": "#28463A",
+      "secondary": "#8A9B81",
+      "accent": "#A8562F",
+      "paper": "#FAF9F4",
+      "tint": "#EAF0E8",
+      "description": "deep pine green, soft ivory, muted sage, a tiny terracotta accent. Quiet natural-history elegance with a botanical research sensibility."
+    },
+    "P3": {
+      "name": "石墨青金",
+      "primary": "#12303A",
+      "secondary": "#5D9298",
+      "accent": "#B08026",
+      "paper": "#FBFCFC",
+      "tint": "#EDF3F2",
+      "description": "dark graphite teal, fog white, restrained sea-glass teal and ochre gold. Sophisticated precise scientific editorial design; gold only as ink accents, never metallic."
+    },
+    "P4": {
+      "name": "酒红灰蓝",
+      "primary": "#6E293C",
+      "secondary": "#66859A",
+      "accent": "#A97738",
+      "paper": "#FFFDF9",
+      "tint": "#F4ECEE",
+      "description": "deep burgundy, warm white, desaturated steel blue, tiny antique ochre. Scholarly, mature, crisp and elegant, not wedding or luxury branding."
+    },
+    "P5": {
+      "name": "靛紫芥黄",
+      "primary": "#3F2F7A",
+      "secondary": "#8C84AE",
+      "accent": "#A58116",
+      "paper": "#FCFCFE",
+      "tint": "#F0EEF7",
+      "description": "deep ink indigo-purple, clean pearl white, muted lavender gray, restrained mustard. Precise high-end academic design, never neon or magical."
+    },
+    "P6": {
+      "name": "湖蓝珊瑚",
+      "primary": "#087F9A",
+      "secondary": "#6A9DAA",
+      "accent": "#D15B55",
+      "paper": "#FFFFFF",
+      "tint": "#EFF8FB",
+      "description": "清爽湖蓝主色，珊瑚红作少量语义强调"
+    }
+  },
+  "scenarios": {
+    "academic": {
+      "name": "学术分享型",
+      "focus": [
+        "研究问题",
+        "竞争解释",
+        "证据与边界",
+        "讨论"
+      ],
+      "suggested_layouts": [
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10",
+        "L11",
+        "L12",
+        "L14"
+      ]
+    },
+    "coursework": {
+      "name": "课程作业型",
+      "focus": [
+        "任务要求",
+        "概念与方法",
+        "比较与推导",
+        "回答与反思"
+      ],
+      "suggested_layouts": [
+        "L5",
+        "L6",
+        "L3",
+        "L9",
+        "L11",
+        "L12",
+        "L13",
+        "L14"
+      ]
+    },
+    "progress": {
+      "name": "实验进展型",
+      "focus": [
+        "本期目标",
+        "完成状态",
+        "初步结果",
+        "问题与下一步"
+      ],
+      "suggested_layouts": [
+        "L5",
+        "L2",
+        "L4",
+        "L1",
+        "L11",
+        "L12",
+        "L13",
+        "L14"
+      ]
+    }
+  },
+  "layouts": {
+    "L1": {
+      "name": "中心循环型",
+      "category": "机制与技术",
+      "purpose": "观测、建模、应用与反馈的循环关系。"
+    },
+    "L2": {
+      "name": "分层技术路线型",
+      "category": "机制与技术",
+      "purpose": "按数据、分析、验证分层展示技术路线。"
+    },
+    "L3": {
+      "name": "对照证据型",
+      "category": "结果与归纳",
+      "purpose": "统一比较条件，突出两组证据的差异。"
+    },
+    "L4": {
+      "name": "实验进展矩阵型",
+      "category": "结果与归纳",
+      "purpose": "按样点与任务阶段展示进展、问题和下一步。"
+    },
+    "L5": {
+      "name": "主视觉学术封面",
+      "category": "开场与导航",
+      "purpose": "学术分享、课程作业、实验进展的统一开场。"
+    },
+    "L6": {
+      "name": "章节地图式目录",
+      "category": "开场与导航",
+      "purpose": "把汇报章节与论证顺序同时展示。"
+    },
+    "L7": {
+      "name": "章节过渡与导航",
+      "category": "开场与导航",
+      "purpose": "章节切换；底部导航提示当前进度。"
+    },
+    "L8": {
+      "name": "三栏系统架构",
+      "category": "机制与技术",
+      "purpose": "技术路线、系统架构、方法体系；中栏承担主要图解。"
+    },
+    "L9": {
+      "name": "双机制对照与比较表",
+      "category": "机制与技术",
+      "purpose": "竞争假说、方法比较、两种解释的检验。"
+    },
+    "L10": {
+      "name": "中心模型与两翼证据",
+      "category": "机制与技术",
+      "purpose": "核心模型、作用机制、数据输入与结果输出。"
+    },
+    "L11": {
+      "name": "四联数据证据图",
+      "category": "结果与归纳",
+      "purpose": "展示多个互补结果；统一坐标、图例与面板编号。"
+    },
+    "L12": {
+      "name": "六维问题与应对",
+      "category": "结果与归纳",
+      "purpose": "研究局限、挑战归纳、课程讨论与改进方案。"
+    },
+    "L13": {
+      "name": "研究演进与展望",
+      "category": "结果与归纳",
+      "purpose": "归纳研究演进、下一步路线与预期交付。"
+    },
+    "L14": {
+      "name": "讨论与结束页",
+      "category": "开场与导航",
+      "purpose": "收束汇报、提出讨论问题、进入答疑。"
+    }
+  },
+  "rules": {
+    "intake_order": [
+      "scenario",
+      "palette",
+      "fill_style"
+    ],
+    "accent_max_terms": 4,
+    "content_plot_fraction_min": 0.66,
+    "same_deck_single_palette": true,
+    "no_full_slide_raster": true,
+    "default_chart_marker_px": 5,
+    "legend": "direct labels or compact in-chart legend; never enlarge outer chart to hide small plot",
+    "raster_boundary": "Detailed ecology illustration only. Titles, labels, diagram nodes and data plots must be native."
+  },
+  "fill_styles": {
+    "light": {
+      "name": "轻盈浅底",
+      "description": "保留v1.0低饱和辅助色、浅底卡片与线性图标"
+    },
+    "solid": {
+      "name": "厚实实底",
+      "description": "明净主色、深色实底白字栏目、实心图标与清晰边框；内容与绘图区留白"
+    }
+  },
+  "solid_palettes": {
+    "P1": {
+      "name": "蓝白朱红",
+      "primary": "#1359A0",
+      "secondary": "#2685C9",
+      "accent": "#B82D32",
+      "paper": "#FFFFFF",
+      "tint": "#EDF5FF",
+      "description": "厚实实底版：提高色彩纯度，白底，较强主次对比"
+    },
+    "P2": {
+      "name": "松绿米白",
+      "primary": "#136742",
+      "secondary": "#429C6B",
+      "accent": "#BD4F22",
+      "paper": "#FFFFFF",
+      "tint": "#EFF9F2",
+      "description": "厚实实底版：提高色彩纯度，白底，较强主次对比"
+    },
+    "P3": {
+      "name": "石墨青金",
+      "primary": "#07556B",
+      "secondary": "#1498AD",
+      "accent": "#B77B08",
+      "paper": "#FFFFFF",
+      "tint": "#EDF9FC",
+      "description": "厚实实底版：提高色彩纯度，白底，较强主次对比"
+    },
+    "P4": {
+      "name": "酒红灰蓝",
+      "primary": "#8F2445",
+      "secondary": "#2879AD",
+      "accent": "#AB7210",
+      "paper": "#FFFFFF",
+      "tint": "#FFF1F5",
+      "description": "厚实实底版：提高色彩纯度，白底，较强主次对比"
+    },
+    "P5": {
+      "name": "靛紫芥黄",
+      "primary": "#4D319F",
+      "secondary": "#7960D0",
+      "accent": "#A87D05",
+      "paper": "#FFFFFF",
+      "tint": "#F4F0FF",
+      "description": "厚实实底版：提高色彩纯度，白底，较强主次对比"
+    },
+    "P6": {
+      "name": "湖蓝珊瑚",
+      "primary": "#087F9A",
+      "secondary": "#20A9BC",
+      "accent": "#CB4442",
+      "paper": "#FFFFFF",
+      "tint": "#EFFBFF",
+      "description": "厚实实底版：提高色彩纯度，白底，较强主次对比"
+    }
+  },
+  "solid_typography": {
+    "canvas_units": "px at 1280x720; 1px=0.75pt",
+    "title": 42,
+    "body_preferred": [
+      21,
+      25
+    ],
+    "auxiliary_min": 17,
+    "chart_min": 17,
+    "footnote": 14,
+    "content_side_margin": 32,
+    "exceptions": [
+      "L5 cover",
+      "L6 contents",
+      "L7 section",
+      "L14 ending"
+    ],
+    "rule": "厚实版按1280×720画布：内容页标题42px（31.5pt），正文优先21–25px（15.75–18.75pt），辅助说明与图表标注至少17px（12.75pt），页脚14px。左右内容边距32px（各2.5%），内容对齐同一纵线；封面、目录与章节页保留专用构图。标题框和段落随字号扩展，语义换行避免单字落行；环形节点文字应完全落在色块内。坐标标题与刻度分开预留空间，不以缩字解决重叠，技术路线与数据图仍为主体。逐页将实际PPT渲染与批准生图并排检查比例、对齐、留白及字重，不以自动溢出检查替代目视核对。"
+  },
+  "accepted_standard": {
+    "id": "approved-solid-v1.1",
+    "user_approved_date": "2026-10-19",
+    "snapshot": "references/approved-standard.json"
+  }
+}

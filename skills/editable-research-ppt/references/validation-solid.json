@@ -1,0 +1,338 @@
+{
+  "version": "1.1.0",
+  "date": "2026-10-19",
+  "review_type": "bounded self-check of reversible visual extension; historical independent v1.0 review does not apply",
+  "tests": {
+    "windows_python_3_12_10": "11 passed",
+    "wsl_python_3_14_4": "11 passed",
+    "legacy_windows": "5 outputs byte-identical",
+    "legacy_linux": "5 outputs recursively unpacked OOXML and embedded workbook content identical; ZIP metadata differs"
+  },
+  "visual_check": "PowerPoint rendered all 27 new pages. Compared hierarchy, plot area, icons and margins to approved generated L1/L2/L8/L11/L13 references; corrected axis-label collisions, isolated last-character wrapping and cycle-label fit. Not pixel-identical reconstruction.",
+  "files": [
+    {
+      "file": "solid-showcase.pptx",
+      "sha256": "bbd0b165176023f14ad37f63321ae8b7d66006e43f2a8f02d9842e6109b018a4",
+      "audit": {
+        "ok": true,
+        "file": "solid-showcase.pptx",
+        "counts": {
+          "slides": 9,
+          "text_shapes": 213,
+          "charts": 17,
+          "tables": 2,
+          "connectors": 18,
+          "pictures": 6,
+          "cache_cells": 1036
+        },
+        "errors": [],
+        "scope": "Structure and cached series/workbook agreement; no scientific validation or rendered-layout proof. Custom error bars are literal, not workbook-linked."
+      },
+      "powerpoint": {
+        "source": "solid-showcase.pptx",
+        "application": "PowerPoint",
+        "opened": true,
+        "slides": [
+          {
+            "slide": 1,
+            "text": 24,
+            "charts": 2,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 103
+          },
+          {
+            "slide": 2,
+            "text": 24,
+            "charts": 2,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 103
+          },
+          {
+            "slide": 3,
+            "text": 24,
+            "charts": 2,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 103
+          },
+          {
+            "slide": 4,
+            "text": 24,
+            "charts": 2,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 103
+          },
+          {
+            "slide": 5,
+            "text": 24,
+            "charts": 2,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 103
+          },
+          {
+            "slide": 6,
+            "text": 24,
+            "charts": 2,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 103
+          },
+          {
+            "slide": 7,
+            "text": 21,
+            "charts": 4,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 41
+          },
+          {
+            "slide": 8,
+            "text": 25,
+            "charts": 1,
+            "pictures": 0,
+            "tables": 1,
+            "shapes": 141
+          },
+          {
+            "slide": 9,
+            "text": 23,
+            "charts": 0,
+            "pictures": 0,
+            "tables": 1,
+            "shapes": 72
+          }
+        ],
+        "overflows": [],
+        "edit_probe": true,
+        "version": "16.0",
+        "slide_count": 9,
+        "text_persisted": true,
+        "move_persisted": true,
+        "workbook_value_persisted": true,
+        "probe_original_value": 50.0
+      }
+    },
+    {
+      "file": "fill-comparison.pptx",
+      "sha256": "d27e54d4495ff840a605e7bd6d8405d3cb7aa12f3fe18a787470be71fadccad7",
+      "audit": {
+        "ok": true,
+        "file": "fill-comparison.pptx",
+        "counts": {
+          "slides": 4,
+          "text_shapes": 90,
+          "charts": 12,
+          "tables": 0,
+          "connectors": 6,
+          "pictures": 2,
+          "cache_cells": 668
+        },
+        "errors": [],
+        "scope": "Structure and cached series/workbook agreement; no scientific validation or rendered-layout proof. Custom error bars are literal, not workbook-linked."
+      },
+      "powerpoint": {
+        "source": "fill-comparison.pptx",
+        "application": "PowerPoint",
+        "opened": true,
+        "slides": [
+          {
+            "slide": 1,
+            "text": 24,
+            "charts": 2,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 98
+          },
+          {
+            "slide": 2,
+            "text": 24,
+            "charts": 2,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 103
+          },
+          {
+            "slide": 3,
+            "text": 21,
+            "charts": 4,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 41
+          },
+          {
+            "slide": 4,
+            "text": 21,
+            "charts": 4,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 41
+          }
+        ],
+        "overflows": [],
+        "edit_probe": true,
+        "version": "16.0",
+        "slide_count": 4,
+        "text_persisted": true,
+        "move_persisted": true,
+        "workbook_value_persisted": true,
+        "probe_original_value": 50.0
+      }
+    },
+    {
+      "file": "solid-all-layouts.pptx",
+      "sha256": "b81f3b00131ef7ecaa21bb90848552c28e1c0ce82f27825956c2a3a4a17aedbc",
+      "audit": {
+        "ok": true,
+        "file": "solid-all-layouts.pptx",
+        "counts": {
+          "slides": 14,
+          "text_shapes": 300,
+          "charts": 12,
+          "tables": 4,
+          "connectors": 17,
+          "pictures": 12,
+          "cache_cells": 470
+        },
+        "errors": [],
+        "scope": "Structure and cached series/workbook agreement; no scientific validation or rendered-layout proof. Custom error bars are literal, not workbook-linked."
+      },
+      "powerpoint": {
+        "source": "solid-all-layouts.pptx",
+        "application": "PowerPoint",
+        "opened": true,
+        "slides": [
+          {
+            "slide": 1,
+            "text": 25,
+            "charts": 1,
+            "pictures": 0,
+            "tables": 1,
+            "shapes": 141
+          },
+          {
+            "slide": 2,
+            "text": 24,
+            "charts": 2,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 103
+          },
+          {
+            "slide": 3,
+            "text": 18,
+            "charts": 2,
+            "pictures": 0,
+            "tables": 1,
+            "shapes": 83
+          },
+          {
+            "slide": 4,
+            "text": 23,
+            "charts": 0,
+            "pictures": 0,
+            "tables": 1,
+            "shapes": 72
+          },
+          {
+            "slide": 5,
+            "text": 7,
+            "charts": 0,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 21
+          },
+          {
+            "slide": 6,
+            "text": 25,
+            "charts": 0,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 80
+          },
+          {
+            "slide": 7,
+            "text": 9,
+            "charts": 0,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 44
+          },
+          {
+            "slide": 8,
+            "text": 37,
+            "charts": 1,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 153
+          },
+          {
+            "slide": 9,
+            "text": 14,
+            "charts": 0,
+            "pictures": 7,
+            "tables": 1,
+            "shapes": 30
+          },
+          {
+            "slide": 10,
+            "text": 28,
+            "charts": 2,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 91
+          },
+          {
+            "slide": 11,
+            "text": 21,
+            "charts": 4,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 41
+          },
+          {
+            "slide": 12,
+            "text": 34,
+            "charts": 0,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 124
+          },
+          {
+            "slide": 13,
+            "text": 27,
+            "charts": 0,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 90
+          },
+          {
+            "slide": 14,
+            "text": 8,
+            "charts": 0,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 53
+          }
+        ],
+        "overflows": [],
+        "edit_probe": true,
+        "version": "16.0",
+        "slide_count": 14,
+        "text_persisted": true,
+        "move_persisted": true,
+        "workbook_value_persisted": true,
+        "probe_original_value": 10.0
+      }
+    }
+  ],
+  "not_tested": [
+    "macOS rendering",
+    "WPS",
+    "LibreOffice",
+    "remote CI"
+  ]
+}

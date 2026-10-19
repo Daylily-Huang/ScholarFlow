@@ -1,0 +1,291 @@
+{
+  "version": "1.1.1",
+  "date": "2026-10-19",
+  "standard": "approved-solid-v1.1",
+  "scope": "12 scenario pages, not proof for arbitrary-length content",
+  "unchanged_engine_sha256": {
+    "scripts/generate.py": "cd35f9ad12220741e52964cf3cb6fcb0c6fbe0b52b2145c00e846034897f5379",
+    "scripts/fill_styles.py": "701fade93e2123c0834c1936cdfa6a49b5268bd5267fdab789213f9a22b37dee",
+    "assets/templates/library.pptx": "da7b2f6d3109357d7aea7e3d206859d271ae8385fa416e77a5e9e06afbbae780",
+    "assets/templates/bindings.json": "a784832d40efc3857cd56166302b3bc06c8fa3f6fac3319e20917c0d5b1771e0"
+  },
+  "files": [
+    {
+      "file": "stable-academic.pptx",
+      "sha256": "646c76d5d67c308a29aa8ccf33e0e00490376a15b5f4e836cbbcc895c58bbcff",
+      "topic": "城市鸟类与绿地连通性",
+      "scenario": "academic",
+      "palette": "P2",
+      "audit": {
+        "ok": true,
+        "file": "stable-academic.pptx",
+        "counts": {
+          "slides": 4,
+          "text_shapes": 97,
+          "charts": 6,
+          "tables": 1,
+          "connectors": 5,
+          "pictures": 7,
+          "cache_cells": 232
+        },
+        "errors": [],
+        "scope": "Structure and cached series/workbook agreement; no scientific validation or rendered-layout proof. Custom error bars are literal, not workbook-linked."
+      },
+      "layout_checks": [
+        {
+          "slide": 1,
+          "layout": "L9",
+          "native_shape_geometry_and_font_sizes_equal_to_approved": true
+        },
+        {
+          "slide": 2,
+          "layout": "L10",
+          "native_shape_geometry_and_font_sizes_equal_to_approved": true
+        },
+        {
+          "slide": 3,
+          "layout": "L11",
+          "native_shape_geometry_and_font_sizes_equal_to_approved": true
+        },
+        {
+          "slide": 4,
+          "layout": "L12",
+          "native_shape_geometry_and_font_sizes_equal_to_approved": true
+        }
+      ],
+      "powerpoint": {
+        "source": "stable-academic.pptx",
+        "application": "PowerPoint",
+        "opened": true,
+        "slides": [
+          {
+            "slide": 1,
+            "text": 14,
+            "charts": 0,
+            "pictures": 7,
+            "tables": 1,
+            "shapes": 30
+          },
+          {
+            "slide": 2,
+            "text": 28,
+            "charts": 2,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 91
+          },
+          {
+            "slide": 3,
+            "text": 21,
+            "charts": 4,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 41
+          },
+          {
+            "slide": 4,
+            "text": 34,
+            "charts": 0,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 124
+          }
+        ],
+        "overflows": [],
+        "edit_probe": true,
+        "version": "16.0",
+        "slide_count": 4,
+        "text_persisted": true,
+        "move_persisted": true,
+        "workbook_value_persisted": true,
+        "probe_original_value": 4.0
+      }
+    },
+    {
+      "file": "stable-coursework.pptx",
+      "sha256": "1f08bc0cccc7625898c24e5e72ee8b3466c630025c72cebfa5254550e087a305",
+      "topic": "群落多样性指标比较",
+      "scenario": "coursework",
+      "palette": "P5",
+      "audit": {
+        "ok": true,
+        "file": "stable-coursework.pptx",
+        "counts": {
+          "slides": 4,
+          "text_shapes": 103,
+          "charts": 7,
+          "tables": 1,
+          "connectors": 9,
+          "pictures": 1,
+          "cache_cells": 196
+        },
+        "errors": [],
+        "scope": "Structure and cached series/workbook agreement; no scientific validation or rendered-layout proof. Custom error bars are literal, not workbook-linked."
+      },
+      "layout_checks": [
+        {
+          "slide": 1,
+          "layout": "L3",
+          "native_shape_geometry_and_font_sizes_equal_to_approved": true
+        },
+        {
+          "slide": 2,
+          "layout": "L8",
+          "native_shape_geometry_and_font_sizes_equal_to_approved": true
+        },
+        {
+          "slide": 3,
+          "layout": "L11",
+          "native_shape_geometry_and_font_sizes_equal_to_approved": true
+        },
+        {
+          "slide": 4,
+          "layout": "L13",
+          "native_shape_geometry_and_font_sizes_equal_to_approved": true
+        }
+      ],
+      "powerpoint": {
+        "source": "stable-coursework.pptx",
+        "application": "PowerPoint",
+        "opened": true,
+        "slides": [
+          {
+            "slide": 1,
+            "text": 18,
+            "charts": 2,
+            "pictures": 0,
+            "tables": 1,
+            "shapes": 83
+          },
+          {
+            "slide": 2,
+            "text": 37,
+            "charts": 1,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 153
+          },
+          {
+            "slide": 3,
+            "text": 21,
+            "charts": 4,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 41
+          },
+          {
+            "slide": 4,
+            "text": 27,
+            "charts": 0,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 90
+          }
+        ],
+        "overflows": [],
+        "edit_probe": true,
+        "version": "16.0",
+        "slide_count": 4,
+        "text_persisted": true,
+        "move_persisted": true,
+        "workbook_value_persisted": true,
+        "probe_original_value": 40.0
+      }
+    },
+    {
+      "file": "stable-progress.pptx",
+      "sha256": "5c6f4f04606b64c9cbef3fa502740f16308dc04d9a1913f424f9d4d01d59a544",
+      "topic": "相机监测与记录复核",
+      "scenario": "progress",
+      "palette": "P6",
+      "audit": {
+        "ok": true,
+        "file": "stable-progress.pptx",
+        "counts": {
+          "slides": 4,
+          "text_shapes": 102,
+          "charts": 6,
+          "tables": 1,
+          "connectors": 3,
+          "pictures": 1,
+          "cache_cells": 270
+        },
+        "errors": [],
+        "scope": "Structure and cached series/workbook agreement; no scientific validation or rendered-layout proof. Custom error bars are literal, not workbook-linked."
+      },
+      "layout_checks": [
+        {
+          "slide": 1,
+          "layout": "L4",
+          "native_shape_geometry_and_font_sizes_equal_to_approved": true
+        },
+        {
+          "slide": 2,
+          "layout": "L2",
+          "native_shape_geometry_and_font_sizes_equal_to_approved": true
+        },
+        {
+          "slide": 3,
+          "layout": "L11",
+          "native_shape_geometry_and_font_sizes_equal_to_approved": true
+        },
+        {
+          "slide": 4,
+          "layout": "L12",
+          "native_shape_geometry_and_font_sizes_equal_to_approved": true
+        }
+      ],
+      "powerpoint": {
+        "source": "stable-progress.pptx",
+        "application": "PowerPoint",
+        "opened": true,
+        "slides": [
+          {
+            "slide": 1,
+            "text": 23,
+            "charts": 0,
+            "pictures": 0,
+            "tables": 1,
+            "shapes": 72
+          },
+          {
+            "slide": 2,
+            "text": 24,
+            "charts": 2,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 103
+          },
+          {
+            "slide": 3,
+            "text": 21,
+            "charts": 4,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 41
+          },
+          {
+            "slide": 4,
+            "text": 34,
+            "charts": 0,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 124
+          }
+        ],
+        "overflows": [],
+        "edit_probe": true,
+        "version": "16.0",
+        "slide_count": 4,
+        "text_persisted": true,
+        "move_persisted": true,
+        "workbook_value_persisted": true,
+        "probe_original_value": 26.0
+      }
+    }
+  ],
+  "integration_tests": {
+    "Windows Python 3.12.10": "11 passed",
+    "WSL Python 3.14.4": "11 passed"
+  }
+}
