@@ -1,56 +1,75 @@
 # 数据与模板约定
 
-## 填充风格（v1.1）
+## 填充风格与自适应资料模式（v1.2）
 
-新建汇报按场景→配色→填充风格依次询问，收到上一步答案后再进入下一步；已明确的不重复问。输入顶层写 `fill_style: "light"` 或 `"solid"`。六套配色全部支持两种风格，默认不在一份正式汇报中混用。旧文件不含该字段时保持 light，以保证兼容；这不是跳过用户选择的理由。
+新建汇报按 **场景 → 配色 → 填充风格** 依次询问，收到上一步答案后再进入下一步；已明确的不重复问。输入顶层写 `fill_style: "light"` 或 `"solid"`。六套配色全部支持两种风格。
 
-`light` 保留 v1.0 浅底卡片与低饱和辅助色。`solid` 采用 `solid_palettes` 中更清晰的主辅色，实底白字栏目、关键节点与实体图标，内容/图表白底。样式修改不改变原始文字、数据值、图表类型或图表工作簿；L2三处标题图标缩至32px以适配实底栏目。
-
-仅做样式对照时设置 `style_showcase: true`，并允许每页指定 `fill_style`。参考 `fill-comparison.json`。`solid-showcase.json` 有六色与不同内容版式，`solid-all-layouts.json` 覆盖全部14版式。
+- `visual_mode`：
+  - 当 `demo: false` 时，默认 `visual_mode: "adaptive"`（或 `"clean"`）：
+    1. **自动移除无关默认插画与卡片内冗余大图标**：不再强塞模板自带的森林/鸟类位图，也不在卡片正文区放置 `72px–100px` 的重复大图标，释放完整卡片宽度（`344–816px`）给正文、表格与数据图。
+    2. **实时学科线框图标与按页原图嵌入**：标题栏与流程节点使用极简线框矢量图标（支持 `dna`, `pcr`, `table`, `chart`, `filter`, `warning`, `check`, `location`, `layers`, `workflow`, `document`, `compass`, `search`, `none`，或由生成器根据该卡文本自动匹配并同页去重）；单页可通过 `"image": "path/to/fig.png"` 按真实宽高比无损嵌入用户材料原图（不强制套双色调滤镜）。
+    3. **无外部配图时自动生成原生可编辑卡片**：`L5`（封面核心速览卡，支持 `highlights`）、`L7`（章节路线图卡，支持 `active: 0..3` 动态高亮）、`L9`（机制/状态对照卡）、`L14`（讨论焦点与下一步卡，支持 `anchor_details`）。
+       - `L5.highlights`：长度 1–4 的数组，每项 `{"label","value","detail"}`，渲染为封面右侧「核心信息速览」卡；显式空数组、超过四项或文字超容量均报错。省略时使用最多四个目录章节或内容页完整标题，不截断长标题、数值、来源，也不承诺覆盖全部正文。
+       - `L12.items[*]` 可另加 `problem_label` / `response_label`，替换该卡「问题」「应对」两个固定小标题（如改为「现象」「处理」）。
+    4. **原生表格自适应归一化**：`L4` 表格自动按列内容视觉长度分配列宽、统一所有数据行字号为 `20px`（表头 `21px`），并清除模板残留 `#AF3D3D` 警示色块。
+  - 当 `demo: true` 时，默认 `visual_mode: "legacy"`，保持历史示例逐字节兼容。
 
 ## 从示例修改
 
-复制 `assets/examples/academic.json`、`coursework.json` 或 `progress.json`。`all-layouts.json` 含全部十四种结构，`palettes.json` 是同版式六色对比。字段完整结构以对应示例为准。
+复制 `assets/examples/academic.json`、`coursework.json` 或 `progress.json`。`all-layouts.json` 含全部十四种结构。
 
-顶层字段：`scenario` = `academic|coursework|progress`；`palette` = `P1`…`P6`；`demo` 必须明确为布尔值；`slides` 为 1–150 页列表。正式内容设 `demo: false`，并自行提供 `footer`；这只移除示意页脚，不会让数据变成真实或经过验证的数据。每页必须有非空 `sources`，每张图有 `source`；这些字段用于追溯，脚本不验证引文真实性。来源写入备注。
+顶层字段：`scenario` = `academic|coursework|progress`；`palette` = `P1`…`P6`；`demo` 为布尔值；`slides` 为 1–150 页列表。正式内容设 `demo: false`，并提供 `footer`。每页提供 `sources`，每张图提供 `source`，写入备注以供追溯。
 
-每页 `layout` 选择 L1…L14。可复制或重排同类型页面。保留该版式的必要字段与数组容量；`bindings.json` 中 `default` 是基线，`fields` 是内容到原生对象的映射。修改材料时也应同步脚注、图例、单位、结论和备注，不仅替换标题。
+每页 `layout` 选择 `L1`…`L14`。可按材料逻辑自由组合、复制或重排页面，不必硬凑 14 页。
 
-标题最多38字符、强调词 `emphasis` 最多4个。单文本框另有保守容量检查，表格单格最多32字符。长度检查无法证明视觉不溢出，生成后仍需预览。
+### 写作与表达规范（去除 AI 味与过度防御）
 
-普通汇报不混配色。仅配色展示使用 `palette_showcase: true` 和各页 `palette`。
+- **标题自然直接**：不要全篇机械使用 `四字词｜后半句` 公式；直接用自然学术短句概括当页核心问题、方法或证据。
+- **正文完整可读**：`adaptive` 模式下卡片宽度充裕，请写完整、自然的学术分句，避免生硬的“四字口号堆砌”。
+- **不过度防御**：专注呈现研究问题、方法、数据与实质结论，不要用多页篇幅反复说教“读法建议 / 本文没有做什么 / 免责声明”。
 
 ## 图表
 
-现有图表类别、系列数量和框图节点拓扑固定。数据点数量可在适用的图表内变动，散点的 `xValues` 与 `values` 必须等长。L3 的四个类别还对应独立图标文字，数量固定。表格行列、阶段、章节、问题卡片等数组数量遵循基线；数量不符会报错。
-
 - `line` / `bar`：`categories` 和各系列 `values` 等长。
-- `scatter`：每系列提供 `xValues`、`values`。样例里的拟合线也是一组**用户提供的**点，生成器不会替用户拟合或检验显著性。
-- `interval`：`lower` 和 `upper` 对应第一系列的上下界，长度与类别一致。原生堆积面积带仅支持非负下界，必须包住第一系列；上下界代表何种区间由资料说明，脚本不推断置信水平。
-- `box`：各组输入原始 `values`。使用含端点线性插值的 Q1 / 中位数 / Q3；须线为最小值和最大值。**不是自动识别离群值的 Tukey 箱线图**。内部工作簿保留绘图用摘要，原始观测保留在输入 JSON。
-- `effects`：`labels` 为固定行数，`values` 为效应点；`errors[0].lower/upper` 是区间端点，须包住效应点。上下限不是误差幅度，生成器会换算为原生自定义误差线。
-- 轴的 `xMin/xMax/yMin/yMax` 不得裁切数据或区间；省略范围可由 Office 自动计算，但不保证标签仍清晰。`xMajor/yMajor` 必须大于0。
-
-生成器同时改写图表缓存和嵌入 XLSX。**自定义误差线保存在图表 XML 数值中，不与 XLSX 公式联动**；箱线图原始观测也不在内嵌表中。因此修改这些图应改输入 JSON 再生成，或在 PowerPoint 中同时编辑序列与自定义误差线。普通图表可直接使用“编辑数据”。
+- `scatter`：每系列提供 `xValues`、`values`。`adaptive` 模式下默认移除模板内置线性回归趋势线；若需要显示趋势线，在图表对象中显式设置 `"trendline": true`。
+- `interval`：`lower` 和 `upper` 对应第一系列的上下界，长度与类别一致。
+- `box`：各组输入原始 `values`，使用线性插值 Q1 / 中位数 / Q3，须线为最小值和最大值。
+- `effects`：`labels` 为固定行数，`values` 为效应点，`errors[0].lower/upper` 为区间端点。
+- 轴的 `xMin/xMax/yMin/yMax` 不得裁切数据或区间；`xMajor/yMajor` 必须大于 0。
 
 ## 文字、图标及插画
 
-`emphasis` 使用本主题强调色突出文本中的精确匹配词，不是任意局部富文本编辑器。长封面副标题可用 ` · ` 分段。正文更长时优先精简和拆页，勿缩小为不可读字号。
+- `emphasis` 使用本主题强调色突出文本中的匹配词（每页最多 4 处）。
+- 每页可加 `labels` 字典替换版式固定栏目标签，例如 `"labels": {"样地 × 工作环节": "位点 × 核心参数"}`。
+- `icon` 字段在 `adaptive` 模式下支持任意学科图标名（`dna`, `pcr`, `table`, `chart`, `filter`, `warning`, `check`, `location`, `layers`, `workflow`, `document`, `compass`, `search`, `none`）；即使保留旧名，生成器也会结合卡片文本实时匹配最贴切的极简线框图标并避免同页重复。
+- 单页配图：仅 `L2/L5/L7/L8/L14` 可设置 `"image": "images/figure1.png"`（PNG，路径相对于输入 JSON），等价于 `"images": {"main": "images/figure1.png"}`。保留原图宽高比，是否加双色调由 `duotone` 控制。
+- `duotone`：页面级或文档级布尔值，控制插画是否套主题双色调。`adaptive` 模式默认 `false`（保留原图色彩），`legacy` 默认 `true`。
+- 字号来源：权威值在 `assets/template-system.json` 的 `solid_typography`（内容页标题 42px、正文 21–25px、辅助与图表标注 ≥17px、页脚 14px、左右边距 32px），由 `scripts/fill_styles.py` 实现。同文件的 `sizes` / `spacing` 为历史记录字段，脚本不读取。
 
-部分栏目标签没有独立字段。每页可加 `labels` 字典，把 `bindings.json` 的 `fixed_labels` 中的完整原文映射成新文字，例如 `"labels":{"样地 × 工作环节":"样品 × 工作环节"}`。替换有长度限制。
+### 配图插槽（v1.2.1）
 
-图标由原生形状组成，`icon` 仅说明已有图标，改变名字不会自动生成新图标；不一致会报错。L7 当前章节高亮固定为第3项（`active: 2`，从0计数），可改四项文字；需要其他高亮请在 PPT 模板副本中调整，再维护新基线。`edges` 的连接拓扑同理。`illustration_mode` 为历史示例元信息，便携生成器不据此切换图像，不要把它当成开关。
+| 版式 | 可用插槽 |
+| --- | --- |
+| L2、L5、L7、L8、L14 | `main` |
+| L9 | `left_before`、`left_after`、`right_before`、`right_after_1`、`right_after_2`、`right_after_3`、`right_after_4` |
+| L1、L3、L4、L6、L10、L11、L12、L13 | 无；选有配图区的版式或另拆一页 |
 
-顶层可设 `illustrations: {"landscape":"images/cover.png","forest":"images/patch.png"}`。命令行路径相对于输入 JSON；必须是 PNG。替换保持原图框裁切比例；换主题会对插画应用主题色双色调，非完整保真照片。图像角色在一个文件内共享，替换会作用于所有引用该角色的页面。
+例如 L9 使用 `"images": {"left_before": "images/before.png", "left_after": "images/after.png"}`。每张图片只替换指定插槽；自适应模式移除本页未指定的默认位图。L9 不接受含义不明的单个 `image`，`image` 与 `images` 不能同时使用，未知插槽直接报错。图片内部内容属于位图，不能作为原生文字或数据编辑。
 
-## 维护模板
+文档级 `duotone` 会传递到自定义图片，页面级显式值可覆盖；所有六套配色均遵循同一规则。科研实测图片通常保持 `duotone: false`。
 
-`assets/templates/library.pptx` 是设计源文件，不是不可编辑的渲染结果。用 PowerPoint 修改副本，保留形状 ID 可最大限度保持字段绑定。脚本不依赖原作者的私有制作工具。
+### 表格容量
 
-1. 在副本中修改原生形状、字号和位置，避免把全页合并成图片。
-2. 同步 `bindings.json` 的 slide 路径、shape ID、chart relation ID、table 路径和默认输入。新增对象后按实际 OOXML 更新绑定，不能只改显示名称。
-3. 调色基线为 P1；保留该主题主色、次色、强调色和浅底色。配置中的比例规则是设计约束，不是一个万能自动排版器。
-4. 图片角色采用库中的两个媒体路径，重存文件可能更改媒体名；如有变动同时更新生成器映射。模板不要包含外部链接。
-5. 运行完整示例与测试，实际预览并检查可编辑性。Office 可能在保存时重编号对象，不能默认旧绑定仍有效。
+自适应表格需至少一行表头及一行数据，所有行列数一致且非空。表头 21px、数据 20px 的最小行高与文本列宽要能装入 `table_regions` 指定区域；长文本、太多行列或单元格内换行会报错。生成器不截断、缩字号或自动分页；应由助手组织拆页，或用户在 PPT 中手动调整。
 
-这是一套有限容量的模板引擎。新增图表种类、系列数或全新布局，需要同步模板、数据转换逻辑和对应验证，不能仅添加一个 JSON 名字。
+## 强制检查（字体、字号、位置对齐）
+
+生成后必须运行：
+
+```console
+python scripts/audit.py OUTPUT.pptx --strict
+```
+
+确认退出码 0、`ok: true` 且 `warning_count: 0`，并在 PowerPoint 中导出预览图逐页目视复核。严格模式将全部警告视为失败，包括图表字体与字号。字体配置可显式传 `--font-profile portable|office`，默认自动识别；这检查文件声明，不代表目标电脑一定安装了字体。
+
+PowerPoint 渲染报告必须 `quality_ok: true`；打开失败、文字溢出、表格碰撞、字体问题或请求的编辑探针失败均返回非零退出码。静态检查和实机规则都是有边界的检查，不能代替看图。历史 legacy 示例可能不满足新版严格标准；优先使用 `adaptive-solid.json` / `adaptive-light.json`。

@@ -125,5 +125,31 @@ class PortableTests(unittest.TestCase):
             for name in z.namelist():
                 if name.endswith(('.xml','.rels')):
                     raw=z.read(name).decode();self.assertNotIn('file://',raw);self.assertNotIn('Administrator',raw);self.assertNotIn('D:\\',raw)
+    def test_adaptive_mode_and_strict_audit(self):
+        doc=self.example();doc['demo']=False;doc['fill_style']='solid'
+        # Customize icons, dynamic L7 active index, and L4 table values
+        doc['slides'][0]['stages'][0]['icon']='dna'
+        doc['slides'][0]['stages'][1]['icon']='pcr'
+        doc['slides'][6]['active']=0
+        doc['slides'][3]['matrix'][2][1]='193–202'
+        out=self.output('adaptive-solid',doc)
+        rep=a.audit(out,strict=True)
+        self.assertTrue(rep['ok'],rep)
+        self.assertEqual(rep['warning_count'],0,rep['warnings'])
+        with zipfile.ZipFile(out) as z:
+            # L5 (slide5), L7 (slide7), L9 (slide9), L14 (slide14) should use native editable cards, not stock bitmaps
+            for sname in ['ppt/slides/slide5.xml','ppt/slides/slide7.xml','ppt/slides/slide9.xml','ppt/slides/slide14.xml']:
+                r=E.fromstring(z.read(sname))
+                self.assertEqual(len(r.findall('.//p:pic',g.NS)),0,sname)
+            # L4 (slide4) table data cells must have uniform font size and no leftover #AF3D3D red fill
+            s4=z.read('ppt/slides/slide4.xml').decode()
+            self.assertNotIn('AF3D3D',s4)
+            r4=E.fromstring(s4)
+            tbl=r4.find('.//a:tbl',g.NS)
+            data_sz={rp.get('sz') for tr in tbl.findall('a:tr',g.NS)[1:] for rp in tr.findall('.//a:rPr',g.NS) if rp.get('sz')}
+            self.assertEqual(data_sz,{'1500'})
+            # L10 (slide10) scatter chart must not keep hardcoded trendline unless requested
+            c1=E.fromstring(z.read('ppt/charts/chart2.xml'))
+            self.assertIsNone(c1.find('.//c:trendline',g.NS))
 
 if __name__=='__main__':unittest.main(verbosity=2)

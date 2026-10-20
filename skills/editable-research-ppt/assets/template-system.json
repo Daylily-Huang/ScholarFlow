@@ -1,5 +1,5 @@
 {
-  "version": "1.1.1",
+  "version": "1.2.1",
   "approved_date": "2026-10-19",
   "canvas": {
     "width": 1280,
@@ -12,14 +12,20 @@
     "latin": "Noto Sans CJK SC"
   },
   "sizes": {
-    "title": 36,
-    "section": 25,
-    "body": 20,
-    "chart": 16,
-    "footnote": 12
+    "_deprecated": "仅历史记录。实际字号以 solid_typography 为准（由 scripts/fill_styles.py 实现）；所有脚本均不读取本字段。",
+    "content_title_px": 42,
+    "content_title_pt": 31.5,
+    "body_min_px": 21,
+    "body_max_px": 25,
+    "body_min_pt": 15.75,
+    "body_max_pt": 18.75,
+    "auxiliary_min_px": 17,
+    "chart_min_px": 17,
+    "footnote_px": 14
   },
   "spacing": {
-    "margin": 24,
+    "_deprecated": "仅历史记录，脚本不读取。左右内容边距见 solid_typography.content_side_margin=32。",
+    "margin": 32,
     "gap": 18,
     "header_bottom": 70,
     "body_top": 86,
@@ -311,11 +317,61 @@
       "L7 section",
       "L14 ending"
     ],
-    "rule": "厚实版按1280×720画布：内容页标题42px（31.5pt），正文优先21–25px（15.75–18.75pt），辅助说明与图表标注至少17px（12.75pt），页脚14px。左右内容边距32px（各2.5%），内容对齐同一纵线；封面、目录与章节页保留专用构图。标题框和段落随字号扩展，语义换行避免单字落行；环形节点文字应完全落在色块内。坐标标题与刻度分开预留空间，不以缩字解决重叠，技术路线与数据图仍为主体。逐页将实际PPT渲染与批准生图并排检查比例、对齐、留白及字重，不以自动溢出检查替代目视核对。"
+    "rule": "厚实版按1280×720画布：内容页标题42px（31.5pt），正文优先21–25px（15.75–18.75pt），辅助说明与图表标注至少17px（12.75pt），页脚14px。左右内容边距32px（各2.5%），内容对齐同一纵线；封面、目录与章节页保留专用构图。标题框和段落随字号扩展，语义换行避免单字落行；环形节点文字应完全落在色块内。坐标标题与刻度分开预留空间，不以缩字解决重叠，技术路线与数据图仍为主体。逐页将实际PPT渲染与批准生图并排检查比例、对齐、留白及字重，不以自动溢出检查替代目视核对。",
+    "table_header": 21,
+    "table_data": 20
   },
   "accepted_standard": {
     "id": "approved-solid-v1.1",
     "user_approved_date": "2026-10-19",
     "snapshot": "references/approved-standard.json"
+  },
+  "v1_2_update": {
+    "date": "2026-10-20",
+    "summary": "引入 adaptive 自适应资料模式；新增 15 类线框图标；scatter 默认移除模板趋势线；L4 表格列宽与字号归一化；audit --strict 字体/字号/碰撞检查。"
+  },
+  "image_slots": {
+    "L2": {
+      "main": "34"
+    },
+    "L5": {
+      "main": "22"
+    },
+    "L7": {
+      "main": "45"
+    },
+    "L8": {
+      "main": "37"
+    },
+    "L9": {
+      "left_before": "7",
+      "left_after": "9",
+      "right_before": "17",
+      "right_after_1": "19",
+      "right_after_2": "20",
+      "right_after_3": "21",
+      "right_after_4": "22"
+    },
+    "L14": {
+      "main": "5"
+    }
+  },
+  "table_regions": {
+    "L1": {
+      "y": 270,
+      "height": 72
+    },
+    "L3": {
+      "y": 478,
+      "height": 136
+    },
+    "L4": {
+      "y": 282,
+      "height": 290
+    },
+    "L9": {
+      "y": 510,
+      "height": 138
+    }
   }
 }

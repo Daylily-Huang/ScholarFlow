@@ -1,0 +1,19 @@
+name: portable-generation
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ['3.10', '3.12']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -I -S -B scripts/check_environment.py
+      - run: python -I -S -B -m unittest discover -s tests -v
+      - run: python -I -S -B scripts/verify_release.py

@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Portable native PPTX template filling. Python 3.10+, standard library only.
 
-The approved layout is the source of geometry. No model or proprietary runtime
-is used during generation. This is not a general-purpose arbitrary-PPT editor.
+The approved layout is the source of geometry. Supports both legacy demo mode
+(byte-identical to v1.1 examples) and adaptive visual mode (default when demo=false),
+which removes stiff duplicate icons/stock illustrations, adapts icons and native cards
+to the user's materials, normalizes table typography, and supports per-slide figures.
 """
 from __future__ import annotations
 import argparse, copy, hashlib, importlib.util, io, json, math, posixpath, re, zipfile
@@ -13,6 +15,7 @@ ROOT=Path(__file__).resolve().parent.parent
 NS={'p':'http://schemas.openxmlformats.org/presentationml/2006/main','a':'http://schemas.openxmlformats.org/drawingml/2006/main','c':'http://schemas.openxmlformats.org/drawingml/2006/chart','r':'http://schemas.openxmlformats.org/officeDocument/2006/relationships','s':'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
 REL='http://schemas.openxmlformats.org/package/2006/relationships'
 CT='http://schemas.openxmlformats.org/package/2006/content-types'
+EMU=9525
 for prefix,uri in NS.items():E.register_namespace(prefix,uri)
 def q(prefix,name):return '{'+NS[prefix]+'}'+name
 def xml(root):
@@ -36,6 +39,7 @@ def zipbytes(parts):
             z.writestr(info,data)
     return output.getvalue()
 def text_content(body):return '\n'.join(''.join(t.text or '' for t in p.findall('.//a:t',NS)) for p in body.findall('a:p',NS))
+def visual_len(text):return sum(2.0 if ord(c)>127 else 1.15 for c in str(text))
 def set_text(body,value,emphasis=(),accent='AF3D3D'):
     value=str(value)
     paras=body.findall('a:p',NS);first=paras[0] if paras else E.Element(q('a','p'))
@@ -62,7 +66,7 @@ def color_map(old,new):
     m={old[k].lstrip('#').upper():new[k].lstrip('#').upper() for k in ['primary','secondary','accent','tint']}
     for t in [.17,.34,.51,.83]:m[mix(old['primary'][1:],'FFFFFF',t)]=mix(new['primary'][1:],'FFFFFF',t)
     return m
-def recolor(root,palette,system):
+def recolor(root,palette,system,*,allow_duotone=True):
     mapping=color_map(system['palettes']['P1'],palette)
     for el in root.iter(q('a','srgbClr')):
         if el.get('val','').upper() in mapping:el.set('val',mapping[el.get('val').upper()])
@@ -70,7 +74,7 @@ def recolor(root,palette,system):
     if bg is not None:bg.set('val',palette['paper'][1:])
     for blip in root.findall('.//p:pic/p:blipFill/a:blip',NS):
         for duo in blip.findall('a:duotone',NS):blip.remove(duo)
-        if palette['primary']!=system['palettes']['P1']['primary']:
+        if allow_duotone and palette['primary']!=system['palettes']['P1']['primary']:
             duo=E.SubElement(blip,q('a','duotone'));E.SubElement(duo,q('a','srgbClr'),val=palette['primary'][1:]);E.SubElement(duo,q('a','srgbClr'),val='FFFFFF')
 def colname(index):
     out=''
@@ -104,7 +108,7 @@ def cache(parent,values,numeric,formula=None):
 def quartile(values,p):
     ordered=sorted(values);index=(len(ordered)-1)*p;lo=int(index);hi=min(lo+1,len(ordered)-1)
     return ordered[lo]+(ordered[hi]-ordered[lo])*(index-lo)
-def patch_chart(root,chart,base):
+def patch_chart(root,chart,base,*,adaptive=False):
     kind=chart['type'];require(kind==base['type'],'Chart type is fixed by the selected layout; choose another layout to change chart type')
     series=chart['series'];require(len(series)==len(base['series']),'Series count exceeds this layout capacity')
     for s in series:
@@ -131,7 +135,10 @@ def patch_chart(root,chart,base):
     else:spec=[(s['name'],cats,s['values']) for s in series]
     native=root.findall('.//c:ser',NS);require(len(native)==len(spec),'Native chart series mismatch')
     columns=[]
+    strip_trend=chart.get('trendline') is False or (adaptive and not chart.get('trendline',False))
     for i,(ser,(name,x,y)) in enumerate(zip(native,spec)):
+        if strip_trend:
+            for tl in list(ser.findall('c:trendline',NS)):ser.remove(tl)
         tx=ser.find('c:tx',NS)
         if tx is not None:tx.clear();E.SubElement(tx,q('c','v')).text=name
         for label,values,isnum in [('xVal' if kind in ['scatter','effects'] else 'cat',x,kind in ['scatter','effects']),('yVal' if kind in ['scatter','effects'] else 'val',y,True)]:
@@ -178,7 +185,159 @@ def patch_chart(root,chart,base):
         if vals:require((lo is None or min(vals)>=lo) and (hi is None or max(vals)<=hi),'Axis limits clip '+label+' data or intervals')
     return workbook(columns)
 
-def generate(document,output,*,force=False,font_profile='portable'):
+def normalize_table_adaptive(frame, matrix, palette, emphasis=(), policy=None):
+    """Normalize table cell font sizes, colors, padding, and auto-proportion column widths."""
+    table = frame.find('.//a:tbl', NS)
+    grid = table.find('a:tblGrid', NS)
+    grid_cols = grid.findall('a:gridCol', NS)
+    rows = table.findall('a:tr', NS)
+    policy = policy or {}
+    header_px = policy.get('table_header', 21)
+    data_px = policy.get('table_data', 20)
+    require(isinstance(matrix, list) and len(matrix) >= 2 and isinstance(matrix[0], list) and len(matrix[0]) > 0 and all(isinstance(r, list) and len(r) == len(matrix[0]) for r in matrix), 'Table matrix must have >= 2 rows of equal nonzero length')
+    target_rows = len(matrix)
+    target_cols = len(matrix[0])
+
+    # Adjust column count if different from template seed
+    total_w = sum(int(c.get('w')) for c in grid_cols)
+    while len(grid_cols) < target_cols:
+        grid.append(copy.deepcopy(grid_cols[-1]))
+        grid_cols = grid.findall('a:gridCol', NS)
+    while len(grid_cols) > target_cols:
+        grid.remove(grid_cols[-1])
+        grid_cols = grid.findall('a:gridCol', NS)
+    for r in rows:
+        cells = r.findall('a:tc', NS)
+        while len(cells) < target_cols:
+            r.append(copy.deepcopy(cells[-1]))
+            cells = r.findall('a:tc', NS)
+        while len(cells) > target_cols:
+            r.remove(cells[-1])
+            cells = r.findall('a:tc', NS)
+
+    # Adjust row count if different from template seed
+    total_h = int(frame.find('p:xfrm/a:ext', NS).get('cy'))
+    while len(rows) < target_rows:
+        table.append(copy.deepcopy(rows[-1]))
+        rows = table.findall('a:tr', NS)
+    while len(rows) > target_rows:
+        table.remove(rows[-1])
+        rows = table.findall('a:tr', NS)
+    row_h = total_h // target_rows
+    required_h = (header_px * 1.25 + 8) + (target_rows - 1) * (data_px * 1.25 + 8)
+    require(total_h / EMU >= required_h, f'Table exceeds vertical capacity ({target_rows} rows); split the slide, do not shrink text')
+    for r in rows:
+        r.set('h', str(row_h))
+
+    # Auto-proportion column widths based on content length so cells never wrap unexpectedly
+    col_needs = []
+    for j in range(target_cols):
+        max_v = max(visual_len(matrix[i][j]) for i in range(target_rows))
+        col_needs.append(max(4.5, max_v + 2.2))
+    sum_needs = sum(col_needs)
+    new_widths = [round(total_w * (n / sum_needs)) for n in col_needs]
+    new_widths[-1] += total_w - sum(new_widths)
+    for col_el, w_val in zip(grid_cols, new_widths):
+        col_el.set('w', str(w_val))
+    # Reserve real glyph width and padding, including the solid style margin transform.
+    scale = (1280 - 2 * policy.get('content_side_margin', 32)) / 1232
+    for j, width in enumerate(new_widths):
+        for i, row in enumerate(matrix):
+            txt = str(row[j])
+            font_px = header_px if i == 0 else data_px
+            needed = sum(1.03 if ord(c) > 127 else .58 for c in txt) * font_px + 16
+            require('\n' not in txt and '\r' not in txt and needed <= width / EMU * scale,
+                    f'Table cell ({i},{j}) exceeds column capacity; shorten the cell or split the slide')
+
+    primary = palette['primary'][1:]
+    secondary = palette['secondary'][1:]
+    accent = palette['accent'][1:]
+    status_map = {'●': primary, '△': accent, '○': secondary}
+
+    for r_idx, (values, row) in enumerate(zip(matrix, rows)):
+        cells = row.findall('a:tc', NS)
+        for c_idx, (value, cell) in enumerate(zip(values, cells)):
+            sval = str(value)
+            require(len(sval) <= 42, 'Table cell exceeds capacity')
+            body = cell.find('a:txBody', NS)
+            tcPr = cell.find('a:tcPr', NS)
+            if tcPr is not None:
+                tcPr.set('anchor', 'ctr')
+                tcPr.set('marL', '68580')
+                tcPr.set('marR', '68580')
+                tcPr.set('marT', '38100')
+                tcPr.set('marB', '38100')
+            set_text(body, sval, emphasis if r_idx > 0 else (), accent)
+            is_status = sval.strip() in status_map
+            for p in body.findall('a:p', NS):
+                pPr = p.find('a:pPr', NS)
+                if pPr is None:
+                    pPr = E.Element(q('a', 'pPr'))
+                    p.insert(0, pPr)
+                pPr.set('algn', 'l' if c_idx == 0 else 'ctr')
+            for rp in body.findall('.//a:rPr', NS) + body.findall('.//a:endParaRPr', NS):
+                if r_idx == 0:
+                    rp.set('sz', str(round(header_px * 75)))
+                    rp.set('b', '1')
+                    for fl in rp.findall('a:solidFill', NS):
+                        rp.remove(fl)
+                    sfill = E.Element(q('a', 'solidFill'))
+                    E.SubElement(sfill, q('a', 'srgbClr'), val='FFFFFF')
+                    rp.insert(0, sfill)
+                elif is_status:
+                    rp.set('sz', str(round(data_px * 75)))
+                    rp.set('b', '1')
+                    for fl in rp.findall('a:solidFill', NS):
+                        rp.remove(fl)
+                    sfill = E.Element(q('a', 'solidFill'))
+                    E.SubElement(sfill, q('a', 'srgbClr'), val=status_map[sval.strip()])
+                    rp.insert(0, sfill)
+                else:
+                    rp.set('sz', str(round(data_px * 75)))
+                    has_accent = rp.find('a:solidFill/a:srgbClr', NS) is not None and rp.find('a:solidFill/a:srgbClr', NS).get('val', '').upper() == accent.upper() and sval in emphasis
+                    if not has_accent:
+                        rp.set('b', '1' if c_idx == 0 else '0')
+                        for fl in rp.findall('a:solidFill', NS):
+                            rp.remove(fl)
+                        sfill = E.Element(q('a', 'solidFill'))
+                        E.SubElement(sfill, q('a', 'srgbClr'), val='1C2733')
+                        rp.insert(0, sfill)
+
+def png_dimensions(data):
+    require(data.startswith(b'\x89PNG\r\n\x1a\n') and len(data) >= 24, 'Replacement images must be valid PNG files')
+    w = int.from_bytes(data[16:20], 'big')
+    h = int.from_bytes(data[20:24], 'big')
+    return max(1, w), max(1, h)
+
+def fit_pic_aspect(pic, data):
+    w_px, h_px = png_dimensions(data)
+    off = pic.find('p:spPr/a:xfrm/a:off', NS)
+    ext = pic.find('p:spPr/a:xfrm/a:ext', NS)
+    if off is None or ext is None:
+        return
+    bx, by, bw, bh = int(off.get('x')), int(off.get('y')), int(ext.get('cx')), int(ext.get('cy'))
+    aspect = w_px / h_px
+    box_aspect = bw / max(1, bh)
+    if aspect > box_aspect:
+        nw = bw
+        nh = round(bw / aspect)
+        nx = bx
+        ny = by + (bh - nh) // 2
+    else:
+        nh = bh
+        nw = round(bh * aspect)
+        ny = by
+        nx = bx + (bw - nw) // 2
+    off.set('x', str(nx))
+    off.set('y', str(ny))
+    ext.set('cx', str(nw))
+    ext.set('cy', str(nh))
+    blipFill = pic.find('p:blipFill', NS)
+    if blipFill is not None:
+        for sr in list(blipFill.findall('a:srcRect', NS)):
+            blipFill.remove(sr)
+
+def generate(document,output,*,force=False,font_profile='portable',base_dir=None):
     system=load(ROOT/'assets/template-system.json');bindings=load(ROOT/'assets/templates/bindings.json')
     require(document.get('scenario') in system['scenarios'],'Choose scenario: academic/coursework/progress')
     require(document.get('palette') in system['palettes'],'Choose palette P1 through P6')
@@ -187,9 +346,17 @@ def generate(document,output,*,force=False,font_profile='portable'):
     require(document.get('slides') and len(document['slides'])<=150,'Provide 1 to 150 slides')
     output=Path(output).resolve();require(output.suffix.lower()=='.pptx','Output must end in .pptx')
     require(force or not output.exists(),'Output exists; choose another file or pass --force')
+    base_dir=Path(base_dir).resolve() if base_dir else Path.cwd()
     original=readzip(ROOT/'assets/templates/library.pptx');parts=dict(original)
     types=E.fromstring(original['[Content_Types].xml']);overrides={n.get('PartName').lstrip('/'):n.get('ContentType') for n in types if n.tag.endswith('Override')}
-    counters={'chart':0,'workbook':0};newslides=[]
+    counters={'chart':0,'workbook':0,'image':0};newslides=[];styler=None
+    def get_styler():
+        nonlocal styler
+        if styler is None:
+            spec_styler=importlib.util.spec_from_file_location('research_ppt_fill_styles',ROOT/'scripts/fill_styles.py')
+            styler=importlib.util.module_from_spec(spec_styler);spec_styler.loader.exec_module(styler)
+        return styler
+
     for index,page in enumerate(document['slides'],1):
         layout=page.get('layout');require(layout in bindings,f'Unknown layout on page {index}')
         binding=bindings[layout];base=binding['default'];palette_id=page.get('palette',document['palette'])
@@ -198,21 +365,42 @@ def generate(document,output,*,force=False,font_profile='portable'):
         fill_style=page.get('fill_style',document.get('fill_style','light'))
         require(fill_style in ['light','solid'],'Choose fill_style light or solid')
         require(document.get('style_showcase') or fill_style==document.get('fill_style','light'),'A normal deck must use one fill style')
+        visual_mode=page.get('visual_mode',document.get('visual_mode','legacy' if document.get('demo') else 'adaptive'))
+        require(visual_mode in ['legacy','adaptive','clean'],'Choose visual_mode: legacy, adaptive, or clean')
+        is_adaptive=visual_mode in ['adaptive','clean']
+        slot_spec = system.get('image_slots', {}).get(layout, {})
+        require(not (page.get('image') and page.get('images')), 'Choose image or images, not both')
+        requested_images = page.get('images', {})
+        require(isinstance(requested_images, dict), 'images must map named slots to PNG paths')
+        if page.get('image'):
+            require(len(slot_spec) == 1, f'{layout} needs named images slots {list(slot_spec)}' if slot_spec else f'{layout} has no image slot; choose L2/L5/L7/L8/L14')
+            requested_images = {next(iter(slot_spec)): page['image']}
+        require(all(k in slot_spec and isinstance(v, str) and v.strip() for k, v in requested_images.items()),
+                f'{layout}: unknown image slot or empty PNG path; available: {list(slot_spec)}')
+        if 'highlights' in page:
+            hs = page['highlights']
+            require(isinstance(hs, list) and 1 <= len(hs) <= 4 and all(isinstance(x, dict) for x in hs), 'highlights requires 1 to 4 objects; split or select highlights explicitly')
         palette=system['solid_palettes' if fill_style=='solid' else 'palettes'][palette_id];sources=page.get('sources')
         require(isinstance(sources,list) and sources and all(isinstance(v,str) and v.strip() for v in sources),'Every page needs non-empty sources')
         require(len(page.get('emphasis',[]))<=4,'At most four emphasis terms per slide')
         require(len(page.get('title',''))<=38,'Title exceeds 38 characters')
-        # Topology and icon geometry belong to the template, not to silent guesses.
-        for key in ['edges','active']:
-            if key in base:require(page.get(key)==base[key],'This template has fixed edges; edit the native PPT or use another template')
-        def check_icons(actual,seed):
-            if isinstance(seed,dict):
-                for key,val in seed.items():
-                    if key=='icon':require(actual.get(key)==val,'Icon geometry is fixed; edit the native PPT to change icons')
-                    elif key in actual:check_icons(actual[key],val)
-            elif isinstance(seed,list) and isinstance(actual,list):
-                for a,b in zip(actual,seed):check_icons(a,b)
-        check_icons(page,base)
+        if 'edges' in base:
+            require(page.get('edges')==base['edges'],'This template has fixed edges; edit the native PPT or use another template')
+        if 'active' in base:
+            act=page.get('active',base['active'])
+            if is_adaptive:
+                require(isinstance(act,int) and 0<=act<len(base.get('chapters',[0,1,2,3])),'L7 active chapter index must be 0..3')
+            else:
+                require(act==base['active'],'This template has fixed active chapter in legacy mode; set demo=false or visual_mode=adaptive')
+        if not is_adaptive:
+            def check_icons(actual,seed):
+                if isinstance(seed,dict):
+                    for key,val in seed.items():
+                        if key=='icon':require(actual.get(key,val)==val,'Icon geometry is fixed in legacy mode; set demo=false or visual_mode=adaptive')
+                        elif key in actual:check_icons(actual[key],val)
+                elif isinstance(seed,list) and isinstance(actual,list):
+                    for a,b in zip(actual,seed):check_icons(a,b)
+            check_icons(page,base)
         for key in ['stages','observations','steps','chapters','inputs','nodes','items','lanes','actions','issues','milestones','anchors','checks','branches','lines']:
             if key in base:require(isinstance(page.get(key),list) and len(page[key])==len(base[key]),f'{layout}.{key} requires {len(base[key])} items')
         mapping={};owner='ppt/slides/slide'+str(index)+'.xml'
@@ -233,15 +421,26 @@ def generate(document,output,*,force=False,font_profile='portable'):
                     rel.set('Target','/'+clone(resolve(part,rel.get('Target'))))
                 parts[relpart(dest)]=xml(relations)
             return dest
-        clone(binding['slide']);root=E.fromstring(parts[owner]);recolor(root,palette,system)
+        clone(binding['slide']);root=E.fromstring(parts[owner])
+        allow_duo = bool(page.get('duotone', document.get('duotone', not is_adaptive)))
+        recolor(root,palette,system,allow_duotone=allow_duo)
         shapes={sp.find('p:nvSpPr/p:cNvPr',NS).get('id'):sp for sp in root.findall('.//p:sp',NS)}
         overrides_text=page.get('labels',{})
         require(isinstance(overrides_text,dict),'labels must map exact original labels to replacement text')
         for old,new in overrides_text.items():
-            require(old in binding['fixed_labels'] and isinstance(new,str) and len(new)<=max(8,len(old)+3),'Unknown or oversized fixed label replacement: '+old)
+            allowed = old in binding['fixed_labels'] or (is_adaptive and any(text_content(sp.find('p:txBody',NS))==old for sp in shapes.values() if sp.find('p:txBody',NS) is not None))
+            max_lbl = max(18, len(old)*2 + 6) if is_adaptive else max(8, len(old)+3)
+            require(allowed and isinstance(new,str) and len(new)<=max_lbl,'Unknown or oversized fixed label replacement: '+old)
         for sp in shapes.values():
             body=sp.find('p:txBody',NS)
             if body is not None and text_content(body) in overrides_text:set_text(body,overrides_text[text_content(body)])
+        if is_adaptive and layout=='L12':
+            lbl_pairs=[('14','17'),('36','39'),('52','55'),('84','87'),('102','105'),('116','119')]
+            for idx,(p_id,r_id) in enumerate(lbl_pairs):
+                if idx<len(page.get('items',[])):
+                    it=page['items'][idx]
+                    if it.get('problem_label') and p_id in shapes:set_text(shapes[p_id].find('p:txBody',NS),it['problem_label'])
+                    if it.get('response_label') and r_id in shapes:set_text(shapes[r_id].find('p:txBody',NS),it['response_label'])
         for field in binding['fields']:
             sp=shapes[field['shape']];body=sp.find('p:txBody',NS)
             if 'special' in field:
@@ -251,8 +450,13 @@ def generate(document,output,*,force=False,font_profile='portable'):
                 except (KeyError,IndexError,TypeError):raise ValueError(f'{layout}: missing {field["path"]}')
                 if field.get('join'):value=field['join'].join(str(v) for v in value)
                 value=field.get('prefix','')+str(value)
-                expected=text_content(body);limit=max(12,int(len(expected)*1.3)+3)
-                require(len(value)<=limit,f'{layout}.{field["path"]} is too long for this template ({len(value)}>{limit}); shorten or split the slide')
+                expected=text_content(body)
+                if is_adaptive:
+                    limit=max(64,int(visual_len(expected)*2.5)+24)
+                    require(visual_len(value)<=limit,f'{layout}.{field["path"]} is too long for this template ({visual_len(value)/2:.1f}>{limit/2:.0f}); shorten or split the slide')
+                else:
+                    limit=max(12,int(len(expected)*1.3)+3)
+                    require(len(value)<=limit,f'{layout}.{field["path"]} is too long for this template ({len(value)}>{limit}); shorten or split the slide')
                 if field['path']=='subtitle' and len(value)>18:value=value.replace(' · ','\n')
             set_text(body,value,page.get('emphasis',[]),palette['accent'][1:])
         if layout=='L5':
@@ -261,20 +465,69 @@ def generate(document,output,*,force=False,font_profile='portable'):
                 if ext is not None and off is not None and abs(int(ext.get('cx'))-90*9525)<2 and abs(int(ext.get('cy'))-5*9525)<2:off.set('y',str((510 if len(page['subtitle'])>18 and ' · ' in page['subtitle'] else 475)*9525))
         frames={sp.find('p:nvGraphicFramePr/p:cNvPr',NS).get('id'):sp for sp in root.findall('.//p:graphicFrame',NS)}
         for tb in binding['tables']:
-            matrix=get(page,tb['path']);table=frames[tb['shape']].find('.//a:tbl',NS);rows=table.findall('a:tr',NS)
-            require(len(matrix)==len(rows),'Table row count must match layout')
-            for values,row in zip(matrix,rows):
-                cells=row.findall('a:tc',NS);require(len(values)==len(cells),'Table column count must match layout')
-                for value,cell in zip(values,cells):
-                    require(len(str(value))<=32,'Table cell exceeds capacity');body=cell.find('a:txBody',NS);set_text(body,value)
-                    status={'●':palette['primary'][1:],'△':palette['accent'][1:],'○':palette['secondary'][1:]}
-                    if str(value) in status:
-                        for rp in body.findall('.//a:rPr',NS):
-                            for fill in rp.findall('a:solidFill',NS):rp.remove(fill)
-                            E.SubElement(E.SubElement(rp,q('a','solidFill')),q('a','srgbClr'),val=status[str(value)])
+            matrix=get(page,tb['path'])
+            if is_adaptive:
+                region = system['table_regions'][layout]
+                frame = frames[tb['shape']]
+                frame.find('p:xfrm/a:off', NS).set('y', str(round(region['y'] * EMU)))
+                frame.find('p:xfrm/a:ext', NS).set('cy', str(round(region['height'] * EMU)))
+                normalize_table_adaptive(frames[tb['shape']], matrix, palette, page.get('emphasis', []), system['solid_typography'])
+            else:
+                table=frames[tb['shape']].find('.//a:tbl',NS);rows=table.findall('a:tr',NS)
+                require(len(matrix)==len(rows),'Table row count must match layout')
+                for values,row in zip(matrix,rows):
+                    cells=row.findall('a:tc',NS);require(len(values)==len(cells),'Table column count must match layout')
+                    for value,cell in zip(values,cells):
+                        require(len(str(value))<=32,'Table cell exceeds capacity');body=cell.find('a:txBody',NS);set_text(body,value)
+                        status={'●':palette['primary'][1:],'△':palette['accent'][1:],'○':palette['secondary'][1:]}
+                        if str(value) in status:
+                            for rp in body.findall('.//a:rPr',NS):
+                                for fill in rp.findall('a:solidFill',NS):rp.remove(fill)
+                                E.SubElement(E.SubElement(rp,q('a','solidFill')),q('a','srgbClr'),val=status[str(value)])
         if fill_style=='solid':
-            spec=importlib.util.spec_from_file_location('research_ppt_fill_styles',ROOT/'scripts/fill_styles.py');styler=importlib.util.module_from_spec(spec);spec.loader.exec_module(styler)
-            styler.apply(root,layout,palette)
+            get_styler().apply(root,layout,palette,adaptive=is_adaptive,page=page,document=document,policy=system['solid_typography'])
+        elif is_adaptive:
+            get_styler().prepare_adaptive_geometry(root,layout,palette,page,document,'light')
+            get_styler().apply_adaptive_icons(root,layout,palette,page,'light')
+            for sp in root.findall('.//p:sp', NS):
+                off = sp.find('p:spPr/a:xfrm/a:off', NS)
+                floor = system['solid_typography']['footnote'] if off is not None and int(off.get('y')) / EMU >= 690 else system['solid_typography']['auxiliary_min']
+                for rp in sp.findall('.//a:rPr', NS) + sp.findall('.//a:defRPr', NS):
+                    if rp.get('sz'):
+                        rp.set('sz', str(max(int(rp.get('sz')), round(floor * 75))))
+        # Handle per-slide real material image if provided
+        pics = {p.find('p:nvPicPr/p:cNvPr', NS).get('id'): p for p in root.findall('.//p:pic', NS)}
+        if requested_images and is_adaptive:
+            requested_ids = {slot_spec[k] for k in requested_images}
+            tree = root.find('p:cSld/p:spTree', NS)
+            for pid, pic in pics.items():
+                if pid not in requested_ids and pic in list(tree):
+                    tree.remove(pic)
+        for slot, filename in requested_images.items():
+            require(slot_spec[slot] in pics, f'{layout}: image slot {slot} is unavailable')
+            img_path = Path(filename)
+            if not img_path.is_absolute():
+                img_path = (base_dir / img_path).resolve()
+            img_bytes = img_path.read_bytes()
+            png_dimensions(img_bytes)
+            counters['image'] += 1
+            media_name = f'ppt/media/custom_slide_{counters["image"]}.png'
+            parts[media_name] = img_bytes
+            srels = E.fromstring(parts[relpart(owner)])
+            new_rid = f'rCustomImg{counters["image"]}'
+            E.SubElement(srels, '{'+REL+'}Relationship', Id=new_rid, Type=NS['r']+'/image', Target='/'+media_name)
+            parts[relpart(owner)] = xml(srels)
+            pic = pics[slot_spec[slot]]
+            blip = pic.find('p:blipFill/a:blip', NS)
+            require(blip is not None, f'{layout}: image slot {slot} has no image relationship')
+            blip.set(q('r', 'embed'), new_rid)
+            for duo in list(blip.findall('a:duotone', NS)):
+                blip.remove(duo)
+            if allow_duo:
+                duo = E.SubElement(blip, q('a', 'duotone'))
+                E.SubElement(duo, q('a', 'srgbClr'), val=palette['primary'][1:])
+                E.SubElement(duo, q('a', 'srgbClr'), val='FFFFFF')
+            fit_pic_aspect(pic, img_bytes)
         parts[owner]=xml(root)
         relations={r.get('Id'):resolve(owner,r.get('Target')) for r in E.fromstring(parts[relpart(owner)])}
         chart_sources=[]
@@ -283,9 +536,9 @@ def generate(document,output,*,force=False,font_profile='portable'):
             require(isinstance(chart['source'],str) and chart['source'].strip(),'Chart source must be non-empty text')
             chart_sources.append(ch['path']+': '+chart['source'])
             if layout=='L3':require(len(chart.get('categories',[]))==len(get(base,ch['path']).get('categories',[])),'L3 category count is fixed because labels are independent editable text')
-            chartpart=relations[ch['rid']];native=E.fromstring(parts[chartpart]);recolor(native,palette,system)
-            book=patch_chart(native,chart,get(base,ch['path']))
-            if fill_style=='solid':styler.chart_typography(native)
+            chartpart=relations[ch['rid']];native=E.fromstring(parts[chartpart]);recolor(native,palette,system,allow_duotone=allow_duo)
+            book=patch_chart(native,chart,get(base,ch['path']),adaptive=is_adaptive)
+            if fill_style=='solid' or is_adaptive:get_styler().chart_typography(native,adaptive=is_adaptive,policy=system['solid_typography'],layout=layout)
             parts[chartpart]=xml(native)
             ext=native.find('c:externalData',NS).get(q('r','id'));chartrels={r.get('Id'):resolve(chartpart,r.get('Target')) for r in E.fromstring(parts[relpart(chartpart)])};parts[chartrels[ext]]=book
         notespart=f'ppt/notesSlides/notesSlide{index}.xml';notes=E.fromstring(parts[notespart])
@@ -299,7 +552,7 @@ def generate(document,output,*,force=False,font_profile='portable'):
     for i,part in enumerate(newslides,1):
         rid=f'researchSlide{i}';E.SubElement(rels,'{'+REL+'}Relationship',Id=rid,Type=NS['r']+'/slide',Target='/'+part);E.SubElement(lst,q('p','sldId'),{'id':str(255+i),q('r','id'):rid})
     parts['ppt/presentation.xml']=xml(pres);parts['ppt/_rels/presentation.xml.rels']=xml(rels)
-    # Traverse package relationships to remove every unused seed slide/chart.
+    # Traverse package relationships to remove every unused seed slide/chart/media.
     keep={'[Content_Types].xml'}
     def visit(part):
         if part in keep:return
@@ -329,7 +582,11 @@ def generate(document,output,*,force=False,font_profile='portable'):
     # User pictures replace independent media objects; no layout text is rasterized.
     for role,filename in document.get('illustrations',{}).items():
         target={'forest':'ppt/media/image.png','landscape':'ppt/media/image2.png'}.get(role)
-        require(target is not None,'Unknown illustration role');data=Path(filename).read_bytes()
+        require(target is not None,'Unknown illustration role')
+        img_p = Path(filename)
+        if not img_p.is_absolute():
+            img_p = (base_dir / img_p).resolve()
+        data=img_p.read_bytes()
         require(data.startswith(b'\x89PNG\r\n\x1a\n'),'Replacement illustrations must be PNG')
         if target in parts:parts[target]=data
     output.parent.mkdir(parents=True,exist_ok=True);payload=zipbytes(parts)
@@ -339,10 +596,14 @@ def generate(document,output,*,force=False,font_profile='portable'):
     return {'slides':len(newslides),'charts':counters['chart'],'sha256':hashlib.sha256(payload).hexdigest(),'font_profile':font_profile,'output':str(output)}
 
 def main():
+    import sys
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--input',required=True);parser.add_argument('--output',required=True);parser.add_argument('--force',action='store_true');parser.add_argument('--font-profile',choices=['portable','office'],default='portable');args=parser.parse_args()
     try:
-        document=load(args.input)
-        document['illustrations']={role:str((Path(args.input).resolve().parent/filename).resolve()) for role,filename in document.get('illustrations',{}).items()}
-        print(json.dumps(generate(document,args.output,force=args.force,font_profile=args.font_profile),ensure_ascii=False))
+        in_path=Path(args.input).resolve()
+        document=load(in_path)
+        document['illustrations']={role:str((in_path.parent/filename).resolve()) for role,filename in document.get('illustrations',{}).items()}
+        print(json.dumps(generate(document,args.output,force=args.force,font_profile=args.font_profile,base_dir=in_path.parent),ensure_ascii=False))
     except (ValueError,KeyError,IndexError,TypeError,FileNotFoundError) as error:parser.exit(2,'Input/environment error: '+str(error)+'\n')
 if __name__=='__main__':main()

@@ -24,4 +24,5 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: python -I -S -B scripts/check_environment.py
-      - run: python -I -S -B tests/test_portable.py
+      - run: python -I -S -B -m unittest discover -s tests -v
+      - run: python -I -S -B scripts/verify_release.py

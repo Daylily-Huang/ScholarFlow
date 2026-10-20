@@ -1,0 +1,33 @@
+{
+  "version": "1.2",
+  "date": "2026-10-20",
+  "note": "v1.2 自适应模式发布快照。历史版本快照见 v1.1-hashes.json 与 v1.1.1-hashes.json（保留其为历史记录，不再更新）。",
+  "sha256": {
+    "SKILL.md": "d6ba5835e40ccf26fb4608369914547a815af1b97fdb8354422a5fe708edcae0",
+    "README.md": "7e412e791b884fdb70f9e1fe4425a7cb2bfb0032b4a811886b6222931842049e",
+    "assets/template-system.json": "0ab364401187348887bc81a8023ecd9ae527825978deef39e692aa59e74e26c3",
+    "assets/templates/library.pptx": "da7b2f6d3109357d7aea7e3d206859d271ae8385fa416e77a5e9e06afbbae780",
+    "assets/templates/bindings.json": "a784832d40efc3857cd56166302b3bc06c8fa3f6fac3319e20917c0d5b1771e0",
+    "scripts/generate.py": "5c3881ab5185ecb5c9ae97780f594de18091abd2cf1c67e05bc68202d64fec6b",
+    "scripts/fill_styles.py": "fe56e949ccaa11b9236f4a9ca8d73841a91fc73a0895990d7ed74fd4f41da277",
+    "scripts/audit.py": "2aa064b94473bae1539599ba8969bf2dd67188b796100d4fe7b9b56ac33b3cd4",
+    "scripts/check_environment.py": "db535cf31cfd0ab1bc2a09c78c4c353234c74e6191c645bb3506d68a6ca36a6a",
+    "scripts/render_powerpoint.ps1": "365cc2d8c2787e7c888291e4a474c6a1643557f365232f355583c642ad9564ea",
+    "tests/test_portable.py": "77804e9cfcdc2c8e390817ae001e2beb4cf38d3bd770edab9f9ededd9d1e17bd",
+    "references/approved-standard.json": "b4b402b1cc2939fabdd0eefe7005e0297dcfa063bc5160f831da40e773c30459",
+    "references/input-and-templates.md": "c23a16ecf9c09f457ff97d3fb85896d75c1f09572419e78870fc76df4e874d6a",
+    "references/fill-and-typography.md": "d69bbdb5d44321d29ccc84b6d43ae5655c53d7d03675772244a83c85a44a786e",
+    "references/validation.md": "86352b8daa7b316203e2aeb23c271e6f6d12a51a9a50467f59f56e9258131bb5"
+  },
+  "correction_note": "按 2026-10-20 修复前安装版备份校正两处过时哈希；此为本地 v1.2 基线记录，不表示该版本曾通过 GitHub 发布验收。当前包请使用 v1.2.1 快照。",
+  "corrections": {
+    "SKILL.md": {
+      "previous_record": "7055206ddeb818edf629692823b68bde5b59e5d3401332830173396af5f24914",
+      "observed_before_v1_2_1": "d6ba5835e40ccf26fb4608369914547a815af1b97fdb8354422a5fe708edcae0"
+    },
+    "references/fill-and-typography.md": {
+      "previous_record": "48b45c063847f14ac89117c6981cb0ca3812d2dceca99bd23e5e4580d2a3c56f",
+      "observed_before_v1_2_1": "d69bbdb5d44321d29ccc84b6d43ae5655c53d7d03675772244a83c85a44a786e"
+    }
+  }
+}
