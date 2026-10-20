@@ -19,7 +19,7 @@
 
 ## 🖥️ 可编辑科研 PPT 扩展
 
-新增 [editable-research-ppt](skills/editable-research-ppt/README.md)：学术分享、课程作业、实验进展三种场景，六套配色、两种填充风格、十四种版式。文字、框图、表格与数据图优先保留原生可编辑对象。
+新增 [editable-research-ppt](skills/editable-research-ppt/README.md)：学术分享、课程作业、实验进展三种场景，六套配色、两种填充风格、二十种版式及变体。论文有相关图表时，必须直接裁取完整原图嵌入；图号、来源、放大框、导航及自制框图保持可编辑。
 
 [![四页实际 PowerPoint 效果](skills/editable-research-ppt/examples/promo/overview.png)](skills/editable-research-ppt/examples/promo/README.md)
 

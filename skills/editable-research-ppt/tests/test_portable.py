@@ -18,7 +18,7 @@ class PortableTests(unittest.TestCase):
     def tearDownClass(cls):cls.tmp.cleanup()
     def example(self,name='all-layouts'):return g.load(ROOT/'assets/examples'/(name+'.json'))
     def output(self,name,doc):
-        p=self.out/(name+'.pptx');g.generate(doc,p);self.assertTrue(a.audit(p)['ok'],a.audit(p));return p
+        p=self.out/(name+'.pptx');g.generate(doc,p,base_dir=ROOT/'assets/examples');self.assertTrue(a.audit(p)['ok'],a.audit(p));return p
     def test_all_examples(self):
         for path in sorted((ROOT/'assets/examples').glob('*.json')):
             doc=g.load(path);out=self.output('all-'+path.stem,doc)
@@ -43,7 +43,7 @@ class PortableTests(unittest.TestCase):
                 self.assertLess(list(prop).index(prop.find('a:solidFill',g.NS)),list(prop).index(prop.find('a:latin',g.NS)))
     def test_fill_style_relocation_scenarios_and_invalid_values(self):
         relocated=self.out/'solid relocated';(relocated/'scripts').mkdir(parents=True)
-        for n in ['generate.py','fill_styles.py']:shutil.copyfile(ROOT/'scripts'/n,relocated/'scripts'/n)
+        for n in ['generate.py','fill_styles.py','evidence_layouts.py']:shutil.copyfile(ROOT/'scripts'/n,relocated/'scripts'/n)
         shutil.copytree(ROOT/'assets',relocated/'assets')
         for scene in ['academic','coursework','progress']:
             doc=self.example();doc.update(fill_style='solid',scenario=scene);doc['slides']=[doc['slides'][4],doc['slides'][10]]
@@ -126,7 +126,7 @@ class PortableTests(unittest.TestCase):
                 if name.endswith(('.xml','.rels')):
                     raw=z.read(name).decode();self.assertNotIn('file://',raw);self.assertNotIn('Administrator',raw);self.assertNotIn('D:\\',raw)
     def test_adaptive_mode_and_strict_audit(self):
-        doc=self.example();doc['demo']=False;doc['fill_style']='solid'
+        doc=self.example();doc['demo']=False;doc['fill_style']='solid';doc['materials']={'papers':[]}
         # Customize icons, dynamic L7 active index, and L4 table values
         doc['slides'][0]['stages'][0]['icon']='dna'
         doc['slides'][0]['stages'][1]['icon']='pcr'

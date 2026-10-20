@@ -34,7 +34,7 @@ class RegressionTests(unittest.TestCase):
         cls.tmp = tempfile.TemporaryDirectory(prefix='ppt-regression-',dir=location)
         cls.out = Path(cls.tmp.name)
         cls.seed = g.load(ROOT/'assets/examples/all-layouts.json')
-        cls.seed.update(demo=False,fill_style='solid')
+        cls.seed.update(demo=False,fill_style='solid',materials={'papers':[]})
         cls.base = cls.out/'baseline.pptx'; g.generate(cls.seed, cls.base)
         with zipfile.ZipFile(cls.base) as z: cls.parts = {n:z.read(n) for n in z.namelist()}
         for name, color in [('a',(40,90,130)),('b',(200,60,20))]:

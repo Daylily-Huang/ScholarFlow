@@ -19,3 +19,7 @@
 ## 运行依赖
 
 生成与检查脚本仅使用 Python 标准库；不随包复制 Python 本身。Windows PowerPoint 是可选的本地预览/编辑验证工具，须使用者自行取得。未分发原制作工具的私有运行时或其库代码。
+
+## v1.3 合成测试资料
+
+assets/examples/figures/synthetic-study.pdf 及其 PNG 裁图为本项目生成的合成测试资料，采用本项目 MIT 许可；不是真实发表论文，不包含第三方论文图片。PDF 裁图工具可选使用 PyMuPDF，该依赖未随本包分发，遵循其自身许可证。

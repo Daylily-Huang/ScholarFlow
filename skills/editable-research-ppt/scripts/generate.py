@@ -347,6 +347,11 @@ def generate(document,output,*,force=False,font_profile='portable',base_dir=None
     output=Path(output).resolve();require(output.suffix.lower()=='.pptx','Output must end in .pptx')
     require(force or not output.exists(),'Output exists; choose another file or pass --force')
     base_dir=Path(base_dir).resolve() if base_dir else Path.cwd()
+    extension = None
+    if not document['demo'] or any(p.get('layout') in {'L15','L16','L17','L18','L19','L20'} or p.get('variant','default')!='default' or p.get('components') for p in document['slides']):
+        spec_ext=importlib.util.spec_from_file_location('research_ppt_evidence',ROOT/'scripts/evidence_layouts.py')
+        extension=importlib.util.module_from_spec(spec_ext);spec_ext.loader.exec_module(extension)
+        extension.validate(document,base_dir)
     original=readzip(ROOT/'assets/templates/library.pptx');parts=dict(original)
     types=E.fromstring(original['[Content_Types].xml']);overrides={n.get('PartName').lstrip('/'):n.get('ContentType') for n in types if n.tag.endswith('Override')}
     counters={'chart':0,'workbook':0,'image':0};newslides=[];styler=None
@@ -358,8 +363,11 @@ def generate(document,output,*,force=False,font_profile='portable',base_dir=None
         return styler
 
     for index,page in enumerate(document['slides'],1):
-        layout=page.get('layout');require(layout in bindings,f'Unknown layout on page {index}')
-        binding=bindings[layout];base=binding['default'];palette_id=page.get('palette',document['palette'])
+        layout=page.get('layout');is_new=extension is not None and (layout in extension.NEW or page.get('variant')=='original_figure')
+        if page.get('variant')=='original_figure':require(layout in extension.VARIANTS and 'original_figure' in extension.VARIANTS[layout], 'Unsupported original_figure variant')
+        require(layout in bindings or is_new,f'Unknown layout on page {index}')
+        binding=({'slide':bindings['L14']['slide'],'default':{},'fields':[],'tables':[],'charts':[],'fixed_labels':[]} if is_new else bindings[layout])
+        base=binding['default'];palette_id=page.get('palette',document['palette'])
         require(palette_id in system['palettes'],'Unknown page palette')
         require(document.get('palette_showcase') or palette_id==document['palette'],'A normal deck must use one palette')
         fill_style=page.get('fill_style',document.get('fill_style','light'))
@@ -484,9 +492,9 @@ def generate(document,output,*,force=False,font_profile='portable',base_dir=None
                             for rp in body.findall('.//a:rPr',NS):
                                 for fill in rp.findall('a:solidFill',NS):rp.remove(fill)
                                 E.SubElement(E.SubElement(rp,q('a','solidFill')),q('a','srgbClr'),val=status[str(value)])
-        if fill_style=='solid':
+        if not is_new and fill_style=='solid':
             get_styler().apply(root,layout,palette,adaptive=is_adaptive,page=page,document=document,policy=system['solid_typography'])
-        elif is_adaptive:
+        elif not is_new and is_adaptive:
             get_styler().prepare_adaptive_geometry(root,layout,palette,page,document,'light')
             get_styler().apply_adaptive_icons(root,layout,palette,page,'light')
             for sp in root.findall('.//p:sp', NS):
@@ -528,6 +536,20 @@ def generate(document,output,*,force=False,font_profile='portable',base_dir=None
                 E.SubElement(duo, q('a', 'srgbClr'), val=palette['primary'][1:])
                 E.SubElement(duo, q('a', 'srgbClr'), val='FFFFFF')
             fit_pic_aspect(pic, img_bytes)
+        if is_new:
+            import types as types_api
+            api=types_api.SimpleNamespace(NS=NS,REL=REL,q=q,EMU=EMU,png_dimensions=png_dimensions)
+            srels=E.fromstring(parts[relpart(owner)])
+            render_page=dict(page)
+            if page.get('variant')=='original_figure':render_page.update(layout='L16',variant='full_width')
+            extension.build(root,srels,parts,counters,render_page,document,palette,api,get_styler(),base_dir,index)
+            parts[relpart(owner)]=xml(srels)
+        elif extension is not None and page.get('variant','default')!='default':
+            import types as types_api
+            extension.apply_variant(root,page,types_api.SimpleNamespace(NS=NS,EMU=EMU))
+        if page.get('components'):
+            import types as types_api
+            extension.components(root,page,palette,types_api.SimpleNamespace(NS=NS),get_styler())
         parts[owner]=xml(root)
         relations={r.get('Id'):resolve(owner,r.get('Target')) for r in E.fromstring(parts[relpart(owner)])}
         chart_sources=[]
@@ -544,7 +566,7 @@ def generate(document,output,*,force=False,font_profile='portable',base_dir=None
         notespart=f'ppt/notesSlides/notesSlide{index}.xml';notes=E.fromstring(parts[notespart])
         for sp in notes.findall('.//p:sp',NS):
             ph=sp.find('p:nvSpPr/p:nvPr/p:ph',NS)
-            if ph is not None and ph.get('type')=='body':set_text(sp.find('p:txBody',NS),'\n'.join(sources)+('\nChart sources:\n'+'\n'.join(chart_sources) if chart_sources else '')+f'\nLayout: {layout}\nPalette: {palette_id}\nScenario: {document["scenario"]}\n'+('Fill style: solid\n' if fill_style=='solid' else '')+('SYNTHETIC DEMONSTRATION DATA\n' if document['demo'] else '')+str(page.get('notes','')))
+            if ph is not None and ph.get('type')=='body':set_text(sp.find('p:txBody',NS),'\n'.join(sources)+('\nChart sources:\n'+'\n'.join(chart_sources) if chart_sources else '')+f'\nLayout: {layout}\nPalette: {palette_id}\nScenario: {document["scenario"]}\n'+('Fill style: solid\n' if fill_style=='solid' else '')+('SYNTHETIC DEMONSTRATION DATA\n' if document['demo'] else '')+str(page.get('notes','')) + ('\nEVIDENCE_MANIFEST: '+json.dumps({'materials':document.get('materials',{}),'figures':page.get('figures',[])},ensure_ascii=False) if not document['demo'] else ''))
         parts[notespart]=xml(notes);newslides.append(owner)
     pres=E.fromstring(parts['ppt/presentation.xml']);lst=pres.find('p:sldIdLst',NS);lst.clear();rels=E.fromstring(parts['ppt/_rels/presentation.xml.rels'])
     for r in list(rels):

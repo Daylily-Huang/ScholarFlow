@@ -1,0 +1,406 @@
+{
+  "version": "1.3.0",
+  "date": "2026-10-20",
+  "unit_tests": 31,
+  "focused_final_tests": 6,
+  "platform": "Windows PowerPoint 16.0",
+  "visual_review": "16 slides reviewed; original crops and zoom windows checked; no observed overlaps after corrections",
+  "limits": [
+    "Synthetic PDF fixture, not real research evidence",
+    "Source inventory truthfulness and crop completeness require human/agent visual verification",
+    "Other office renderers not visually verified"
+  ],
+  "samples": {
+    "evidence-layouts": {
+      "sha256": "de26e70c428d1f73b2a70b96f6beda25b139fad76e7eb44f29510581c06f4aaa",
+      "static": {
+        "ok": true,
+        "file": "evidence-layouts.pptx",
+        "counts": {
+          "slides": 6,
+          "text_shapes": 137,
+          "charts": 0,
+          "tables": 0,
+          "connectors": 0,
+          "pictures": 6,
+          "cache_cells": 0
+        },
+        "fonts": [
+          "Noto Sans CJK SC"
+        ],
+        "font_sizes": {
+          "slide01": [
+            14.0,
+            17.0,
+            20.0,
+            21.0,
+            22.0,
+            23.0,
+            25.0,
+            42.0
+          ],
+          "slide02": [
+            14.0,
+            17.0,
+            20.0,
+            21.0,
+            22.0,
+            23.0,
+            25.0,
+            42.0
+          ],
+          "slide03": [
+            14.0,
+            17.0,
+            20.0,
+            22.0,
+            23.0,
+            42.0
+          ],
+          "slide04": [
+            14.0,
+            17.0,
+            20.0,
+            21.0,
+            22.0,
+            23.0,
+            25.0,
+            42.0
+          ],
+          "slide05": [
+            14.0,
+            20.0,
+            21.0,
+            22.0,
+            23.0,
+            26.0,
+            42.0
+          ],
+          "slide06": [
+            14.0,
+            20.0,
+            21.0,
+            22.0,
+            23.0,
+            25.0,
+            42.0
+          ]
+        },
+        "warning_count": 0,
+        "warnings": [],
+        "errors": [],
+        "scope": "Structure, cached series/workbook agreement, font family, font size hierarchy, table cell uniformity, and bounding-box collision checks."
+      },
+      "powerpoint": {
+        "source": "examples/evidence-layouts.pptx",
+        "application": "PowerPoint",
+        "opened": true,
+        "slides": [
+          {
+            "slide": 1,
+            "text": 18,
+            "charts": 0,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 26
+          },
+          {
+            "slide": 2,
+            "text": 18,
+            "charts": 0,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 26
+          },
+          {
+            "slide": 3,
+            "text": 13,
+            "charts": 0,
+            "pictures": 3,
+            "tables": 0,
+            "shapes": 23
+          },
+          {
+            "slide": 4,
+            "text": 18,
+            "charts": 0,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 26
+          },
+          {
+            "slide": 5,
+            "text": 34,
+            "charts": 0,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 62
+          },
+          {
+            "slide": 6,
+            "text": 36,
+            "charts": 0,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 62
+          }
+        ],
+        "overflows": [],
+        "table_issues": [],
+        "font_issues": [],
+        "edit_probe": false,
+        "version": "16.0",
+        "slide_count": 6,
+        "render_ok": true,
+        "quality_ok": true
+      }
+    },
+    "evidence-variants": {
+      "sha256": "545c260d0119ee5db7ccaf865531ff93f54653eb49bc9747333392f4a68182e6",
+      "static": {
+        "ok": true,
+        "file": "evidence-variants.pptx",
+        "counts": {
+          "slides": 6,
+          "text_shapes": 112,
+          "charts": 0,
+          "tables": 0,
+          "connectors": 0,
+          "pictures": 6,
+          "cache_cells": 0
+        },
+        "fonts": [
+          "Noto Sans CJK SC"
+        ],
+        "font_sizes": {
+          "slide01": [
+            14.0,
+            17.0,
+            20.0,
+            21.0,
+            22.0,
+            23.0,
+            25.0,
+            42.0
+          ],
+          "slide02": [
+            14.0,
+            17.0,
+            20.0,
+            23.0,
+            42.0
+          ],
+          "slide03": [
+            14.0,
+            17.0,
+            20.0,
+            22.0,
+            23.0,
+            42.0
+          ],
+          "slide04": [
+            14.0,
+            17.0,
+            20.0,
+            21.0,
+            22.0,
+            23.0,
+            25.0,
+            42.0
+          ],
+          "slide05": [
+            14.0,
+            20.0,
+            21.0,
+            22.0,
+            23.0,
+            26.0,
+            42.0
+          ],
+          "slide06": [
+            14.0,
+            20.0,
+            21.0,
+            23.0,
+            42.0
+          ]
+        },
+        "warning_count": 0,
+        "warnings": [],
+        "errors": [],
+        "scope": "Structure, cached series/workbook agreement, font family, font size hierarchy, table cell uniformity, and bounding-box collision checks."
+      },
+      "powerpoint": {
+        "source": "examples/evidence-variants.pptx",
+        "application": "PowerPoint",
+        "opened": true,
+        "slides": [
+          {
+            "slide": 1,
+            "text": 18,
+            "charts": 0,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 26
+          },
+          {
+            "slide": 2,
+            "text": 9,
+            "charts": 0,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 15
+          },
+          {
+            "slide": 3,
+            "text": 13,
+            "charts": 0,
+            "pictures": 3,
+            "tables": 0,
+            "shapes": 23
+          },
+          {
+            "slide": 4,
+            "text": 18,
+            "charts": 0,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 26
+          },
+          {
+            "slide": 5,
+            "text": 27,
+            "charts": 0,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 47
+          },
+          {
+            "slide": 6,
+            "text": 27,
+            "charts": 0,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 51
+          }
+        ],
+        "overflows": [],
+        "table_issues": [],
+        "font_issues": [],
+        "edit_probe": false,
+        "version": "16.0",
+        "slide_count": 6,
+        "render_ok": true,
+        "quality_ok": true
+      }
+    },
+    "existing-variants": {
+      "sha256": "2aabe1e2df3f19d554358c5efd751c2bdfe4265bc38c33e9906999fe85b871ff",
+      "static": {
+        "ok": true,
+        "file": "existing-variants.pptx",
+        "counts": {
+          "slides": 4,
+          "text_shapes": 59,
+          "charts": 6,
+          "tables": 2,
+          "connectors": 0,
+          "pictures": 1,
+          "cache_cells": 220
+        },
+        "fonts": [
+          "Noto Sans CJK SC",
+          "Noto Serif CJK SC"
+        ],
+        "font_sizes": {
+          "slide01": [
+            14.0,
+            21.0,
+            23.0,
+            24.0,
+            26.0,
+            28.0,
+            42.0
+          ],
+          "slide02": [
+            14.0,
+            23.0,
+            24.0,
+            27.0,
+            42.0
+          ],
+          "slide03": [
+            14.0,
+            17.0,
+            24.0,
+            25.0,
+            26.0,
+            42.0
+          ],
+          "slide04": [
+            14.0,
+            17.0,
+            20.0,
+            23.0,
+            42.0
+          ]
+        },
+        "warning_count": 0,
+        "warnings": [],
+        "errors": [],
+        "scope": "Structure, cached series/workbook agreement, font family, font size hierarchy, table cell uniformity, and bounding-box collision checks."
+      },
+      "powerpoint": {
+        "source": "examples/existing-variants.pptx",
+        "application": "PowerPoint",
+        "opened": true,
+        "slides": [
+          {
+            "slide": 1,
+            "text": 18,
+            "charts": 2,
+            "pictures": 0,
+            "tables": 1,
+            "shapes": 83
+          },
+          {
+            "slide": 2,
+            "text": 14,
+            "charts": 0,
+            "pictures": 0,
+            "tables": 1,
+            "shapes": 31
+          },
+          {
+            "slide": 3,
+            "text": 21,
+            "charts": 4,
+            "pictures": 0,
+            "tables": 0,
+            "shapes": 41
+          },
+          {
+            "slide": 4,
+            "text": 6,
+            "charts": 0,
+            "pictures": 1,
+            "tables": 0,
+            "shapes": 11
+          }
+        ],
+        "overflows": [],
+        "table_issues": [],
+        "font_issues": [],
+        "edit_probe": true,
+        "version": "16.0",
+        "slide_count": 4,
+        "text_persisted": true,
+        "move_persisted": true,
+        "workbook_value_persisted": true,
+        "probe_original_value": 25,
+        "render_ok": true,
+        "quality_ok": true
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "kind": "paper_crop",
+  "path": "figures/figure-1.png",
+  "caption": "图 1  合成测试资料",
+  "source": "来源：随包 synthetic-study.pdf（示意）",
+  "provenance": {
+    "paper_id": "demo-study",
+    "figure": "Fig 1",
+    "page": 1,
+    "crop_bbox": [
+      0,
+      0,
+      864,
+      432
+    ],
+    "pdf_sha256": "625db2361c9caf1bdcce114b8d9b1788a039408b20d61d6bb0d4be8cff0ae1ad",
+    "png_sha256": "215df2377325f02f475b95f937e15755a201d52ace54af6ed1e582d3c2d525e4",
+    "render_method": "pdf_clip",
+    "dpi": 180,
+    "verified_complete": true
+  }
+}

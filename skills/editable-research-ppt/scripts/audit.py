@@ -320,6 +320,11 @@ def audit(path, *, strict=False, font_profile='auto'):
                     if not equal:
                         errors.append(name + ' ' + key + ': cache/workbook mismatch')
 
+        if any(b'EVIDENCE_MANIFEST' in z.read(n) for n in names if n.startswith('ppt/notesSlides/notesSlide') and n.endswith('.xml')):
+            import importlib.util
+            spec=importlib.util.spec_from_file_location('evidence_audit',Path(__file__).resolve().parent/'evidence_layouts.py')
+            mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod)
+            errors.extend(mod.audit_embedded(z,NS))
         if len(pres.findall('p:sldIdLst/p:sldId', NS)) != counts['slides']:
             errors.append('Slide count mismatch')
 

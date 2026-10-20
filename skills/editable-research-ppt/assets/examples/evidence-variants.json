@@ -1,0 +1,315 @@
+{
+  "scenario": "academic",
+  "palette": "P1",
+  "fill_style": "solid",
+  "visual_mode": "adaptive",
+  "demo": true,
+  "palette_showcase": true,
+  "navigation": {
+    "labels": [
+      "研究问题",
+      "设计与方法",
+      "关键证据",
+      "总结讨论"
+    ],
+    "active": 2
+  },
+  "slides": [
+    {
+      "sources": [
+        "随包合成测试资料；不代表真实论文或科研结果。"
+      ],
+      "takeaway": "版式示意：原图保持完整，解释紧邻证据。",
+      "layout": "L15",
+      "palette": "P1",
+      "title": "一篇研究如何连接问题、设计与证据",
+      "figures": [
+        {
+          "kind": "paper_crop",
+          "path": "figures/figure-1.png",
+          "caption": "图 1  合成测试资料",
+          "source": "来源：随包 synthetic-study.pdf（示意）",
+          "provenance": {
+            "paper_id": "demo-study",
+            "figure": "Fig 1",
+            "page": 1,
+            "crop_bbox": [
+              0,
+              0,
+              864,
+              432
+            ],
+            "pdf_sha256": "625db2361c9caf1bdcce114b8d9b1788a039408b20d61d6bb0d4be8cff0ae1ad",
+            "png_sha256": "215df2377325f02f475b95f937e15755a201d52ace54af6ed1e582d3c2d525e4",
+            "render_method": "pdf_clip",
+            "dpi": 180,
+            "verified_complete": true
+          }
+        }
+      ],
+      "sections": [
+        {
+          "title": "研究问题",
+          "body": "环境变化是否伴随\n动物群落差异？"
+        },
+        {
+          "title": "研究设计",
+          "body": "在统一监测窗口内，\n比较不同生境样点。"
+        },
+        {
+          "title": "核心证据",
+          "body": "保留完整结果图，\n结合原文解释差异。"
+        }
+      ],
+      "variant": "figure_left"
+    },
+    {
+      "sources": [
+        "随包合成测试资料；不代表真实论文或科研结果。"
+      ],
+      "takeaway": "版式示意：原图保持完整，解释紧邻证据。",
+      "layout": "L16",
+      "palette": "P2",
+      "title": "重要证据放大呈现，先看清再解释",
+      "figures": [
+        {
+          "kind": "paper_crop",
+          "path": "figures/figure-1.png",
+          "caption": "图 1  合成测试资料",
+          "source": "来源：随包 synthetic-study.pdf（示意）",
+          "provenance": {
+            "paper_id": "demo-study",
+            "figure": "Fig 1",
+            "page": 1,
+            "crop_bbox": [
+              0,
+              0,
+              864,
+              432
+            ],
+            "pdf_sha256": "625db2361c9caf1bdcce114b8d9b1788a039408b20d61d6bb0d4be8cff0ae1ad",
+            "png_sha256": "215df2377325f02f475b95f937e15755a201d52ace54af6ed1e582d3c2d525e4",
+            "render_method": "pdf_clip",
+            "dpi": 180,
+            "verified_complete": true
+          }
+        }
+      ],
+      "sections": [
+        {
+          "title": "看总体趋势",
+          "body": "先定位变量和坐标，\n再比较观测分布。"
+        },
+        {
+          "title": "看组间差异",
+          "body": "同时观察组间差异\n和组内变异。"
+        },
+        {
+          "title": "回到研究问题",
+          "body": "用简短说明连接\n图中证据与论点。"
+        }
+      ],
+      "variant": "full_width"
+    },
+    {
+      "sources": [
+        "随包合成测试资料；不代表真实论文或科研结果。"
+      ],
+      "takeaway": "版式示意：原图保持完整，解释紧邻证据。",
+      "layout": "L17",
+      "palette": "P3",
+      "title": "保留全貌，放大需要解释的局部",
+      "figures": [
+        {
+          "kind": "paper_crop",
+          "path": "figures/figure-2.png",
+          "caption": "图 2  合成测试资料",
+          "source": "来源：随包 synthetic-study.pdf（示意）",
+          "provenance": {
+            "paper_id": "demo-study",
+            "figure": "Fig 2",
+            "page": 2,
+            "crop_bbox": [
+              0,
+              0,
+              864,
+              432
+            ],
+            "pdf_sha256": "625db2361c9caf1bdcce114b8d9b1788a039408b20d61d6bb0d4be8cff0ae1ad",
+            "png_sha256": "da44269be4ac3725b379b1a87a169dededa42f9d704174de89ff9bd0d9de8858",
+            "render_method": "pdf_clip",
+            "dpi": 180,
+            "verified_complete": true
+          }
+        }
+      ],
+      "zooms": [
+        {
+          "label": "A 区域：样点细节",
+          "rect": [
+            0.18,
+            0.17,
+            0.38,
+            0.48
+          ]
+        },
+        {
+          "label": "C 区域：样点细节",
+          "rect": [
+            0.51,
+            0.17,
+            0.75,
+            0.48
+          ]
+        }
+      ],
+      "variant": "detail_left"
+    },
+    {
+      "sources": [
+        "随包合成测试资料；不代表真实论文或科研结果。"
+      ],
+      "takeaway": "版式示意：原图保持完整，解释紧邻证据。",
+      "layout": "L18",
+      "palette": "P4",
+      "title": "研究区与采样安排放在同一页说明",
+      "figures": [
+        {
+          "kind": "paper_crop",
+          "path": "figures/figure-2.png",
+          "caption": "图 2  合成测试资料",
+          "source": "来源：随包 synthetic-study.pdf（示意）",
+          "provenance": {
+            "paper_id": "demo-study",
+            "figure": "Fig 2",
+            "page": 2,
+            "crop_bbox": [
+              0,
+              0,
+              864,
+              432
+            ],
+            "pdf_sha256": "625db2361c9caf1bdcce114b8d9b1788a039408b20d61d6bb0d4be8cff0ae1ad",
+            "png_sha256": "da44269be4ac3725b379b1a87a169dededa42f9d704174de89ff9bd0d9de8858",
+            "render_method": "pdf_clip",
+            "dpi": 180,
+            "verified_complete": true
+          }
+        }
+      ],
+      "sections": [
+        {
+          "title": "18 个样点",
+          "body": "分为 3 个区域，\n每区布设 6 个样点。"
+        },
+        {
+          "title": "统一监测窗口",
+          "body": "保持调查时间与\n观测努力量可比较。"
+        },
+        {
+          "title": "重复观测",
+          "body": "相同样点持续记录，\n保留原始信息。"
+        }
+      ],
+      "variant": "map_right"
+    },
+    {
+      "sources": [
+        "随包合成测试资料；不代表真实论文或科研结果。"
+      ],
+      "takeaway": "版式示意：原图保持完整，解释紧邻证据。",
+      "layout": "L19",
+      "palette": "P5",
+      "title": "实验分组与测量时点沿同一时间轴对齐",
+      "times": [
+        "第 0 天",
+        "第 7 天",
+        "第 14 天",
+        "第 21 天",
+        "第 28 天"
+      ],
+      "groups": [
+        {
+          "name": "对照组",
+          "sample": "n = 12（示意）",
+          "events": [
+            "基线测量",
+            "同期观测",
+            "重复测量",
+            "同期观测",
+            "终点测量"
+          ]
+        },
+        {
+          "name": "低干扰组",
+          "sample": "n = 12（示意）",
+          "events": [
+            "基线测量",
+            "开始处理",
+            "重复测量",
+            "结束处理",
+            "终点测量"
+          ]
+        }
+      ],
+      "measurement": "测量指标：株高与叶片数重复测量；生物量仅在终点测量。",
+      "variant": "two_groups"
+    },
+    {
+      "sources": [
+        "随包合成测试资料；不代表真实论文或科研结果。"
+      ],
+      "takeaway": "版式示意：原图保持完整，解释紧邻证据。",
+      "layout": "L20",
+      "palette": "P6",
+      "title": "围绕同一问题比较多篇研究",
+      "matrix": [
+        [
+          "研究",
+          "研究设计",
+          "主要发现",
+          "解释条件"
+        ],
+        [
+          "示例 A",
+          "跨区域观测",
+          "面积与丰富度相关",
+          "需考虑环境差异"
+        ],
+        [
+          "示例 B",
+          "控制实验",
+          "隔离影响扩散",
+          "实验尺度有限"
+        ],
+        [
+          "示例 C",
+          "长期监测",
+          "响应存在滞后",
+          "需要连续观测"
+        ],
+        [
+          "示例 D",
+          "多尺度比较",
+          "效应随尺度变化",
+          "尺度选择影响结果"
+        ]
+      ],
+      "sections": [
+        {
+          "title": "共同认识",
+          "body": "景观格局与\n群落变化有关。"
+        },
+        {
+          "title": "主要分歧",
+          "body": "面积、隔离与时间\n的相对作用。"
+        },
+        {
+          "title": "下一步问题",
+          "body": "在统一设计下\n比较竞争解释。"
+        }
+      ],
+      "variant": "table_full"
+    }
+  ]
+}

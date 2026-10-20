@@ -1,0 +1,22 @@
+{
+  "version": "1.3.0",
+  "date": "2026-10-20",
+  "note": "当前实现与原图证据样板；历史用户批准记录未改写。",
+  "sha256": {
+    "SKILL.md": "0db03051f247eced6fb049b5c0ce3e82ca0b791d6de3ebab270d413376cf339e",
+    "README.md": "01a48fe20bb1b2e8bfc635a473b7428f9d0305499e7cb5ad51f4f129f9d109f0",
+    "assets/template-system.json": "8570ec514ec2804dcc54772487c535f58ecf9b1dc20a1dd3c651ee96a2004b01",
+    "scripts/generate.py": "6e42416b74a9dc45566f7e87a51e437209a52e13496dab8c0e8ce03a2c7e8a52",
+    "scripts/audit.py": "e0472d03c01ca54b3beb1e9b5abee73b0b9213b9205af545596f5b401ef696a0",
+    "scripts/evidence_layouts.py": "e80f995a776c51771e5853924085625c861ad82ab439efbe8041fac85215539a",
+    "scripts/crop_paper_figure.py": "7ec53393a439a864e06c2e5063347d4137284e378b1a9e03b34ea953c2a6d294",
+    "scripts/check_environment.py": "9ade8c06f2e59c73783b1432117f4ff076af773278fdf8a24ea7297791c62688",
+    "references/approved-standard.json": "d9fb93bdd6d2e5d30511ca49ba44b897f2a3a3a6f26751134cf56921838c0a29",
+    "references/evidence-and-composition.md": "04a38056925cbc06a0cf2ae8438756004d1b05d7a7e3b734908690dd945f94f5",
+    "references/validation-evidence-v1.3.json": "5cc2b3f377c7b6f447d1c167b55638b9800d4079e3674d2673c342baef123bfb",
+    "tests/test_evidence.py": "775682da8c6136ab827e99b0d7919d8a56fe79e586efb913f16cba8197dbb0dd",
+    "examples/evidence-layouts.pptx": "de26e70c428d1f73b2a70b96f6beda25b139fad76e7eb44f29510581c06f4aaa",
+    "examples/evidence-variants.pptx": "545c260d0119ee5db7ccaf865531ff93f54653eb49bc9747333392f4a68182e6",
+    "examples/existing-variants.pptx": "2aabe1e2df3f19d554358c5efd751c2bdfe4265bc38c33e9906999fe85b871ff"
+  }
+}
