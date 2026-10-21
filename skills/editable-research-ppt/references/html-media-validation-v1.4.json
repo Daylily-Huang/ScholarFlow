@@ -1,0 +1,10 @@
+{
+  "offline": true,
+  "initial_radius": 151,
+  "contracted_radius": 107,
+  "resume": true,
+  "pause": true,
+  "restart": true,
+  "video_duration": 8,
+  "pass": true
+}

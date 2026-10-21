@@ -1,0 +1,35 @@
+{
+  "version": "1.4.0",
+  "date": "2026-10-21",
+  "scope": "Windows desktop PowerPoint 16.0; optional add_media.ps1; synthetic examples only",
+  "powerpoint_checks": {
+    "source_protected": true,
+    "existing_output_protected": true,
+    "existing_animation_protected": true,
+    "missing_shape_rejected": true,
+    "bad_box_rejected": true,
+    "effect_count": true,
+    "static_fallback": true,
+    "click_sequence": true,
+    "saved_text": true,
+    "saved_timing": true,
+    "video_export": true,
+    "source_unchanged": true
+  },
+  "demo_sha256": "de393ea395f53c02031fe62bcc535acab68254356615aebd456973815f39bd2c",
+  "render_pages_reviewed": [
+    1,
+    2,
+    3
+  ],
+  "video_frames_reviewed_seconds": [
+    1,
+    4
+  ],
+  "not_verified": [
+    "macOS PowerPoint",
+    "WPS",
+    "PowerPoint for web"
+  ],
+  "generator_changes": "none; static generator remains stdlib-only"
+}

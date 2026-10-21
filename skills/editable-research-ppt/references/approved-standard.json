@@ -14,17 +14,21 @@
     "assets/templates/bindings.json": "a784832d40efc3857cd56166302b3bc06c8fa3f6fac3319e20917c0d5b1771e0",
     "scripts/evidence_layouts.py": "e80f995a776c51771e5853924085625c861ad82ab439efbe8041fac85215539a",
     "scripts/crop_paper_figure.py": "7ec53393a439a864e06c2e5063347d4137284e378b1a9e03b34ea953c2a6d294",
-    "assets/template-system.json": "8570ec514ec2804dcc54772487c535f58ecf9b1dc20a1dd3c651ee96a2004b01"
+    "assets/template-system.json": "0b5b647e3939616182fe7b765aace501c0be6b46b365ed89bef9a3e73f148a1b",
+    "scripts/add_media.ps1": "9c179b90662fab0447a58968f84b564ff7e2bb0c963f62a24369ec4afd4ec775",
+    "scripts/audit_media.py": "6df5948064e8e6510c3c591d89d83f81dc682ecb21092de87ef4fd74d0239975"
   },
   "v1_2_note": "v1.2（2026-10-20）更新 generate.py 与 fill_styles.py 引入 adaptive 模式。经逐字节比对，solid 样例与 v1.1 已批准版的唯一差异是连线新增 cap=\"rnd\"（圆头端点），字号、版式、配色、数据与原生对象均未变化。v1.1 的历史哈希保留在 v1.1-hashes.json。本轮已用当前代码重建三个 solid 样例并刷新 examples/ 与本节哈希，使代码与样例重新一致。",
-  "current_version": "1.3.0",
+  "current_version": "1.4.0",
   "current_examples": {
     "examples/adaptive-solid.pptx": "bf61529e13f4a71191baf960600d93b88e4291e4477ce171f5a5bd9a961a0d11",
     "examples/adaptive-light.pptx": "6bc3979543335cc421bacb55b0d57a95f68b1e8160e8a3b359516cc9d32629fd",
     "examples/evidence-layouts.pptx": "de26e70c428d1f73b2a70b96f6beda25b139fad76e7eb44f29510581c06f4aaa",
     "examples/evidence-variants.pptx": "545c260d0119ee5db7ccaf865531ff93f54653eb49bc9747333392f4a68182e6",
-    "examples/existing-variants.pptx": "2aabe1e2df3f19d554358c5efd751c2bdfe4265bc38c33e9906999fe85b871ff"
+    "examples/existing-variants.pptx": "2aabe1e2df3f19d554358c5efd751c2bdfe4265bc38c33e9906999fe85b871ff",
+    "examples/media/demo.pptx": "de393ea395f53c02031fe62bcc535acab68254356615aebd456973815f39bd2c"
   },
   "v1_2_1_note": "保留原用户批准日期与历史样板；本次修复质量出口、表格容量、配图、摘要、字号配置与局部排版。current_examples 为本次生成并实机检查的自适应样板，不将旧版批准等同于用户已审阅本次新样板。design_files 记录当前实现，不要求历史样板由新代码逐字节重建。",
-  "v1_3_note": "新增六种原图证据版式及变体、独立标注组件和正式输入原图硬指标。保留历史批准日期与样板；新增样板使用合成测试资料，代码已检查，不等同于用户逐页批准新实现。"
+  "v1_3_note": "新增六种原图证据版式及变体、独立标注组件和正式输入原图硬指标。保留历史批准日期与样板；新增样板使用合成测试资料，代码已检查，不等同于用户逐页批准新实现。",
+  "v1_4_note": "保留既有用户批准日期、样板和静态生成器。增加联网素材、编辑边界、按需解释性动画和双重验收规则；新增媒体后处理及合成测试样板不视为用户重新批准全部版式。"
 }

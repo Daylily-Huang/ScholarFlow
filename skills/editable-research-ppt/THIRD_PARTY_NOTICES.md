@@ -18,8 +18,12 @@
 
 ## 运行依赖
 
-生成与检查脚本仅使用 Python 标准库；不随包复制 Python 本身。Windows PowerPoint 是可选的本地预览/编辑验证工具，须使用者自行取得。未分发原制作工具的私有运行时或其库代码。
+静态生成与Python检查脚本仅使用 Python 标准库；不随包复制 Python 本身。Windows PowerPoint 是可选的本地预览、编辑验证和动画/媒体后处理工具，须使用者自行取得。未分发原制作工具的私有运行时或其库代码。
 
 ## v1.3 合成测试资料
 
 assets/examples/figures/synthetic-study.pdf 及其 PNG 裁图为本项目生成的合成测试资料，采用本项目 MIT 许可；不是真实发表论文，不包含第三方论文图片。PDF 裁图工具可选使用 PyMuPDF，该依赖未随本包分发，遵循其自身许可证。
+
+## v1.4 动画样板
+
+`examples/media/` 的几何SVG、视频、静态帧、HTML、PPT结构及配置为本项目原创合成教学素材，采用本项目MIT许可；不是论文原图或实测数据。未把此前私人文献样稿或第三方医学插图加入开源包。用户联网取得的素材须另行记录来源、许可、修改和必要署名，不能自动套用本项目MIT。可选脚本 `add_media.ps1` 依赖用户已安装的Windows桌面PowerPoint，不分发Office软件。

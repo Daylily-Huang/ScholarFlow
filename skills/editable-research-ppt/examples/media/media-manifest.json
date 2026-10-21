@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "id": "concept-motion",
+      "origin": "original",
+      "role": "concept_animation",
+      "representation": "video",
+      "editable": "source",
+      "path": "concept.mp4",
+      "sha256": "fd5f258033463476551c1d6e453cefb40e2241324411bb5793554befa80c353a",
+      "changes": "Original geometric SVG rendered to MP4; illustrative dimensions and timing.",
+      "placements": [
+        2
+      ],
+      "source_path": "concept.svg",
+      "source_sha256": "2d3083b2681f86915b987cdf6c5f37749d3278cfefc558257dae1c1920d662dc",
+      "static_fallback": "static.png",
+      "fallback_sha256": "cfe86bc77abaf31266fcbaa08f7ba95cf7136533454eb27db90a16e446d61b94",
+      "schematic": true,
+      "explanation": "Qualitative lumen-boundary change, not measured geometry or physiology."
+    }
+  ]
+}

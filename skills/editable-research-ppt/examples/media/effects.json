@@ -1,0 +1,49 @@
+{
+  "steps": [
+    {
+      "slide": 1,
+      "shapes": [
+        "panel0",
+        "head0",
+        "body0"
+      ],
+      "name": "step-1",
+      "duration": 0.65
+    },
+    {
+      "slide": 1,
+      "shapes": [
+        "panel1",
+        "head1",
+        "body1"
+      ],
+      "name": "step-2",
+      "duration": 0.65
+    },
+    {
+      "slide": 1,
+      "shapes": [
+        "panel2",
+        "head2",
+        "body2"
+      ],
+      "name": "step-3",
+      "duration": 0.65
+    }
+  ],
+  "videos": [
+    {
+      "slide": 2,
+      "path": "concept.mp4",
+      "name": "concept-demo",
+      "box": [
+        24,
+        120,
+        648,
+        364.5
+      ],
+      "autoplay": true,
+      "loop": true
+    }
+  ]
+}

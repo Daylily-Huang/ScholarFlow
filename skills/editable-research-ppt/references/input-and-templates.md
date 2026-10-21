@@ -16,7 +16,7 @@
 
 ## 从示例修改
 
-复制 `assets/examples/academic.json`、`coursework.json` 或 `progress.json`。`all-layouts.json` 含全部十四种结构。
+先按每页论点和证据规划；从 `assets/examples/academic.json`、`coursework.json` 或 `progress.json` 参考字段，不照搬整套页序。`all-layouts.json` 含全部十四种结构。
 
 顶层字段：`scenario` = `academic|coursework|progress`；`palette` = `P1`…`P6`；`demo` 为布尔值；`slides` 为 1–150 页列表。正式内容设 `demo: false`，并提供 `footer`。每页提供 `sources`，每张图提供 `source`，写入备注以供追溯。
 
@@ -79,3 +79,7 @@ python scripts/audit.py OUTPUT.pptx --strict
 确认退出码 0、`ok: true` 且 `warning_count: 0`，并在 PowerPoint 中导出预览图逐页目视复核。严格模式将全部警告视为失败，包括图表字体与字号。字体配置可显式传 `--font-profile portable|office`，默认自动识别；这检查文件声明，不代表目标电脑一定安装了字体。
 
 PowerPoint 渲染报告必须 `quality_ok: true`；打开失败、文字溢出、表格碰撞、字体问题或请求的编辑探针失败均返回非零退出码。静态检查和实机规则都是有边界的检查，不能代替看图。历史 legacy 示例可能不满足新版严格标准；优先使用 `adaptive-solid.json` / `adaptive-light.json`。
+
+## 外部素材与动画后处理
+
+联网素材与解释性动画使用独立清单/配置，不扩展本文件的静态输入schema。可选Windows PowerPoint处理、离线HTML及媒体核验见 [媒体规则](media-and-animation.md)。原图优先、字体字号、图片比例与图注规则继续适用。
