@@ -1,0 +1,583 @@
+[
+  {
+    "id": "b-97c22eb7cb61357c-1",
+    "role": "metadata",
+    "zh": "Taylor M Wilcox Kevin S McKelvey Michael K Young Stephen F Jane Winsor H Lowe Andrew R Whiteley Michael K Schwartz\n"
+  },
+  {
+    "id": "b-99d359993ef74be1-1",
+    "zh": "环境DNA（eDNA）正被迅速用于检出稀有动物。采用探针化学的定量PCR（qPCR）因灵敏、特异及潜在定量能力而尤具潜力，但当样本含有近缘同域类群时，其表现少有研究。近缘种若发生交叉扩增或干扰，就可能产生假阳性及假阴性：前者可使濒危种数量被高估，后者可导致漏掉入侵种。本研究以同域近缘的美洲红点鲑（Salvelinus fontinalis）和牛红点鲑（S. confluentus）为例，测试TaqMan MGB体系特异性及灵敏性的影响因素。我们发现qPCR比传统PCR灵敏得多，目标浓度低至0.5拷贝/µl仍有较高检出概率。检测体系与非目标模板间碱基错配的数量和位置均影响特异性，且引物错配的影响大于探针错配。特异性不足可同时造成假阳性和假阴性，尤其在近缘种丰富时。结果凸显qPCR作为高灵敏eDNA工具的价值，也强调仔细设计检测体系的重要性。",
+    "note": "一瓶溪水里，想找的鱼可能只留下少量DNA，旁边近亲鱼的DNA却很多。检测器既要“听得见小声”，还要“认得准是谁”。作者分别测试这两件事，发现高灵敏度不自动带来高特异性；近缘鱼还会干扰目标信号。",
+    "keys": [
+      "稀有目标与大量近缘背景共同构成真实检测难题。",
+      "稀释实验测能否检出，纯样与混样实验测能否认准。",
+      "错配的位置与数量改变干扰，因而灵敏度和特异性必须一起设计。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-a57b71ee96ab68e3-1",
+    "zh": "eDNA是从环境样本中、不分离目标生物而取得的DNA[1,2]，常为许多生物基因组DNA的混合物，并已降解成小片段[2]。其应用众多，近期受到关注的是稀有水生脊椎动物检测，包括及早发现外来入侵种[3–6]，以及寻找稀少的本地保护物种[7–9]，如当时列入美国《濒危物种法》的种类。",
+    "note": "水样不像一块鱼鳍，能先确定是谁再提DNA。它把许多生物的碎片一起带进实验室，而研究者要从这锅混合物里认出某一种稀少的鱼。",
+    "keys": [
+      "环境取样省去抓取个体，却同时引入混合、碎片化模板。",
+      "检测稀有物种因此要求从复杂背景中筛出微弱目标。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-d8864ba0bdf2a745-1",
+    "zh": "外来种可造成经济和生态影响[10,11]，尤其威胁会与其竞争或杂交的近缘本地种[12,13]，两者因此常被密集监测。eDNA在入侵的三个阶段可能有用：入侵早期外来种尚少，后期本地种已少，以及清除入侵种之后。此时常规调查为达到足够检出水平需要极大投入[5]。",
+    "note": "什么时候最需要这项技术？刚入侵时找少数外来鱼，被挤压后找剩下的本地鱼，或者清除后确认有没有漏网鱼。共同点都是“要找的很少”，所以一次没看到尤其难解释。",
+    "keys": [
+      "入侵进程改变稀有的是哪一方，但三个场景都需要可靠的小数量检测。",
+      "常规调查成本高，使eDNA的灵敏性具有实际管理价值。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-206ddc39404ee527-1",
+    "zh": "eDNA也有独特挑战。常见非侵入取样收集特定种留下的毛、粪或组织，DNA多来自目标种或相距较远的细菌、猎物；eDNA样本中的目标DNA却可能只占少数，并被近缘非目标种主导。沉淀[4]或过滤[7]虽能浓集DNA，但在PCR前无法提高目标DNA在混合物中的相对比例。",
+    "note": "把6升水浓缩成一小管，会同时浓缩想找和不想找的DNA。总量上去了，“目标只占百分之一”这个比例却可能原封不动，所以不能指望多过滤就解决物种混淆。",
+    "keys": [
+      "过滤浓集增加总DNA，也保留近缘背景。",
+      "目标相对占比仍低，选择性必须由后续检测体系承担。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-34aae0add67b482d-1",
+    "zh": "溪流还有额外挑战。静水中DNA平衡主要取决于新输入与降解损失[8,14]；流水下游输送可能使DNA浓度更低[8]，稀有目标尤其如此。要用于流水稀有种监测，需明确检测灵敏性，并联系生物丰度、流量与每升水DNA量；若与近缘种共存，还需检验目标仅占近缘背景一小部分时的可靠性。",
+    "note": "河水不断往下带走痕迹，目标少时每升水可能更稀。于是有两个独立追问：稀到多少还能检出？同样稀的目标混在大量近亲里，还能不能检出并认对？",
+    "keys": [
+      "输送可能降低目标浓度，先提出灵敏度问题。",
+      "近缘种共存再加入比例与竞争问题，因此需要混样测试。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-85bf88a3dd1cf6d8-1",
+    "zh": "TaqMan MGB qPCR可能尤其适用。两条引物扩增目标小片段，其中有一处探针结合位点；探针一端带荧光报告基团，另一端带淬灭基团，完整时经FRET抑制荧光。聚合酶延伸时以5′–3′核酸酶活性切开探针，分开淬灭基团，荧光增加。因此荧光随模板量增加；随PCR进行，扩增曲线先快速上升，再因试剂消耗进入平台。起始模板越多，越早可见曲线；明显超过背景的循环数称Ct，可与已知拷贝数标准比较，估计未知样本的初始量[15]。该方法很灵敏：传统PCR对亚洲鲢鳙eDNA的稀释实验检出浓度分别为7及207拷贝/µl（每反应1 µl模板）[5,16]，而qPCR在0.5拷贝/µl已有合理检出概率[17]。",
+    "note": "可以把探针想成带着小灯与遮光罩的一段短链。完整时灯光被压住，延伸切开后才亮；每轮多出产物，信号跟着积累。起始目标多，较早越过检测线，Ct就小。关键是整套过程既需要引物启动复制，也需要探针正确报告。",
+    "keys": [
+      "引物负责启动扩增，探针被切开后才产生增强的荧光。",
+      "产物积累形成曲线，起始量越大通常越早越过阈值。",
+      "通过已知标准比较Ct，才可把越线时间换成初始拷贝数估计。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-1cd41ab4916b20f4-1",
+    "zh": "MGB探针的3′修饰允许设计很短的探针，对碱基错配非常敏感[18]，因而理论上比传统PCR更具目标特异性；已有多项eDNA研究使用[8,19–21]。但即使有2或3个错配，MGB探针仍可能产生可测信号[22–24]。探针内[18]及引物内[25]错配的位置也很重要。因此当目标只占很小部分、近缘种占多数时，准确性依赖仔细设计。",
+    "note": "探针多一道辨认，并不意味着近亲一定被挡住。若近亲仍能被引物扩增，甚至让探针漏报一点光，大量近亲就可能把这点小误差放大成看得见的信号。",
+    "keys": [
+      "探针增加辨认环节，却仍可能容忍部分错配。",
+      "背景量大时微弱交叉反应也有影响，因而需同时检查引物与探针。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-1435f0b0a2887b7b-1",
+    "zh": "美国西部广泛放流的美洲红点鲑是入侵种，常在小溪中排挤本地牛红点鲑[26]和割喉鳟[27]。为建立本地鱼庇护区，常先设迁移屏障，再清除上游美洲红点鲑[28]；彻底清除及频繁监测对屏障有效性至关重要。因此入侵早期、清除后及评估屏障时均须检测它。牛红点鲑在研究时被美国《濒危物种法》列为受威胁种[29]，其出现涉及法律限制，但低密度时常规方法难检出[30]。两种鱼均适合低密度eDNA检测，又因共存，必须能在其中一种丰富时识别另一种的稀少DNA。",
+    "note": "这不是随便找两种长得像的鱼做练习：一种要清除，另一种要保护，而且常住在同一溪流。认错一次，可能把清除成功判成失败，也可能漏掉应保护的分布点。",
+    "keys": [
+      "两种鱼的管理目标不同，使可靠区分具有实际后果。",
+      "它们共存且一方可很稀少，正好形成近缘混合背景的检验案例。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-780b74853f49c9e8-1",
+    "zh": "本文为这两种近缘红点鲑开发TaqMan MGB体系，重点测试美洲红点鲑检测在纯目标DNA及多物种混合DNA中的可靠性与灵敏性。",
+    "note": "实验主问题到这里就定下来了：先看检测器找纯目标的本领，再让近亲来“同场”，看它还能不能工作。",
+    "keys": [
+      "纯样与混样的对照把灵敏性和背景干扰分开检验。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-dcbec0fe601a5903-1",
+    "zh": "设计2套美洲红点鲑及1套牛红点鲑TaqMan MGB体系，靶向cytb约150 bp、在美国西部共存鲑科鱼间差异较大的区域[31]。选择线粒体标记，是因为每细胞线粒体DNA拷贝数远多于核DNA，因此适合低浓度或降解样本[32]。",
+    "note": "碎片短、目标少，就选较短又有较多拷贝的线粒体片段；但还必须有足够种间差异，才有位置设计能辨认物种的引物。",
+    "keys": [
+      "短且多拷贝有利于检出微量DNA。",
+      "种间差异提供辨认依据，把灵敏目标与特异目标落实到同一区段。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-6f65147314490a60-1",
+    "zh": "第一套美洲红点鲑体系BRK1尽量增大探针区与其他鲑科鱼的碱基差异（表1），意图即使引物结合并扩增，非目标探针结合较弱或不发光。第二套BRK2及牛红点鲑BUT1则尽量增大引物结合区的种间差异，并在探针区保留至少一个差异。引物区错配意在减弱或阻止非目标扩增。",
+    "note": "两种设计把“门”设在不同地方：BRK1主要让探针来辨认，近亲可能先被复制、只是少发光；BRK2和BUT1则尽量在复制开头就挡住近亲。后面的混样实验正是比较这两种布置。",
+    "keys": [
+      "探针区差异主要影响报告信号，引物区差异先影响扩增启动。",
+      "两种策略对背景DNA的处理不同，因此要在大量近亲存在时比较。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-2725e63681b6af23-1",
+    "role": "metadata",
+    "zh": "Table 1 Assay sequences and measures of specificity.\n"
+  },
+  {
+    "id": "b-02bdf3b332604935-1",
+    "zh": "表列3套体系的引物、探针序列及与非目标类群的错配位置（下划线）。比例信噪比为40轮标准化荧光Rn除以第1轮Rn，再以阳性对照的信噪比标准化，报告3次重复的均值与标准差。",
+    "note": "表1同时给“差在哪个碱基”和“误亮到什么程度”。作者把目标阳性设作参照，便于比较近亲信号占目标信号多少。",
+    "keys": [
+      "错配配置与标准化信号并列，供后文检验设计差异是否对应检测表现。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-91449e62228ea7d2-1",
+    "zh": "开发时没有已发表牛红点鲑cytb序列，研究用已有引物为10条牛红点鲑、6条美洲红点鲑及2条湖红点鲑分别取得708、838及800 bp区域。美洲红点鲑和牛红点鲑分别来自蒙大拿西部、爱达荷北部10与6条溪流，按文中列出的州与联邦许可采集；湖红点鲑由当地部落部门从Flathead湖提供。引入种群来源不详。用DNeasy Tissue and Blood试剂盒提取尾鳍DNA；牛及美洲红点鲑用Verspoor_F1和Jane_R（5′-CACAACTATGAGGACAAGGATCG-3′），湖红点鲑用L14724、H15915扩增。40 µl反应含50–100 ng DNA、1×缓冲液、2.5 mM MgCl₂、各200 µM dNTP、各1 µM引物、1 U Taq。程序95°C 10分钟，34轮94°C 1分钟、53°C 1分钟、72°C 1.5分钟，末延伸72°C 5分钟。1.8%琼脂糖胶和1 kb标记检查模板；ExoSap-IT纯化后，以Big Dye及3700分析仪测序。牛及美洲红点鲑用Verspoor_F1、Verspoor_F2、Jane_F（5′-GATTAACTCCGACGCTGACAA-3′）与Jane_R，湖红点鲑用Lc2、Lc3和H15915。引物购自IDT，序列存GenBank KC344819–KC344826。",
+    "note": "设计物种检测之前，得先知道本地近亲在这段DNA上哪里不同。数据库缺牛红点鲑，作者便从实际鱼鳍补序列；这样后面的“错配”有真实参考，而不是凭物种名猜。",
+    "keys": [
+      "缺失参考序列会使特异设计无从比较。",
+      "组织测序补齐目标与近缘参照，再据此选择检测位点。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-9d6a61301040fcd7-1",
+    "zh": "BRK1用已发表美洲红点鲑序列AF154850.1选择探针区，与多利红点鲑、湖红点鲑、北极红点鲑序列JN868488.1、DQ451389.1、NC_000861.1比较，尽量增加探针内错配，再由厂家设计外围引物。BRK2及BUT1使用本研究序列，加上美洲红点鲑、褐鳟、北极茴鱼和虹鳟的AF154850.1、NC_010007、NC_012929.1、NC_001717.1序列，尽量增大引物内错配，以PrimerExpress v3.0设计。一个牛红点鲑个体在BUT1正向引物区有单碱基差异，但未见影响体系效率。",
+    "note": "比较的不止一对鱼：某套引物能分开牛与美洲红点鲑，碰上湖红点鲑可能又有问题。作者把多种近亲放进序列比对，同时留意目标种内部也可能有变异。",
+    "keys": [
+      "多种非目标参照用于寻找广泛的辨认位点。",
+      "目标种内部变异也可能影响结合，因此须检查灵敏度是否受损。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-befbeb49ffecef01-1",
+    "zh": "所有体系来自Applied Biosystems，含引物对及FAM标记MGB-NFQ探针（表1）。20 µl反应含4 µl模板、10 µl TaqMan Fast Universal Master Mix、2 µl检测体系（引物各18 µM、探针5 µM）及4 µl去离子水；StepOne仪器程序为95°C 20秒，45轮95°C 1秒、60°C 20秒。因实时PCR灵敏且易受污染，实验在每次使用前对操作空间、耗材和移液器紫外照射1小时的罩内配制；试剂小份分装，每管仅在无PCR产物环境打开一次。",
+    "note": "每管都加4微升模板，这个数字后面很关键：0.5拷贝/微升，平均就是每管2拷贝。极低模板时，哪怕少量外来DNA也足以影响判断，所以作者同时安排了分装与操作分区。",
+    "keys": [
+      "固定模板体积把浓度换成每反应拷贝数。",
+      "低模板灵敏检测与污染控制必须在同一流程中考虑。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-9eb36e694c9903fd-1",
+    "zh": "在蒙大拿中西部两条已知有美洲红点鲑的溪流采eDNA：Plant Creek以该鱼为主且无其他红点鲑，Miller Creek则混有非目标鲑科鱼（坐标及数据库见原文）。每份泵6 L水经过直径47 mm、孔径1.5 µm玻璃微纤维滤膜，滤膜冰存运回。到实验室后24小时内按MoBio Powerwater流程提取，末洗脱改用100 µl IDTE pH8.0（10 mM Tris、0.1 mM EDTA），−20°C保存。各样之间以10%含氯漂白液清洁管路和滤膜支架。",
+    "note": "除鱼鳍配出来的标准混样，作者也用真实溪水挑战检测器。两条溪流背景不同，都过滤6升并用小体积洗脱，把分散的DNA集中后再检验。",
+    "keys": [
+      "两个自然背景补充组织样本的控制实验。",
+      "现场过滤浓集并保冷，使后续测试保留真实水样特征。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-ae82a43e7bdce53e-1",
+    "zh": "通过对一系列DNA稀释液反复扩增来测灵敏度。4种储备液包括纯美洲红点鲑组织DNA、10%美洲与90%牛红点鲑组织DNA，以及Plant和Miller两溪eDNA。纯组织样用180 µl ATL及20 µl蛋白酶K消化，倒在纸滤膜上，再以Powerwater提取；混合样使用前述测序提取液。两类组织样在定量前均以IDTE pH8.0稀释1:100。",
+    "note": "作者没有只挑一管干净DNA测最低浓度，而是准备纯目标、近亲混样和两种真实水样。它们一起往下稀释，就能比较“同样少”在不同背景下是否同样容易找到。",
+    "keys": [
+      "四类来源提供由简单到复杂的背景。",
+      "逐级稀释保持各自背景结构，用重复扩增估计低浓度表现。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-9d5859afb2b947cb-1",
+    "zh": "所有定量及检出概率实验均用BRK2。以含目标139 bp（含引物探针）的IDT合成基因建立标准曲线：200 µl IDTE复溶，取20 µl经Pvu1线性化、PureLink PCR Micro纯化，洗脱10 µl再加10 µl IDTE。Qubit定量后调至10⁶拷贝/µl，再连续稀释为已知标准，于两块PCR板估计四种储备液的线粒体拷贝浓度；各标准、未知样及无模板对照每板均做3次。以此浓度（表2）将纯组织样稀释到312.5、62.5、12.5、2.5及0.5拷贝/µl，另3种来源稀释到12.5、2.5及0.5拷贝/µl。",
+    "note": "先用知道拷贝数的合成片段校准，再给四类样本估起始浓度，最后按同一拷贝尺度往下稀释。这样比较的是目标有多稀，而不是仅比较提取液稀释了几倍。",
+    "keys": [
+      "合成标准建立拷贝数尺度。",
+      "未知储备液先定量，再配成可对比的目标浓度；这组灵敏度结果专属BRK2。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-acbdd2614f2cd462-1",
+    "role": "metadata",
+    "zh": "Table 2 Quantification of stock solutions for assay sensitivity experiments.\n"
+  },
+  {
+    "id": "b-99d8060b64b290aa-1",
+    "zh": "表给出稀释前样本拷贝估计及标准曲线比较。按Agilent方法指南，R²>0.99、效率90–110%是准确定量所需条件。",
+    "note": "若标准曲线自己不稳，后面“每管几个拷贝”的标尺也会歪；这张表先交代标尺的质量。",
+    "keys": [
+      "校准性能决定未知样本拷贝数估计的可信尺度。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-a628f765d9c1134d-1",
+    "zh": "每个浓度做多次重复以建立检出概率曲线：纯组织系列每浓度40次；Plant、Miller及美洲/牛红点鲑混样在12.5拷贝/µl做26次，在2.5和0.5拷贝/µl做32次。每板设置3个无模板对照。45轮内荧光越过阈值算成功，以成功次数除总重复数估检出概率。",
+    "note": "低浓度不能靠“这一管亮没亮”判断本领。比如做32管，再数亮了多少管，得到的是相同条件反复检测时的成功比例；这才能看见低拷贝抽样的波动。",
+    "keys": [
+      "重复反应把偶然阳性转为可估计的成功比例。",
+      "统一45轮及荧光阈值后，各浓度才能比较。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-cdd5b16d723495ce-1",
+    "zh": "用目标及非目标鲑科鱼DNA比较3套体系的特异性，物种包括美洲红点鲑、牛红点鲑、湖红点鲑及褐鳟。尾鳍组织按许可采集并用DNeasy提取，每种模板做3次以识别异常。以第40轮标准化荧光Rn除第1轮荧光得到信噪比，再除以目标阳性对照3次的平均值，称比例S/N。目标参考值为1.0，理想非目标值应接近无模板对照，即不扩增。",
+    "note": "把每种鱼单独放进去，先问非目标会不会误亮。再把它的信号除以目标阳性信号，便能用同一尺度看“误亮占了多少”。这是纯样的特异性测试，还没让两种模板争同一套引物。",
+    "keys": [
+      "纯模板测试先找交叉信号。",
+      "阳性标准化使体系间可比较，混合后的竞争则留到下一实验。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-c3677ad6580a5314-1",
+    "zh": "用上述提取DNA检验高浓度非目标背景中辨认目标的能力。BRK1与BRK2把美洲红点鲑DNA按1:10和1:100混入牛或湖红点鲑DNA；BUT1则把牛红点鲑按同样比例混入美洲或湖红点鲑DNA。每种混合做3次。",
+    "note": "非目标单独不怎么亮，也可能在同管时抢着被引物复制。于是作者把目标放进10倍、100倍的近亲背景：这是查纯样测不出来的竞争效应。",
+    "keys": [
+      "纯样交叉反应不能代表混样可靠性。",
+      "提高近亲背景后比较目标曲线，才能检验模板竞争。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-34edb841ba0aeee1-1",
+    "zh": "标准曲线适于估计未知拷贝数（表2），各储备液也足以稀释。四类系列在每反应≥10拷贝（≥2.5拷贝/µl）均100%扩增；在每反应平均2拷贝（0.5拷贝/µl）时成功率下降，但均>0.700，纯组织、Plant、Miller及混样分别为0.825、0.719、0.862、0.844。若一次取样检测由三重复组成，成功率>0.975（表3）。",
+    "note": "每管平均只有2份目标时，单管确实会漏，但大多仍能检出。多做几管能减少“恰好这管没读到”的影响；这里>97.5%说的是这组条件的三重复检出，不是一次取水就能覆盖整条溪流。",
+    "keys": [
+      "低至2拷贝/反应时单管成功率仍超过70%，同时可见随机漏检。",
+      "三重复提高至少一次检出的机会；该增益针对检测重复，不能替代现场取样覆盖。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-a33efb5fb0290d80-1",
+    "role": "metadata",
+    "zh": "Table 3 Assay BRK2 sensitivity results.\n"
+  },
+  {
+    "id": "b-b0919113569cfeb6-1",
+    "zh": "表3列4种DNA来源、估计浓度、重复数及扩增比例。所有来源在≥2.5拷贝/µl时100%成功，0.5拷贝/µl时均超过70%。",
+    "note": "看表时同时看分母：百分比来自多少次重复，以及它对应纯DNA还是溪水DNA。相同浓度并不意味着四个背景的每个百分比都相同。",
+    "keys": [
+      "浓度、来源与重复分母共同定义检出概率。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-a04f5af8edc6caca-1",
+    "zh": "单物种样本中，比例S/N与体系对该种的总错配数相关（R²=0.899，图1c），主要来自引物错配（R²=0.903，图1a），探针区错配不显著（R²=0.221，p=0.21，图1b）。美洲/牛红点鲑混样中，最大化引物区错配的BRK2（图2c）比最大化探针区错配的BRK1（图2a）更特异。BRK1随目标比例降低而荧光衰减，牛红点鲑背景还使Ct低于预期，可能严重高估目标拷贝。两套美洲检测在高浓度湖红点鲑背景中均未见明显效率影响（图2b、d）。BUT1在美洲背景中荧光不受影响（图3b），但在湖红点鲑背景中荧光变弱，Ct也明显下偏（图3a）。",
+    "note": "结果有两层：总体上，引物区挡住近亲比只靠探针少发光更有效；但换一种近亲，表现又可能变。BRK2能扛住牛红点鲑背景，不代表BUT1也能扛住湖红点鲑。混样还让曲线既变矮又提前过线，所以“发光少”不一定会估出“量少”。",
+    "keys": [
+      "纯样关联指向引物错配，混样比较进一步支持在扩增入口提高特异性。",
+      "不同非目标种引起不同干扰，体系评价必须指定背景物种。",
+      "Ct提前可造成数量高估，曲线形状变化也会影响有无判读。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-49e75bf1066c4dab-1",
+    "zh": "当目标稀少而近缘同域种丰富时，特异设计尤其重要。引物错配比探针错配更影响特异性，错配位置也重要。总体上，引物错配增加时非目标荧光下降（图1），竞争减弱。美洲DNA仅占混样约0.01时，探针3处、引物仅1处错配的BRK1信号显著降低（图2a、表1）；作者认为可能是牛红点鲑争用引物，曲线难以和纯牛红点鲑区分。BRK2及BUT1的引物分别有9与8处差异、探针各仅1处，却在对方背景中与纯样扩增表现相当（图2c、3b）。",
+    "note": "探针像读出端的辨认器，不能把已经被大量近亲占去的复制机会补回来。作者据此解释BRK1为什么在目标极少时变得难判；BRK2在引物端增加区别，才更能保住目标的表现。",
+    "keys": [
+      "BRK1让近亲较容易进入扩增，目标稀少时竞争可能压低可辨识信号。",
+      "引物端差异较大的体系在相应混样中更稳，支持先减少非目标扩增的设计方向。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-ebe28d76110ee286-1",
+    "zh": "引物错配位置也影响结果。BUT1对湖红点鲑有5处错配，仍在混样中受强烈影响；BRK1只有3处却不受该混样影响。靠引物3′端的错配一般比其他位置更影响特异性，5′端错配通常较弱[25]。BRK1在对湖红点鲑的3′端最后2个碱基中有错配，BUT1的错配则较远（表1）。探针位置也重要，例如BRK1对牛红点鲑仍有荧光，可能因一处错配在探针极端3′位置、影响较小[8]。其他研究也观察到多错配MGB探针对非目标产生平坦扩增曲线[22–24]。",
+    "note": "不能只数一共错了几个字母。聚合酶要从引物3′端接着往下复制，末端附近对不上，往往比远处对不上更有阻断作用。因此5处差异未必比3处更能挡住近亲。",
+    "keys": [
+      "错配数不能单独解释湖红点鲑背景下的反差。",
+      "把错配放回引物位置后，3′末端对扩增启动的影响提供具体解释。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-69d6a6a63249669d-1",
+    "zh": "要把eDNA用于常规溪流监测，需便携取样及野外保存。静水中15 ml等小水量已有成功[4,8]；溪流因地下水补给、接触排DNA生物时间短、浅而混合强且可能更易光降解，目标DNA密度较低，可能须取较大水量。现场过滤可免搬运大桶水，滤膜上的DNA也较易保存。本研究用冰，其他办法如95%乙醇[7]亦可。两溪目标鱼均常见，拷贝量比可靠鉴定所需高数个数量级：最终100 µl液分别约有50,000和10,000目标拷贝。",
+    "note": "实际监测不一定要背6升水回实验室，可以在溪边让水穿过滤膜，再带走滤膜。这里两条溪的目标鱼原本常见，所以真实水样证明能取得大量信号；真正很稀的场景仍需结合取水量和检测概率来设计。",
+    "keys": [
+      "流水环境可能需要更大体积，现场过滤解决浓集和运输。",
+      "本次水样信号充足，为低浓度系列提供材料，但不是稀有种现场检出率的直接验证。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-c0d18d2c6541427c-1",
+    "zh": "eDNA最适用于目标太少、其他方法难以或代价过高的情况，也最需了解假阳性及假阴性。取水不足、低于检测线及非目标物质干扰都可致漏检；大体积过滤、qPCR灵敏性及占域估计设计[36]可减轻部分风险。本文另识别出非目标模板竞争：特异性不足的引物与探针既会使任何扩增都被误判为阳性，也会在强竞争下造成漏检；Ct偏移还会误估DNA量及鱼数量[19]。强竞争时，扩增产物测序可能主要读出非目标，难以有效筛查特异性。因此建议增大与非目标的引物区错配，并用目标、非目标的纯样及混样实测。混样预筛简单、便宜且已有先例[7]；即使预期无近缘种，也应测试常见本地物种，因为漏检保护种或入侵种的代价很高。",
+    "note": "增加水量解决的是“有没有收进足够模板”，增加重复解决的是“这一管会不会碰巧失败”；若检测体系本身认错或被近亲干扰，这两招都补不全。作者最终建议把纯样与混样测试列为上场前的实际试车。",
+    "keys": [
+      "低量、取样遗漏和模板竞争是不同误差来源，需要不同补救。",
+      "竞争还能扭曲Ct，故单看是否亮或事后测序不充分。",
+      "序列设计与纯样/混样实测合起来，才构成本文建议的检测验证。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-8db09dba251a33a7-1",
+    "zh": "杂交还需考虑。两种红点鲑能杂交[37]，而本文检测线粒体标记，杂交个体可能让人误以为纯目标种存在，例如只有牛红点鲑与杂交后代时仍检出美洲标记，从而高估其分布。若没有广泛回交[38]，问题较小；作者认为该对物种似属此情形[37,39]，因此将其线粒体DNA视为物种出现的指标。对更易渐渗的割喉鳟与虹鳟[12]，问题可能更严重。",
+    "note": "检测器可以完全认对一段线粒体DNA，却仍没回答“水里是不是有纯种目标鱼”。杂交后代也可能带着母系的这段标记，所以分子身份和整条鱼的分类身份还隔着一步。",
+    "keys": [
+      "线粒体标记可经杂交进入后代，检出序列不必对应纯目标个体。",
+      "回交和渐渗程度决定这种解释问题有多大。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-edf7a28ba90afbb9-1",
+    "zh": "杂交说明更一般的问题：目标DNA出现未必等于目标物种出现。极灵敏的eDNA还可能检出非活体来源：每反应平均2拷贝时，溪水DNA仍>70%扩增成功。除了野外或实验室污染，食鱼鸟兽粪便也可含猎物DNA[40]并搬运至远处，相关项目已有担忧[41]，有人建议提高阳性鉴定所需拷贝阈值[42]。当时尚不清楚环境背景DNA有多少；进一步研究特定生物量对应的淡水DNA量，有助于设定检测阈值。",
+    "note": "最后一层判断发生在实验室之外：认准了DNA，还要问它怎么来到这份水。活鱼、杂交后代、捕食者带来的残留，都可能留下同一个靶标；要把分子信号变成分布结论，还得结合现场和来源。",
+    "keys": [
+      "高灵敏度让极少量残留也可被发现。",
+      "因此体系特异性解决分子辨认，生态来源证据再支持物种现场出现的解释。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-166b69a84452f144-1",
+    "role": "metadata",
+    "zh": "We would like to thank Daniel Bingham and Kristine Pilgrim for their valuable assistance in the lab, as well as The Confederated Salish and Kootenai Tribes, Division of Fish, Wildlife, Recreation, Conservation for supplying lake trout tissue samples. Guang Xu provided advice on qPCR methodology. Four anonymous reviewers provided helpful comments on earlier versions of this manuscript.\n"
+  },
+  {
+    "id": "b-f723ac8289f9a921-1",
+    "role": "metadata",
+    "zh": "No current external funding sources for this study.\n"
+  },
+  {
+    "id": "b-6f643926afd44a47-1",
+    "role": "reference",
+    "zh": "1. Lodge DM, Turner CR, Jerde CL, Barnes MA, Chadderton L, et al. (2012) Conservation in a cup of water: estimating biodiversity and population abundance from environmental DNA. Mol Ecol 21: 2555–2558.\n"
+  },
+  {
+    "id": "b-10d275f47d3f3b6a-1",
+    "role": "reference",
+    "zh": "2. Taberlet P, Coissac E, Hajibabaei M, Rieseberg LH (2012) Environmental DNA. Mol Ecol 21: 1789–1793.\n"
+  },
+  {
+    "id": "b-d44c18e8c46a3743-1",
+    "role": "reference",
+    "zh": "3. Darling JA, Blum MJ (2007) DNA-based methods for monitoring invasive species: a review and prospectus. Biol Invasions 9: 751–765.\n"
+  },
+  {
+    "id": "b-a49c8d99d51aacf1-1",
+    "role": "reference",
+    "zh": "4. Ficetola GF, Miaud C, Pompanon F, Taberlet T (2008) Species detection using environmental DNA from water samples. Biol Lett 4: 423–425.\n"
+  },
+  {
+    "id": "b-6f9833671ed82a09-1",
+    "role": "reference",
+    "zh": "5. Jerde CL, Mahon AR, Chadderton WL, Lodge DM (2011) “Sight-unseen” detection of rare aquatic species using environmental DNA. Cons Lett 4: 150–157.\n"
+  },
+  {
+    "id": "b-115e3f824c315033-1",
+    "role": "reference",
+    "zh": "6. Dejean T, Valentini A, Miquel C, Taberlet P, Bellemain E, et al. (2012) Improved detection of an alien invasive species through environmental DNA barcoding: the example of the American bullfrog Lithobates catesbeianus . J Appl Ecol 49: 953–959.\n"
+  },
+  {
+    "id": "b-7639d7e4b4df5e3d-1",
+    "role": "reference",
+    "zh": "7. Goldberg CS, Pilliod DS, Arkle RS, Waits LP (2011) Molecular detection of vertebrates in stream water: A demonstration using Rocky Mountain tailed frogs and Idaho giant salamanders. PLOS ONE 6: e22746.\n"
+  },
+  {
+    "id": "b-0d428a106f9cd77c-1",
+    "role": "reference",
+    "zh": "8. Thomsen PF, Kielgast J, Iversen LL, Wiuf C, Rasmussen M, et al. (2012) Monitoring endangered freshwater biodiversity using environmental DNA. Mol Ecol 21: 2565–2573.\n"
+  },
+  {
+    "id": "b-0604a17d38717ec9-1",
+    "role": "reference",
+    "zh": "9. Olson ZH, Briggler JT, Williams RN (2012) An eDNA approach to detect eastern hellbenders (Cryptobranchus a. allenganiensis) using samples of water. Wildlife Res 39: 629–636.\n"
+  },
+  {
+    "id": "b-92eb28314d34cdde-1",
+    "role": "reference",
+    "zh": "10. Pysek R, Richardson DM (2010) Invasive species, environmental change and management, and health. Annu Rev Env Resour 35: 25–55.\n"
+  },
+  {
+    "id": "b-9b3fbf557d966a44-1",
+    "role": "reference",
+    "zh": "11. Lovell SJ, Stone SF, Fernandez L (2006) The economic impacts of aquatic invasive species: a review of the literature. Agric Resour Econ Rev 35: 195–208.\n"
+  },
+  {
+    "id": "b-e4d2cc17e8062452-1",
+    "role": "reference",
+    "zh": "12. Allendorf FW, Leary RF, Hitt NP, Knudsen KL, Lundquist LL, et al. (2004) Intercrosses and the US Endangered Species Act: Should hybridized populations be included as westslope cutthroat trout? Conserv Biol 18: 1203–1213.\n"
+  },
+  {
+    "id": "b-1be24d205af09bc5-1",
+    "role": "reference",
+    "zh": "13. Sax DF, Stachowicz JJ, Brown JH, Bruno JF, Dawson MN, et al. (2007) Ecological and evolutionary insights from species invasions. Trends Ecol Evol 22: 465–471.\n"
+  },
+  {
+    "id": "b-7c76b95072f2b01b-1",
+    "role": "reference",
+    "zh": "14. Dejean T, Valentini A, Duparc A, Peillier-Cuit S, Pompanon F, et al. (2011) Persistence of environmental DNA in freshwater ecosystems. PLOS ONE 6: e23398.\n"
+  },
+  {
+    "id": "b-4a0e87b01a1d7255-1",
+    "role": "reference",
+    "zh": "15. Heid CA, Stevens J, Livak KJ, Williams PM (1996) Real time quantitative PCR. Genom Meth 6: 986–994.\n"
+  },
+  {
+    "id": "b-f423697849da75b9-1",
+    "role": "reference",
+    "zh": "16. Jerde CL, Miller DJ, Mahon AR, Chadderton WL, Lodge DM (2012) Response to Casey et al.’s sensitivity of detection environmental DNA comment. Conserv Lett 5: 241–242.\n"
+  },
+  {
+    "id": "b-8ecbd241679a3710-1",
+    "role": "reference",
+    "zh": "17. Ellison SLR, English CA, Burns MJ, Keer JT (2006) Routes to improving the reliability of low level DNA analysis using real-time PCR. BMC Biotech 6: 33.\n"
+  },
+  {
+    "id": "b-b0e890183c13c0da-1",
+    "role": "reference",
+    "zh": "18. Kutyavin IV, Afonina IA, Mills A, Gorn VV, Lukhtanov EA, et al. (2000) 3–Minor groove binder-DNA probes increase sequence specificity at PCR extension temperatures. Nucl Acids Res 28: 655–661.\n"
+  },
+  {
+    "id": "b-339215aa12e9ffb3-1",
+    "role": "reference",
+    "zh": "19. Takahara T, Minamoto T, Yamanaka H, Doi H, Kawabata Z (2012) Estimation of fish biomass using environmental DNA. PLOS ONE 7: e35868.\n"
+  },
+  {
+    "id": "b-39983ad7a72f34b1-1",
+    "role": "reference",
+    "zh": "20. Thomsen PF, Kielgast J, Iversen LL, Moller PR, Rasmussen M, et al. (2012) Detection of diverse marine fish fauna using environmental DNA from seawater samples. PL0S ONE 7: e41732.\n"
+  },
+  {
+    "id": "b-171277626e37996d-1",
+    "role": "reference",
+    "zh": "21. Foote AD, Thomsen PF, Sveegaard S, Wahlberg M, Kielgast J, et al. (2012) Investigating the potential use of environmental DNA (eDNA) for genetic monitoring of marine mammals. PLOS ONE 7: e41781.\n"
+  },
+  {
+    "id": "b-c3e0bbbb2030c6a9-1",
+    "role": "reference",
+    "zh": "22. Hadfield SJ, Robinson G, Elwin K, Chalmer RM (2010) Detection and differentiation of Cryoptosporidium spp. in human clinical samples by use of real-time PCR. J Clin Microbiol 49: 918–924.\n"
+  },
+  {
+    "id": "b-400879bee72c90d4-1",
+    "role": "reference",
+    "zh": "23. Herrero B, Madrinan M, Vietes JM, Espineira M (2010) Authentication of Atlantic cod (Gadus morhua) using real time PCR. J Agric Food Chem 58: 4794–4799.\n"
+  },
+  {
+    "id": "b-243675f9c1dd8d51-1",
+    "role": "reference",
+    "zh": "24. Yao Y, Nellaker C, Karlsson H (2006) Evaluation of minor groove binding probe Taqman probe PCR assays: Influence of mismatches and template complexity on quantification. Mol Cell Probes 20: 311–316.\n"
+  },
+  {
+    "id": "b-cfe45584d6f0f647-1",
+    "role": "reference",
+    "zh": "25. Whiley DM, Sloots TP (2005) Sequence variation in primer targets affects the accuracy of viral quantitative PCR. J Clin Virol 34: 104–107.\n"
+  },
+  {
+    "id": "b-0820bfac7924bbd3-1",
+    "role": "reference",
+    "zh": "26. Rieman BE, Peterson JT, Myers DL (2006) Have brook trout (Salvelinus fontinalis) displaced bull trout (Salvelinus confluentus) along longitudinal gradients in central Idaho streams? Can J Fish Aquat Sci 63: 63–78.\n"
+  },
+  {
+    "id": "b-2e1e69a8f439134b-1",
+    "role": "reference",
+    "zh": "27. Shepard BB (2004) Factors that may be influencing nonnative brook trout invasion and their displacement of native westlsope cutthroat trout in three adjacent southwestern Montana streams. N Am J Fish Manag 24: 1088–1100.\n"
+  },
+  {
+    "id": "b-24cb001aa00b6aac-1",
+    "role": "reference",
+    "zh": "28. Fausch KD, Rieman BE, Dunham JB, Young MK, Peterson DP (2009) Invasion versus isolation: trade-offs in managing native salmonids with barriers to upstream movement. Conserv Biol 23: 859–870.\n"
+  },
+  {
+    "id": "b-11586af29e5655b1-1",
+    "role": "reference",
+    "zh": "29. U.S. Fish and Wildlife Service (1999) Endangered and threatened wildlife and plants; determination of threatened status for bull trout in the conterminous United States. Fed Regist 64: 58910–58933.\n"
+  },
+  {
+    "id": "b-c8beca7786821689-1",
+    "role": "reference",
+    "zh": "30. Peterson JT, Thurow RF, Guzevich JW (2004) An evaluation of multipass electrofishing for estimating the abundance of stream-dwelling salmonids. Trans Am Fish Soc 133: 462–475.\n"
+  },
+  {
+    "id": "b-26b68dc02788ff0c-1",
+    "role": "reference",
+    "zh": "31. Crete-Lafreniere A, Weir LK, Bernatchez L (2012) Framing the salmonidae family phyologenetic portrait: A more complete picture from increased taxon sampling. PLOS ONE 7: e46662.\n"
+  },
+  {
+    "id": "b-fa9035e4b8926b6c-1",
+    "role": "reference",
+    "zh": "32. Mills LS, Pilgrim KL, Schwartz MK, McKelvey K (2000) Identifying lynx and other North American felids based on mtDNA analysis. Cons Gen 1: 285–288.\n"
+  },
+  {
+    "id": "b-b255a0424b70b174-1",
+    "role": "reference",
+    "zh": "33. Verspoor E, Knox D, Greer R, Hammar J (2010) Mitochondrial DNA variation in Arctic charr (Salvelinus alpinus (L.)) morphs from Loch Rannoch, Scotland: evidence for allopatric and peripatric divergence. Hydrobiologia 650: 117–131.\n"
+  },
+  {
+    "id": "b-491849a3875d0dfd-1",
+    "role": "reference",
+    "zh": "34. Schmidt TR, Gold JR (1993) Complete sequence of the mitochondrial cytochrome b gene in the cherryfin shiner, Lthrurus roseipinnis (Teleostei: Cyprinidae). Copeia 3: 880–883.\n"
+  },
+  {
+    "id": "b-ffe61bf1588850a1-1",
+    "role": "reference",
+    "zh": "35. Kinziger AP, Wood RM (2003) Molecular systematics of the polytypic species Cottus hypselurus (Teleostei: Cottidae). Copeia 3: 624–627.\n"
+  },
+  {
+    "id": "b-28fdd77d35e19ec5-1",
+    "role": "reference",
+    "zh": "36. Anderson GB, Freeman MC, Hagler MM, Freeman HB (2012) Occupancy modeling and estimation of the holiday darter species complex within the Etowah River system. Trans Am Fish Soc 141: 34–45.\n"
+  },
+  {
+    "id": "b-5d39283f740bcc37-1",
+    "role": "reference",
+    "zh": "37. Kanda N, Leary RF, Allendorf FW (2002) Evidence of introgressive hybridization between bull trout and brook trout. Trans Am Fish Soc 131: 772–782.\n"
+  },
+  {
+    "id": "b-177c4ec122a5d915-1",
+    "role": "reference",
+    "zh": "38. Schwartz MK, Pilgrim KL, McKelvey KS, Lindquist EL, Claar JJ, et al. (2004) Hybridization between Canada lynx and bobcats: Genetic results and management implications. Conserv Genet 5: 349–355.\n"
+  },
+  {
+    "id": "b-0181cb0d65d97e0a-1",
+    "role": "reference",
+    "zh": "39. DeHaan PW, Schwabe LT, Ardren WR (2010) Spatial patterns of hybridization between bull trout, Salvelinus confluentus, and brook trout, Salvelinus fontinalis in an Oregon stream network. Conserv Genet 11: 935–949.\n"
+  },
+  {
+    "id": "b-1ebaaff18916a781-1",
+    "role": "reference",
+    "zh": "40. Symondson WOC (2002) Molecular identification of prey in predator diets. Mol Ecol 11: 627–641.\n"
+  },
+  {
+    "id": "b-1ffc1f776f1312e9-1",
+    "role": "reference",
+    "zh": "41.Environmental DNA Calibration Study (2012) Environmental DNA calibration study interim Technical Review Report, March 2012. ECALS website. Available: http://www.asiancarp.us/documents/ECALSFirstInterimReportFINAL.pdf Accessed 2013 February 2013.\n"
+  },
+  {
+    "id": "b-c49ed4f35a4cbe78-1",
+    "role": "reference",
+    "zh": "42. Darling JA, Mahon AR (2011) From molecules to management: Adopting DNA-based methods for monitoring biological invasion in aquatic environments. Environ Res 111: 978–988.\n"
+  }
+]

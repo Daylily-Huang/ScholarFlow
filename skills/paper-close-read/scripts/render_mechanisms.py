@@ -2,12 +2,19 @@
 import html
 import json
 
-SCENES = {'spatial', 'hazard', 'augmentation', 'boundary', 'vessel', 'cholesterol', 'oxidative', 'molecular_sampling', 'pcr_slippage', 'replicate_consensus', 'argument_map', 'evidence_coding', 'repeated_measures', 'source_timeline', 'communication', 'text_focus'}
+SCENES = {'edna_capture', 'edna_decay', 'qpcr_probe', 'primer_specificity', 'spatial', 'hazard', 'augmentation', 'boundary', 'vessel', 'cholesterol', 'oxidative', 'molecular_sampling', 'pcr_slippage', 'replicate_consensus', 'argument_map', 'evidence_coding', 'repeated_measures', 'source_timeline', 'communication', 'text_focus'}
 
 def validate_scene_data(m):
     d=m.get('visual',{});errors=[]
     if not isinstance(d,dict):return ['Scene visual must be an object']
-    if m['scene']=='source_timeline':
+    if m['scene']=='edna_decay':
+        import math
+        def positive(x):return isinstance(x,(int,float)) and not isinstance(x,bool) and math.isfinite(x) and x>0
+        if any(not positive(d.get(k)) for k in ['maximum','days','threshold']):errors.append('Decay needs positive finite maximum/days/threshold')
+        curves=d.get('curves',[])
+        if not isinstance(curves,list) or len(curves)!=2 or any(not isinstance(c,dict) or not c.get('label') or any(not positive(c.get(k)) for k in ['initial','rate']) for c in curves):errors.append('Decay needs two named positive model curves')
+        if not errors and (d['threshold']>=d['maximum'] or any(c['initial']>d['maximum'] for c in curves)):errors.append('Decay plot maximum must cover curves and threshold')
+    elif m['scene']=='source_timeline':
         layers=d.get('layers',[])
         if len(layers)!=3 or any(any(not isinstance(x.get(k),str) or not x[k].strip() for k in ['label','date','detail']) for x in layers):errors.append('Source timeline needs event/record/interpretation layers with explicit dates')
         if any(len(x.get('detail',''))>36 for x in layers):errors.append('Timeline detail too long')

@@ -40,7 +40,7 @@ def import_article(xml_path, output):
     def add(value,el=None,**meta):
         line=''.join(chunks).count('\n')+1;chunks.append(value+'\n\n')
         if el is not None:locations[line]={'xml_id':el.get('id'),'xml_tag':el.tag,**meta}
-    blocks={'disp-quote','list','boxed-text','def-list','statement','fig','table-wrap'}
+    blocks={'disp-quote','list','boxed-text','def-list','statement','fig','table-wrap','disp-formula'}
     def paragraph(el,context=None,attribution=None,footnote=None):
         segment=ET.Element('p');segment.text=el.text
         def flush():
@@ -53,6 +53,16 @@ def import_article(xml_path, output):
         flush()
     def walk_container(el,level=2,context=None):
         tag=el.tag
+        if tag=='disp-formula':
+            graphic=el.find('.//graphic')
+            href=next((v for k,v in graphic.attrib.items() if k.endswith('href')),'') if graphic is not None else ''
+            if href:
+                name='images/'+href.rsplit('/',1)[-1]
+                add('![Original equation '+str(el.get('id',''))+']('+name+')',el)
+                figures.append({'path':name,'href':href,'xml_id':el.get('id')})
+            else:
+                add(text(el),el);warnings.append('Formula requires source review: '+str(el.get('id')))
+            return
         if tag=='disp-quote':
             attribution=text(el.find('attrib'))
             for child in el:
@@ -81,8 +91,7 @@ def import_article(xml_path, output):
                 foot=child.find('table-wrap-foot')
                 if foot is not None:add(text(foot),foot)
             elif tag=='disp-formula':
-                tex=child.find('.//{http://www.w3.org/1998/Math/MathML}math')
-                add(text(child),child);warnings.append('Formula requires source review: '+str(child.get('id')))
+                walk_container(child,level,context)
             elif tag=='ref-list':
                 add('## References')
                 for ref in child.findall('ref'):

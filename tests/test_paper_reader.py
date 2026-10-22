@@ -82,4 +82,18 @@ class PaperReader(unittest.TestCase):
   source,d,t,g=self.mapped_fixture();g['story']['overview']['research_map'][4]['text']='  '
   self.assertIn('Research map needs concrete text: findings',validate(d,t,g,source)['errors'])
 
+
+ def test_jats_image_equations_preserve_parent_text_and_each_formula(self):
+  xml='<article xmlns:xlink="http://www.w3.org/1999/xlink"><front><article-meta><title-group><article-title>T</article-title></title-group></article-meta></front><body><p>Model:<disp-formula id="e1"><graphic xlink:href="eq1.png"/></disp-formula>Solution:<disp-formula id="e2"><graphic xlink:href="eq2.png"/></disp-formula>Meaning.</p></body></article>'
+  with tempfile.TemporaryDirectory() as tmp:
+   p=Path(tmp)/'a.xml';p.write_text(xml,encoding='utf-8');m=import_article(p,Path(tmp)/'data');d=json.loads((Path(tmp)/'data/fulltext.json').read_text(encoding='utf-8'));items=[i for sec in d['sections'] for i in sec['items']]
+   self.assertEqual([i['t'] for i in items],['p','figure','p','figure','p'])
+   self.assertEqual([x['path'] for x in m['figures']],['images/eq1.png','images/eq2.png'])
+   self.assertEqual([i['raw'].strip() for i in items if i['t']=='p'],['Model:','Solution:','Meaning.'])
+ def test_decay_rejects_invalid_rates_and_clipped_curve(self):
+  m={'scene':'edna_decay','visual':{'maximum':250,'days':8,'threshold':25,'curves':[{'label':'A','initial':214,'rate':.322},{'label':'B','initial':48,'rate':.701}]}}
+  self.assertEqual(validate_scene_data(m),[])
+  m['visual']['curves'][0]['rate']=float('nan');self.assertTrue(validate_scene_data(m))
+  m['visual']['curves'][0]['rate']=.322;m['visual']['maximum']=100;self.assertTrue(validate_scene_data(m))
+
 if __name__=='__main__':unittest.main()

@@ -23,9 +23,9 @@
 
 **给 AI 助手一篇 PDF，得到一份可离线打开的中文 HTML：先看整篇在做什么，再把难点讲通，最后随时对照原文。**
 
-这是 ScholarFlow 自带的 **[paper-close-read](skills/paper-close-read/SKILL.md)**，可单独安装使用。按文章的论证方式组织讲解，支持自然科学与人文社科；现有五篇完整示例覆盖定量研究、质性访谈、哲学论证、历史和文学细读。
+这是 ScholarFlow 自带的 **[paper-close-read](skills/paper-close-read/SKILL.md)**，可单独安装使用。按文章的论证方式组织讲解，支持自然科学与人文社科；首页主展示为 **3 篇自然科学 + 2 篇人文社科**：海水 eDNA、引物特异性、心血管机制综述，以及历史与文学细读。
 
-[三步安装，开始读第一篇](#reader-install) · [先看真实效果](#reader-preview) · [五类完整示例](examples/paper-close-read/README.md)
+[三步安装，开始读第一篇](#reader-install) · [先看真实效果](#reader-preview) · [五篇完整示例](examples/paper-close-read/README.md)
 
 | 阅读方式 | 你会看到什么 |
 |---|---|
@@ -39,21 +39,21 @@
 
 ### 看看真实效果
 
-以下是五篇真实文献示例中的浏览器实拍，点击图片可放大；演示在 HTML 中可以操作，下面展示的是静态截图。
+五篇主展示按 **自然科学 3 篇、人文社科 2 篇** 编排；以下是自然科学示例的浏览器实拍，点击图片可放大；演示在 HTML 中可以操作，下面展示的是静态截图。
 
 **① 先看整篇：六步读懂研究主线**
 
-[![三分钟入门：Facebook 与幸福感研究的背景、缺口、问题、方法、结果与结论](examples/paper-close-read/kross/overview-map.png)](examples/paper-close-read/kross/overview-map.png)
+[![三分钟入门：海水 eDNA 研究的背景、缺口、问题、方法、结果与结论](examples/paper-close-read/thomsen/overview-map.png)](examples/paper-close-read/thomsen/overview-map.png)
 
 **② 把难点讲直观：解释旁直接操作演示**
 
-[![十分钟讲解：在质性访谈案例中演示原话、阅读关注与主题解释之间的关系](examples/paper-close-read/mckenna/walkthrough.png)](examples/paper-close-read/mckenna/walkthrough.png)
+[![十分钟讲解：在引物特异性研究中，把 DNA 扩增与探针发光的解释和动图放在一起](examples/paper-close-read/wilcox/walkthrough.png)](examples/paper-close-read/wilcox/walkthrough.png)
 
 **③ 再按需读原文：原文、译文、白话与递进逻辑放在一起**
 
-[![逐段精读：英文原文与中文译文对照，下面附白话解释、逻辑要点与批注工具](examples/paper-close-read/kross/close-reading.png)](examples/paper-close-read/kross/close-reading.png)
+[![逐段精读：英文原文与中文译文对照，下面附白话解释、逻辑要点与批注工具](examples/paper-close-read/wilcox/close-reading.png)](examples/paper-close-read/wilcox/close-reading.png)
 
-[查看五类完整示例与更多截图](examples/paper-close-read/README.md) · [下载体验用的阅读页](examples/paper-close-read/kross/reader.html)
+[查看五篇完整示例与更多截图](examples/paper-close-read/README.md) · [下载体验用的阅读页](examples/paper-close-read/thomsen/reader.html)
 
 GitHub 中的 HTML 文件页显示源码。点击文件页的 **Download raw file**，保存 `reader.html` 后用浏览器打开，即可体验完整阅读页。
 

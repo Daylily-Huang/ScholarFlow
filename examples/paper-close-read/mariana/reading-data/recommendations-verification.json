@@ -1,0 +1,186 @@
+[
+  {
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=EXT_ID%3A20564479+AND+SRC%3AMED&format=json",
+    "record": [
+      {
+        "id": "20564479",
+        "source": "MED",
+        "pmid": "20564479",
+        "doi": "10.1002/mnfr.201000121",
+        "title": "Assessing exposure to phthalates - the human biomonitoring approach.",
+        "authorString": "Wittassek M, Koch HM, Angerer J, Brüning T.",
+        "journalTitle": "Mol Nutr Food Res",
+        "issue": "1",
+        "journalVolume": "55",
+        "pubYear": "2011",
+        "journalIssn": "1613-4125; 1613-4133; ",
+        "pageInfo": "7-31",
+        "pubType": "review; journal article",
+        "isOpenAccess": "N",
+        "inEPMC": "N",
+        "inPMC": "N",
+        "citedByCount": 571,
+        "hasReferences": "Y",
+        "hasTextMinedTerms": "Y",
+        "hasDbCrossReferences": "N",
+        "hasPDF": "N",
+        "hasBook": "N",
+        "hasSuppl": "N",
+        "hasLabsLinks": "Y",
+        "hasTMAccessionNumbers": "N",
+        "firstPublicationDate": "2011-01-01",
+        "firstIndexDate": "2010-06-23"
+      }
+    ],
+    "citation": "Wittassek, M.; Koch, H.M.; Angerer, J.; Bruning, T. Assessing exposure to phthalates—The human biomonitoring approach. Mol. Nutr. Food Res. 2011, 55, 7–31.",
+    "scope": "题名、作者与年份元数据核对；理由沿综述引用语境，非新增全文精读"
+  },
+  {
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=EXT_ID%3A26380974+AND+SRC%3AMED&format=json",
+    "record": [
+      {
+        "id": "26380974",
+        "source": "MED",
+        "pmid": "26380974",
+        "pmcid": "PMC4574131",
+        "fullTextIdList": {
+          "fullTextId": [
+            "PMC4574131"
+          ]
+        },
+        "doi": "10.1186/s12940-015-0062-3",
+        "title": "The association between maternal urinary phthalate concentrations and blood pressure in pregnancy: The HOME Study.",
+        "authorString": "Werner EF, Braun JM, Yolton K, Khoury JC, Lanphear BP.",
+        "journalTitle": "Environ Health",
+        "journalVolume": "14",
+        "pubYear": "2015",
+        "journalIssn": "1476-069x",
+        "pageInfo": "75",
+        "pubType": "research-article; journal article; research support, n.i.h., extramural",
+        "isOpenAccess": "Y",
+        "inEPMC": "Y",
+        "inPMC": "Y",
+        "citedByCount": 102,
+        "hasReferences": "Y",
+        "hasTextMinedTerms": "Y",
+        "hasDbCrossReferences": "N",
+        "hasPDF": "Y",
+        "hasBook": "N",
+        "hasSuppl": "N",
+        "hasLabsLinks": "Y",
+        "hasTMAccessionNumbers": "N",
+        "firstPublicationDate": "2015-09-17",
+        "firstIndexDate": "2015-09-19"
+      }
+    ],
+    "citation": "Werner, E.F.; Braun, J.M.; Yolton, K.; Khoury, J.C.; Lanphear, B.P. The association between maternal urinary phthalate concentrations and blood pressure in pregnancy: The home study. Environ. Health 2015, 14, 75.",
+    "scope": "题名、作者与年份元数据核对；理由沿综述引用语境，非新增全文精读"
+  },
+  {
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=EXT_ID%3A29222635+AND+SRC%3AMED&format=json",
+    "record": [
+      {
+        "id": "29222635",
+        "source": "MED",
+        "pmid": "29222635",
+        "doi": "10.1007/s12012-017-9439-6",
+        "title": "Cardiovascular Response of Rat Aorta to Di-(2-ethylhexyl) Phthalate (DEHP) Exposure.",
+        "authorString": "Mariana M, Feiteiro J, Cairrao E.",
+        "journalTitle": "Cardiovasc Toxicol",
+        "issue": "4",
+        "journalVolume": "18",
+        "pubYear": "2018",
+        "journalIssn": "1530-7905; 1559-0259; ",
+        "pageInfo": "356-364",
+        "pubType": "research support, non-u.s. gov't; journal article",
+        "isOpenAccess": "N",
+        "inEPMC": "N",
+        "inPMC": "N",
+        "citedByCount": 24,
+        "hasReferences": "Y",
+        "hasTextMinedTerms": "Y",
+        "hasDbCrossReferences": "N",
+        "hasPDF": "N",
+        "hasBook": "N",
+        "hasSuppl": "N",
+        "hasLabsLinks": "N",
+        "hasTMAccessionNumbers": "N",
+        "firstPublicationDate": "2018-08-01",
+        "firstIndexDate": "2017-12-10"
+      }
+    ],
+    "citation": "Mariana, M.; Feiteiro, J.; Cairrao, E. Cardiovascular response of rat aorta to di-(2-ethylhexyl) phthalate (dehp) exposure. Cardiovasc. Toxicol. 2018, 18, 356–364.",
+    "scope": "题名、作者与年份元数据核对；理由沿综述引用语境，非新增全文精读"
+  },
+  {
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=EXT_ID%3A32417575+AND+SRC%3AMED&format=json",
+    "record": [
+      {
+        "id": "32417575",
+        "source": "MED",
+        "pmid": "32417575",
+        "doi": "10.1016/j.envpol.2020.114723",
+        "title": "Di-n-butyl phthalate promotes lipid accumulation via the miR200c-5p-ABCA1 pathway in THP-1 macrophages.",
+        "authorString": "Wang Y, Wen Y, Xiao P, Sun J, Chen M, Gu C, Kong Y, Gu A, Zhang J, Wang Y.",
+        "journalTitle": "Environ Pollut",
+        "journalVolume": "264",
+        "pubYear": "2020",
+        "journalIssn": "0269-7491; 1873-6424; ",
+        "pageInfo": "114723",
+        "pubType": "journal article",
+        "isOpenAccess": "N",
+        "inEPMC": "N",
+        "inPMC": "N",
+        "citedByCount": 22,
+        "hasReferences": "Y",
+        "hasTextMinedTerms": "Y",
+        "hasDbCrossReferences": "N",
+        "hasPDF": "N",
+        "hasBook": "N",
+        "hasSuppl": "N",
+        "hasLabsLinks": "Y",
+        "hasTMAccessionNumbers": "N",
+        "firstPublicationDate": "2020-05-03",
+        "firstIndexDate": "2020-05-18"
+      }
+    ],
+    "citation": "Wang, Y.; Wen, Y.; Xiao, P.; Sun, J.; Chen, M.; Gu, C.; Kong, Y.; Gu, A.; Zhang, J. Di-n-butyl phthalate promotes lipid accumulation via the mir200c-5p-abca1 pathway in thp-1 macrophages. Environ. Pollut. 2020, 264, 114723.",
+    "scope": "题名、作者与年份元数据核对；理由沿综述引用语境，非新增全文精读"
+  },
+  {
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=EXT_ID%3A28579546+AND+SRC%3AMED&format=json",
+    "record": [
+      {
+        "id": "28579546",
+        "source": "MED",
+        "pmid": "28579546",
+        "doi": "10.1016/j.fct.2017.05.069",
+        "title": "Mono(2-ethylhexyl) phthalate induces autophagy-dependent apoptosis through lysosomal-mitochondrial axis in human endothelial cells.",
+        "authorString": "Wu X, Jiang L, Sun X, Yao X, Bai Y, Liu X, Liu N, Zhai X, Wang S, Yang G.",
+        "journalTitle": "Food Chem Toxicol",
+        "issue": "pt a",
+        "journalVolume": "106",
+        "pubYear": "2017",
+        "journalIssn": "0278-6915; 1873-6351; ",
+        "pageInfo": "273-282",
+        "pubType": "journal article",
+        "isOpenAccess": "N",
+        "inEPMC": "N",
+        "inPMC": "N",
+        "citedByCount": 24,
+        "hasReferences": "Y",
+        "hasTextMinedTerms": "Y",
+        "hasDbCrossReferences": "N",
+        "hasPDF": "N",
+        "hasBook": "N",
+        "hasSuppl": "N",
+        "hasLabsLinks": "Y",
+        "hasTMAccessionNumbers": "N",
+        "firstPublicationDate": "2017-06-01",
+        "firstIndexDate": "2017-06-05"
+      }
+    ],
+    "citation": "Wu, X.; Jiang, L.; Sun, X.; Yao, X.; Bai, Y.; Liu, X.; Liu, N.; Zhai, X.; Wang, S.; Yang, G. Mono(2-ethylhexyl) phthalate induces autophagy-dependent apoptosis through lysosomal-mitochondrial axis in human endothelial cells. Food Chem. Toxicol. 2017, 106, 273–282.",
+    "scope": "题名、作者与年份元数据核对；理由沿综述引用语境，非新增全文精读"
+  }
+]

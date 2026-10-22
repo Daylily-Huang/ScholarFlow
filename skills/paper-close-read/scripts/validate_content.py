@@ -116,7 +116,7 @@ def validate(data, records, guide, source_text=None, allow_incomplete=False):
             errors.append('Mechanism needs valid source refs')
         if not mechanism.get('title') or not mechanism.get('question'):
             errors.append('Mechanism needs title and reader question')
-        if mechanism.get('scene') in {'argument_map', 'evidence_coding', 'repeated_measures', 'source_timeline', 'communication', 'text_focus'}:
+        if mechanism.get('scene') in {'edna_decay', 'argument_map', 'evidence_coding', 'repeated_measures', 'source_timeline', 'communication', 'text_focus'}:
             from render_mechanisms import validate_scene_data
             errors.extend(validate_scene_data(mechanism))
         if mechanism.get('scene')=='text_focus':

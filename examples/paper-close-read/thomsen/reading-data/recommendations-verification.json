@@ -1,0 +1,176 @@
+[
+  {
+    "doi": "10.1111/j.1365-294X.2012.05542.x",
+    "verification": {
+      "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI%3A10.1111%2Fj.1365-294X.2012.05542.x&format=json",
+      "result": [
+        {
+          "id": "22486819",
+          "source": "MED",
+          "pmid": "22486819",
+          "doi": "10.1111/j.1365-294x.2012.05542.x",
+          "title": "Environmental DNA.",
+          "authorString": "Taberlet P, Coissac E, Hajibabaei M, Rieseberg LH.",
+          "journalTitle": "Mol Ecol",
+          "issue": "8",
+          "journalVolume": "21",
+          "pubYear": "2012",
+          "journalIssn": "0962-1083; 1365-294x; ",
+          "pageInfo": "1789-1793",
+          "pubType": "introductory journal article; editorial",
+          "isOpenAccess": "N",
+          "inEPMC": "N",
+          "inPMC": "N",
+          "citedByCount": 566,
+          "hasReferences": "Y",
+          "hasTextMinedTerms": "N",
+          "hasDbCrossReferences": "N",
+          "hasPDF": "N",
+          "hasBook": "N",
+          "hasSuppl": "N",
+          "hasLabsLinks": "N",
+          "hasTMAccessionNumbers": "N",
+          "firstPublicationDate": "2012-04-01",
+          "firstIndexDate": "2012-04-11"
+        }
+      ]
+    },
+    "scope": "正式元数据与本文引用语境核对；未声称逐篇全文精读",
+    "original_reference": "13 TaberletP, CoissacE, HajibabaeiM, RiesebergLH (2012) Environmental DNA. Molecular Ecology 21: 1789–1793.2248681910.1111/j.1365-294X.2012.05542.x\n"
+  },
+  {
+    "doi": "10.1098/rsbl.2008.0118",
+    "verification": {
+      "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI%3A10.1098%2Frsbl.2008.0118&format=json",
+      "result": [
+        {
+          "id": "18400683",
+          "source": "MED",
+          "pmid": "18400683",
+          "pmcid": "PMC2610135",
+          "fullTextIdList": {
+            "fullTextId": [
+              "PMC2610135"
+            ]
+          },
+          "doi": "10.1098/rsbl.2008.0118",
+          "title": "Species detection using environmental DNA from water samples.",
+          "authorString": "Ficetola GF, Miaud C, Pompanon F, Taberlet P.",
+          "journalTitle": "Biol Lett",
+          "issue": "4",
+          "journalVolume": "4",
+          "pubYear": "2008",
+          "journalIssn": "1744-9561; 1744-957x; ",
+          "pageInfo": "423-425",
+          "pubType": "research support, non-u.s. gov't; research-article; validation study; journal article",
+          "isOpenAccess": "N",
+          "inEPMC": "Y",
+          "inPMC": "Y",
+          "citedByCount": 686,
+          "hasReferences": "Y",
+          "hasTextMinedTerms": "Y",
+          "hasDbCrossReferences": "N",
+          "hasPDF": "Y",
+          "hasBook": "N",
+          "hasSuppl": "Y",
+          "hasLabsLinks": "Y",
+          "hasTMAccessionNumbers": "N",
+          "firstPublicationDate": "2008-08-01",
+          "firstIndexDate": "2009-12-24"
+        }
+      ]
+    },
+    "scope": "正式元数据与本文引用语境核对；未声称逐篇全文精读",
+    "original_reference": "29 FicetolaGF, MiaudC, PompanonF, TaberletP (2008) Species detection using environmental DNA from water samples. Biology Letters 4: 423–425.1840068310.1098/rsbl.2008.0118PMC2610135\n"
+  },
+  {
+    "doi": "10.1371/journal.pone.0023398",
+    "verification": {
+      "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI%3A10.1371%2Fjournal.pone.0023398&format=json",
+      "result": [
+        {
+          "id": "21858099",
+          "source": "MED",
+          "pmid": "21858099",
+          "pmcid": "PMC3152572",
+          "fullTextIdList": {
+            "fullTextId": [
+              "PMC3152572"
+            ]
+          },
+          "doi": "10.1371/journal.pone.0023398",
+          "title": "Persistence of environmental DNA in freshwater ecosystems.",
+          "authorString": "Dejean T, Valentini A, Duparc A, Pellier-Cuit S, Pompanon F, Taberlet P, Miaud C.",
+          "journalTitle": "PLoS One",
+          "issue": "8",
+          "journalVolume": "6",
+          "pubYear": "2011",
+          "journalIssn": "1932-6203",
+          "pageInfo": "e23398",
+          "pubType": "research support, non-u.s. gov't; research-article; journal article",
+          "isOpenAccess": "Y",
+          "inEPMC": "Y",
+          "inPMC": "Y",
+          "citedByCount": 312,
+          "hasReferences": "Y",
+          "hasTextMinedTerms": "Y",
+          "hasDbCrossReferences": "N",
+          "hasPDF": "Y",
+          "hasBook": "N",
+          "hasSuppl": "N",
+          "hasLabsLinks": "Y",
+          "hasTMAccessionNumbers": "N",
+          "firstPublicationDate": "2011-08-08",
+          "firstIndexDate": "2011-08-23"
+        }
+      ]
+    },
+    "scope": "正式元数据与本文引用语境核对；未声称逐篇全文精读",
+    "original_reference": "46 DejeanT, ValentiniA, DuparcA, Pellier-CuitSp, PompanonFo, et al (2011) Persistence of Environmental DNA in Freshwater Ecosystems. PloS ONE 6 ((8)) e23398.2185809910.1371/journal.pone.0023398PMC3152572\n"
+  },
+  {
+    "doi": "10.1371/journal.pone.0035868",
+    "verification": {
+      "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI%3A10.1371%2Fjournal.pone.0035868&format=json",
+      "result": [
+        {
+          "id": "22563411",
+          "source": "MED",
+          "pmid": "22563411",
+          "pmcid": "PMC3338542",
+          "fullTextIdList": {
+            "fullTextId": [
+              "PMC3338542"
+            ]
+          },
+          "doi": "10.1371/journal.pone.0035868",
+          "title": "Estimation of fish biomass using environmental DNA.",
+          "authorString": "Takahara T, Minamoto T, Yamanaka H, Doi H, Kawabata Z.",
+          "journalTitle": "PLoS One",
+          "issue": "4",
+          "journalVolume": "7",
+          "pubYear": "2012",
+          "journalIssn": "1932-6203",
+          "pageInfo": "e35868",
+          "pubType": "research support, non-u.s. gov't; research-article; journal article",
+          "isOpenAccess": "Y",
+          "inEPMC": "Y",
+          "inPMC": "Y",
+          "citedByCount": 338,
+          "hasReferences": "Y",
+          "hasTextMinedTerms": "Y",
+          "hasDbCrossReferences": "N",
+          "hasPDF": "Y",
+          "hasBook": "N",
+          "hasSuppl": "Y",
+          "hasLabsLinks": "Y",
+          "hasTMAccessionNumbers": "N",
+          "firstPublicationDate": "2012-04-26",
+          "firstIndexDate": "2012-05-08"
+        }
+      ]
+    },
+    "scope": "正式元数据与本文引用语境核对；未声称逐篇全文精读",
+    "original_reference": "41 TakaharaT, MinamotoT, YamanakaH, DoiH, KawabataZ (2012) Estimation of Fish Biomass Using Environmental DNA. PloS ONE 7 ((4)) e35868.2256341110.1371/journal.pone.0035868PMC3338542\n"
+  }
+]
