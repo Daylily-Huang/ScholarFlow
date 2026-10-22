@@ -17,7 +17,7 @@ paper-close-read把一篇学术全文变成可离线打开的阅读页。先讲�
 - JATS：`python skills/paper-close-read/scripts/import_jats.py <article.xml> <reading-data目录>`。导入不产生讲解，图像按import.json明确提供；作者与编辑区分，段落/引用/表格保留；嵌套引文只出现一次、保留后续文字和出处，注释独立成节，资助声明纳入来源。
 - 按SKILL.md和references编写translations.json、guide.json，补核实的页码与必要来源说明。完整段落翻译需保留原意和限定，不能把白话摘要当译文。
 - 构建：`python skills/paper-close-read/scripts/build_html.py <fulltext.json> <translations.json> <guide.json> <reader.html> --asset-root <reading-data目录> --source <source.md>`。
-- 重建示例：`python scripts/rebuild_readers.py examples/paper-close-read/kross examples/paper-close-read/mckenna examples/paper-close-read/tavani`。
+- 重建示例：`python scripts/rebuild_readers.py examples/paper-close-read/thomsen examples/paper-close-read/wilcox examples/paper-close-read/mariana examples/paper-close-read/menis examples/paper-close-read/austen`。
 
 三分钟入门以180秒内把握整篇为设计目标，采用背景→缺口→问题→方法→结果→结论六步总览；十分钟展开必要的中间推理。入门页短句独立可读，实际理解需按读者基础试读验收。解释与翻译质量取决于宿主模型，应检查真正的困惑是否讲通、要点是否推进。程序发现漏项与断链，不能判定所有学术解释正确。
 
@@ -25,7 +25,7 @@ paper-close-read把一篇学术全文变成可离线打开的阅读页。先讲�
 
 按文章如何论证选视角，可组合：定量看概念测量与比较设计，质性看处境、原话和主题生成，概念论证看争论对象、概念区别和推论，历史看史料生成与解释，文学看文本细节与视角。概念卡与显式关系图按需使用，不强制把每篇写成实验论文或每段固定两点。
 
-真实全文例子现覆盖定量、质性、哲学论证、历史和文学。历史新增事件/记录/解释分层，文学新增信息通道与原句高亮；引文边界、行内强调、注号跳转及外置资助声明经实际材料检查。五篇均由输入构建并在真实浏览器验证；这不等于所有学科、所有新论文的解释质量已获保证。跨学科演示可配置节点与关系，真正不同的机制仍需合适的新场景。
+主展示为3篇自然科学（海洋eDNA实证、引物检测方法、心血管综述）与2篇人文社科（历史、文学）。早期定量心理、质性访谈与哲学例子仍作为额外回归材料保留。历史新增事件/记录/解释分层，文学新增信息通道与原句高亮；引文边界、行内强调、注号跳转及外置资助声明经实际材料检查。主展示均由输入构建并在真实浏览器验证；这不等于所有学科、所有新论文的解释质量已获保证。跨学科演示可配置节点与关系，真正不同的机制仍需合适的新场景。
 
 ## 笔记与贡献
 
@@ -36,3 +36,5 @@ paper-close-read把一篇学术全文变成可离线打开的阅读页。先讲�
 通过GitHub仓库分发此独立技能，ScholarFlow原有四项科研流程继续按原协议运行。
 
 历史与文学新增完整示例见[示例目录](../examples/paper-close-read/README.md)，本轮检查见[发布检查](../reports/paper-close-read/publication/acceptance.md)。未改原黑麂项目技能及成品。
+
+示例逐字节重建使用latex2mathml==3.77.0处理公式；安装后再运行重建命令。未安装时核心技能会显示公式原LaTeX，但HTML字节与已发布公式版不同。

@@ -1,0 +1,759 @@
+[
+  {
+    "id": "b-5dbde44284682cbb-1",
+    "role": "metadata",
+    "zh": "Philip Francis Thomsen Jos Kielgast Lars Lønsmann Iversen Peter Rask Møller Morten Rasmussen Eske Willerslev\n"
+  },
+  {
+    "id": "b-f68d597d68aeff1f-1",
+    "zh": "全球海洋生态系统受到威胁，许多鱼类物种和种群遭受人类过度利用，严重影响全球生物多样性、经济及人类健康。海洋鱼类调查却大多依靠具有选择性和侵入性的方法，主要针对商业物种，并受适宜作业区域限制；物种误认也是重要问题。本研究探讨直接从海水样本取得环境DNA（eDNA）、通过宏条形码分析记录海洋鱼类多样性的潜力。这种方法已成功用于淡水环境，但尚未用于海洋场景。我们从丹麦温带海洋生态系统采集的半升海水中分离eDNA，对PCR扩增产物进行下一代测序，取得15种鱼类的eDNA，其中既有重要食用鱼，也有常规监测很少或从未记录的鱼。还检测到该地区罕见的偶来种欧洲沙丁鱼（Sardina pilchardus）及4种鸟。国家数据库的记录确认了所有检出物种在该地区的出现。我们将eDNA方法与9种常规海洋鱼类调查方法比较，发现它对鱼类多样性的覆盖优于或等同于所用的任何一种常规方法。研究表明，小体积海水也含有多种当地鱼类的eDNA。为考察海洋中eDNA的潜在扩散，我们还做了海水降解实验，发现即使短至100 bp的片段，也会在几天内降解至无法检出。",
+    "note": "先想象手里没有鱼，只有一瓶海水：能不能凭水里的遗传碎片列一张鱼名册？作者先真的列出15种鱼，再拿这张名单和捕鱼、潜水等调查比较。随后又追问：名单上的鱼会不会其实住得很远，只是DNA漂过来了？降解实验就是为第二个问题补证据。",
+    "keys": [
+      "常规调查受捕具、地形和辨认能力影响，因此改从海水中的遗传痕迹寻找鱼。",
+      "检出15种鱼说明方法能做出来；与9种方法比较进一步考察覆盖范围。",
+      "海流可能搬运DNA，所以还要测信号能留多久，才能讨论它来自哪里。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-294ef9e649f3e39b-1",
+    "zh": "虽然还需要在不同环境条件下进一步验证eDNA方法，我们的发现已提供有力的概念验证，并显示其用于未来海洋生物多样性与资源监测的广阔前景。",
+    "note": "这篇先回答“海水里能不能做出来”，答案是能。下一步才是换海域、换水温、换季节，检验这条路能否稳定使用。",
+    "keys": [
+      "本地成功建立可行性，跨环境验证决定它能否成为常规监测工具。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-234fd2edad58d6f2-1",
+    "zh": "海洋在生物多样性[1]及渔业等经济产出[2,3]方面具有重要价值。鱼类是物种最丰富的脊椎动物类群，也是当前海洋生态系统环境健康监测的关键组成。但全球鱼类物种和种群受到过度利用等威胁[4–7]，并对人类健康产生显著影响[8]。现行监测大多依靠底拖网、鱼藤酮毒捕等具有侵入性和选择性的方法[9]，只能在条件适宜的特定区域使用。传统方法还难以正确鉴定部分非商业类群（如海龙科）和商业类群（如玉筋鱼科），造成数据库错误[10]及名录不完整[11,12]。",
+    "note": "调查名单不是海里所有鱼的直接缩影。拖网先筛掉不能下网的海底，再筛掉网捕不到的鱼；抓上来后，还可能把长得相近的种认混。这三道筛子解释了为什么需要另一种取证办法。",
+    "keys": [
+      "要监测过度利用，先得可靠地知道有哪些鱼。",
+      "作业地形、捕获选择性和物种误认共同使现有名单不完整，因而引出替代方法。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-1dbcd53c75654eb5-1",
+    "zh": "另一条监测途径是环境DNA，即直接从环境样本中提取并分析遗传物质[13]。对大型生物，该方法最初用于陆地沉积物，揭示已灭绝及现存哺乳动物、鸟类和植物的生态系统[14]，随后用于古洞穴沉积物[15]、冰芯[16]以及不同类群、生境和气候的古代及现代沉积物[17–28]。近期研究已从现代池塘水中检出牛蛙[29]，并用来检测其他两栖动物[30]及淡水入侵鱼类[31]；还显示稀有濒危淡水昆虫、甲壳类、两栖类、鱼类和哺乳类可被监测、定量，甚至可描述整个湖泊动物群[32]。不过，据作者所知，当时尚无从海水样本检出大型生物eDNA的报告。",
+    "note": "DNA不一定要从抓到的动物身上取。掉落的细胞、黏液等会把它留在环境里，前人已经在土、冰和淡水中读出这些痕迹。这里的缺口很具体：淡水做成了，稀释和流动更强的海水能否也做成？",
+    "keys": [
+      "已有环境取样研究证明不抓动物也能取得遗传痕迹。",
+      "淡水成功提供起点，却没有直接解决海水中的稀释、流动与保存问题。",
+      "因此本文把验证场景推进到海水中的鱼类。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-5b36f0d3fe6632ae-1",
+    "zh": "本研究首次展示利用海水样本中的eDNA记录海洋鱼类生物多样性。",
+    "note": "前面铺的路收束成这一件事：拿海水，检验能否读出鱼的种类。",
+    "keys": [
+      "研究目标是海水鱼类多样性检测的可行性。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-e3dceb1b4e8a735b-1",
+    "zh": "我们在丹麦温带海洋生态系统采集3份海水样本（图1），经过过滤、DNA扩增和测序（见材料与方法），与GenBank数据库比较后检出15种鱼，分属9目11科（图1、表1）。其中包括大西洋鳕、欧洲鳗、欧洲鲽和大西洋鲱等重要食用鱼，也有金色隆头鱼、短角杜父鱼及大海龙等非商业鱼。还检出当地偶来种欧洲沙丁鱼，以及包括仅在迁徙时偶经当地的红喉潜鸟在内的4种鸟。3份水样的物种组成略有差异，外侧码头检出种类多于内侧码头和开放海滩。",
+    "note": "流程的终点是一张跨类群名单，而不只是某种常见鱼的阳性。三个位置合起来得到15种鱼，码头内外也略有不同。不过这种差别可能来自鱼和DNA分布，也可能来自PCR和测序抽样，后面讨论会再拆开。",
+    "keys": [
+      "水样经过扩增、测序和数据库匹配转成物种记录。",
+      "名单覆盖商业与非商业鱼，说明取样没有沿用捕具的同一套选择。",
+      "采点差异留下新问题：是真实空间差异，还是检测过程的波动？"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-d68417e63a38185e-1",
+    "role": "metadata",
+    "zh": "Table 1 Summary of species-specific eDNA sequences recovered in this study.\n"
+  },
+  {
+    "id": "b-e5ea420f8795eab2-1",
+    "zh": "除5条用物种特异引物取得、经克隆后Sanger测序的序列外（见表2），所有序列均由Roche GS FLX 454平台焦磷酸测序生成。用BLAST对照GenBank核苷酸数据库后，这些序列均在全长上只与对应物种100%匹配。表中序列不含引物。",
+    "note": "“15种”不是看到一条相似序列就算一个种。这里要求读出的整段与数据库中某个物种完全匹配，并且不能同时对上其他种；另有5条来自特异引物补测，读取路线有所不同。",
+    "keys": [
+      "先区分通用扩增测序与特异引物补测两条来源。",
+      "再用全长、唯一、完全匹配的标准把序列落实到物种。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-7b2b8c1192044484-1",
+    "zh": "为与eDNA宏条形码法比较，我们在同一区域由专家用9种常规方法调查，得到不同的鱼类多样性覆盖（图2、表S1）。常规方法中，鱼笼效率最低，每次平均发现4.3种；夜间浮潜和底拖网最佳，分别平均检出14.7和13.3种。但eDNA发现15种，优于或等同于这些常规方法。",
+    "note": "15种到底多不多，要有参照。作者把它放到捕鱼和潜水的名单旁边看，发现没有输给这里的单一常规方法。读图要留意口径：常规柱是多年调查的每次平均值，eDNA柱是2011年这一方法的总检出数，所以这是有价值的现场比较，还不是等工作量的严格效率竞赛。",
+    "keys": [
+      "单独的检出数缺少尺度，9种常规调查提供现场参照。",
+      "eDNA的15种与最佳常规方法接近，但合计数与每次均值的口径不同，比较强度应据此理解。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-8f74cd72cf964cb0-1",
+    "zh": "为探讨海洋中eDNA的潜在扩散，我们采集50 L海水，在15天内频繁取子样，以物种特异qPCR测三刺鱼和川鲽的eDNA；起始浓度分别为每400 ml海水48和214个DNA分子。结果提示，即使100 bp的小片段也会在0.9–6.7天内降解至无法检出（图3，亦见方法）。两种鱼的检出阈值相近，约为每400 ml水25个DNA分子，提示这可能是该方法的大致阈值。用于测序的原始3份水样也测了这两个物种的平均DNA浓度，分别为每400 ml海水446和215个分子。",
+    "note": "检出名单之后，问题转向时间：一份水里的信号多久会淡到读不出？作者把海水留在水箱里，反复测同两种鱼的DNA。这里的“消失”是掉到方法的检测线以下，不是每个分子都分解干净；起点较高的信号也可能花更久才过线。",
+    "keys": [
+      "海流会搬运信号，因而先测可检出的持续时间。",
+      "重复子样得到浓度下降过程，以约25分子/400 ml作为经验检测线。",
+      "0.9–6.7天是这些起始浓度与实验条件下的过线时间。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-c719deedcd5bedb3-1",
+    "zh": "实验中的全部DNA提取空白和PCR对照均为阴性，没有显示污染迹象。",
+    "note": "与水样一起处理、不放目标样本的空白管没有亮起来，因此这轮结果没有出现来自操作链的污染信号。",
+    "keys": [
+      "提取和扩增两段的空白均阴性，为水样信号的来源提供检查。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-a7d1e6d3bdf67ab8-1",
+    "zh": "以往已广泛用过滤海水测序研究微生物多样性（如[33–36]），本研究首次表明海水也含有高密度、可检测的鱼类等大型生物eDNA；同期也有研究从海水取得鲸类eDNA[37]。两者不同：大型生物主要留下细胞残片或游离DNA，微生物则可能以完整活体存在于水样。这里的鱼类DNA很可能来自肠道细胞、脱落皮肤、鳞片或黏液，包括游离、细胞残片和颗粒结合的DNA。暴露在环境中的动物细胞会很快裂解，但水样中各来源的相对比例仍不清楚；相关研究多来自土壤和沉积物[38–40]。本研究及[30]使用0.45 µm滤膜，另有淡水研究用1.5 µm[31]甚至3.0 µm[41]滤膜分离eDNA。考虑DNA分子的大小，检出的部分DNA很可能结合在颗粒或细胞上。",
+    "note": "过滤水并不是把一条鱼过滤出来，也未必直接截住所有游离分子。更容易被滤膜留下的，可能是带DNA的细胞残片或颗粒。这样就能理解：滤孔比DNA分子大，为什么仍能收集到鱼的遗传信号。",
+    "keys": [
+      "鱼本体不在水样里，信号须来自其脱落物或排出物。",
+      "这些物质可能以多种形态存在，而滤膜选择会影响实际收集到哪一部分。",
+      "滤孔尺度与检出结果一起支持部分DNA随细胞或颗粒被截留的解释。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-9c48f928ff0bf969-1",
+    "zh": "尽管淡水eDNA研究已成功[29–32,41]，海水表现仍令人意外，因为海洋水量与生物量之比更大，存在海流和波浪，盐度也会影响保存及提取。这些因素可能使eDNA更稀、更快扩散且更难提取。然而，仅半升海水仍检出了从常见欧洲鲽到罕见偶来种欧洲沙丁鱼的多个类群（图1）。三个相近位置的物种组成略有差异，但尚不清楚原因是PCR随机性、测序深度不足，还是鱼及其eDNA在环境中的真实斑块分布。",
+    "note": "淡水经验不能直接照搬的原因，是海水像一个更大、不断搅动的容器，鱼留下的痕迹更容易被摊薄。半升水仍读出多种鱼，说明方法有希望；但要解释码头之间的差别，还得区分水里的差别和实验抽样造成的差别。",
+    "keys": [
+      "稀释、搬运及盐度使海水检测比淡水多了几道困难。",
+      "小水样仍成功说明有可检出信号，采点差异的来源则尚未被分开验证。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-17b7a91209b18d24-1",
+    "zh": "与9种常规方法相比，eDNA表现良好（图2）。接近其效率的浮潜、拖网和围网，或依赖现场鱼类专家，或受海底条件限制。国际海洋考察理事会框架中的分层随机底拖网是监测基石[3]，但难以用于浅水、岩礁、海带、障碍物或松软沉积区域[42,43]，从而遗漏重要栖地。eDNA几乎可在任何海洋生境采样，取样所需专长与精力较少，分子鉴定也比许多困难的形态鉴定更客观可靠。然而，DNA鉴定依赖分类专家建立物种参考序列。全球数据库正迅速增长，2005年启动的全球鱼类条形码计划当时已覆盖超过三分之一已描述物种[44,45]。未被条形码覆盖的物种仍会限制eDNA名录；而物种最复杂的系统往往也是传统监测最困难、eDNA潜在改进最大的地方。",
+    "note": "这项技术把一部分困难搬了家：现场不用总把鱼抓出来认，但实验室必须有“序列—物种”的字典。礁石区能取到水是一项优势；字典里若没有某种鱼，即使读到它的序列，也未必能叫出名字。",
+    "keys": [
+      "常规方法的作业限制导致某些栖地长期少被调查，取水可拓宽覆盖。",
+      "识别工作随之转到参考序列库，数据库空缺成为新的瓶颈。",
+      "因此采样方便与物种鉴定可靠要分别评价。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-b6bf1a28db676f18-1",
+    "zh": "海流可能把eDNA搬到物种实际分布区之外，造成假阳性记录；鸟类、哺乳动物或其他鱼等捕食者也可能通过排便把猎物DNA带往别处。不过，本研究降解实验显示，在15°C海水中，即使100 bp的短片段，也仅能在约25分子/400 ml的检出阈值以上维持几天（图3）。",
+    "note": "鱼的DNA和鱼的位置可能分开：水能带走它，捕食者也能带着猎物残片移动。因此“这里有DNA”要经过来源判断，才能变成“这里有活鱼”；降解时间是判断中的一个条件。",
+    "keys": [
+      "DNA可被水流和捕食者搬运，检出地点不必等于鱼所在地点。",
+      "降解会缩短信号存续时间，作者据此约束远处来源的可能性。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-f2692f9e5ab050cc-1",
+    "zh": "淡水中eDNA降至检出线以下通常以天至周计[32,46]。先前海水研究曾报告低至10小时的DNA周转时间[47]，与本研究相符，并提示海洋中远距离扩散的概率较低。若取可检出时间约12小时至1周，并假设海流平均速度约1 m/s（本研究海域的常见速度），则粗略估算DNA在不可检出前可能移动约40–600 km。",
+    "note": "时间短不自动等于距离短。按每秒1米，半天也能走约43公里，一周则约605公里。这一粗算把问题摆明了：单靠降解还锁不住“本地”，还需要稀释、水流方向等条件。",
+    "keys": [
+      "以存续时间乘流速，可得到潜在搬运距离的量级。",
+      "40–600 km说明降解时间本身不足以给采点划一个很小的来源圈。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-e442df94dd4d8785-1",
+    "zh": "水温、风速风向和局地海流变化等多种因素都会显著影响海中eDNA的潜在输送距离。用于测序的3份原始水样，其三刺鱼平均浓度为446、降解实验为48分子/400 ml；川鲽则为215与214。两批取样时间不同（2011年10月与2012年5月），季节、年际差异及三刺鱼物候均可能解释前一物种的浓度差异。",
+    "note": "前面的距离估算用了一个简化流速，真实海水会拐弯、混合，温度也会变。同一个物种在两次取水时留下多少DNA也不同，因此不能把某一批水的起始浓度当成全年固定值。",
+    "keys": [
+      "环境条件改变搬运与降解，起始浓度还随季节和生物活动变化。",
+      "两批水中三刺鱼相差较大，提醒读者将过线时间放回具体批次。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-c7879ea7059fdcff-1",
+    "zh": "更重要的是，持续稀释很可能使海水eDNA的检出概率随远离源头迅速降低，因此当地来源更可信。作者据此相信海水检出的eDNA应主要代表当地鱼类。没有检出真正异域物种也可能源于此；除欧洲沙丁鱼外，其他均为当地常住种，说明非居民DNA可能不存在，或已稀到本方法无法捕获。欧洲沙丁鱼虽少见，却在北海及邻近海域越来越常见，可能与变暖有关[48]，且形态近似常见鱼，易被传统调查漏掉。因此作者认为其检出更可能是真实当地出现，而非远距离来源。红喉潜鸟的意外检出则有国家观鸟数据库在取样时当地出现的记录印证。结合阴性的PCR和提取空白，以及实验室从未处理这些物种，作者排除实验室污染解释。这些发现显示eDNA可帮助发现意料外的物种。",
+    "note": "作者最后不是只凭“几天会降解”来认定本地来源，而是把稀释、物种分布记录和空白结果合在一起。红喉潜鸟尤其直观：水里出现它的DNA，恰好当时有人在当地看见它。这些线索增强本地解释，但没有直接量出一条通用的来源半径。",
+    "keys": [
+      "持续稀释使远处信号更难跨过检测线，为当地来源提供过程解释。",
+      "物种分布及同期观鸟记录提供独立的现场核对，空白对照再检查实验室来源。",
+      "多条线索汇合后，作者倾向于当地来源；其空间范围仍需专门研究。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-c2edaad6df865b01-1",
+    "zh": "在把eDNA作为可靠的海洋多样性监测工具之前，仍须充分解决多项问题，尤其要更好理解海水中的扩散，以及温度、盐度等非生物因素的影响。目标物种的物候、代谢变化及DNA排出也会影响监测。",
+    "note": "同样有十条鱼，活动、代谢和排DNA的量也可能随季节改变；同样一份DNA，在不同水温盐度下又可能留下不同信号。要把方法用稳，得把生物放出多少与环境留下多少分开。",
+    "keys": [
+      "检测量同时受生物释放和环境输送保存影响，因此可靠监测需要分别了解这些过程。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-32b4260d2c9e3d23-1",
+    "zh": "海水eDNA分子量是否像淡水研究[32,41]那样反映当地动物种群大小或生物量，仍未经检验。对海洋多样性及尤其渔业监测，这很重要，因为仅知道物种出现还不够。",
+    "note": "这篇做出的是鱼名册，渔业还想知道每种有多少。要从名字走到数量，需要证明DNA量与鱼的数量或重量有可用的对应关系，本文还没有做这一步。",
+    "keys": [
+      "物种存在的证据不能直接给出资源量，数量监测是下一层研究问题。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-fd8f9e7141eb4700-1",
+    "zh": "另一限制是PCR引物设计。通用引物在覆盖较高分类阶元与检出稀有序列之间存在权衡；引物亲和偏差会使部分物种扩增较弱，导致结果偏向设计时预期存在的物种或与引物最匹配的序列。作者认为，eDNA引物优化与共享、测序深度增加及技术进步（包括部分不依赖初始PCR的方法）将逐渐减轻这一限制。",
+    "note": "给一群鱼共用一套引物，就像用同一个筛子挑很多形状的东西：并非每种都同样容易过。某种鱼DNA少、扩增又吃亏，就可能从名单里消失。多测一些能帮忙，但先要知道哪些物种被引物偏待。",
+    "keys": [
+      "通用引物扩大覆盖，同时引入物种间扩增效率差异。",
+      "低丰度加弱扩增共同增加漏检，因而须改进引物及检测流程。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-cd9cf88657e51512-1",
+    "zh": "尽管仍有限制并需要更多基础知识，海洋eDNA在生物多样性与渔业监测方面前景广阔。本研究首次证明，简单的eDNA调查对当地海鱼的覆盖可优于或至少等同于此处任何单一常规方法；并实验表明eDNA在海水中快速降解，提示可检出DNA很可能来自当地。作者认为其未来可能填补大范围海洋多样性与资源监测的重要缺口。",
+    "note": "收束时把两条证据带回来：小水样确实读出了多种鱼，保存实验又说明信号不会无限期留着。这使取水调查值得继续发展；至于准确代表多大范围、能否估多少鱼，仍是接着要做的研究。",
+    "keys": [
+      "现场名单建立检测可行性，降解实验补充来源解释。",
+      "两者支持发展海洋监测工具，但空间定位和数量估计仍需额外验证。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-746737cd153f2ee2-1",
+    "zh": "研究在丹麦赫尔辛格海峡（56.04387°N，12.61309°E）开展（图1）。",
+    "note": "先固定地点，后面的常规调查、eDNA取样和降解实验才有共同的空间背景。",
+    "keys": [
+      "共同研究海域使几类证据能够对照。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-998d0d6448f6cc9a-1",
+    "zh": "研究区鱼类出现资料来自2009、2010和2011年8月下旬由鱼类专家PRM主持的调查（表S1）。为尽可能多发现物种，每年使用5个鱼笼、2个定置袋网、沿岸拖约100 m的6 m宽围网、1张100×1.5 m多网目刺网（网目6.5–110 mm）、2小时推网（宽68 cm，网目8 mm）、2小时拟饵垂钓、白天与夜间各2小时浮潜，以及Ophelia号上半小时底拖网（宽4 m，高1.5 m，囊网网目10 mm）。",
+    "note": "参照名单不是一次随手捞鱼，而是把多种捕具和昼夜潜水各自能发现的鱼都收进来。各方法工作方式和时长不同，解释后面的柱状图时就应记住这份具体安排。",
+    "keys": [
+      "多种工具扩大传统调查的物种覆盖。",
+      "不同工具和时长也限定了与eDNA比较时的工作量口径。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-039c028f83a6a6d0-1",
+    "role": "metadata",
+    "zh": "Permission for scientific fishing was provided by the Danish Ministry for Food, Agriculture and Fishery (journal no. 2009-02530-23088).\n"
+  },
+  {
+    "id": "b-3b156f27d140bb7d-1",
+    "zh": "2011年10月1日采集3份各1.5 L海水，分别来自内码头、外码头及开放海滩（图1），采表层水，所在水深1.5–6 m。每份由沿145 m样线、每隔5 m取一次的30个50 ml子样混合而成；随后立即在−20°C保存至提取。",
+    "note": "“一份水样”其实沿着145米走出来的30小杯混合水，减少只舀一个点的偶然性。3份是3个位置，不是同一瓶做3次PCR；后面每份只取半升过滤，也要和最初采的1.5升区分。",
+    "keys": [
+      "沿线子样先汇成每个位置的混合水样，再进入过滤提取。",
+      "现场空间重复与实验室PCR重复承担不同任务。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-8d1e650ab00aa9c3-1",
+    "zh": "降解实验于2012年5月16日在原测序取样的外码头和海滩，分25次各2 L共采50 L海水，混入54 L水箱；采后1小时内取初始400 ml子样（t=0）。水箱保持15°C，使用普通15 W灯管提供12小时日照周期，并用600 L/h循环泵充分混合与供氧，以模拟自然条件。从5月16日至31日按小时至天的间隔取400 ml子样，立即−20°C保存至DNA提取。",
+    "note": "这次把水带回水箱，鱼不会继续往里面补DNA，于是能观察已有信号怎样下降。温度、灯照和混水受到控制；它测的是这一套水箱条件下的衰减，而非在海里同时追着一团水漂流。",
+    "keys": [
+      "停止外部持续补入后，连续子样用于观察原有DNA的下降。",
+      "控制水箱条件使时间可比较，也决定了实验适用的环境范围。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-655e5945de268feb-1",
+    "zh": "每份1.5 L海水取半升，真空过滤至直径47 mm、孔径0.45 µm的尼龙滤膜。随后结合珠磨与Qiagen DNeasy Blood & Tissue离心柱流程提取DNA：将滤膜卷起切为约1 mm小片置2 ml管，加入0.3 g直径0.5 mm锆/硅珠和720 µl ATL缓冲液，以2800次/分钟珠磨45秒、56°C孵育30分钟，再重复一次。加入80 µl蛋白酶K，在56°C振荡孵育2小时；涡旋15秒，6000 g离心1分钟。转移各600 µl上清至新2 ml管，按试剂盒流程继续，调整为600 µl AL缓冲液、600 µl乙醇，最后每份用2×50 µl AE缓冲液洗脱。",
+    "note": "过滤先把分散在半升水中的含DNA物质收拢到一张膜上；剪膜、珠磨和酶处理再把它们打开。离心柱随后清理并把DNA收进小体积液体，才有东西可加进PCR管。",
+    "keys": [
+      "先用滤膜浓集，再用机械与酶处理释放DNA。",
+      "随后柱纯化和小体积洗脱，把环境样本变成可扩增的提取液。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-521adb27c3ceee51-1",
+    "zh": "降解实验共19份400 ml海水样本，DNA提取同上。",
+    "note": "各时间点沿用同一提取流程，尽量让浓度差别反映时间变化，而不是换了提取办法。",
+    "keys": [
+      "相同提取流程为各时间点的衰减比较提供一致处理。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-52577fa5232ef3d7-1",
+    "zh": "本研究设计2套通用及4套物种特异引物，扩增鱼类线粒体细胞色素b（cytb）的小片段（<100 bp，表2）。选择cytb是因其在GenBank对当地鱼类覆盖最好，并有先前成功应用[32]。4套特异引物用于补查已知当地存在、但新鲜组织测试中通用引物扩增较差的物种。25 µl反应含2 µl提取液、10 µl TaqMan Environmental Master Mix 2.0、每条10 µM引物各1 µl、11 µl双蒸水；程序为95°C 7分钟，随后50轮94°C 30秒、50–60°C 30秒、72°C 20秒，最后72°C 5分钟。产物用GelRed染色的2%琼脂糖胶检查，再以Qiagen MinElute或2% e-gel sizeselect纯化。扩增前后在分开的实验室操作，设置提取与PCR空白监测污染。",
+    "note": "为什么既有通用引物又有特异引物？先用“大网”广撒，但组织预试验发现几种当地鱼不容易被这张网捞到，于是再用专门引物补查。基因区段也不是随便选的：读出来以后还得有数据库可对照。",
+    "keys": [
+      "短cytb片段兼顾碎片DNA扩增和参考库覆盖。",
+      "预试验暴露通用引物盲点，特异引物因此承担补查任务。",
+      "分区操作和两类空白检查与这条扩增链同时进行。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-507d949d344be367-1",
+    "role": "metadata",
+    "zh": "Table 2 Primers and probe details showing sequences, target taxa and fragment sizes.\n"
+  },
+  {
+    "id": "b-ee6828afc4c4f612-1",
+    "zh": "片段长度以bp计并包含引物。所有引物均为本研究设计，扩增cytb的一部分；常规PCR退火温度50°C，qPCR为60°C。探针为MGB探针，5′端6-Fam（D-L-Probe），3′端BHQ-1。",
+    "note": "看表里的片段大小时要把两端引物算进去；常规检测和后面用于定量的qPCR也用了不同温度与探针体系。",
+    "keys": [
+      "先统一片段长度口径，再区分常规PCR与定量体系的条件。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-555054e638a27f49-1",
+    "zh": "每个水样、每套通用引物各做8次PCR并混合，共6个样本，以Roche GS FLX 454焦磷酸测序。使用带MID条形码的定制Y形接头建库，按NEBnext DNA Sample Prep Master Mix Set 2流程反应；依厂家指南在半张XLR70 PTP上测得20,315条序列。按MID和引物对拆分文件时，MID不允许错配，每条引物允许最多2个错配。",
+    "note": "同一水样做8管，不是为了造出8个海域，而是多给稀少模板几次被扩增的机会。混合后用条形码保存“这批序列属于哪份水、哪套引物”的身份。",
+    "keys": [
+      "PCR重复先增加同一样本的扩增机会，再汇池测序。",
+      "MID与引物标记把混合得到的读段重新分回来源。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-1e2576feabfc35d3-1",
+    "role": "metadata",
+    "zh": "Sequences from pyrosequencing are uploaded to NCBI SRA: ERP001563.\n"
+  },
+  {
+    "id": "b-f08ae15e8fd7e7f4-1",
+    "zh": "物种特异引物扩增产物（表2）按上述方法纯化，使用Topo TA克隆试剂盒克隆，并交Macrogen Europe测序。",
+    "note": "通用引物走批量测序路线；特异引物的补查产物则先克隆，再读单个克隆的序列。",
+    "keys": [
+      "补查产物另经克隆与Sanger路线确认序列身份。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-589f69b32ca9644e-1",
+    "zh": "去掉引物的序列以BLAST[49]对照GenBank核苷酸数据库，使用MEGAN 4[50]进行分类鉴定；LCA设置为Min. Support=2、Min. Score=50、Top Percent=2。",
+    "note": "读出一串碱基还没有鱼名，需要先剪掉人为加的引物，再与参考序列匹配，由分类程序整理候选身份。",
+    "keys": [
+      "去除引物后比对参考库，再按设定阈值进行分类归属。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-6fae2e7925fbebf6-1",
+    "zh": "只纳入全长100%匹配且唯一对应某一物种的序列。",
+    "note": "如果这段短序列同时能对上两种鱼，作者就不拿它来报其中一种；这是物种名单的最后一道取舍。",
+    "keys": [
+      "唯一且完全匹配才进入物种级名录。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-bd0ef84046759033-1",
+    "zh": "降解实验使用Stratagene Mx3000P进行TaqMan qPCR。",
+    "note": "列名册靠测序，跟踪已选两种鱼的浓度变化则换用定量PCR。",
+    "keys": [
+      "实验问题改变，读数从物种身份转为同一靶标的时间变化。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-8257f9f709a710f5-1",
+    "zh": "为川鲽和三刺鱼分别开发特异引物及TaqMan MGB探针，扩增线粒体cytb的101–104 bp小片段（表2）；选择原因同前。25 µl反应含2 µl提取液、10 µl TaqMan Environmental Master Mix 2.0、每条10 µM引物各1 µl、2.5 µM探针1 µl及10 µl双蒸水；程序为50°C 5分钟、95°C 10分钟，随后55轮95°C 30秒和60°C 1分钟。",
+    "note": "后续每次测的是同一个小片段，探针发出的荧光帮助追踪它有多少。目标短，比较适合环境中已经破碎的DNA；具体反应条件决定这组浓度结果的实验背景。",
+    "keys": [
+      "固定物种、片段与反应条件后，连续时间点的定量才有共同尺度。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-e6378c6798213437-1",
+    "zh": "两套引物/探针均经过验证：对取样区20种常见海鱼为阴性，对各自目标种为阳性。为清楚解释衰减，使用物种特异TaqMan体系，只扩增选定的两种目标DNA。用组织DNA产生的纯化PCR产物，以Qubit测浓度后作10⁻⁶至10⁻¹⁰稀释，制备qPCR标准。",
+    "note": "如果混进别种鱼的信号，浓度下降就不知道是在追谁。因此先测本地其他鱼是否会误亮，再用已知浓度标准给荧光读数定标。",
+    "keys": [
+      "排查非目标扩增，确保时间曲线尽可能跟踪指定物种。",
+      "标准品把荧光信号转换为可比较的浓度估计。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-e2cca792934e198b-1",
+    "zh": "每份样本做8次独立qPCR，用所有阳性扩增估计DNA浓度。按标准曲线并设DNA分子量为660 g/mol/bp，计算每400 ml海水的DNA分子数。",
+    "note": "一份低浓度样本可能有的管亮、有的不亮；作者做8管，并把阳性管用于浓度估计。这里的统计口径值得记住：不是简单把所有8管的读数（含未检出）一起平均。",
+    "keys": [
+      "技术重复应对低模板检测波动，阳性反应再进入作者的浓度换算流程。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-77a08001e4be0aa5-1",
+    "zh": "所有qPCR标准曲线的效率为90–100%。",
+    "note": "先检查已知浓度能否按预期被扩增，才用同一套曲线给未知水样估量。",
+    "keys": [
+      "标准曲线效率是定量流程的性能检查。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-9f9b1f76fffe8423-1",
+    "zh": "对qPCR数据拟合指数衰减模型，因为分子降解预期符合此关系，类似用途已有先例[51]。",
+    "note": "指数下降的意思是按现有量的一定比例减少，而不是每天固定少几个分子。起点不同，即使下降规律相同，跌到检测线的时间也会不同。",
+    "keys": [
+      "以比例损失描述衰减，再由起始量和速率推算何时低于检测线。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-641a10bddc9504f3-1",
+    "role": "label",
+    "zh": "模型如下："
+  },
+  {
+    "id": "b-8b8e359c576e0c51-1",
+    "role": "label",
+    "zh": "求解得："
+  },
+  {
+    "id": "b-b7ac470bf4f8a5de-1",
+    "role": "label",
+    "zh": "N(t)表示第t天的DNA浓度。"
+  },
+  {
+    "id": "b-053fd4ab3d508a7f-1",
+    "zh": "在R中用nls估计初始浓度N₀及衰减常数β：川鲽N₀=214、β=0.322，三刺鱼N₀=48、β=0.701。两种模型拟合分别达高度显著（p<0.001）和显著（p<0.05）。令N(t)=25，即经验检出阈值，推算在所观察初始浓度下，川鲽约6.7天、三刺鱼约0.9天后降至不可检出。",
+    "note": "两条曲线过线时间不同，有两方面原因：川鲽起点更高，拟合下降也较慢；三刺鱼起点本来就接近检测线。不要把6.7天与0.9天读成两个物种永远固定的DNA寿命。",
+    "keys": [
+      "拟合分别给出起始量和下降速率。",
+      "两者一起决定达到25分子/400 ml的时间，因此过线时间依赖本次条件。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-17a654760623d5bd-1",
+    "role": "metadata",
+    "zh": "All statistics were performed in R ver. 2.13.1.\n"
+  },
+  {
+    "id": "b-0ffcb2c629d8e5de-1",
+    "role": "metadata",
+    "zh": "Species list and details for conventional fish surveys.\n"
+  },
+  {
+    "id": "b-4629be842ecf08d7-1",
+    "role": "metadata",
+    "zh": "(PDF)\n"
+  },
+  {
+    "id": "b-98a0280124264cac-1",
+    "role": "metadata",
+    "zh": "Click here for additional data file.\n"
+  },
+  {
+    "id": "b-fa90c21f092cf69e-1",
+    "role": "metadata",
+    "zh": "We thank the Danish National Research Foundation and the Aage V. Jensen Charity Foundation for economic support, and Pernille Selmer Olsen, Lillian A. Petersen and the Danish National Sequencing centre for help with laboratory work and sequencing. We thank Johan Wedel Nielsen (AquaMind) for helpful input. We also thank Marcus Krag, Jakob Larsen, Thomas Christensen and students from the University of Copenhagen for help with conventional fish surveys.\n"
+  },
+  {
+    "id": "b-91cdea19718ce302-1",
+    "role": "reference",
+    "zh": "1Nielsen C (2012) Animal evolution: interrelationships of the living phyla. Oxford: Oxford University Press. 464 p.\n"
+  },
+  {
+    "id": "b-c81b0bd5900ba490-1",
+    "role": "reference",
+    "zh": "2 CostanzaR (1999) The ecological, economic, and social importance of the oceans. Ecological Economics 31: 199–213.\n"
+  },
+  {
+    "id": "b-045aba7937a36211-1",
+    "role": "reference",
+    "zh": "3FAO (2010) The State of World Fisheries and Aquaculture 2010. Rome: FAO. 197 p.\n"
+  },
+  {
+    "id": "b-28c8b28e833ed0ce-1",
+    "role": "reference",
+    "zh": "4 HutchingsJA (2000) Collapse and recovery of marine fishes. Nature 406: 882–885.1097228810.1038/35022565\n"
+  },
+  {
+    "id": "b-218ca111ef97b656-1",
+    "role": "reference",
+    "zh": "5 JacksonJBC, KirbyMX, BergerWH, BjorndalKA, BotsfordLW, et al (2001) Historical overfishing and the recent collapse of coastal ecosystems. Science 293: 629–637.1147409810.1126/science.1059199\n"
+  },
+  {
+    "id": "b-9c59b48f442d8591-1",
+    "role": "reference",
+    "zh": "6 PaulyD, ChristensenV, GuanetteS, PitcherTJ, SumailaUR, et al (2002) Towards sustainability in world fisheries. Nature 418: 689–695.1216787610.1038/nature01017\n"
+  },
+  {
+    "id": "b-19154ab136e551f3-1",
+    "role": "reference",
+    "zh": "7 ColletteB, CarpenterK, PolidoroB, Juan-JordaiM, BoustanyA, et al (2011) High Value and Long Life – Double Jeopardy for Tunas and Billfishes. Science 333: 291–292.2173769910.1126/science.1208730\n"
+  },
+  {
+    "id": "b-ea57e997412b3b3f-1",
+    "role": "reference",
+    "zh": "8 WormB, BarbierEB, BeaumontN, DuffyJE, FolkeC, et al (2006) Impacts of biodiversity loss on ocean ecosystem services. Science 314: 787–790.1708245010.1126/science.1132294\n"
+  },
+  {
+    "id": "b-0b03a1abfa1000dd-1",
+    "role": "reference",
+    "zh": "9Baldwin CC, Collette BB, Parenti LR, Smith DG, Springer VG (1996) Collecting Fishes. Pp. 11–33 in: Lang, M. A. and C. C. Baldwin (eds.). Methods and Techniques of Underwater Research. Proceedings of the 16th Annual Scientific Diving Symposium, American Academy of Underwater Sciences.\n"
+  },
+  {
+    "id": "b-ab9d8864fe03deb3-1",
+    "role": "reference",
+    "zh": "10 DaanN (2001) The IBTS database: a plea for quality control. ICES CM 3: 1–5.\n"
+  },
+  {
+    "id": "b-6943630417c02c1e-1",
+    "role": "reference",
+    "zh": "11 RogersS, EllisJ (2000) Changes in the demersal fish assemblages of British coastal waters during the 20th century. ICES Journal of Marine Science: Journal du Conseil 57: 866–881.\n"
+  },
+  {
+    "id": "b-25128339c7f2f2e3-1",
+    "role": "reference",
+    "zh": "12 LoveMS, LenarzB, SnookL (2010) A survey of the reef fishes, purple hydrocoral (Stylaster californicus), and marine debris of Farnsworth Bank, Santa Catalina Island. Bulletin of Marine Science 86: 35–52.\n"
+  },
+  {
+    "id": "b-393572de457a9bb1-1",
+    "role": "reference",
+    "zh": "13 TaberletP, CoissacE, HajibabaeiM, RiesebergLH (2012) Environmental DNA. Molecular Ecology 21: 1789–1793.2248681910.1111/j.1365-294X.2012.05542.x\n"
+  },
+  {
+    "id": "b-bb911907ecc0566d-1",
+    "role": "reference",
+    "zh": "14 WillerslevE, HansenAJ, BinladenJ, BrandTB, GilbertMTP, et al (2003) Diverse plant and animal genetic records from Holocene and Pleistocene sediments. Science 300: 791–795.1270280810.1126/science.1084114\n"
+  },
+  {
+    "id": "b-de9f0072089d4d89-1",
+    "role": "reference",
+    "zh": "15 HofreiterM, MeadJI, MartinP, PoinarHN (2003) Molecular caving. Current Biology 13: 693–695.10.1016/j.cub.2003.08.03913678604\n"
+  },
+  {
+    "id": "b-74b807afe3b5e71a-1",
+    "role": "reference",
+    "zh": "16 WillerslevE, CappelliniE, BoomsmaW, NielsenR, HebsgaardMB, et al (2007) Ancient biomolecules from deep ice cores reveal a forested Southern Greenland. Science 317: 111–114.1761535510.1126/science.1141758PMC2694912\n"
+  },
+  {
+    "id": "b-f39f55c69064533d-1",
+    "role": "reference",
+    "zh": "17 WillerslevE, HansenAJ, PoinarHN (2004) Isolation of nucleic acids and cultures from fossil ice and permafrost. Trends in Ecology & Evolution 19: 141–147.1670124510.1016/j.tree.2003.11.010\n"
+  },
+  {
+    "id": "b-138c00e3dfbacbe8-1",
+    "role": "reference",
+    "zh": "18 TaberletP, CoissacE, PompanonF, GiellyL, MiquelC, et al (2007) Power and limitations of the chloroplast trnL (UAA) intron for plant DNA barcoding. Nucleic Acids Research 35: e14.1716998210.1093/nar/gkl938PMC1807943\n"
+  },
+  {
+    "id": "b-39f5d67a24445f00-1",
+    "role": "reference",
+    "zh": "19 HaileJ, HoldawayR, OliverK, BunceM, GilbertMTP, et al (2007) Ancient DNA chronology within sediment deposits: Are paleobiological reconstructions possible and is DNA leaching a factor? Molecular Biology and Evolution 24: 982–989.1725512110.1093/molbev/msm016\n"
+  },
+  {
+    "id": "b-1ba510e56943f9aa-1",
+    "role": "reference",
+    "zh": "20 ThomsenPF, EliasS, GilbertMTP, HaileJ, MunchK, et al (2009) Non-Destructive Sampling of Ancient Insect DNA. PloS ONE 4 ((4)) e5048.1933738210.1371/journal.pone.0005048PMC2660418\n"
+  },
+  {
+    "id": "b-b6ae73886d9ef269-1",
+    "role": "reference",
+    "zh": "21 HaileJ, FroeseDG, MacPheeRDE, RobertsRG, ArnoldLJ, et al (2009) Ancient DNA reveals late survival of mammoth and horse in interior Alaska. Proceedings of the National Academy of Sciences of the United States of America 106: 22352–22357.2001874010.1073/pnas.0912510106PMC2795395\n"
+  },
+  {
+    "id": "b-3d23fca3ebc878e8-1",
+    "role": "reference",
+    "zh": "22 SonsteboJH, GiellyL, BrystingAK, ElvenR, EdwardsM, et al (2010) Using next-generation sequencing for molecular reconstruction of past Arctic vegetation and climate. Molecular Ecology Resources 10: 1009–1018.2156511010.1111/j.1755-0998.2010.02855.x\n"
+  },
+  {
+    "id": "b-78c79a5a9364a626-1",
+    "role": "reference",
+    "zh": "23 AndersenK, BirdKL, RasmussenM, HaileJ, Breuning-MadsenH, et al (2012) Meta-Barcoding of ‘Dirt’ DNA from Soil Reflects Vertebrate Biodiversity. Molecular Ecology 21: 1966–1979.2191703510.1111/j.1365-294X.2011.05261.x\n"
+  },
+  {
+    "id": "b-c6a313ec89a28098-1",
+    "role": "reference",
+    "zh": "24 HiiesaluI, OpikM, MetsisM, LiljeL, DavisonJ, et al (2012) Plant species richness belowground: higher richness and new patterns revealed by next-generation sequencing. Molecular Ecology 21: 2004–2016.2216824710.1111/j.1365-294X.2011.05390.x\n"
+  },
+  {
+    "id": "b-ef45fab2fa85896f-1",
+    "role": "reference",
+    "zh": "25 Anderson-CarpenterLL, McLachlanJS, JacksonST, KuchM, LumibaoCY, et al (2011) Ancient DNA from lake sediments: Bridging the gap between paleoecology and genetics. BMC Evolutionary Biology 11: 30.2127231510.1186/1471-2148-11-30PMC3041685\n"
+  },
+  {
+    "id": "b-a7897bc09d0047e4-1",
+    "role": "reference",
+    "zh": "26 JorgensenT, KjaerK, HaileJ, RasmussenM, BoessenkoolS, et al (2012) Islands in the ice: detecting past vegetation on Greenlandic nunataks using historical records and sedimentary ancient DNA Meta-barcoding. Molecular Ecology 21: 1980–1988.2195162510.1111/j.1365-294X.2011.05278.x\n"
+  },
+  {
+    "id": "b-60189ef7837a0802-1",
+    "role": "reference",
+    "zh": "27 JorgensenT, HaileJ, MollerP, AndreevA, BoessenkoolS, et al (2012) A comparative study of ancient sedimentary DNA, pollen and macrofossils from permafrost sediments of northern Siberia reveals long-term vegetational stability. Molecular Ecology 21: 1989–2003.2259072710.1111/j.1365-294x.2011.05287.x\n"
+  },
+  {
+    "id": "b-44cc4319d180b1b0-1",
+    "role": "reference",
+    "zh": "28 YoccozNG, BråthenNG, GiellyL, HaileJ, EdwardsME, et al (2012) DNA from soil mirrors plant functional and structural diversity. Molecular Ecology DOI: 10.1111/j.1365-294X.2012.05545.x.10.1111/j.1365-294X.2012.05545.x22507540\n"
+  },
+  {
+    "id": "b-ad5fd0f0894f7526-1",
+    "role": "reference",
+    "zh": "29 FicetolaGF, MiaudC, PompanonF, TaberletP (2008) Species detection using environmental DNA from water samples. Biology Letters 4: 423–425.1840068310.1098/rsbl.2008.0118PMC2610135\n"
+  },
+  {
+    "id": "b-9ec87234ea45fe9e-1",
+    "role": "reference",
+    "zh": "30 GoldbergCS, PilliodDS, ArkleRS, WaitsLP (2011) Molecular detection of vertebrates in stream water: a demonstration using rocky mountain tailed frogs and IDAHO giant salamanders. PloS ONE 6 ((7)) e22746.2181838210.1371/journal.pone.0022746PMC3144250\n"
+  },
+  {
+    "id": "b-90e95def6357d624-1",
+    "role": "reference",
+    "zh": "31 JerdeCL, MahonAR, ChaddertonWL, LodgeDM (2011) “Sight-unseen” detection of rare aquatic species using environmental DNA. Conservation Letters 4: 150–157.\n"
+  },
+  {
+    "id": "b-cd82dbec98336379-1",
+    "role": "reference",
+    "zh": "32 ThomsenPF, KielgastJ, IversenLL, WiufC, RasmussenM, et al (2011) Monitoring endangered freshwater biodiversity using environmental DNA. Molecular Ecology 21: 2565–2573.2215177110.1111/j.1365-294X.2011.05418.x\n"
+  },
+  {
+    "id": "b-77685441b530cdb5-1",
+    "role": "reference",
+    "zh": "33 VenterJC, RemingtonK, HeidelbergJF, HalpernAL, RuschD, et al (2004) Environmental genome shotgun sequencing of the Sargasso Sea. Science 304: 66–74.1500171310.1126/science.1093857\n"
+  },
+  {
+    "id": "b-934ff4715e7a5769-1",
+    "role": "reference",
+    "zh": "34 SoginML, MorrisonHG, HuberJA, WelchDM, HuseSM, et al (2006) Microbial diversity in the deep sea and the underexplored “rare biosphere”. Proceedings of the National Academy of Sciences 103: 12115–12121.10.1073/pnas.0605127103PMC152493016880384\n"
+  },
+  {
+    "id": "b-124d969b41e9631a-1",
+    "role": "reference",
+    "zh": "35 RuschDB, HalpernAL, SuttonG, HeidelbergKB, WilliamsonS, et al (2007) The Sorcerer II Global Ocean Sampling expedition: Northwest Atlantic through Eastern Tropical Pacific. Plos Biology 5: 398–431.10.1371/journal.pbio.0050077PMC182106017355176\n"
+  },
+  {
+    "id": "b-afb7734ebaa8503b-1",
+    "role": "reference",
+    "zh": "36 StoeckT, BassD, NebelM, ChristenR, JonesM, et al (2010) Multiple marker parallel tag environmental DNA sequencing reveals a highly complex eukaryotic community in marine anoxic water. Molecular Ecology 19: 21–31.2033176710.1111/j.1365-294X.2009.04480.x\n"
+  },
+  {
+    "id": "b-de5186d74ce1f163-1",
+    "role": "reference",
+    "zh": "37 FooteAD, ThomsenPF, SveegaardS, WahlbergM, KielgastJ, et al (2012) Investigating the potential use of environmental DNA (eDNA) for genetic monitoring of marine mammals. PloS ONE 10.1371/journal.pone.0041781PMC343068322952587\n"
+  },
+  {
+    "id": "b-3cf47a30638da401-1",
+    "role": "reference",
+    "zh": "38 Dell'AnnoA, CorinaldesiC (2004) Degradation and turnover of extracellular DNA in marine sediments: ecological and methodological considerations. Applied and Environmental Microbiology 70: 4384–4386.1524032510.1128/AEM.70.7.4384-4386.2004PMC444808\n"
+  },
+  {
+    "id": "b-e82373970808bccc-1",
+    "role": "reference",
+    "zh": "39 CorinaldesiC, DanovaroR, Dell'AnnoA (2005) Simultaneous recovery of extracellular and intracellular DNA suitable for molecular studies from marine sediments. Applied and Environmental Microbiology 71: 46–50.1564016810.1128/AEM.71.1.46-50.2005PMC544275\n"
+  },
+  {
+    "id": "b-5440c2c1692c927d-1",
+    "role": "reference",
+    "zh": "40 LydolphMC, JacobsenJ, ArctanderP, GilbertMTP, GillichinskyDA, et al (2005) Beringian paleoecology inferred from permafrost-preserved fungal DNA. Applied Environmental Microbiology 71: 1012–1017.1569196010.1128/AEM.71.2.1012-1017.2005PMC546757\n"
+  },
+  {
+    "id": "b-68dda4a2bbd6de52-1",
+    "role": "reference",
+    "zh": "41 TakaharaT, MinamotoT, YamanakaH, DoiH, KawabataZ (2012) Estimation of Fish Biomass Using Environmental DNA. PloS ONE 7 ((4)) e35868.2256341110.1371/journal.pone.0035868PMC3338542\n"
+  },
+  {
+    "id": "b-6b308c68d3ddf2d1-1",
+    "role": "reference",
+    "zh": "42ICES (2010) International Council for the Exploration of the Sea: Manual for the International Bottom Trawl Surveys, Revision VIII. Copenhagen, Denmark, 73pp.\n"
+  },
+  {
+    "id": "b-fed13a28ea3364e4-1",
+    "role": "reference",
+    "zh": "43ICES (2011) International Council for the Exploration of the Sea: Manual for the Baltic International Trawl Surveys. Copenhagen, Denmark, 73pp.\n"
+  },
+  {
+    "id": "b-de4fb582fc75b47f-1",
+    "role": "reference",
+    "zh": "44 WardR, HannerR, HebertP (2009) The campaign to DNA barcode all fishes, FISH-BOL. Journal of Fish Biology 74: 329–356.2073556410.1111/j.1095-8649.2008.02080.x\n"
+  },
+  {
+    "id": "b-16d8b3532ad8bed3-1",
+    "role": "reference",
+    "zh": "45 BeckerS, HannerR, SteinkeD (2011) Five years of FISH-BOL: brief status report. Mitochondrial DNA 22, S1: 3–9.10.3109/19401736.2010.53552821271850\n"
+  },
+  {
+    "id": "b-e6ba933f224dfea9-1",
+    "role": "reference",
+    "zh": "46 DejeanT, ValentiniA, DuparcA, Pellier-CuitSp, PompanonFo, et al (2011) Persistence of Environmental DNA in Freshwater Ecosystems. PloS ONE 6 ((8)) e23398.2185809910.1371/journal.pone.0023398PMC3152572\n"
+  },
+  {
+    "id": "b-99e3beaa50452f24-1",
+    "role": "reference",
+    "zh": "47 Dell'AnnoA, CorinaldesiC (2004) Degradation and turnover of extracellular DNA in marine sediments: ecological and methodological considerations. Applied and Environmental Microbiology 70: 4384–4386.1524032510.1128/AEM.70.7.4384-4386.2004PMC444808\n"
+  },
+  {
+    "id": "b-dfe0cb403e189178-1",
+    "role": "reference",
+    "zh": "48 BeareD, BurnsF, JonesE, PeachK, PortillaE, et al (2004) An increase in the abundance of anchovies and sardines in the north-western North Sea since 1995. Global Change Biology 10: 1209–1213.\n"
+  },
+  {
+    "id": "b-d068bf6c399a8664-1",
+    "role": "reference",
+    "zh": "49 AltschulSF, GishW, MillerW, MyersEW, LipmanDJ (1990) Basic local alignment search tool. Journal of Molecular Biology 215: 403–410.223171210.1016/S0022-2836(05)80360-2\n"
+  },
+  {
+    "id": "b-42f3c6833361cd81-1",
+    "role": "reference",
+    "zh": "50 HusonDH, MitraS, RuscheweyhHJ, WeberN, SchusterSC (2011) Integrative analysis of environmental sequences using MEGAN4. Genome Research 21: 1552–1560.2169018610.1101/gr.120618.111PMC3166839\n"
+  },
+  {
+    "id": "b-0cc5464ee0c13a56-1",
+    "role": "reference",
+    "zh": "51 SchnellIB, ThomsenPF, WilkinsonN, RasmussenM, JensenLRD, et al (2012) Screening mammal biodiversity using DNA from leeches. Current Biology 22: R262–R263.2253762510.1016/j.cub.2012.02.058\n"
+  },
+  {
+    "id": "b-c10dcc1a1f787110-1",
+    "role": "metadata",
+    "zh": "This study was funded as basic research by the Danish National Research Foundation and the Aage V. Jensen Charity Foundation. The funders had no role in study design, data collection and analysis, decision to publish, or preparation of the manuscript.\n"
+  }
+]

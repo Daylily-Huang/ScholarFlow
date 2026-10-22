@@ -1,0 +1,175 @@
+[
+  {
+    "doi": "10.1111/j.1365-294X.2012.05542.x",
+    "verification": {
+      "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI%3A10.1111%2Fj.1365-294X.2012.05542.x&format=json",
+      "result": [
+        {
+          "id": "22486819",
+          "source": "MED",
+          "pmid": "22486819",
+          "doi": "10.1111/j.1365-294x.2012.05542.x",
+          "title": "Environmental DNA.",
+          "authorString": "Taberlet P, Coissac E, Hajibabaei M, Rieseberg LH.",
+          "journalTitle": "Mol Ecol",
+          "issue": "8",
+          "journalVolume": "21",
+          "pubYear": "2012",
+          "journalIssn": "0962-1083; 1365-294x; ",
+          "pageInfo": "1789-1793",
+          "pubType": "introductory journal article; editorial",
+          "isOpenAccess": "N",
+          "inEPMC": "N",
+          "inPMC": "N",
+          "citedByCount": 566,
+          "hasReferences": "Y",
+          "hasTextMinedTerms": "N",
+          "hasDbCrossReferences": "N",
+          "hasPDF": "N",
+          "hasBook": "N",
+          "hasSuppl": "N",
+          "hasLabsLinks": "N",
+          "hasTMAccessionNumbers": "N",
+          "firstPublicationDate": "2012-04-01",
+          "firstIndexDate": "2012-04-11"
+        }
+      ]
+    },
+    "scope": "正式元数据与本文引用语境核对；未声称逐篇全文精读",
+    "original_reference": "2. Taberlet P, Coissac E, Hajibabaei M, Rieseberg LH (2012) Environmental DNA. Mol Ecol 21: 1789–1793.\n"
+  },
+  {
+    "doi": "10.1111/j.1365-294X.2011.05418.x",
+    "verification": {
+      "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI%3A10.1111%2Fj.1365-294X.2011.05418.x&format=json",
+      "result": [
+        {
+          "id": "22151771",
+          "source": "MED",
+          "pmid": "22151771",
+          "doi": "10.1111/j.1365-294x.2011.05418.x",
+          "title": "Monitoring endangered freshwater biodiversity using environmental DNA.",
+          "authorString": "Thomsen PF, Kielgast J, Iversen LL, Wiuf C, Rasmussen M, Gilbert MT, Orlando L, Willerslev E.",
+          "journalTitle": "Mol Ecol",
+          "issue": "11",
+          "journalVolume": "21",
+          "pubYear": "2012",
+          "journalIssn": "0962-1083; 1365-294x; ",
+          "pageInfo": "2565-2573",
+          "pubType": "research support, non-u.s. gov't; journal article",
+          "isOpenAccess": "N",
+          "inEPMC": "N",
+          "inPMC": "N",
+          "citedByCount": 467,
+          "hasReferences": "Y",
+          "hasTextMinedTerms": "Y",
+          "hasDbCrossReferences": "Y",
+          "dbCrossReferenceList": {
+            "dbName": [
+              "EMBL"
+            ]
+          },
+          "hasPDF": "N",
+          "hasBook": "N",
+          "hasSuppl": "N",
+          "hasLabsLinks": "Y",
+          "hasTMAccessionNumbers": "N",
+          "firstPublicationDate": "2011-12-13",
+          "firstIndexDate": "2011-12-15"
+        }
+      ]
+    },
+    "scope": "正式元数据与本文引用语境核对；未声称逐篇全文精读",
+    "original_reference": "8. Thomsen PF, Kielgast J, Iversen LL, Wiuf C, Rasmussen M, et al. (2012) Monitoring endangered freshwater biodiversity using environmental DNA. Mol Ecol 21: 2565–2573.\n"
+  },
+  {
+    "doi": "10.1371/journal.pone.0022746",
+    "verification": {
+      "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI%3A10.1371%2Fjournal.pone.0022746&format=json",
+      "result": [
+        {
+          "id": "21818382",
+          "source": "MED",
+          "pmid": "21818382",
+          "pmcid": "PMC3144250",
+          "fullTextIdList": {
+            "fullTextId": [
+              "PMC3144250"
+            ]
+          },
+          "doi": "10.1371/journal.pone.0022746",
+          "title": "Molecular detection of vertebrates in stream water: a demonstration using Rocky Mountain tailed frogs and Idaho giant salamanders.",
+          "authorString": "Goldberg CS, Pilliod DS, Arkle RS, Waits LP.",
+          "journalTitle": "PLoS One",
+          "issue": "7",
+          "journalVolume": "6",
+          "pubYear": "2011",
+          "journalIssn": "1932-6203",
+          "pageInfo": "e22746",
+          "pubType": "research support, non-u.s. gov't; research-article; journal article",
+          "isOpenAccess": "Y",
+          "inEPMC": "Y",
+          "inPMC": "Y",
+          "citedByCount": 214,
+          "hasReferences": "Y",
+          "hasTextMinedTerms": "Y",
+          "hasDbCrossReferences": "N",
+          "hasPDF": "Y",
+          "hasBook": "N",
+          "hasSuppl": "Y",
+          "hasLabsLinks": "Y",
+          "hasTMAccessionNumbers": "N",
+          "firstPublicationDate": "2011-07-26",
+          "firstIndexDate": "2011-08-06"
+        }
+      ]
+    },
+    "scope": "正式元数据与本文引用语境核对；未声称逐篇全文精读",
+    "original_reference": "7. Goldberg CS, Pilliod DS, Arkle RS, Waits LP (2011) Molecular detection of vertebrates in stream water: A demonstration using Rocky Mountain tailed frogs and Idaho giant salamanders. PLOS ONE 6: e22746.\n"
+  },
+  {
+    "doi": "10.1371/journal.pone.0035868",
+    "verification": {
+      "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI%3A10.1371%2Fjournal.pone.0035868&format=json",
+      "result": [
+        {
+          "id": "22563411",
+          "source": "MED",
+          "pmid": "22563411",
+          "pmcid": "PMC3338542",
+          "fullTextIdList": {
+            "fullTextId": [
+              "PMC3338542"
+            ]
+          },
+          "doi": "10.1371/journal.pone.0035868",
+          "title": "Estimation of fish biomass using environmental DNA.",
+          "authorString": "Takahara T, Minamoto T, Yamanaka H, Doi H, Kawabata Z.",
+          "journalTitle": "PLoS One",
+          "issue": "4",
+          "journalVolume": "7",
+          "pubYear": "2012",
+          "journalIssn": "1932-6203",
+          "pageInfo": "e35868",
+          "pubType": "research support, non-u.s. gov't; research-article; journal article",
+          "isOpenAccess": "Y",
+          "inEPMC": "Y",
+          "inPMC": "Y",
+          "citedByCount": 338,
+          "hasReferences": "Y",
+          "hasTextMinedTerms": "Y",
+          "hasDbCrossReferences": "N",
+          "hasPDF": "Y",
+          "hasBook": "N",
+          "hasSuppl": "Y",
+          "hasLabsLinks": "Y",
+          "hasTMAccessionNumbers": "N",
+          "firstPublicationDate": "2012-04-26",
+          "firstIndexDate": "2012-05-08"
+        }
+      ]
+    },
+    "scope": "正式元数据与本文引用语境核对；未声称逐篇全文精读",
+    "original_reference": "19. Takahara T, Minamoto T, Yamanaka H, Doi H, Kawabata Z (2012) Estimation of fish biomass using environmental DNA. PLOS ONE 7: e35868.\n"
+  }
+]

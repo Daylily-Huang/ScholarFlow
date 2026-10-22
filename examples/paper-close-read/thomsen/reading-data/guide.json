@@ -1,0 +1,307 @@
+{
+  "scope": "覆盖正式主文、原图表及书目；外部补充文件仅保留目录。XML规范转录与出版PDF均保留，页码核对状态逐块记录。",
+  "reading_profile": {
+    "article_type": "empirical",
+    "reader": "初学环境DNA的研究者",
+    "purpose": "理解问题、实验设计与证据如何连接"
+  },
+  "story": {
+    "overview": {
+      "title": "半升海水，能不能代替抓鱼来列鱼名册？",
+      "lead": "能读出多种鱼的遗传痕迹。这篇先用海水eDNA列出鱼种，再与现场调查比较，并测信号多久会降到检测线以下。",
+      "format": "research-map",
+      "research_map": [
+        {
+          "step": "background",
+          "text": "海洋鱼类需要持续监测，但拖网、鱼笼和潜水各有选择性，还受海底地形及物种辨认能力限制；抓到或看见的名单容易漏种。",
+          "refs": [
+            "b-234fd2edad58d6f2-1"
+          ]
+        },
+        {
+          "step": "gap",
+          "text": "前人已能从淡水检出大型动物的环境DNA。海水更大、更流动，遗传痕迹会被稀释、搬运，能否从小水样读出鱼类多样性当时还缺验证。",
+          "refs": [
+            "b-1dbcd53c75654eb5-1",
+            "b-9c48f928ff0bf969-1"
+          ]
+        },
+        {
+          "step": "question",
+          "text": "不抓鱼，只取海水，能找出哪些鱼？名单和常规调查相比如何？若DNA会随海流漂走，检出的信号又能在水中保留多久？",
+          "refs": [
+            "b-5b36f0d3fe6632ae-1",
+            "b-8f74cd72cf964cb0-1"
+          ]
+        },
+        {
+          "step": "method",
+          "text": "在丹麦海峡3个位置沿线取混合水样，每份取半升过滤、扩增、测序并对照参考库；与9种常规方法比较。另将50升海水置15°C水箱，反复定量两种鱼的DNA。",
+          "refs": [
+            "b-3b156f27d140bb7d-1",
+            "b-655e5945de268feb-1",
+            "b-8d1e650ab00aa9c3-1"
+          ]
+        },
+        {
+          "step": "findings",
+          "text": "共检出15种鱼；常规方法中最佳的夜间浮潜平均14.7种，但两者统计口径不同。水箱模型估计两种鱼的DNA约0.9及6.7天后低于约25分子/400毫升的检测线。",
+          "refs": [
+            "b-7b2b8c1192044484-1",
+            "b-053fd4ab3d508a7f-1"
+          ]
+        },
+        {
+          "step": "conclusion",
+          "text": "小体积海水检测海鱼具有可行性，值得发展为监测工具。作者结合降解、稀释与分布记录倾向于当地来源；准确空间范围、跨环境稳定性及鱼数量估计仍须继续验证。",
+          "refs": [
+            "b-c7879ea7059fdcff-1",
+            "b-cd9cf88657e51512-1"
+          ]
+        }
+      ],
+      "takeaway": "抓住两条线：水样怎样变成鱼名册；DNA怎样随时间与水流改变。它们分别支撑“检出什么”和“检出意味着什么”。",
+      "refs": [
+        "b-234fd2edad58d6f2-1",
+        "b-7b2b8c1192044484-1",
+        "b-053fd4ab3d508a7f-1"
+      ]
+    },
+    "walkthrough": [
+      {
+        "title": "为什么改从水里找鱼？",
+        "bridge": "要保护海鱼，先得知道调查名单漏掉了什么。",
+        "paragraphs": [
+          "不同捕具偏爱不同大小、活动方式和地形中的鱼；形态相似的物种还可能被认混。这里不是想给某一种网换更细网眼，而是换取证对象：鱼会把细胞、黏液等带DNA物质留在水里。",
+          "淡水已证明这种思路可行，海水却有更强的稀释与搬运。于是论文需要先跨过最基本的一关：半升海水中，到底有没有足够信息叫出鱼名？"
+        ],
+        "connection": "下一步沿着一份真实水样走进实验室。",
+        "refs": [
+          "b-234fd2edad58d6f2-1",
+          "b-1dbcd53c75654eb5-1"
+        ],
+        "motions": [],
+        "concepts": []
+      },
+      {
+        "title": "一瓶水怎样变成一张名单？",
+        "bridge": "取到了水，鱼名还藏在不同物种混杂的碎片里。",
+        "paragraphs": [
+          "每个位置沿145米样线取30小份水，合成1.5升，再用其中半升过滤。滤膜把含DNA的颗粒和细胞残片集中起来，提取后扩增短cytb片段。通用引物尽量覆盖多种鱼，预试验中扩增较弱的物种另用特异引物补查。",
+          "测序把片段变成碱基串，再查GenBank这本参考字典。作者只把全长完全匹配且唯一对应某种鱼的序列记到物种名单里；如果字典缺页，或者两种鱼在该短片段上相同，就不能同样稳当地叫出名字。"
+        ],
+        "connection": "有了名单，还要找参照判断它覆盖得怎样。",
+        "refs": [
+          "b-3b156f27d140bb7d-1",
+          "b-52577fa5232ef3d7-1",
+          "b-6fae2e7925fbebf6-1"
+        ],
+        "motions": [
+          {
+            "id": "motion-capture"
+          }
+        ],
+        "concepts": [
+          "concept-metabarcoding"
+        ]
+      },
+      {
+        "title": "15种鱼，表现究竟怎样？",
+        "bridge": "检出数本身还不能说明方法值得替代或补充什么。",
+        "paragraphs": [
+          "3份水合起来检出15种鱼，既有商业鱼也有非商业鱼。9种常规方法里，鱼笼每次平均4.3种，夜间浮潜14.7种，底拖网13.3种，说明小水样确实能覆盖相当多物种。",
+          "但这张图的eDNA柱是2011年总检出，传统柱是2009–2011年每次调查的均值；采样月份也不同。因此应把它读作很有希望的现场可行性比较，再考虑用等季节、等工作量设计验证普遍效率。"
+        ],
+        "connection": "名单够丰富之后，另一个问题浮出来：这些DNA真来自附近的鱼吗？",
+        "refs": [
+          "b-e3dceb1b4e8a735b-1",
+          "b-7b2b8c1192044484-1",
+          "b-998d0d6448f6cc9a-1"
+        ],
+        "motions": [],
+        "concepts": []
+      },
+      {
+        "title": "DNA多久会淡到读不出？",
+        "bridge": "海流会搬运DNA，先得知道信号能存续多久。",
+        "paragraphs": [
+          "50升海水进水箱后，没有活鱼继续补充目标DNA。作者在15°C、固定灯照和混水条件下，15天反复取400毫升，追踪川鲽与三刺鱼的短片段。",
+          "把浓度下降拟合成N(t)=N₀exp(−βt)，再看何时穿过约25分子/400毫升的检测线。川鲽起点214、下降较慢，约6.7天过线；三刺鱼起点48、下降较快，约0.9天过线。过线以后是本方法读不出，不是世界上再无该DNA。"
+        ],
+        "connection": "存续时间给了一个约束，但要换成空间范围，还少水流与稀释。",
+        "refs": [
+          "b-8d1e650ab00aa9c3-1",
+          "b-8f74cd72cf964cb0-1",
+          "b-053fd4ab3d508a7f-1"
+        ],
+        "motions": [
+          {
+            "id": "motion-decay"
+          }
+        ],
+        "concepts": [
+          "concept-threshold"
+        ]
+      },
+      {
+        "title": "“很快降解”为何仍不能直接圈出本地？",
+        "bridge": "几天听起来短，海流在这期间却能搬很远。",
+        "paragraphs": [
+          "按作者粗设的每秒1米，12小时约43公里，一周约605公里。因此只知道降解，仍不能把一次检出锁定为码头边的一小块水域。",
+          "作者再加上持续稀释：离源越远，浓度越可能低于检测线；并对照本地物种记录与同期观鸟资料。多种线索使他们倾向于当地来源，但本研究没有直接测出一条普遍的来源半径。"
+        ],
+        "connection": "把分子过程与现场记录接好，才能解释检测名单。",
+        "refs": [
+          "b-f2692f9e5ab050cc-1",
+          "b-c7879ea7059fdcff-1"
+        ],
+        "motions": [],
+        "concepts": []
+      },
+      {
+        "title": "读完以后，哪些事情已经解决？",
+        "bridge": "一张可用名单与一套成熟监测系统之间，还隔着几步。",
+        "paragraphs": [
+          "这篇完成了海水大型动物eDNA的概念验证：小水样能读出鱼种，结果有传统调查与分布记录参照，也有降解实验帮助理解来源。",
+          "要知道“有多少鱼”，还要建立DNA量与生物量的关系；要知道“具体在哪里”，还要研究水流、稀释和季节。引物偏好及参考库覆盖同样会影响漏掉谁。"
+        ],
+        "connection": "整条主线因此是：从水中取痕迹→形成物种名单→检查覆盖→研究信号存续和来源→确定下一步监测验证。",
+        "refs": [
+          "b-32b4260d2c9e3d23-1",
+          "b-fd8f9e7141eb4700-1",
+          "b-cd9cf88657e51512-1"
+        ],
+        "motions": [],
+        "concepts": []
+      }
+    ]
+  },
+  "mechanisms": [
+    {
+      "id": "motion-capture",
+      "scene": "edna_capture",
+      "title": "从水里的碎片到鱼名册",
+      "question": "没有把鱼抓上来，怎么知道水里有哪些鱼？",
+      "anchor": "b-655e5945de268feb-1",
+      "refs": [
+        "b-655e5945de268feb-1",
+        "b-6fae2e7925fbebf6-1"
+      ],
+      "stages": [
+        "水里混有细胞残片和带DNA颗粒；不同颜色只区分示意来源。",
+        "过滤把含DNA物质集中到膜上，随后提取和扩增短片段。",
+        "序列须与参考库唯一匹配才能报告物种；示意粒子数不是鱼的数量。"
+      ],
+      "note": "原理示意；颜色、颗粒数与物种标签不代表实测丰度。"
+    },
+    {
+      "id": "motion-decay",
+      "scene": "edna_decay",
+      "title": "两条衰减曲线，为什么过线时间不同？",
+      "question": "起始浓度和下降速率怎样共同决定检出时间？",
+      "anchor": "b-053fd4ab3d508a7f-1",
+      "refs": [
+        "b-053fd4ab3d508a7f-1"
+      ],
+      "visual": {
+        "maximum": 250,
+        "days": 8,
+        "threshold": 25,
+        "curves": [
+          {
+            "label": "川鲽",
+            "initial": 214,
+            "rate": 0.322
+          },
+          {
+            "label": "三刺鱼",
+            "initial": 48,
+            "rate": 0.701
+          }
+        ]
+      },
+      "stages": [
+        "先看起点：川鲽214、三刺鱼48分子/400毫升；虚线为约25的经验阈值。",
+        "时间向右推进，按本文模型下降；三刺鱼约0.9天先降到阈值以下。",
+        "川鲽约6.7天过线；这里的检测时间取决于起点、速率及15°C水箱条件。"
+      ],
+      "note": "使用本文N₀和β重画模型；时间单位天，浓度单位分子/400毫升，不是新增观测数据。"
+    }
+  ],
+  "concepts": [
+    {
+      "id": "concept-metabarcoding",
+      "term": "环境DNA宏条形码",
+      "meaning": "从环境混合DNA中扩增、测序共有的短标记，再对照参考库辨认多种生物。",
+      "distinction": "在这里是多物种名单的读取，不等同于对某一种鱼直接计数。",
+      "example": "本文先用两套通用引物广泛读取，再以特异引物补查较难扩增的种。",
+      "refs": [
+        "b-52577fa5232ef3d7-1"
+      ],
+      "anchor": "b-52577fa5232ef3d7-1"
+    },
+    {
+      "id": "concept-threshold",
+      "term": "降至检出线以下",
+      "meaning": "分子仍可能存在，但在指定样本量与检测流程下已难获得可用阳性。",
+      "distinction": "检出时限不是DNA全部分解完的时刻。",
+      "example": "本文用约25分子/400毫升作为经验线，由起点和衰减速率推算过线时间。",
+      "refs": [
+        "b-8f74cd72cf964cb0-1"
+      ],
+      "anchor": "b-8f74cd72cf964cb0-1"
+    }
+  ],
+  "further_reading": [
+    {
+      "citation": "Taberlet P, Coissac E, Hajibabaei M, Rieseberg LH. (2012). Environmental DNA. Mol Ecol. DOI 10.1111/j.1365-294X.2012.05542.x",
+      "role": "概念入口",
+      "priority": "先读",
+      "reason": "先弄清环境样本中拿到的DNA是什么，才能理解为什么没有鱼本体仍可辨认种类。",
+      "focus": "对照本文采水流程，读环境DNA的来源与分析对象。",
+      "url": "https://doi.org/10.1111/j.1365-294X.2012.05542.x",
+      "refs": [
+        "b-393572de457a9bb1-1"
+      ]
+    },
+    {
+      "citation": "Ficetola GF, Miaud C, Pompanon F, Taberlet P. (2008). Species detection using environmental DNA from water samples. Biol Lett. DOI 10.1098/rsbl.2008.0118",
+      "role": "淡水前身",
+      "priority": "接着读",
+      "reason": "本文把淡水已有的思路搬到海洋，先看池塘检测怎样做，才能指出海水额外多了哪些问题。",
+      "focus": "比较环境取样、物种检测与验证的路径。",
+      "url": "https://doi.org/10.1098/rsbl.2008.0118",
+      "refs": [
+        "b-ad5fd0f0894f7526-1"
+      ]
+    },
+    {
+      "citation": "Dejean T, Valentini A, Duparc A, Pellier-Cuit S, Pompanon F, Taberlet P, Miaud C. (2011). Persistence of environmental DNA in freshwater ecosystems. PLoS One. DOI 10.1371/journal.pone.0023398",
+      "role": "信号持续时间",
+      "priority": "想懂降解时读",
+      "reason": "鱼离开以后信号会不会还在？这篇帮助把DNA存在、检出阈值和真实动物存在分开。",
+      "focus": "比较淡水信号持续与本文海水水箱的条件。",
+      "url": "https://doi.org/10.1371/journal.pone.0023398",
+      "refs": [
+        "b-e6ba933f224dfea9-1"
+      ]
+    },
+    {
+      "citation": "Takahara T, Minamoto T, Yamanaka H, Doi H, Kawabata Z. (2012). Estimation of fish biomass using environmental DNA. PLoS One. DOI 10.1371/journal.pone.0035868",
+      "role": "从名单到数量",
+      "priority": "想继续估量时读",
+      "reason": "本文只建立海鱼名录，尚未验证海水DNA量与鱼量的对应。这篇提供淡水生物量问题的比较起点。",
+      "focus": "关注DNA量与鱼生物量的关系怎样被研究，不直接搬用到海水。",
+      "url": "https://doi.org/10.1371/journal.pone.0035868",
+      "refs": [
+        "b-68dda4a2bbd6de52-1"
+      ]
+    }
+  ],
+  "attribution": {
+    "citation": "Philip Francis Thomsen; Jos Kielgast; Lars Lønsmann Iversen; Peter Rask Møller; Morten Rasmussen; Eske Willerslev · 10.1371/journal.pone.0041732",
+    "url": "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0041732",
+    "license": "原文按出版商CC BY声明开放；图1保留Susanne Weitemeyer鱼类绘图署名。",
+    "changes": "中文翻译、白话、导读与机制图为ScholarFlow的AI辅助教学改写，新增教学内容CC BY 4.0，代码MIT。原文与原图保留原有归属及许可；示意不是新增实验数据。"
+  }
+}

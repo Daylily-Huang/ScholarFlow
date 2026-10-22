@@ -1,0 +1,294 @@
+{
+  "scope": "覆盖正式主文、原图表及书目；外部补充文件仅保留目录。XML规范转录与出版PDF均保留，页码核对状态逐块记录。",
+  "reading_profile": {
+    "article_type": "empirical",
+    "reader": "初学环境DNA的研究者",
+    "purpose": "理解问题、实验设计与证据如何连接"
+  },
+  "story": {
+    "overview": {
+      "title": "极少量目标DNA混在近亲里，还能被认准吗？",
+      "lead": "本文把“找得到”与“认得准”拆开测试：BRK2能读出很少的目标DNA，但近缘种干扰取决于引物和探针如何设计。",
+      "format": "research-map",
+      "research_map": [
+        {
+          "step": "background",
+          "text": "溪流里，稀少入侵鱼需要及早清除，稀少本地鱼需要保护；常规捕捞难发现少数个体，研究者开始从水里收集遗传痕迹。",
+          "refs": [
+            "b-d8864ba0bdf2a745-1",
+            "b-1435f0b0a2887b7b-1"
+          ]
+        },
+        {
+          "step": "gap",
+          "text": "水样把很多物种的DNA混在一起。过滤能浓集总量，却未必提高目标比例；高灵敏qPCR在大量近缘DNA存在时，是否仍可靠当时少有测试。",
+          "refs": [
+            "b-206ddc39404ee527-1",
+            "b-1cd41ab4916b20f4-1"
+          ]
+        },
+        {
+          "step": "question",
+          "text": "目标稀到多少还能被检出？若旁边有大量近亲，检测会误亮、漏掉目标或估错数量吗？引物和探针的错配应放在哪里？",
+          "refs": [
+            "b-780b74853f49c9e8-1",
+            "b-6f65147314490a60-1"
+          ]
+        },
+        {
+          "step": "method",
+          "text": "以美洲与牛红点鲑为例设计3套体系：一套突出探针区别，两套突出引物区别。用组织DNA、两条溪的水样做稀释检出测试，再用纯样及1:10、1:100近缘混样比较。",
+          "refs": [
+            "b-6f65147314490a60-1",
+            "b-ae82a43e7bdce53e-1",
+            "b-c3677ad6580a5314-1"
+          ]
+        },
+        {
+          "step": "findings",
+          "text": "BRK2在平均2拷贝/反应时，四类来源单管成功率仍超过70%。混样中，只突出探针差异的BRK1更受干扰；引物错配数和位置尤其3′端附近差异会影响表现。",
+          "refs": [
+            "b-34edb841ba0aeee1-1",
+            "b-a04f5af8edc6caca-1",
+            "b-ebe28d76110ee286-1"
+          ]
+        },
+        {
+          "step": "conclusion",
+          "text": "灵敏与特异需要一起验证。作者建议先减少非目标在引物端的扩增机会，并用本地物种的纯样、混样实测；认准DNA之后，还要结合杂交、搬运等来源解释物种是否现场存在。",
+          "refs": [
+            "b-c0d18d2c6541427c-1",
+            "b-8db09dba251a33a7-1"
+          ]
+        }
+      ],
+      "takeaway": "把三层判断分开：模板是否进管并检出、分子是不是目标序列、这些DNA能否代表现场有目标鱼。本文重点解决中间一层的设计与验证。",
+      "refs": [
+        "b-d8864ba0bdf2a745-1",
+        "b-1435f0b0a2887b7b-1",
+        "b-34edb841ba0aeee1-1",
+        "b-a04f5af8edc6caca-1",
+        "b-ebe28d76110ee286-1"
+      ]
+    },
+    "walkthrough": [
+      {
+        "title": "同一份水里，为什么会有两种难题？",
+        "bridge": "稀有物种难抓，取水提供了另一条取证路线。",
+        "paragraphs": [
+          "目标鱼留下的DNA少，近缘鱼留下的却可能很多。浓集一份水会同时收进两者，不能只靠加大水量提高目标所占比例。",
+          "所以先区分两个问题：灵敏度问目标很少时能否检出，特异性问信号是不是来自想找的物种。只测纯目标最低浓度，回答不了混合背景下能否认准。"
+        ],
+        "connection": "接着看qPCR怎样产生信号，才能理解干扰可以发生在哪里。",
+        "refs": [
+          "b-206ddc39404ee527-1",
+          "b-34aae0add67b482d-1"
+        ],
+        "motions": [],
+        "concepts": [
+          "concept-specificity"
+        ]
+      },
+      {
+        "title": "一个荧光信号要经过哪两道环节？",
+        "bridge": "“有曲线”背后，既有DNA复制，也有荧光报告。",
+        "paragraphs": [
+          "两条引物启动小片段复制，内部探针带报告基团和淬灭基团。完整时信号受压，聚合酶延伸切开探针后，报告基团与淬灭基团分离，荧光增加。",
+          "起始目标多时较早越过阈值，Ct较小，再和已知标准比较估算初始量。如果近亲也参与扩增或贡献微弱荧光，这条换算关系就可能被扰乱。"
+        ],
+        "connection": "作者据此把物种区别放到不同环节，比较哪种设计更可靠。",
+        "refs": [
+          "b-85bf88a3dd1cf6d8-1",
+          "b-1cd41ab4916b20f4-1"
+        ],
+        "motions": [
+          {
+            "id": "motion-qpcr"
+          }
+        ],
+        "concepts": []
+      },
+      {
+        "title": "区别放在探针端，还是引物端？",
+        "bridge": "多一道探针并不会自动消除近亲DNA的影响。",
+        "paragraphs": [
+          "BRK1优先扩大探针区的种间差异：近亲可能被引物复制，但希望探针不报告它。BRK2和BUT1则优先扩大引物区差异，尽量从复制开头就减弱近亲进入扩增。",
+          "这就产生一个可检验的预期：当近亲很多时，前一种策略可能让近亲争用引物，而后一种策略更可能保住目标信号。原文没有把错配数当万能开关，后面还检查错在什么位置。"
+        ],
+        "connection": "先把设计放下，分别来看低模板测试与混样测试给了什么答案。",
+        "refs": [
+          "b-6f65147314490a60-1",
+          "b-49e75bf1066c4dab-1"
+        ],
+        "motions": [
+          {
+            "id": "motion-specificity"
+          }
+        ],
+        "concepts": [
+          "concept-primer"
+        ]
+      },
+      {
+        "title": "低到每管两份，能找到多少次？",
+        "bridge": "少模板时，同一浓度不同反应也可能有成有败。",
+        "paragraphs": [
+          "灵敏度实验只用BRK2，测试纯组织、近缘混样和两条真实溪流水样。作者先用合成标准估浓度，再做多管重复，以45轮内越线的反应比例估计成功率。",
+          "0.5拷贝/微升每次加4微升，平均就是2拷贝/反应；四来源单管成功率约71.9%–86.2%。三重复提高至少一次检出的机会，但并没有测出“只取一次水就能找到溪流所有稀鱼”的概率。"
+        ],
+        "connection": "低浓度能检出之后，还须确认大量近亲不会把这份本领破坏。",
+        "refs": [
+          "b-9d5859afb2b947cb-1",
+          "b-a628f765d9c1134d-1",
+          "b-34edb841ba0aeee1-1"
+        ],
+        "motions": [],
+        "concepts": []
+      },
+      {
+        "title": "为什么纯样好好的，混起来却变了？",
+        "bridge": "单独不明显发光的近亲，仍可能在同管争用扩增资源。",
+        "paragraphs": [
+          "把目标按1:10和1:100放进近亲DNA后，BRK1在牛红点鲑背景下曲线变弱、Ct还可能提前，从而既影响有无判读，也可能高估目标量。BRK2在相应背景表现更稳。",
+          "但BUT1遇湖红点鲑仍受干扰，说明不能只数错配总数。引物从3′端延伸，末端附近错配往往更有影响；因此湖红点鲑背景中的5处差异也未必胜过另一体系位置更有效的3处差异。"
+        ],
+        "connection": "设计必须回到具体物种与反应里测试，而不是选一个“错配最多”的数字就结束。",
+        "refs": [
+          "b-c3677ad6580a5314-1",
+          "b-a04f5af8edc6caca-1",
+          "b-ebe28d76110ee286-1"
+        ],
+        "motions": [],
+        "concepts": []
+      },
+      {
+        "title": "最后怎样把检测结果用于监测？",
+        "bridge": "实验室认出DNA之后，还剩生态来源这一层。",
+        "paragraphs": [
+          "作者的实际建议是：比较本地目标与非目标序列，重视引物错配位置，再用纯样及不同背景比例的混样实测。现场取样量和技术重复仍重要，它们解决收集不足与随机漏检，而特异设计解决另一类干扰。",
+          "杂交后代也可能携带目标线粒体标记，捕食者还可能搬运猎物DNA。因此“体系认准了分子”与“现场有活的目标种”要由不同证据支撑。"
+        ],
+        "connection": "整篇围绕一个朴素问题收束：既把稀少目标找出来，也查清信号是谁、从哪里来。",
+        "refs": [
+          "b-c0d18d2c6541427c-1",
+          "b-8db09dba251a33a7-1",
+          "b-edf7a28ba90afbb9-1"
+        ],
+        "motions": [],
+        "concepts": []
+      }
+    ]
+  },
+  "mechanisms": [
+    {
+      "id": "motion-qpcr",
+      "scene": "qpcr_probe",
+      "title": "复制与荧光报告，分开来看",
+      "question": "引物、探针和Ct怎样连成一个读数？",
+      "anchor": "b-85bf88a3dd1cf6d8-1",
+      "refs": [
+        "b-85bf88a3dd1cf6d8-1"
+      ],
+      "stages": [
+        "引物在目标模板上提供延伸起点，探针位于待扩增片段内部。",
+        "聚合酶延伸经过探针并切开它，报告基团与淬灭基团分离。",
+        "荧光随扩增积累，较早越线通常对应较多起始模板，再由标准曲线换算。"
+      ],
+      "note": "位置、颜色与时间为原理示意，不是实测扩增曲线。"
+    },
+    {
+      "id": "motion-specificity",
+      "scene": "primer_specificity",
+      "title": "近亲为什么可能抢先进入扩增？",
+      "question": "只让探针区别，与先在引物端区别，有何不同？",
+      "anchor": "b-6f65147314490a60-1",
+      "refs": [
+        "b-6f65147314490a60-1",
+        "b-49e75bf1066c4dab-1",
+        "b-ebe28d76110ee286-1"
+      ],
+      "stages": [
+        "先看近缘非目标模板：上排主要在探针区区别，下排在引物3′附近标出示意错配。",
+        "上排引物仍可延伸，近亲可能被复制并争用引物；下排用较少产物表示扩增受到抑制。",
+        "错配位置和反应条件共同影响程度；必须用本文的纯样、混样结果检验，而不是认定一处错配必然阻断。"
+      ],
+      "note": "两排是机制对照，不是一比一绘制BRK1/BRK2序列；产物数和位置为教学设定。"
+    }
+  ],
+  "concepts": [
+    {
+      "id": "concept-specificity",
+      "term": "灵敏度与特异性",
+      "meaning": "本文前者看低目标浓度下的检出成功率，后者看非目标信号及混合背景中的辨认表现。",
+      "distinction": "找得到少量DNA与分得清它属于谁，是两项性能。",
+      "example": "本文0.5拷贝/微升的多管稀释实验测BRK2灵敏度，近亲纯样和混样用于查干扰。",
+      "refs": [
+        "b-34aae0add67b482d-1"
+      ],
+      "anchor": "b-34aae0add67b482d-1"
+    },
+    {
+      "id": "concept-primer",
+      "term": "引物3′端错配",
+      "meaning": "聚合酶从引物3′端继续延伸，因此末端附近的配对状态会影响扩增启动。",
+      "distinction": "错配总数与位置都重要，不能只按数量排名特异性。",
+      "example": "本文BUT1对湖红点鲑的5处错配仍有干扰，而BRK1的3处包含更靠3′端的位置。",
+      "refs": [
+        "b-ebe28d76110ee286-1"
+      ],
+      "anchor": "b-ebe28d76110ee286-1"
+    }
+  ],
+  "further_reading": [
+    {
+      "citation": "Taberlet P, Coissac E, Hajibabaei M, Rieseberg LH. (2012). Environmental DNA. Mol Ecol. DOI 10.1111/j.1365-294X.2012.05542.x",
+      "role": "先理解样本",
+      "priority": "先读",
+      "reason": "水样为何比单条鱼的组织更容易带入复杂背景？先读环境DNA概念，再回看本文的相对比例难题。",
+      "focus": "区分目标个体材料与环境混合模板。",
+      "url": "https://doi.org/10.1111/j.1365-294X.2012.05542.x",
+      "refs": [
+        "b-10d275f47d3f3b6a-1"
+      ]
+    },
+    {
+      "citation": "Thomsen PF, Kielgast J, Iversen LL, Wiuf C, Rasmussen M, Gilbert MT, Orlando L, Willerslev E. (2012). Monitoring endangered freshwater biodiversity using environmental DNA. Mol Ecol. DOI 10.1111/j.1365-294X.2011.05418.x",
+      "role": "低丰度检测背景",
+      "priority": "接着读",
+      "reason": "作者据此前人成果讨论低浓度qPCR；读它能看见濒危淡水物种监测中为什么需要这种灵敏性。",
+      "focus": "比较检测目标、取样与验证，而非只找最低浓度数字。",
+      "url": "https://doi.org/10.1111/j.1365-294X.2011.05418.x",
+      "refs": [
+        "b-0d428a106f9cd77c-1"
+      ]
+    },
+    {
+      "citation": "Goldberg CS, Pilliod DS, Arkle RS, Waits LP. (2011). Molecular detection of vertebrates in stream water: a demonstration using Rocky Mountain tailed frogs and Idaho giant salamanders. PLoS One. DOI 10.1371/journal.pone.0022746",
+      "role": "溪流现场检测",
+      "priority": "准备做野外时读",
+      "reason": "本文将6升水现场过滤，现场操作如何保存稀薄信号，是与引物设计不同的一层问题。",
+      "focus": "关注溪水检测的采集与保存安排，再和本文流程对照。",
+      "url": "https://doi.org/10.1371/journal.pone.0022746",
+      "refs": [
+        "b-7639d7e4b4df5e3d-1"
+      ]
+    },
+    {
+      "citation": "Takahara T, Minamoto T, Yamanaka H, Doi H, Kawabata Z. (2012). Estimation of fish biomass using environmental DNA. PLoS One. DOI 10.1371/journal.pone.0035868",
+      "role": "读数如何连接生物量",
+      "priority": "想理解Ct偏移的后果时读",
+      "reason": "若要由DNA量推鱼量，体系干扰造成的定量偏移就会继续传到生态解释；这篇提供该问题的原始研究入口。",
+      "focus": "看DNA浓度与生物量关系如何建立，再问本文混样干扰会影响哪一步。",
+      "url": "https://doi.org/10.1371/journal.pone.0035868",
+      "refs": [
+        "b-339215aa12e9ffb3-1"
+      ]
+    }
+  ],
+  "attribution": {
+    "citation": "Taylor M Wilcox; Kevin S McKelvey; Michael K Young; Stephen F Jane; Winsor H Lowe; Andrew R Whiteley; Michael K Schwartz · 10.1371/journal.pone.0059520",
+    "url": "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0059520",
+    "license": "出版商声明本研究作品为Creative Commons Public Domain公共领域作品。",
+    "changes": "中文翻译、白话、导读与机制图为ScholarFlow的AI辅助教学改写，新增教学内容CC BY 4.0，代码MIT。原文与原图保留原有归属及许可；示意不是新增实验数据。"
+  }
+}

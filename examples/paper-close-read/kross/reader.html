@@ -397,7 +397,47 @@ document.querySelectorAll('[data-mechanism]').forEach(el=>{
   words.forEach(word=>{ctx.font='24px Georgia';const width=ctx.measureText(word+' ').width;if(x+width>842){x=58;y+=46;}const on=offset<end&&offset+word.length>start;if(on)rect(x-3,y-20,width,38,'#f6dfad',null,3);ctx.font='24px Georgia';ctx.fillStyle=P.ink;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(word,x,y);x+=width;offset+=word.length+1;});
   line(58,275,842,275,P.line,1);text('抓住措辞，再说明它怎样支持解读',58,308,17,P.muted);text(focus.meaning,58,352,19,P.green,'left',true);text('高亮仅用于细读，英文来自所链接的论文引文',450,415,16,P.muted,'center');
  }
- const scenes={source_timeline,communication,text_focus,argument_map,evidence_coding,repeated_measures,spatial,hazard,augmentation,boundary,vessel,cholesterol,oxidative,molecular_sampling,pcr_slippage,replicate_consensus};
+
+
+ function edna_capture(){
+  title('水里的碎片，怎样变成物种名单？');rect(40,92,310,265,'#e8f2f5',P.blue);text('混合水样',195,72,18,P.blue,'center');
+  const collected=phase(.1,.46),read=phase(.48,.98);line(410,100,410,346,P.green,10);text('滤膜',410,375,18,P.green,'center');arrow(350,218,391,218,P.blue);
+  for(let i=0;i<24;i++){const y=125+(i*37)%190,x=70+(i*41)%230,move=collected>i/24?phase(i/70,.46):0;const tx=mix(x,405,move);rect(tx,y,13,5,i%3===0?P.rose:P.gold,null,2);}
+  text('细胞残片 / 颗粒结合DNA',195,395,17,P.muted,'center');arrow(440,218,520,218,P.green);
+  rect(545,111,300,220,'#fffdf7',P.line);text('提取 → 扩增 → 读序列',695,143,19,P.ink,'center',true);
+  ['片段 A → 参考库 → 鱼种 A','片段 B → 参考库 → 鱼种 B','无法唯一匹配 → 暂不报种'].forEach((a,i)=>{text(read>(i*.28)?a:'等待读取',565,195+i*48,17,read>(i*.28)?P.green:P.muted);});
+  text('示意颗粒数不代表鱼的条数；参考库决定能否叫出名字',450,429,16,P.muted,'center');
+ }
+ function edna_decay(){
+  const v=cfg.visual,titleText='信号降到检测线以下，过线时间取决于起点和速率';title(titleText);
+  const x=85,y=355,w=720,h=230,max=v.maximum,days=v.days;line(x,y,x+w,y,P.muted);line(x,y,x,y-h-15,P.muted);
+  text('浓度（分子 / 400 ml）',85,84,16,P.muted);text('时间（天）',806,397,16,P.muted,'right');
+  for(let i=0;i<=days;i++){text(String(i),x+i/days*w,y+22,14,P.muted,'center');}
+  const yy=y-v.threshold/max*h;line(x,yy,x+w,yy,P.rose,2,[6,5]);text('检测线 '+v.threshold,x+w,yy-16,15,P.rose,'right');
+  v.curves.forEach((c,j)=>{const color=j?P.green:P.blue;ctx.beginPath();for(let k=0;k<=160;k++){const t=k/160*days,pY=y-c.initial*Math.exp(-c.rate*t)/max*h;k?ctx.lineTo(x+t/days*w,pY):ctx.moveTo(x,pY);}ctx.strokeStyle=color;ctx.lineWidth=2;ctx.stroke();
+   const t=progress*days,N=c.initial*Math.exp(-c.rate*t);circle(x+t/days*w,y-N/max*h,7,color);text(c.label+'：'+N.toFixed(1),115+j*335,112,18,color,'left',true);});
+  line(x+progress*w,135,x+progress*w,y,P.gold,1,[3,3]);text('曲线按所列模型参数重画；不是新增测量点',450,428,16,P.muted,'center');
+ }
+ function qpcr_probe(){
+  title('引物启动复制，探针切开后报告荧光');line(70,220,830,220,P.blue,6);text('目标模板（位置为示意）',75,263,18,P.blue);
+  const ext=phase(.25,.8);rect(90,185,110,16,P.green);text('引物 3′ →',90,160,18,P.green);line(200,193,mix(200,790,ext),193,P.green,6);
+  const split=phase(.54,.82);rect(455,185,split>0?70:145,16,P.gold);if(split>0)rect(mix(530,635,split),mix(185,122,split),70,16,P.gold);text('探针',525,155,18,P.gold,'center');circle(465,173,10,P.rose);circle(mix(585,690,split),mix(173,110,split),10,P.muted);
+  if(split>.15){for(let k=0;k<8;k++){const a=k*Math.PI/4;line(465+17*Math.cos(a),173+17*Math.sin(a),465+(20+split*14)*Math.cos(a),173+(20+split*14)*Math.sin(a),P.rose,2);}}
+  text(split>.7?'报告基团与淬灭基团分离 → 荧光增加':split>.05?'探针逐步切开 → 荧光增强':'探针完整时：荧光受淬灭',450,330,22,split>.7?P.rose:P.muted,'center',true);
+  text('每轮产物增加，荧光累积；较早越线对应较小Ct',450,390,18,P.green,'center');
+ }
+ function primer_specificity(){
+  title('把辨认放在探针端，还是扩增入口？');const q=phase(.2,.95);
+  ['主要靠探针区别','引物区增加有效区别'].forEach((label,j)=>{const y=160+j*160;text(label,45,y-75,20,j?P.green:P.rose,'left',true);line(50,y,410,y,P.blue,5);text('近缘非目标模板',55,y+34,16,P.muted);
+   rect(75,y-27,85,13,P.green);text('引物',75,y-48,15,P.green);rect(270,y-27,85,13,P.gold);text('探针',270,y-48,15,P.gold);
+   if(j){star(151,y-20,P.rose);text('3′附近错配',180,y+35,16,P.rose);line(160,y-20,180,y-20,P.rose,4);}else{star(308,y-20,P.rose);line(160,y-20,mix(160,402,q),y-20,P.green,4);}
+   arrow(425,y,470,y,j?P.green:P.rose);const n=j?Math.floor(q*2):Math.floor(q*18);
+   for(let k=0;k<n;k++)rect(490+(k%9)*32,y-25+Math.floor(k/9)*30,21,7,j?P.muted:P.rose,null,2);
+   text(j?'减少非目标进入扩增':'非目标仍可能扩增、争用引物',490,y+48,18,j?P.green:P.rose);});
+  text('原理示意：实际效果还受错配位置、种类和反应条件影响',450,430,16,P.muted,'center');
+ }
+
+ const scenes={edna_capture,edna_decay,qpcr_probe,primer_specificity,source_timeline,communication,text_focus,argument_map,evidence_coding,repeated_measures,spatial,hazard,augmentation,boundary,vessel,cholesterol,oxidative,molecular_sampling,pcr_slippage,replicate_consensus};
  function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle=P.bg;ctx.fillRect(0,0,W,H);(scenes[cfg.scene]||(()=>text('演示场景未定义',40,80)))();const step=Math.min(cfg.stages.length-1,Math.floor(progress*cfg.stages.length));caption.textContent=cfg.stages[step];counter.textContent=(step+1)+' / '+cfg.stages.length;slider.value=Math.round(progress*1000);el.dataset.progress=progress.toFixed(4);el.dataset.stage=step;}
  function pause(){running=false;cancelAnimationFrame(raf);play.textContent='播放演示';play.setAttribute('aria-pressed','false');el.dataset.playing='false';}
  function tick(now){if(!running)return;if(last)progress=Math.min(1,progress+(now-last)/duration*Number(speed.value));last=now;draw();if(progress>=1)pause();else raf=requestAnimationFrame(tick);}

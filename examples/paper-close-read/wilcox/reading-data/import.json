@@ -1,0 +1,34 @@
+{
+  "title": "Robust Detection of Rare Species Using Environmental DNA: The Importance of Primer Specificity",
+  "doi": "10.1371/journal.pone.0059520",
+  "authors": [
+    "Taylor M Wilcox",
+    "Kevin S McKelvey",
+    "Michael K Young",
+    "Stephen F Jane",
+    "Winsor H Lowe",
+    "Andrew R Whiteley",
+    "Michael K Schwartz"
+  ],
+  "figures": [
+    {
+      "path": "images/pone.0059520.g001.jpg",
+      "href": "pone.0059520.g001.jpg",
+      "xml_id": "pone-0059520-g001"
+    },
+    {
+      "path": "images/pone.0059520.g002.jpg",
+      "href": "pone.0059520.g002.jpg",
+      "xml_id": "pone-0059520-g002"
+    },
+    {
+      "path": "images/pone.0059520.g003.jpg",
+      "href": "pone.0059520.g003.jpg",
+      "xml_id": "pone-0059520-g003"
+    }
+  ],
+  "warnings": [],
+  "licenses": [
+    "This is an open-access article distributed under the terms of the Creative Commons Public Domain declaration, which stipulates that, once placed in the public domain, this work may be freely reproduced, distributed, transmitted, modified, built upon, or otherwise used by anyone for any lawful purpose."
+  ]
+}

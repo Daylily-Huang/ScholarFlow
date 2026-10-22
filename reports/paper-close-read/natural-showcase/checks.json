@@ -1,0 +1,43 @@
+{
+  "local_links_checked": 16,
+  "reader_screenshots": [
+    "examples/paper-close-read/thomsen/overview-map.png",
+    "examples/paper-close-read/wilcox/walkthrough.png",
+    "examples/paper-close-read/wilcox/close-reading.png"
+  ],
+  "installation": "all skill file hashes match",
+  "existing_ppt_and_research_sections": "preserved",
+  "changed_files": [
+    ".github/workflows/ci.yml",
+    "README.md",
+    "docs/CAPABILITY_STATUS.md",
+    "docs/PAPER_CLOSE_READ.md",
+    "examples/paper-close-read/README.md",
+    "examples/paper-close-read/austen/close-reading.png",
+    "examples/paper-close-read/austen/generation-manifest.json",
+    "examples/paper-close-read/austen/overview.png",
+    "examples/paper-close-read/austen/reader.html",
+    "examples/paper-close-read/kross/close-reading.png",
+    "examples/paper-close-read/kross/generation-manifest.json",
+    "examples/paper-close-read/kross/overview.png",
+    "examples/paper-close-read/kross/reader.html",
+    "examples/paper-close-read/mckenna/generation-manifest.json",
+    "examples/paper-close-read/mckenna/overview.png",
+    "examples/paper-close-read/mckenna/reader.html",
+    "examples/paper-close-read/menis/close-reading.png",
+    "examples/paper-close-read/menis/generation-manifest.json",
+    "examples/paper-close-read/menis/overview.png",
+    "examples/paper-close-read/menis/reader.html",
+    "examples/paper-close-read/tavani/generation-manifest.json",
+    "examples/paper-close-read/tavani/overview.png",
+    "examples/paper-close-read/tavani/reader.html",
+    "skills/paper-close-read/SKILL.md",
+    "skills/paper-close-read/assets/mechanisms.js",
+    "skills/paper-close-read/references/content-contract.md",
+    "skills/paper-close-read/references/mechanism-design.md",
+    "skills/paper-close-read/scripts/import_jats.py",
+    "skills/paper-close-read/scripts/render_mechanisms.py",
+    "skills/paper-close-read/scripts/validate_content.py",
+    "tests/test_paper_reader.py"
+  ]
+}

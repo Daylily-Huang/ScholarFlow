@@ -1,0 +1,51 @@
+{
+  "title": "Detection of a Diverse Marine Fish Fauna Using Environmental DNA from Seawater Samples",
+  "doi": "10.1371/journal.pone.0041732",
+  "authors": [
+    "Philip Francis Thomsen",
+    "Jos Kielgast",
+    "Lars Lønsmann Iversen",
+    "Peter Rask Møller",
+    "Morten Rasmussen",
+    "Eske Willerslev"
+  ],
+  "figures": [
+    {
+      "path": "images/pone.0041732.g001.jpg",
+      "href": "pone.0041732.g001.jpg",
+      "xml_id": "pone-0041732-g001"
+    },
+    {
+      "path": "images/pone.0041732.g002.jpg",
+      "href": "pone.0041732.g002.jpg",
+      "xml_id": "pone-0041732-g002"
+    },
+    {
+      "path": "images/pone.0041732.g003.jpg",
+      "href": "pone.0041732.g003.jpg",
+      "xml_id": "pone-0041732-g003"
+    },
+    {
+      "path": "images/pone.0041732.e001.jpg",
+      "href": "pone.0041732.e001.jpg",
+      "xml_id": "pone.0041732.e001"
+    },
+    {
+      "path": "images/pone.0041732.e002.jpg",
+      "href": "pone.0041732.e002.jpg",
+      "xml_id": "pone.0041732.e002"
+    }
+  ],
+  "warnings": [
+    "Unresolved JATS cross-reference: s4",
+    "Unresolved JATS cross-reference: s4",
+    "Unresolved JATS cross-reference: s4",
+    "Unresolved JATS cross-reference: pone.0041732.s001",
+    "Unresolved JATS cross-reference: pone.0041732.s001",
+    "Unresolved JATS cross-reference: pone.0041732.s001",
+    "Unresolved JATS cross-reference: pone.0041732.s001"
+  ],
+  "licenses": [
+    "https://creativecommons.org/licenses/by/4.0/This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are properly credited."
+  ]
+}

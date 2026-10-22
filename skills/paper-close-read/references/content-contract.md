@@ -113,3 +113,5 @@ JATS导入器可写入source.inline_runs：顺序数组，每项text为文字，
 - text_focus：quote为至多160字符的真实短引句，须逐字存在于refs至少一个来源块，attribution说明说话者或引文出处。focuses与stages等长，每项text必须是quote连续片段，meaning至多45字符。高亮说明措辞如何支持解读，不冒充原作者强调。
 
 六步数据只校验完整性、顺序与来源。是否讲清具体背景、真实缺口、方法怎样回应问题、发现怎样支撑结论，以及读者能否三分钟内理解，仍需内容审读。title/lead/六步/takeaway应形成一个短而完整的研究总览，不能每格写泛用句。
+
+自然科学实测扩展：edna_capture展示颗粒随水流集中至滤膜，再经提取、扩增与参考库判读；qpcr_probe展示引物延伸及探针切开后的荧光；primer_specificity对比非目标在探针区或引物区受到区别时的扩增过程，均为固定原理示意，需核对是否符合本篇。edna_decay按visual的maximum、days、threshold（正有限数）及两条curves（label、initial、rate）画N(t)=initial×exp(−rate×t)；maximum覆盖起点与阈值。必须交代单位、参数来源及条件，曲线是模型重画，不冒充新增实测点。
