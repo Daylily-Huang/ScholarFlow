@@ -1,0 +1,68 @@
+{
+  "baseline": "dae9dc208e32555d32fe022cd4e7006f4b4d3a7e",
+  "baseline_windows": {
+    "summary": [
+      "Ran 1168 tests in 34.316s",
+      "FAILED (failures=3, errors=13, skipped=15)"
+    ],
+    "issues": [
+      "test_cli_schema_and_argument_errors_are_nonzero (test_cluster2_b3_session_persistence.TestCliRecoverCommit.test_cli_schema_and_argument_errors_are_nonzero)",
+      "test_recover_commit_rejects_forged_journal_with_nonzero_rc (test_cluster2_b3_session_persistence.TestCliRecoverCommit.test_recover_commit_rejects_forged_journal_with_nonzero_rc)",
+      "test_22_cli_runs_and_writes_json (test_pdf_text_fallback.LocatorWiringTest.test_22_cli_runs_and_writes_json)",
+      "test_append_rebuild_recover_roundtrip (test_research_debate_session_store.TestCliSurface.test_append_rebuild_recover_roundtrip)",
+      "test_check_reports_inconsistency_with_exit_1 (test_research_debate_session_store.TestCliSurface.test_check_reports_inconsistency_with_exit_1)",
+      "test_missing_argument_exit_2 (test_research_debate_session_store.TestCliSurface.test_missing_argument_exit_2)",
+      "test_revision_conflict_exit_1 (test_research_debate_session_store.TestCliSurface.test_revision_conflict_exit_1)",
+      "test_missing_file_returns_input_error (test_research_debate_skill_assets.TestValidatorBehavior.test_missing_file_returns_input_error)",
+      "test_self_check_passes (test_research_debate_skill_assets.TestValidatorBehavior.test_self_check_passes)",
+      "test_specimen_has_no_violation (test_research_debate_skill_assets.TestValidatorBehavior.test_specimen_has_no_violation)",
+      "test_no_session_argument_is_usage_error (test_research_debate_skill_conformance.TestValidatorActuallyRuns.test_no_session_argument_is_usage_error)",
+      "test_self_check_reports_canonical_schemas (test_research_debate_skill_conformance.TestValidatorActuallyRuns.test_self_check_reports_canonical_schemas)",
+      "test_specimen_passes_and_live_fails_as_expected (test_research_debate_skill_conformance.TestValidatorActuallyRuns.test_specimen_passes_and_live_fails_as_expected)",
+      "test_agent_search_version (test_cluster2_b6_version_budget.TestH36CliVersionFlags.test_agent_search_version)",
+      "test_controversy_analyzer_version (test_cluster2_b6_version_budget.TestH36CliVersionFlags.test_controversy_analyzer_version)",
+      "test_quote_audit_version (test_cluster2_b6_version_budget.TestH36CliVersionFlags.test_quote_audit_version)"
+    ]
+  },
+  "candidate_windows": {
+    "summary": [
+      "Ran 1183 tests in 30.713s",
+      "FAILED (failures=4, errors=13, skipped=15)"
+    ],
+    "issues": [
+      "test_cli_schema_and_argument_errors_are_nonzero (test_cluster2_b3_session_persistence.TestCliRecoverCommit.test_cli_schema_and_argument_errors_are_nonzero)",
+      "test_recover_commit_rejects_forged_journal_with_nonzero_rc (test_cluster2_b3_session_persistence.TestCliRecoverCommit.test_recover_commit_rejects_forged_journal_with_nonzero_rc)",
+      "test_22_cli_runs_and_writes_json (test_pdf_text_fallback.LocatorWiringTest.test_22_cli_runs_and_writes_json)",
+      "test_append_rebuild_recover_roundtrip (test_research_debate_session_store.TestCliSurface.test_append_rebuild_recover_roundtrip)",
+      "test_check_reports_inconsistency_with_exit_1 (test_research_debate_session_store.TestCliSurface.test_check_reports_inconsistency_with_exit_1)",
+      "test_missing_argument_exit_2 (test_research_debate_session_store.TestCliSurface.test_missing_argument_exit_2)",
+      "test_revision_conflict_exit_1 (test_research_debate_session_store.TestCliSurface.test_revision_conflict_exit_1)",
+      "test_missing_file_returns_input_error (test_research_debate_skill_assets.TestValidatorBehavior.test_missing_file_returns_input_error)",
+      "test_self_check_passes (test_research_debate_skill_assets.TestValidatorBehavior.test_self_check_passes)",
+      "test_specimen_has_no_violation (test_research_debate_skill_assets.TestValidatorBehavior.test_specimen_has_no_violation)",
+      "test_no_session_argument_is_usage_error (test_research_debate_skill_conformance.TestValidatorActuallyRuns.test_no_session_argument_is_usage_error)",
+      "test_self_check_reports_canonical_schemas (test_research_debate_skill_conformance.TestValidatorActuallyRuns.test_self_check_reports_canonical_schemas)",
+      "test_specimen_passes_and_live_fails_as_expected (test_research_debate_skill_conformance.TestValidatorActuallyRuns.test_specimen_passes_and_live_fails_as_expected)",
+      "test_five_processes_200_events_each_zero_loss (test_cluster2_b3_session_persistence.TestConcurrentAppendZeroLoss.test_five_processes_200_events_each_zero_loss)",
+      "test_agent_search_version (test_cluster2_b6_version_budget.TestH36CliVersionFlags.test_agent_search_version)",
+      "test_controversy_analyzer_version (test_cluster2_b6_version_budget.TestH36CliVersionFlags.test_controversy_analyzer_version)",
+      "test_quote_audit_version (test_cluster2_b6_version_budget.TestH36CliVersionFlags.test_quote_audit_version)"
+    ]
+  },
+  "concurrency_targeted_recheck": "Both baseline and candidate passed two existing concurrency cases in isolation.",
+  "reader_tests": 15,
+  "reader_selftests": 40,
+  "baseline_ci": "https://github.com/Daylily-Huang/ScholarFlow/actions/runs/39609550256",
+  "baseline_ci_conclusion": "failure",
+  "candidate_linux": {
+    "tests": 1183,
+    "failures": 4,
+    "skipped": 14,
+    "failed_tests": [
+      "test_orphaned_lock_is_recovered_by_rename_aside",
+      "test_installed_entry_point_enforces_the_depth_gate",
+      "test_installed_entry_point_resolves_the_engine",
+      "test_installer_ships_exactly_one_engine_copy"
+    ]
+  }
+}

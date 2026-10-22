@@ -1,0 +1,31 @@
+{
+  "environment": "Linux, Python 3.14.4",
+  "command": "python -m unittest discover -s tests -v",
+  "results": [
+    {
+      "mode": "stdlib",
+      "exit_code": 0,
+      "summary": [
+        "Ran 1186 tests in 47.307s",
+        "OK (skipped=38)"
+      ],
+      "issues": []
+    },
+    {
+      "mode": "strict",
+      "exit_code": 0,
+      "summary": [
+        "Ran 1186 tests in 55.596s",
+        "OK (skipped=11)"
+      ],
+      "issues": []
+    }
+  ],
+  "stdlib_dependencies": "isolated venv without third-party packages",
+  "strict_dependencies": [
+    "jsonschema",
+    "referencing",
+    "pypdf"
+  ],
+  "reader_and_examples": "unchanged relative to 9dc1f9b"
+}

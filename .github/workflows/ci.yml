@@ -6,6 +6,25 @@ on:
   pull_request:
 
 jobs:
+  standalone-reader:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run reader regression and self-tests
+        run: |
+          python -m unittest discover -s tests -p test_paper_reader.py -v
+          python skills/paper-close-read/scripts/selftest.py --work-dir "${{ runner.temp }}/reader-selftest"
+      - name: Rebuild the five licensed examples
+        run: |
+          python scripts/rebuild_readers.py examples/paper-close-read/kross examples/paper-close-read/mckenna examples/paper-close-read/tavani examples/paper-close-read/menis examples/paper-close-read/austen
+          git diff --exit-code -- examples/paper-close-read/*/reader.html
+
   unittest:
     runs-on: ubuntu-latest
     strategy:

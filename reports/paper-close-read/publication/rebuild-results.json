@@ -1,0 +1,32 @@
+[
+  {
+    "paper": "austen",
+    "byte_identical": true,
+    "validation_errors": [],
+    "html_sha256": "2a12c1065e721329fe39fbe0ed397303b1209fb52b92d931fff7c3c5ccdd3331"
+  },
+  {
+    "paper": "kross",
+    "byte_identical": true,
+    "validation_errors": [],
+    "html_sha256": "6fee27d5d5dc2239eb96317e2572b4a62b5c209f213c142faa1cd587dcddb313"
+  },
+  {
+    "paper": "mckenna",
+    "byte_identical": true,
+    "validation_errors": [],
+    "html_sha256": "36c0b555b0771aecf4a8da631ae5d14881231572c33e3a7008c449c53ac07e1c"
+  },
+  {
+    "paper": "menis",
+    "byte_identical": true,
+    "validation_errors": [],
+    "html_sha256": "74c9a791b46a44caa5d12ab92a9196cb4b90691242d61559dc1e25e42d992874"
+  },
+  {
+    "paper": "tavani",
+    "byte_identical": true,
+    "validation_errors": [],
+    "html_sha256": "bb479331ee60cac8614cd78c984424d9ad4d0862366612df2eda738dcc2ffa40"
+  }
+]

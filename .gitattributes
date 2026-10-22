@@ -1,0 +1,4 @@
+# These source snapshots and skill files are bound by byte-level generation manifests.
+# Keep their recorded bytes identical on Windows and Unix checkouts.
+skills/paper-close-read/** -text
+examples/paper-close-read/** -text

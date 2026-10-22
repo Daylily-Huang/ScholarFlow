@@ -47,6 +47,7 @@ REQUIRED_SCHEMAS = [
 ]
 
 REQUIRED_SKILLS = [
+    "paper-close-read/SKILL.md",
     "literature-discovery-acquisition/SKILL.md",
     "literature-evidence-extraction/SKILL.md",
     "literature-synthesis/SKILL.md",

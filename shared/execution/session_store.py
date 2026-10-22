@@ -173,13 +173,15 @@ class _SessionFileLock:
                 return True
             except OSError:
                 return False
-        # POSIX：rename 对活持有者也会成功，必须 age>timeout 且属主已死才回收。
+        # POSIX：rename 对活持有者也会成功，先核对进程是否存活。
+        # 确认死亡的属主可立即回收；尚未写入 pid 的新锁仍需等过宽限期。
         age = info.get("age")
         pid = info.get("pid")
-        if age is not None and age <= timeout:
-            return False
-        if pid is not None and _pid_alive(pid):
+        alive = _pid_alive(pid) if pid is not None else None
+        if alive is True:
             return False  # 活锁不可窃取（DEB-V-16）
+        if alive is not False and (age is None or age <= timeout):
+            return False
         try:
             self._rename_aside()
             return True

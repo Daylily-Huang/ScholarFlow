@@ -1,0 +1,951 @@
+[
+  {
+    "id": "b-1a0d5b35ebe197d3-1",
+    "role": "metadata",
+    "zh": "作者：Ethan Kross；Philippe Verduyn；Emre Demiralp；Jiyoung Park；David Seungjae Lee；Natalie Lin；Holly Shablack；John Jonides；Oscar Ybarra",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-ce54af62817a8385-1",
+    "role": "body",
+    "zh": "每天有超过5亿人使用Facebook，但这种使用是否会随时间影响主观幸福感尚不清楚。我们用经验取样法，在两周内每天发五次短信，考察即时感受和生活满意度。结果显示，Facebook使用预测这两者随时间的负向变化：某一时段用得越多，下一次短信时感觉越差；两周总体用得越多，生活满意度下降越多。直接与人互动没有预测这些负面结果。关系也未受到好友数、感知支持、使用动机、性别、孤独、自尊或抑郁的显著调节。Facebook看似能满足联结需要，本研究却提示它可能损害幸福感。",
+    "note": "你可能一天刷很多次动态，但“刷得多的人是否更不开心”和“我刷过以后是否比刚才更不开心”是两回事。作者让同一个人一天回答几次，再把使用前后的感受接起来；还在两周头尾问对生活是否满意。两条线都出现负向关联，才有了摘要的结论。",
+    "keys": [
+      "先把幸福感分成当下感受和总体生活评价，避免只靠一个问题下结论。",
+      "接着利用反复测量考察先后变化，两种结果都指向负向关联。",
+      "直接互动的对照说明，问题不能简单归结为“与人交往越多越糟”。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-c8953b407172c8be-1",
+    "role": "body",
+    "zh": "网络社交正在迅速改变人的互动方式。Facebook拥有超过10亿用户，超过一半每天登录[1]，但此前没有研究检验使用Facebook如何随时间影响主观幸福感。一项汇总2005年1月至2012年1月间412篇同行评议文章和会议论文的综述，也没有找到这种研究（补充文本S1）[2]。",
+    "note": "作者要补的缺口很具体：已有很多Facebook论文，却缺少沿时间追着同一个人看的研究。用户规模大，说明这个缺口值得补；412篇的数量本身还不能回答使用后会发生什么。",
+    "keys": [
+      "先交代使用范围，再指出既有研究缺少时间维度；由此把问题收窄到“使用后的变化”。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-c33ec4ff2731d4bc-1",
+    "role": "body",
+    "zh": "主观幸福感是行为科学研究最多的变量之一。它本身重要，也能预测健康改善、寿命延长等结果[3–5]。考虑到Facebook使用的频繁程度，识别这种互动如何影响主观幸福感，是具有实际意义的基础研究问题。",
+    "note": "这里补上“为什么值得关心”：研究的不是一次刷屏有没有意思，而是日常感受与生活评价。作者借已有健康研究说明这个结果值得研究，没有在本研究里直接测寿命。",
+    "keys": [
+      "幸福感具有实际意义，加上使用频繁，使前段的研究缺口值得投入。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-dd31e1184b79ccff-1",
+    "role": "body",
+    "zh": "问题棘手在于先前研究提供了相互混杂的线索：一些横断面研究发现网络社交尤其Facebook使用与幸福感正相关[6]，另一些相反[7,8]；还有研究提示这种关系可能受好友数、网络支持感、抑郁症状、孤独和自尊等因素影响[9–11]。",
+    "note": "把不同人拍一张“合照”，可能看出刷得多的人更快乐，也可能相反。因为他们原本的朋友、处境和心情就不一样。结果打架后，作者没有先选一边，而是换成跟踪变化的办法。",
+    "keys": [
+      "既有正负结果不一致，单次比较难以解释；潜在个体差异又提示后文需要考察替代解释。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-efe3717fa2b0a49f-1",
+    "role": "body",
+    "zh": "那么Facebook使用究竟如何随时间影响幸福感？既往横断面研究无法回答。我们采用经验取样，在14天里每天发五次短信，链接至手机问卷；结合滞后分析和研究前后施测的生活满意度量表SWLS[13]，考察情感幸福感与认知幸福感[14,15]。这种方法借助自然使用行为和心理状态的相对时间，推断可能的因果顺序[16–19]。",
+    "note": "想象手机先问“你现在感觉怎样”，过一会儿再问“这段时间刷了多少、现在怎样”。这样才能把一段使用和随后感受配起来。作者获得了比一次性问卷更清楚的先后线索，但使用仍由参与者自己决定。",
+    "keys": [
+      "单次调查留下顺序不明的问题，因此改用密集追踪。",
+      "即时情绪和前后生活评价分别对应短时变化与两周变化。",
+      "记录顺序有助于判断可能方向，仍需后文讨论实验验证。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-23a060fc34e70f29-1",
+    "role": "body",
+    "zh": "通过密歇根州安娜堡的传单招募82人，平均年龄19.52岁、标准差2.17，女性53人；60.5%为欧裔美国人、28.4%亚裔、6.2%非裔，4.9%其他。参与者须有Facebook账号和触屏智能手机；报酬20美元，并参加iPad2抽奖。",
+    "note": "这组人主要是年轻、有智能手机的Facebook用户。先记住样本长什么样，后面看到“人们”时就知道实际依据来自谁。招募82人也不代表82人都进入每项分析。",
+    "keys": [
+      "入组条件界定能观察的人群，随后退出和依从性还会决定实际分析样本。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-1312362a2172345d-1",
+    "role": "body",
+    "zh": "密歇根大学机构审查委员会批准了本研究；所有参与者在参与前均提供书面知情同意。",
+    "note": "研究取得了伦理批准和书面同意，这一段交代开展研究的程序。",
+    "keys": [
+      "伦理程序与后续测量、分析共同构成研究实施过程。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-fc3e8264109a7a49-1",
+    "role": "body",
+    "zh": "参与者先填写SWLS（均值4.96，标准差1.17）、贝克抑郁量表[20]（9.02，7.20）、Rosenberg自尊量表[21]（30.40，4.96），以及改用于Facebook支持感的社会支持量表[22]（3.55，0.34）。研究还询问使用动机：联系朋友98%、结交朋友23%、分享好事78%、分享坏事36%、获取信息62%、其他17%；其他包括聊天、联系家人、学习和商务。",
+    "note": "正式追踪前先给每个人做一份“起点记录”：原本对生活多满意、抑郁和自尊怎样、为什么用Facebook。后面若关系只出现在某种人身上，就能用这些信息检查。",
+    "keys": [
+      "先记录基线与个体特征，才能在后续比较中考察原有状态和使用动机的影响。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-e720fce02def5479-1",
+    "role": "body",
+    "zh": "14天中每天上午10点到午夜间发五次短信，每个168分钟时窗内随机发送。问卷用滑块回答五题：当前感受（0非常积极至100非常消极，均值37.47，标准差25.88）、担忧（0无至100很强，44.04，30.42）、孤独（27.61，26.13）、自上次问卷后的Facebook使用（0完全不用至100很多，33.90，30.48），以及直接社交（0无至100很多，64.26，31.11）。直接社交指面对面或电话交流；实验人员详细讲解要求以确保理解。",
+    "note": "关键有两处：分数越高表示心情越差；“刷了多少”是自己在0到100上估计，并非手机自动记录的分钟数。每次短信把“现在的心情”和“刚过去一段时间的使用”放在一起，才有后面的配对分析。",
+    "keys": [
+      "先明确量表方向，才能读懂正系数为什么表示幸福感下降。",
+      "再区分即时状态与区间回顾，确定使用和情绪各自对应的时间。",
+      "直接社交同步测量，为后文提供比较。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-5055e1511be8170e-1",
+    "role": "body",
+    "zh": "参与者总是先回答情感题，再随机呈现担忧和孤独题，最后随机呈现Facebook使用和直接互动题。分析主要关注情感而非担忧或孤独，因为情感题是通常用于操作化情感幸福感的方式。",
+    "note": "问题顺序不是随便排的：先问当前感受，再提醒自己刚刷了多少。作者把情感设为主要结果，孤独和担忧留作相关状态检查，避免把几个不同感受混成一个指标。",
+    "keys": [
+      "问卷顺序保持情感题优先；明确主要结果后，其余状态可用于检验替代解释。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-016fbfa8c32d513c-1",
+    "role": "body",
+    "zh": "第二阶段后，参与者回实验室再填写问卷，包括SWLS（均值5.13，标准差1.26）和修订版UCLA孤独量表[23]（1.69，0.46）；同时从账号记录Facebook好友数（664.25，383.64；补充文本S2）。",
+    "note": "两周结束再问一次生活满意度，就能把结尾与每个人自己的起点比较。结尾样本的平均值比起点高，不妨碍“用得更多者相对变化更差”的回归结果；两句话比较的对象不同。",
+    "keys": [
+      "末次测量提供前后比较的终点，好友数则补足个体差异信息。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-092ed94f7990e9d3-1",
+    "role": "body",
+    "zh": "三人未完成研究。每次五题中任一题在下一次短信前作答视为依从。平均回复率83.6%，范围18.6%–100%。依照既往研究[24]，排除两名回复率低于33%者的全部数据后，共有4,589次观测；采用其他截断标准时，结果无实质变化。",
+    "note": "短信发出去，不代表都收到完整回答。作者先界定什么算及时作答，再去掉几乎不回的人。因此4,589是重复记录的次数，不是4,589名参与者。",
+    "keys": [
+      "退出和迟答使原计划记录减少，明确清理标准后才形成分析数据。",
+      "更换回复率门槛结果相近，检查了这一清理选择的影响。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-56bda74d95b96890-1",
+    "role": "body",
+    "zh": "用多层分析处理嵌套数据：在模型第一层控制T1情感，检验T1–2期间Facebook使用是否预测T2情感，排除跨日滞后。使用量虽在T2提问，但指T1至T2之间。该分析用于考察两次测量间使用是否预测这段时间的情感变化。",
+    "note": "别把T1、T2看成两个人。它们是同一个人前后两次回复。作者先把前一次心情纳入模型，再看这期间刷得更多是否对应这一次更差；许多回复来自同一人，所以模型还要认出“这些行属于同一个人”。",
+    "keys": [
+      "先按个人组织重复记录，避免把所有回复当互不相关。",
+      "在同日相邻时点之间控制起始心情，比较区间使用与结尾状态。",
+      "T2回顾的是刚过去的区间，并非把未来使用拿来预测过去。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-c51fb10bb25dbec2-1",
+    "role": "body",
+    "zh": "出现未及时回复的情况时，用最近一次已回答短信的状态检验滞后关系，以保留统计效能。例如检验T2–3使用预测T3情感而缺T2情感时，改用T1情感。若直接排除未回复前一次短信的记录，结果也没有实质变化。",
+    "note": "有人漏答一条，作者没有让后面的回答全作废，而是用更早的已知心情作为参照。这样保留更多记录，但参照间隔会变长，所以又试了一次“只用紧邻完整记录”的分析。",
+    "keys": [
+      "缺失让原本的相邻比较断开，因此采用最近已知状态；再用严格剔除作对照，检查结论是否依赖补接方式。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-cc64a712bc08d8d1-1",
+    "role": "body",
+    "zh": "固定效应以自由度1的卡方Wald检验判断显著性。第一层预测变量按个人均值中心化，截距和斜率允许在人之间随机变化；零阶相关见表1。通过检验调节变量与T1–2使用斜率的关系，考察它是否调节控制T1情感后的T2情感。",
+    "note": "“减去自己的平均使用量”能帮助看出今天这一段是否比自己平时用得多；允许斜率不同，则承认不同人的关联强弱可能不一样。接着问好友数等特征能不能解释这种强弱差别，这才叫调节。",
+    "keys": [
+      "中心化突出个人内变化，随机项容纳个体差异；调节分析再检查哪些特征与关系强弱相连。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-3bd8226e84cb1a52-1",
+    "role": "body",
+    "zh": "表1：个人内与个人间的零阶相关。",
+    "note": "这张表把“同一个人随时间一起变”与“不同人的平均值差异”放在两半。读表前先认清自己看的那一半，后面才不会把两种相关混起来。",
+    "keys": [
+      "先辨认比较层级，再解释对应相关系数。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-c3b951786dc75dc1-1",
+    "role": "body",
+    "zh": "注：虚线对角线上方为多层分析得到的个人内相关，下方为个人间相关。* p<0.05，** p<0.01，*** p<0.001。",
+    "note": "例如“平时爱刷的人是否更孤独”和“某人更孤独的时刻是否更爱刷”可以得到不同数字。表中上下两半正是在回答不同的问题；星号只交代统计检验。",
+    "keys": [
+      "对角线上下的比较对象不同，因此同一变量对可能出现不同相关；显著性符号随后说明检验结果。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-5ffce7ba678b6685-1",
+    "role": "body",
+    "zh": "有一人的BDI得分高于样本均值4个标准差，因此从抑郁调节分析排除；另有一人好友数高于均值4个标准差，从好友数调节分析排除。",
+    "note": "这里的两次排除只针对相应调节分析。不能据此把人从整项研究的所有结果里都删掉，实际分析样本会随问题变化。",
+    "keys": [
+      "异常值处理限定在对应变量的调节检验，解释了不同模型样本可能不完全一致。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-408526ab23d4dd54-1",
+    "role": "body",
+    "zh": "平均Facebook使用与生活满意度的关系用普通最小二乘回归分析，因为这些数据没有嵌套结构；同时报告非标准化B和标准化β系数（补充文本S3）。",
+    "note": "即时心情有“一个人很多次”的记录；生活满意度这条线则把两周使用归成每人一个平均值，再看结尾满意度。因此两条线用的模型不同。",
+    "keys": [
+      "把使用汇总到个人层面后，问题从密集时点变化转成个人间的前后评价比较。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-790a145d6afcddbc-1",
+    "role": "body",
+    "zh": "控制T1情感后，多层滞后分析显示，T1与T2之间Facebook用得越多，T2感受越差：B=0.08，χ²=28.90，p<0.0001（图1上）。反向路径，即控制T0–1使用后由T1情感预测T1–2使用，不显著：B=−0.005，χ²=0.05，p=0.82（补充文本S4、S5）。",
+    "note": "心情题分数越大越糟，所以B为正才是“更差”。0.08表示使用滑块每高1分，模型预测的消极感受高0.08分；它不是每刷一分钟就难过0.08分。反向路径没检出，为方向判断增加一条线索。",
+    "keys": [
+      "读懂量表方向后，正系数对应后续感受较差。",
+      "再把反向预测与正向预测对照，作者据此加强使用在先的解释，但未进行随机干预。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-e85ea94e04abfdea-1",
+    "role": "body",
+    "zh": "控制基线生活满意度和两周平均情绪后，平均Facebook使用越多，结束时生活满意度下降越多：B=−0.012，β=−0.124，t(73)=−2.39，p=0.02（图1下）。",
+    "note": "这一回分数越高越满意，负系数才表示较差。它回答的是：起点满意度相当时，两周里更常刷的人，终点评价是否更低。它与上一段的心情不是同一个量表方向。",
+    "keys": [
+      "更换为生活评价结果并控制起点后，负向关联仍出现，补上短时感受之外的证据。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-be23f38c5462e94d-1",
+    "role": "body",
+    "zh": "一种替代解释是所有社交都会损害幸福感。将Facebook使用替换成直接互动后，直接互动不预测认知幸福感变化：B=−0.006，β=−0.059，t(73)=1.04，p=0.30；却预测情感幸福感改善：B=−0.15，χ²=65.30，p<0.0001。控制直接互动后，Facebook与情感幸福感的关系仍显著：B=0.05，χ²=10.78，p<0.01。",
+    "note": "如果只是“社交让人累”，面对面聊天或打电话也该出现同样方向。结果没有：直接交流反而对应之后心情更好。作者用这一对照，缩小了能够解释Facebook结果的说法范围。",
+    "keys": [
+      "提出一般社交解释后，用同步测到的直接互动检验。",
+      "对照方向不同且纳入控制后原关系仍在，因此一般社交解释不足以涵盖结果。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-a156371475a47953-1",
+    "role": "body",
+    "zh": "另一解释是，人们在无聊、孤独、担忧或痛苦时才用Facebook，幸福感下降来自原本不适而非使用。前面的反向分析及控制情感后的生活满意度结果已部分回应；每次测到的孤独和担忧又提供了进一步检验机会。",
+    "note": "也许不是刷完才难过，而是先难过才去刷。作者先用情感检查过这个方向，但“难过”不等于孤独或担心，于是继续拿这两种状态来查。",
+    "keys": [
+      "先前分析只能部分处理反向解释，额外测到的心理状态使这一解释可以继续接受检验。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-7ac0c8a68ebb444e-1",
+    "role": "body",
+    "zh": "担忧不显著预测后续Facebook使用：B=0.04，χ²=2.37，p=0.12；孤独可以：B=0.07，χ²=8.54，p<0.01。若Facebook只是孤独的替代指标，控制孤独后原关系应消失，但并未消失：情感B=0.08，χ²=27.87，p<0.0001；认知B=−0.012，β=−0.126，t(72)=2.34，p=0.02。担忧和孤独与使用的交互均不显著（p>0.44）。",
+    "note": "这段最有意思的是没有把孤独排除出去：越孤独的人确实可能随后刷得更多。只是把孤独纳入模型后，使用与幸福感的关联仍在。因此“完全因为孤独才出现这条关系”不足以解释这些数据。",
+    "keys": [
+      "先承认孤独能预测使用，反向或共同背景有实质线索。",
+      "再检查控制孤独后的关联，发现孤独不能单独解释结果。",
+      "交互检验另问关系强弱是否随孤独或担忧变化，本样本未检出。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-b6679ebf46b414e8-1",
+    "role": "body",
+    "zh": "进一步考察好友数、网络支持感、抑郁、孤独、性别、自尊、参与时间和使用动机等个体差异是否与Facebook使用交互预测两类幸福感，均未观察到显著交互（p>0.16；补充文本S6）。",
+    "note": "作者问的不是“男女幸福感是否一样”，而是“刷Facebook与之后感受之间的那条斜率，是否男女不同”。没有检出显著差异，只能说这份数据没给出明确调节证据。",
+    "keys": [
+      "将前面记录的个体特征带入交互检验，未找到清楚解释关系强弱的特征。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-10f289a2f01f7f55-1",
+    "role": "body",
+    "zh": "最后探索未预先预测的直接接触与Facebook使用交互。情感结果显著：B=0.002，χ²=19.55，p<0.0001；认知结果不显著：B=0，β=0.129，t(71)=0.39，p=0.70。简单斜率显示，直接接触低于均值1个标准差时，Facebook关联不显著（B=0，χ²=0.04，p=0.84）；平均接触水平时为B=0.05，χ²=11.21，p<0.001；高于均值1个标准差时为B=0.10，χ²=28.82，p<0.0001。",
+    "note": "这条发现有些反直觉：直接交流较多的时段，Facebook与心情变差的关联反而更强。作者不是一开始就假定如此，而是在最后探索到它；因此它更适合引出待验证机制，而非马上指导“少见朋友”。",
+    "keys": [
+      "探索交互后发现情感上的差异，再用三个直接接触水平展开斜率。",
+      "认知结果没有对应交互，限制了这一发现的适用结果范围。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-879766f6d075ad91-1",
+    "role": "body",
+    "zh": "Facebook迅速改变互动方式，但其使用是否预测幸福感变化仍未知。本研究用经验取样和滞后分析，利用自然行为与心理状态的相对时间推断可能顺序[17,18]；结果显示使用预测即时感受和生活满意度两个方面的下降。",
+    "note": "讨论先把分散的分析重新接回开头：作者改进的是时间记录方式，主要收获是两种幸福感都出现同一方向的关联。先抓住这一点，再看排除了哪些解释、还剩哪些问题。",
+    "keys": [
+      "回到研究缺口，概括时间设计怎样对应两项主要结果。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-408ef1758c5be58e-1",
+    "role": "body",
+    "zh": "两种合理替代解释未获得支持：直接与人互动没有预测幸福感下降，反而使感受改善，提示Facebook可能是一种独特的负向关联形式；另一方面，情感或担忧不预测使用，控制能预测使用的孤独后原关系仍在，因此结果并非仅因为难过的人更爱使用。",
+    "note": "作者在这里整理“为什么不是别的原因”：一般社交解释与反向情绪解释分别接受了检查。它们被削弱，让主解释更有说服力，但这仍是一组围绕观察数据的排查。",
+    "keys": [
+      "先用社交方式对照排除过宽解释，再用状态与方向分析削弱反向解释，共同支持较具体的解释。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-b4fd6da8ed143462-1",
+    "role": "body",
+    "zh": "任何独处活动会有同样结果吗？作者推测不会，因为运动、阅读等可带来愉悦。既有研究也提示主观孤独比客观隔离更能决定幸福感[25]。任何网络活动如邮件、浏览网页也会如此吗？既往研究表明结果取决于如何上网、访问何种网站以及与谁互动[26]。",
+    "note": "“刷Facebook”和“一个人待着”不能直接画等号；“Facebook”和“所有上网”也不是同一件事。作者借既有文献提醒读者，接下来需要更细分活动，而不是把结果扩大成“独处或上网都坏”。",
+    "keys": [
+      "把发现向外推广会遇到活动差异，因此提出独处类型和网络用途两个需要分开的比较。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-91ef9f57062738ef-1",
+    "role": "body",
+    "zh": "未来问题首先是能否推广。本研究集中年轻成年人，因为他们是核心用户群，但仍需检查其他年龄与平台。综述指出不同网络在历史、使用模式、用户特征和社会功能上不同[2，第205页]，当前结果可能不能直接推广。",
+    "note": "同样叫“社交平台”，聊天群、公开动态和陌生人社区也可能承担不同功能。这篇研究的年代、平台和年轻样本都很具体，下一步需要换人群、换环境来验证。",
+    "keys": [
+      "样本选择解释现有证据来自哪里；平台差异进一步说明推广须另做研究。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-1d9b3cc937b0ecc1-1",
+    "role": "body",
+    "zh": "第二，Facebook损害幸福感的机制是什么？有人推测它挤占能恢复认知与情绪的运动[27]，或诱发有害社会比较[8,28]。后者与本研究直接接触越多、负向关联越强的交互尤其有关：直接接触也许增加比较频率或影响。检验这些机制具有理论和实际意义。",
+    "note": "看见别人晒生活后拿自己比较，是容易理解的故事，但本研究没有直接测出“比较导致难过”这条链。作者把探索性交互当作线索，再提出下一步应该测什么。",
+    "keys": [
+      "主要关系尚未解释过程，已有理论提供运动挤占与社会比较两个候选。",
+      "交互发现为比较假说提供线索，仍需专门测量和验证。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-ec0aa68e2bcd3d35-1",
+    "role": "body",
+    "zh": "最后，虽然这种分析有助于推断自然变量可能的因果顺序，仍需在日常生活中操纵Facebook使用的实验来 验证 结果、确立因果。高普及度、在年轻人社交中的中心地位及成瘾性可能使干预困难，但此类研究对扩展发现和设计干预很重要。",
+    "note": "要跨过最后一步，可以让可比较的人随机多用或少用，再看差异。作者自己也把实验列为下一步，所以读完不应把这篇当成随机试验已经证明“刷一下必然更差”。",
+    "keys": [
+      "观察设计已提供顺序线索；随机操纵才能进一步隔离使用本身的影响，因此成为后续研究方向。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-5f14e2d8e5574697-1",
+    "role": "body",
+    "zh": "结束前有两点说明。首先，关联虽显著，效应量相对较小，但不应据此否定实际意义[29]：幸福感有多种决定因素，单一因素很难有很大影响；它又关联心理和身体健康，因此若某因素在很多人身上反复累积，仍可能重要，Facebook使用似乎符合这些特点。",
+    "note": "“统计上看得到”不等于影响很大，但小也不自动等于没用。作者主张频繁发生的小变化可能值得关心；至于会累积多少，本研究没有算出长期总账。",
+    "keys": [
+      "承认单次关联较小，再从多因素结果与高频暴露解释为何仍值得继续研究。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-4a83e4cd0b5c91d0-1",
+    "role": "body",
+    "zh": "第二，用一条从好到坏的双极量表询问感受，可能掩盖积极减少、消极增加或两者同时变化的差别。未来应分别用积极、消极两条单极问题测量。",
+    "note": "快乐减少和难过增加并不总是一回事。把它们压在一根滑杆上容易看不出差别，因此未来需要分别问“有多开心”和“有多难过”。",
+    "keys": [
+      "现有指标把两种情绪变化合在一起，分开测量可以进一步澄清结果含义。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-dbbdb58ff46c9ba6-1",
+    "role": "body",
+    "zh": "人与人联结的需要及其益处已充分建立[30–34]。Facebook看似能让人即时联结，满足这种需要；然而，与常见支持性线下网络改善幸福感不同，本研究提示年轻人使用Facebook可能预测相反结果，削弱幸福感。",
+    "note": "文章最后留下的反差是：能迅速联系上别人，并不保证这类联系就让自己感觉更好。作者用两周追踪把这个反差具体化，也把“为什么如此”留给下一步研究。",
+    "keys": [
+      "由联结的通常益处引出平台结果的反差，收束到本篇所观察到的年轻人幸福感变化。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-12a061689cff2823-1",
+    "role": "supporting",
+    "zh": "(DOCX)",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-98a0280124264cac-1",
+    "role": "supporting",
+    "zh": "Click here for additional data file.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-12a061689cff2823-2",
+    "role": "supporting",
+    "zh": "(DOCX)",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-98a0280124264cac-2",
+    "role": "supporting",
+    "zh": "Click here for additional data file.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-12a061689cff2823-3",
+    "role": "supporting",
+    "zh": "(DOCX)",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-98a0280124264cac-3",
+    "role": "supporting",
+    "zh": "Click here for additional data file.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-12a061689cff2823-4",
+    "role": "supporting",
+    "zh": "(DOCX)",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-98a0280124264cac-4",
+    "role": "supporting",
+    "zh": "Click here for additional data file.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-12a061689cff2823-5",
+    "role": "supporting",
+    "zh": "(DOCX)",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-98a0280124264cac-5",
+    "role": "supporting",
+    "zh": "Click here for additional data file.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-12a061689cff2823-6",
+    "role": "supporting",
+    "zh": "(DOCX)",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-98a0280124264cac-6",
+    "role": "supporting",
+    "zh": "Click here for additional data file.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-a0a959e7f783a881-1",
+    "role": "metadata",
+    "zh": "We thank Emily Kean for her assistance running the study and Ozlem Ayduk and Phoebe Ellsworth for their feedback.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-661a397b34a5efc1-1",
+    "role": "supporting",
+    "zh": "The authors have no support or funding to report.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-9485dbacd6071a5e-1",
+    "role": "reference",
+    "zh": "1.Facebook_Information (2012) Facebook Newsroom Website. Available: http://newsroom.fb.com/content/default.aspx?NewsAreaId=22. Accessed 2012 April 23.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-dbf3eff7e48ac68b-1",
+    "role": "reference",
+    "zh": "2. Wilson RE, Gosling SD, Graham LT (2012) A Review of Facebook Research in the Social Sciences. Perspect Psychol Sci 7: 203–220.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-93610ce31a39900c-1",
+    "role": "reference",
+    "zh": "3. Steptoe A, Wardle J (2011) Positive affect measured using ecological momentary assessment and survival in older men and women. Proc Natl Acad Sci USA 108: 18244–18248.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-c833d52a563a4e4b-1",
+    "role": "reference",
+    "zh": "4. Boehm JK, Peterson C, Kivimaki M, Kubzansky L (2011) A prospective study of positive psychological well-being and coronary heart disease. Health Psychol 30: 259–267.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-b935f21d8b34bfcf-1",
+    "role": "reference",
+    "zh": "5. Diener E (2011) Happy people live longer: Subjective well-being contributes to health and longevity. Appl Psychol Health Well Being 3: 1–43.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-70ff0bb354fd2488-1",
+    "role": "reference",
+    "zh": "6. Valenzuela S, Park N, Kee KF (2009) Is There Social Capital in a Social Network Site?: Facebook Use and College Students' Life Satisfaction, Trust, and Participation. J Comput Mediat Commun 14: 875–901.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-41bea3a31fbab26c-1",
+    "role": "reference",
+    "zh": "7. Huang C (2010) Internet use and psychological well-being: A meta-analysis. Cyberpsychol Behav Soc Netw 13: 241–248.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-2bdd3335c52b764a-1",
+    "role": "reference",
+    "zh": "8. Chou H, Edge N (2012) ‘They are happier and having better lives than I am': The impact of using Facebook on perceptions of others’ lives. Cyberpsychol Behav Soc Netw 15: 117–120.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-1b28d75d644955d6-1",
+    "role": "reference",
+    "zh": "9. Forest AL, Wood JV (2012) When Social Networking Is Not Working: Individuals With Low Self-Esteem Recognize but Do Not Reap the Benefits of Self-Disclosure on Facebook. Psychol Sci 23: 295–302.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-80e1d222dfbbf68a-1",
+    "role": "reference",
+    "zh": "10. Manago AM, Taylor T, Greenfield PM (2012) Me and my 400 friends: The anatomy of college students' Facebook networks, their communication patterns, and well-being. Dev Psychol 48: 369–380.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-8cd15a2e1f693970-1",
+    "role": "reference",
+    "zh": "11. Kim J, LaRose R, Peng W (2009) Loneliness as the cause and the effect of problematic Internet use: the relationship between Internet use and psychological well-being. Cyberpsychology & behavior : the impact of the Internet, multimedia and virtual reality on behavior and society 12: 451–455.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-1cfe09ccb2d0188b-1",
+    "role": "reference",
+    "zh": "12. Kahneman D, Krueger AB, Schkade DA, Schwarz N, Stone AA (2004) A survey method for characterizing daily life experience: The day reconstruction method. Science 306: 1776–1780.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-300352768a3b8181-1",
+    "role": "reference",
+    "zh": "13. Diener E, Emmons RA, Larsen RJ, Griffin S (1985) The Satisfaction with Life Scale. J Pers Assess 49: 71–74.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-9ad262495fed0ffd-1",
+    "role": "reference",
+    "zh": "14. Kahneman D, Deaton A (2010) High income improves evaluation of life but not emotional well-being. Proc Natl Acad Sci USA 107: 16489–16493.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-e3a81e5310a9a07c-1",
+    "role": "reference",
+    "zh": "15. Diener E (1984) Subjective Well-Being. Psychol Bull 95: 542–575.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-bc17d60effffe042-1",
+    "role": "reference",
+    "zh": "16. Hofmann W, Vohs KD, Baumeister RF (2012) What people desire, feel conflicted about, and try to resist in everyday life. Psychol Sci",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-8fc453f1da0cab3b-1",
+    "role": "reference",
+    "zh": "17. Bolger N, Davis A, Rafaeli E (2003) Diary methods: Capturing life as it is lived. Annu Rev Psychol 54: 579–616.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-fb554eba80e1099c-1",
+    "role": "reference",
+    "zh": "18. Adam EK, Hawkley LC, Kudielka BM, Cacioppo JT (2006) Day-to-day dynamics of experience–cortisol associations in a population-based sample of older adults. Proc Natl Acad Sci USA 103: 17058–17063.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-73e6f7b798941a0e-1",
+    "role": "reference",
+    "zh": "19. Killingsworth MA, Gilbert DT (2010) A Wandering Mind Is an Unhappy Mind. Science 330: 932–932.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-17bef80b4a89911b-1",
+    "role": "reference",
+    "zh": "20. Beck AT, Steer RA, Brown GK (1996) BDI-II Manual San Antonio: Harcourt Brace & Company.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-5f3895dff7f706e1-1",
+    "role": "reference",
+    "zh": "21.Rosenberg M (1965) Society and the adolescent self-image. Princeton: Princeton University Press.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-a02842798d940acd-1",
+    "role": "reference",
+    "zh": "22. Cutrona CE (1989) Ratings of social support by adolescents and adult informants: Degree of correspondence and prediction of depressive symptoms. Journal of Personality and Social Psychology 57: 723–730.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-c8e34d171cd6341a-1",
+    "role": "reference",
+    "zh": "23. Russell D, Peplau LA, Cutrona CE (1980) The revised UCLA Loneliness Scale: Concurrent and discriminant validity evidence. J Pers Soc Psychol 39: 472–480.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-bc178a4edf044e63-1",
+    "role": "reference",
+    "zh": "24. Moberly NJ, Watkins ER (2008) Ruminative self-focus, negative life events, and negative affect. Behav Res Ther 46: 1034–1039.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-4b518cbffb000fc3-1",
+    "role": "reference",
+    "zh": "25. Cacioppo JT, Hawkley LC, Norman GJ, Berntson GG (2011) Social isolation. Ann N Y Acad Sci 1231: 17–22.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-6db1f5f3d78d3eea-1",
+    "role": "reference",
+    "zh": "26. Bessiére K, Kiesler S, Kraut R, Boneva BS (2008) Effects of Internet use and social resources on changes in depression. Information, Communication, and Society 11: 47–70.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-c66ad766de7e77ba-1",
+    "role": "reference",
+    "zh": "27. Kaplan S, Berman MG (2010) Directed Attention as a Common Resource for Executive Functioning and Self-Regulation. Perspect Psychol Sci 5: 43–57.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-56746229501680ba-1",
+    "role": "reference",
+    "zh": "28. Haferkamp N, Kramer NC (2011) Social Comparison 2.0: Examining the Effects of Online Profiles on Social-Networking Sites. Cyberpsychol Behav Soc Netw 14: 309–314.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-d495a91babf980e8-1",
+    "role": "reference",
+    "zh": "29. Prentice DA, Miller DT (1992) When small effects are impressive. Psychological Bulletin 112: 160–164.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-35db16866d9531e1-1",
+    "role": "reference",
+    "zh": "30. Baumeister RF, Leary MR (1995) The need to belong: desire for interpersonal attachments as a fundamental human motivation. Psychol Bull 117: 497–529.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-689f6a613d42ac9a-1",
+    "role": "reference",
+    "zh": "31. Kross E, Berman MG, Mischel W, Smith EE, Wager TD (2011) Social rejection shares somatosensory representations with physical pain. Proc Natl Acad Sci USA 108: 6270–6275.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-c9a6a543484b00ef-1",
+    "role": "reference",
+    "zh": "32. Eisenberger NI, Cole SW (2012) Social neuroscience and health: neurophysiological mechanisms linking social ties with physical health. Nat Neurosci 15: 669–674.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-da6df781c47b70ba-1",
+    "role": "reference",
+    "zh": "33. House JS, Landis KR, Umberson D (1988) Social relationships and health. Science 241: 540–545.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-4fa5e76ecb0d9422-1",
+    "role": "reference",
+    "zh": "34. Ybarra O, Burnstein E, Winkielman P, Keller MC, Chan E, et al. (2008) Mental exercising through simple socializing: Social interaction promotes general cognitive functioning. Pers Soc Psychol Bull Pers Soc Psychol Bull 34: 248–259.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-12a061689cff2823-7",
+    "role": "supporting",
+    "zh": "(DOCX)",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-98a0280124264cac-7",
+    "role": "supporting",
+    "zh": "Click here for additional data file.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-12a061689cff2823-8",
+    "role": "supporting",
+    "zh": "(DOCX)",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-98a0280124264cac-8",
+    "role": "supporting",
+    "zh": "Click here for additional data file.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-12a061689cff2823-9",
+    "role": "supporting",
+    "zh": "(DOCX)",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-98a0280124264cac-9",
+    "role": "supporting",
+    "zh": "Click here for additional data file.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-12a061689cff2823-10",
+    "role": "supporting",
+    "zh": "(DOCX)",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-98a0280124264cac-10",
+    "role": "supporting",
+    "zh": "Click here for additional data file.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-12a061689cff2823-11",
+    "role": "supporting",
+    "zh": "(DOCX)",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-98a0280124264cac-11",
+    "role": "supporting",
+    "zh": "Click here for additional data file.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-12a061689cff2823-12",
+    "role": "supporting",
+    "zh": "(DOCX)",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-98a0280124264cac-12",
+    "role": "supporting",
+    "zh": "Click here for additional data file.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  }
+]

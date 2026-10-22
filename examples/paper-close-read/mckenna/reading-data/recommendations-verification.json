@@ -1,0 +1,1897 @@
+[
+  {
+    "doi": "10.1191/1478088706qp063oa",
+    "verified_title": "Using thematic analysis in psychology",
+    "metadata_source": "https://api.crossref.org/works/10.1191/1478088706qp063oa",
+    "basis": "原文引用语境与书目；Crossref出版商登记元数据；未声称已全文精读推荐文章",
+    "metadata": {
+      "indexed": {
+        "date-parts": [
+          [
+            2026,
+            10,
+            22
+          ]
+        ],
+        "date-time": "2026-10-22T03:28:48Z",
+        "timestamp": 1792639728890,
+        "version": "4.5.0"
+      },
+      "reference-count": 70,
+      "publisher": "Informa UK Limited",
+      "issue": "2",
+      "content-domain": {
+        "domain": [],
+        "crossmark-restriction": false
+      },
+      "short-container-title": [
+        "Qualitative Research in Psychology"
+      ],
+      "published-print": {
+        "date-parts": [
+          [
+            2006,
+            1
+          ]
+        ]
+      },
+      "DOI": "10.1191/1478088706qp063oa",
+      "type": "journal-article",
+      "created": {
+        "date-parts": [
+          [
+            2006,
+            4,
+            6
+          ]
+        ],
+        "date-time": "2006-04-06T09:35:45Z",
+        "timestamp": 1144316145000
+      },
+      "page": "77-101",
+      "source": "Crossref",
+      "is-referenced-by-count": 162316,
+      "title": [
+        "Using thematic analysis in psychology"
+      ],
+      "prefix": "10.1080",
+      "volume": "3",
+      "author": [
+        {
+          "given": "Virginia",
+          "family": "Braun",
+          "sequence": "first",
+          "affiliation": [
+            {
+              "name": "University of Auckland"
+            }
+          ],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        },
+        {
+          "given": "Victoria",
+          "family": "Clarke",
+          "sequence": "additional",
+          "affiliation": [
+            {
+              "name": "University of the West of England"
+            }
+          ],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        }
+      ],
+      "member": "301",
+      "published-online": {
+        "date-parts": [
+          [
+            2008,
+            7,
+            21
+          ]
+        ]
+      },
+      "reference": [
+        {
+          "issue": "1",
+          "key": "e_1_2_1_2_1",
+          "article-title": "Discourse analysis means doing analysis: a critique of six analytic shortcomings",
+          "volume": "1",
+          "author": "Antaki C.",
+          "year": "2002",
+          "unstructured": "Antaki , C. , Billig , M. , Edwards , D. and Potter , J. 2002 . Discourse analysis means doing analysis: a critique of six analytic shortcomings . DAOL Discourse Analysis Online [electronic version] , 1 ( 1 )",
+          "journal-title": "DAOL Discourse Analysis Online [electronic version]"
+        },
+        {
+          "issue": "1",
+          "key": "e_1_2_1_3_1",
+          "article-title": "A pragmatic view of thematic analysis",
+          "volume": "2",
+          "author": "Aronson J.",
+          "year": "1994",
+          "unstructured": "Aronson , J. 1994 . A pragmatic view of thematic analysis . Qualitative Report , 2 ( 1 )",
+          "journal-title": "Qualitative Report"
+        },
+        {
+          "key": "e_1_2_1_4_1",
+          "volume-title": "Structures of social action: studies in conversation analysis",
+          "author": "Atkinson J. M.",
+          "year": "1984",
+          "unstructured": "Atkinson , J. M. and Heritage , J. 1984 . Structures of social action: studies in conversation analysis , Cambridge University Press ."
+        },
+        {
+          "key": "e_1_2_1_5_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/146879410100100307"
+        },
+        {
+          "key": "e_1_2_1_6_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1077800404273413"
+        },
+        {
+          "key": "e_1_2_1_7_1",
+          "volume-title": "Transforming qualitative information: thematic analysis and code development",
+          "author": "Boyatzis R. E.",
+          "year": "1998",
+          "unstructured": "Boyatzis , R. E. 1998 . Transforming qualitative information: thematic analysis and code development , Sage ."
+        },
+        {
+          "key": "e_1_2_1_8_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1363460705056625"
+        },
+        {
+          "key": "e_1_2_1_9_1",
+          "volume-title": "Selling the perfect vulva",
+          "author": "Braun V.",
+          "year": "2005",
+          "unstructured": "Braun , V. 2005b . Selling the perfect vulva Manuscript under submission"
+        },
+        {
+          "key": "e_1_2_1_10_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1080/13691050152484704"
+        },
+        {
+          "key": "e_1_2_1_11_1",
+          "doi-asserted-by": "crossref",
+          "first-page": "28",
+          "DOI": "10.53841/bpspow.2003.5.2.28",
+          "article-title": "Liability or asset? Women talk about the vagina",
+          "volume": "5",
+          "author": "Braun V.",
+          "year": "2003",
+          "unstructured": "Braun , V. and Wilkinson , S. 2003 . Liability or asset? Women talk about the vagina . Psychology of Women Section Review , 5 : 28 – 42 .",
+          "journal-title": "Psychology of Women Section Review"
+        },
+        {
+          "key": "e_1_2_1_12_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1363460703006002005"
+        },
+        {
+          "key": "e_1_2_1_13_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.4324/9780203410028"
+        },
+        {
+          "key": "e_1_2_1_14_1",
+          "volume-title": "Social research methods",
+          "author": "Bryman A.",
+          "year": "2001",
+          "unstructured": "Bryman , A. 2001 . Social research methods , Oxford University Press ."
+        },
+        {
+          "key": "e_1_2_1_15_1",
+          "volume-title": "Discourse analytic research: repertoires and readings of texts in action",
+          "author": "Burman E.",
+          "year": "1993",
+          "unstructured": "Burman , E. and Parker , I. , eds. 1993 . Discourse analytic research: repertoires and readings of texts in action , Routledge ."
+        },
+        {
+          "key": "e_1_2_1_16_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.4324/9780203299968"
+        },
+        {
+          "key": "e_1_2_1_17_1",
+          "first-page": "675",
+          "volume-title": "Handbook of interview research: context and method",
+          "author": "Charmaz K.",
+          "year": "2002",
+          "unstructured": "Charmaz , K. 2002 . “ Qualitative interviewing and grounded theory analysis ” . In Handbook of interview research: context and method , Edited by: Gubrium , J. F. and Holstein , J. A. 675 – 94 . Sage ."
+        },
+        {
+          "key": "e_1_2_1_18_1",
+          "doi-asserted-by": "crossref",
+          "first-page": "2",
+          "DOI": "10.53841/bpslg.2005.6.1.2",
+          "article-title": "‘We're all very liberal in our views’: Students' talk about lesbian and gay parenting",
+          "volume": "6",
+          "author": "Clarke V.",
+          "year": "2005",
+          "unstructured": "Clarke , V. 2005 . ‘We're all very liberal in our views’: Students' talk about lesbian and gay parenting . Lesbian and Gay Psychology Review , 6 : 2 – 15 .",
+          "journal-title": "Lesbian and Gay Psychology Review"
+        },
+        {
+          "key": "e_1_2_1_19_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1191/1478088704qp014oa"
+        },
+        {
+          "key": "e_1_2_1_20_1",
+          "volume-title": "‘Who would take whose name?’ An exploratory study of naming practices in same-sex relationships",
+          "author": "Clarke V.",
+          "year": "2006",
+          "unstructured": "Clarke , V. , Burns , M. and Burgoyne , C. 2006 . ‘Who would take whose name?’ An exploratory study of naming practices in same-sex relationships Manuscript under submission"
+        },
+        {
+          "key": "e_1_2_1_21_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.4324/9780203412497"
+        },
+        {
+          "key": "e_1_2_1_22_1",
+          "first-page": "3",
+          "volume-title": "Talking data: transcription and coding in discourse research",
+          "author": "Edwards J. A.",
+          "year": "1993",
+          "unstructured": "Edwards , J. A. 1993 . “ Principles and contrasting systems of discourse transcription ” . In Talking data: transcription and coding in discourse research , Edited by: Edwards , J. A. and Lampert , M. D. 3 – 31 . Lawrence Erlbaum Associates ."
+        },
+        {
+          "key": "e_1_2_1_23_1",
+          "volume-title": "Talking data: transcription and coding in discourse research",
+          "author": "Edwards J. A.",
+          "year": "1993",
+          "unstructured": "Edwards , J. A. and Lampert , M. D. , eds. 1993 . Talking data: transcription and coding in discourse research , Lawrence Erlbaum Associates ."
+        },
+        {
+          "key": "e_1_2_1_24_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1348/014466599162782"
+        },
+        {
+          "key": "e_1_2_1_25_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1002/casp.670"
+        },
+        {
+          "key": "e_1_2_1_26_1",
+          "volume-title": "On writing qualitative research: living by words",
+          "author": "Ely M.",
+          "year": "1997",
+          "unstructured": "Ely , M. , Vinz , R. , Downing , M. and Anzul , M. 1997 . On writing qualitative research: living by words , Routledge/Falmer ."
+        },
+        {
+          "key": "e_1_2_1_27_1",
+          "volume-title": "Disruptive voices: the possibilities for feminist research",
+          "author": "Fine M.",
+          "year": "2002",
+          "unstructured": "Fine , M. 2002 . Disruptive voices: the possibilities for feminist research , University of Michigan Press ."
+        },
+        {
+          "key": "e_1_2_1_28_1",
+          "volume-title": "Carrying out investigations in psychology: methods and statistics",
+          "author": "Foster J. J.",
+          "year": "1995",
+          "unstructured": "Foster , J. J. and Parker , I. 1995 . Carrying out investigations in psychology: methods and statistics , BPS Books ."
+        },
+        {
+          "key": "e_1_2_1_29_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037/1524-9220.5.1.40"
+        },
+        {
+          "key": "e_1_2_1_30_1",
+          "volume-title": "Basics of grounded theory analysis",
+          "author": "Glaser B.",
+          "year": "1992",
+          "unstructured": "Glaser , B. 1992 . Basics of grounded theory analysis , Sociology Press ."
+        },
+        {
+          "key": "e_1_2_1_31_1",
+          "volume-title": "Doing qualitative analysis in psychology",
+          "author": "Hayes N.",
+          "year": "1997",
+          "unstructured": "Hayes , N. 1997 . “ Theory-led thematic analysis: social identification in small companies ” . In Doing qualitative analysis in psychology , Edited by: Hayes , N. Psychology Press ."
+        },
+        {
+          "key": "e_1_2_1_32_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1468794103033004"
+        },
+        {
+          "key": "e_1_2_1_33_1",
+          "volume-title": "Subjectivity and method in psychology: gender, meaning and science",
+          "author": "Hollway W.",
+          "year": "1989",
+          "unstructured": "Hollway , W. 1989 . Subjectivity and method in psychology: gender, meaning and science , Sage ."
+        },
+        {
+          "key": "e_1_2_1_34_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.4135/9781849209007"
+        },
+        {
+          "key": "e_1_2_1_35_1",
+          "volume-title": "Conversation analysis: principles, practices and applications",
+          "author": "Hutchby I.",
+          "year": "1998",
+          "unstructured": "Hutchby , I. and Wooffitt , R. 1998 . Conversation analysis: principles, practices and applications , Polity Press ."
+        },
+        {
+          "key": "e_1_2_1_36_1",
+          "first-page": "276",
+          "volume-title": "A companion to qualitative research",
+          "author": "Kelle U.",
+          "year": "2004",
+          "unstructured": "Kelle , U. 2004 . “ Computer-assisted analysis of qualitative data ” . In A companion to qualitative research , Edited by: Flick , U. , von Kardorff , E. and Steinke , I. 276 – 83 . Sage ."
+        },
+        {
+          "key": "e_1_2_1_37_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1016/S0277-9536(01)00034-X"
+        },
+        {
+          "key": "e_1_2_1_38_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/107780049900500104"
+        },
+        {
+          "issue": "1",
+          "key": "e_1_2_1_39_1",
+          "article-title": "Qualitative research airy fairy or fundamental?",
+          "volume": "8",
+          "author": "Laubschagne A.",
+          "year": "2003",
+          "unstructured": "Laubschagne , A. 2003 . Qualitative research airy fairy or fundamental? . Qualitative Report [electronic version] , 8 ( 1 )",
+          "journal-title": "Qualitative Report [electronic version]"
+        },
+        {
+          "key": "e_1_2_1_40_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.4135/9781849209663"
+        },
+        {
+          "key": "e_1_2_1_41_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1046/j.1365-2648.2000.01289.x"
+        },
+        {
+          "key": "e_1_2_1_42_1",
+          "volume-title": "Qualitative data analysis: an expanded sourcebook,",
+          "author": "Miles M. B.",
+          "year": "1994",
+          "unstructured": "Miles , M. B. and Huberman , A. M. 1994 . Qualitative data analysis: an expanded sourcebook, , second edition , Sage ."
+        },
+        {
+          "key": "e_1_2_1_43_1",
+          "first-page": "111",
+          "volume-title": "Qualitative psychology: a practical guide to research methods",
+          "author": "Murray M.",
+          "year": "2003",
+          "unstructured": "Murray , M. 2003 . “ Narrative psychology ” . In Qualitative psychology: a practical guide to research methods , Edited by: Smith , J. A. 111 – 31 . Sage ."
+        },
+        {
+          "key": "e_1_2_1_44_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1191/1478088704qp010oa"
+        },
+        {
+          "key": "e_1_2_1_45_1",
+          "volume-title": "Qualitative evaluation and research methods,",
+          "author": "Patton M. Q.",
+          "year": "1990",
+          "unstructured": "Patton , M. Q. 1990 . Qualitative evaluation and research methods, , second edition , Sage ."
+        },
+        {
+          "key": "e_1_2_1_46_1",
+          "first-page": "629",
+          "volume-title": "Handbook of interview research: context and method",
+          "author": "Poland B. D.",
+          "year": "2002",
+          "unstructured": "Poland , B. D. 2002 . “ Transcription quality ” . In Handbook of interview research: context and method , Edited by: Gubrium , J. F. and Holstein , J. A. 629 – 49 . Sage ."
+        },
+        {
+          "key": "e_1_2_1_47_1",
+          "first-page": "144",
+          "volume-title": "Qualitative research: theory, method and practice",
+          "author": "Potter J.",
+          "year": "1997",
+          "unstructured": "Potter , J. 1997 . “ Discourse analysis as a way of analysing naturally occurring talk ” . In Qualitative research: theory, method and practice , Edited by: Silverman , D. 144 – 60 . Sage ."
+        },
+        {
+          "key": "e_1_2_1_48_1",
+          "volume-title": "Discourse and social psychology: beyond attitudes and behaviour",
+          "author": "Potter J.",
+          "year": "1987",
+          "unstructured": "Potter , J. and Wetherell , M. 1987 . Discourse and social psychology: beyond attitudes and behaviour , Sage ."
+        },
+        {
+          "key": "e_1_2_1_49_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1348/014466500163031"
+        },
+        {
+          "key": "e_1_2_1_50_1",
+          "first-page": "547",
+          "article-title": "Similarities and differences between traditions",
+          "volume": "18",
+          "author": "Reicher S.",
+          "year": "2005",
+          "unstructured": "Reicher , S. and Taylor , S. 2005 . Similarities and differences between traditions . Psychologist , 18 : 547 – 49 .",
+          "journal-title": "Psychologist"
+        },
+        {
+          "key": "e_1_2_1_51_1",
+          "volume-title": "Narrative analysis",
+          "author": "Riessman C. K.",
+          "year": "1993",
+          "unstructured": "Riessman , C. K. 1993 . Narrative analysis , Sage ."
+        },
+        {
+          "key": "e_1_2_1_52_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/146879410100100302"
+        },
+        {
+          "key": "e_1_2_1_53_1",
+          "volume-title": "Qualitative interviewing: the art of hearing data",
+          "author": "Rubin H. J.",
+          "year": "1995",
+          "unstructured": "Rubin , H. J. and Rubin , I. S. 1995 . Qualitative interviewing: the art of hearing data , Sage ."
+        },
+        {
+          "key": "e_1_2_1_54_1",
+          "first-page": "769",
+          "volume-title": "Handbook of qualitative research,",
+          "author": "Ryan G. W.",
+          "year": "2000",
+          "unstructured": "Ryan , G. W. and Bernard , H. R. 2000 . “ Data management and analysis methods ” . In Handbook of qualitative research, , second edition , Edited by: Denzin , N. K. and Lincoln , Y. S. 769 – 802 . Sage ."
+        },
+        {
+          "key": "e_1_2_1_55_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.4135/9780857020093"
+        },
+        {
+          "key": "e_1_2_1_56_1",
+          "first-page": "155",
+          "volume-title": "Doing qualitative research: a practical handbook",
+          "author": "Seale C.",
+          "year": "2000",
+          "unstructured": "Seale , C. and Silverman , D. 2000 . “ Using computers to analyse qualitative data ” . In Doing qualitative research: a practical handbook , 155 – 74 . Sage ."
+        },
+        {
+          "key": "e_1_2_1_57_1",
+          "volume-title": "Doing qualitative research: a practical handbook",
+          "author": "Silverman D.",
+          "year": "2000",
+          "unstructured": "Silverman , D. , ed. 2000 . Doing qualitative research: a practical handbook , Sage ."
+        },
+        {
+          "key": "e_1_2_1_58_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1080/02646839908404585"
+        },
+        {
+          "key": "e_1_2_1_59_1",
+          "volume-title": "Qualitative psychology: a practical guide to methods",
+          "author": "Smith J. A.",
+          "year": "2003",
+          "unstructured": "Smith , J. A. and Osborn , M. 2003 . “ Interpretative phenomenological analysis ” . In Qualitative psychology: a practical guide to methods , Edited by: Smith , J. A. Sage ."
+        },
+        {
+          "key": "e_1_2_1_60_1",
+          "volume-title": "Qualitative health psychology: theories and methods",
+          "author": "Smith J. A.",
+          "year": "1999",
+          "unstructured": "Smith , J. A. , Jarman , M. and Osborn , M. 1999 . “ Doing interpretative phenomenological analysis ” . In Qualitative health psychology: theories and methods , Edited by: Murray , M. and Chamberlain , M. M.K. Sage ."
+        },
+        {
+          "key": "e_1_2_1_61_1",
+          "first-page": "94",
+          "volume-title": "Discourse analytic research: repertoires and readings of texts in action",
+          "author": "Stenner P.",
+          "year": "1993",
+          "unstructured": "Stenner , P. 1993 . “ Discoursing jealousy ” . In Discourse analytic research: repertoires and readings of texts in action , Edited by: Burman , E. and Parker , I. 94 – 132 . Routledge ."
+        },
+        {
+          "key": "e_1_2_1_62_1",
+          "volume-title": "Basics of qualitative research: techniques and procedures for developing grounded theory",
+          "author": "Strauss A.",
+          "year": "1998",
+          "unstructured": "Strauss , A. and Corbin , J. 1998 . Basics of qualitative research: techniques and procedures for developing grounded theory , Sage ."
+        },
+        {
+          "key": "e_1_2_1_63_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/136346001004003002"
+        },
+        {
+          "key": "e_1_2_1_64_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1191/1478088704qp006oa"
+        },
+        {
+          "key": "e_1_2_1_65_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.5172/conu.19.1-2.75"
+        },
+        {
+          "key": "e_1_2_1_66_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/136346000003002005"
+        },
+        {
+          "key": "e_1_2_1_67_1",
+          "volume-title": "The language of youth subcultures: social identity in action",
+          "author": "Widdicombe S.",
+          "year": "1995",
+          "unstructured": "Widdicombe , S. and Wooffitt , R. 1995 . The language of youth subcultures: social identity in action , Harvester Wheatsheaf ."
+        },
+        {
+          "key": "e_1_2_1_68_1",
+          "doi-asserted-by": "crossref",
+          "first-page": "431",
+          "DOI": "10.1177/0959353500010004003",
+          "article-title": "Women with breast cancer talking causes: comparing content, biographical and discursive analyses",
+          "volume": "10",
+          "author": "Wilkinson S.",
+          "year": "2000",
+          "unstructured": "Wilkinson , S. 2000 . Women with breast cancer talking causes: comparing content, biographical and discursive analyses . Feminism & Psychology , 10 : 431 – 60 .",
+          "journal-title": "Feminism & Psychology"
+        },
+        {
+          "key": "e_1_2_1_69_1",
+          "first-page": "37",
+          "volume-title": "Social constructionist psychology: a critical analysis of theory and practice",
+          "author": "Willig C.",
+          "year": "1999",
+          "unstructured": "Willig , C. 1999 . “ Beyond appearances: a critical realist approach to social constructionism ” . In Social constructionist psychology: a critical analysis of theory and practice , Edited by: Nightingale , D. J. and Cromby , J. 37 – 51 . Open University Press ."
+        },
+        {
+          "key": "e_1_2_1_70_1",
+          "first-page": "159",
+          "volume-title": "Qualitative psychology: a practical guide to research methods",
+          "author": "Willig C.",
+          "year": "2003",
+          "unstructured": "Willig , C. 2003 . “ Discourse analysis ” . In Qualitative psychology: a practical guide to research methods , Edited by: Smith , J. A. 159 – 83 . Sage ."
+        },
+        {
+          "key": "e_1_2_1_71_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1080/08870440008400302"
+        }
+      ],
+      "container-title": [
+        "Qualitative Research in Psychology"
+      ],
+      "original-title": [],
+      "language": "en",
+      "link": [
+        {
+          "URL": "https://www.tandfonline.com/doi/pdf/10.1191/1478088706qp063oa",
+          "content-type": "unspecified",
+          "content-version": "vor",
+          "intended-application": "similarity-checking"
+        }
+      ],
+      "deposited": {
+        "date-parts": [
+          [
+            2025,
+            9,
+            1
+          ]
+        ],
+        "date-time": "2025-09-01T10:00:50Z",
+        "timestamp": 1756720850000
+      },
+      "score": 1,
+      "resource": {
+        "primary": {
+          "URL": "https://www.tandfonline.com/doi/full/10.1191/1478088706qp063oa"
+        }
+      },
+      "subtitle": [],
+      "short-title": [],
+      "issued": {
+        "date-parts": [
+          [
+            2006,
+            1
+          ]
+        ]
+      },
+      "references-count": 70,
+      "journal-issue": {
+        "issue": "2",
+        "published-print": {
+          "date-parts": [
+            [
+              2006,
+              1
+            ]
+          ]
+        }
+      },
+      "alternative-id": [
+        "10.1191/1478088706qp063oa"
+      ],
+      "URL": "https://doi.org/10.1191/1478088706qp063oa",
+      "relation": {},
+      "ISSN": [
+        "1478-0887",
+        "1478-0895"
+      ],
+      "issn-type": [
+        {
+          "value": "1478-0887",
+          "type": "print"
+        },
+        {
+          "value": "1478-0895",
+          "type": "electronic"
+        }
+      ],
+      "subject": [],
+      "published": {
+        "date-parts": [
+          [
+            2006,
+            1
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "doi": "10.1080/2159676X.2019.1628806",
+    "verified_title": "Reflecting on reflexive thematic analysis",
+    "metadata_source": "https://api.crossref.org/works/10.1080/2159676X.2019.1628806",
+    "basis": "原文引用语境与书目；Crossref出版商登记元数据；未声称已全文精读推荐文章",
+    "metadata": {
+      "indexed": {
+        "date-parts": [
+          [
+            2026,
+            10,
+            22
+          ]
+        ],
+        "date-time": "2026-10-22T03:17:14Z",
+        "timestamp": 1792639034003,
+        "version": "4.5.0"
+      },
+      "reference-count": 42,
+      "publisher": "Informa UK Limited",
+      "issue": "4",
+      "content-domain": {
+        "domain": [
+          "www.tandfonline.com"
+        ],
+        "crossmark-restriction": true
+      },
+      "short-container-title": [
+        "Qualitative Research in Sport, Exercise and Health"
+      ],
+      "published-print": {
+        "date-parts": [
+          [
+            2019,
+            8,
+            8
+          ]
+        ]
+      },
+      "DOI": "10.1080/2159676x.2019.1628806",
+      "type": "journal-article",
+      "created": {
+        "date-parts": [
+          [
+            2019,
+            6,
+            13
+          ]
+        ],
+        "date-time": "2019-06-13T09:03:12Z",
+        "timestamp": 1560416592000
+      },
+      "page": "589-597",
+      "update-policy": "https://doi.org/10.1080/tandf_crossmark_01",
+      "source": "Crossref",
+      "is-referenced-by-count": 18160,
+      "title": [
+        "Reflecting on reflexive thematic analysis"
+      ],
+      "prefix": "10.1080",
+      "volume": "11",
+      "author": [
+        {
+          "given": "Virginia",
+          "family": "Braun",
+          "sequence": "first",
+          "affiliation": [
+            {
+              "name": "School of Psychology, The University of Auckland, Auckland, New Zealand"
+            }
+          ],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        },
+        {
+          "given": "Victoria",
+          "family": "Clarke",
+          "sequence": "additional",
+          "affiliation": [
+            {
+              "name": "Department of Health and Social Sciences, University of the West of England, Bristol, UK"
+            }
+          ],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        }
+      ],
+      "member": "301",
+      "published-online": {
+        "date-parts": [
+          [
+            2019,
+            6,
+            13
+          ]
+        ]
+      },
+      "reference": [
+        {
+          "key": "CIT0001",
+          "volume-title": "Explaining and Arguing: The Social Organisation of Accounts",
+          "author": "Antaki C.",
+          "year": "1994"
+        },
+        {
+          "key": "CIT0002",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1080/02701367.1989.10607428"
+        },
+        {
+          "key": "CIT0003",
+          "volume-title": "Arguing and Thinking: A Rhetorical Approach to Social Psychology",
+          "author": "Billig M.",
+          "year": "1987"
+        },
+        {
+          "key": "CIT0004",
+          "volume-title": "Transforming Qualitative Information: Thematic Analysis and Code Development",
+          "author": "Boyatzis R. E.",
+          "year": "1998"
+        },
+        {
+          "key": "CIT0005",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037/13620-004"
+        },
+        {
+          "key": "CIT0006",
+          "first-page": "183",
+          "volume-title": "The Counselling & Psychotherapy Research Handbook",
+          "author": "Braun V.",
+          "year": "2014"
+        },
+        {
+          "key": "CIT0007",
+          "first-page": "95",
+          "volume-title": "Qualitative Research in Clinical and Health Psychology",
+          "author": "Braun V.",
+          "year": "2014"
+        },
+        {
+          "key": "CIT0008",
+          "first-page": "191",
+          "volume-title": "International Handbook on Qualitative Research in Sport and Exercise",
+          "author": "Braun V.",
+          "year": "2016"
+        },
+        {
+          "key": "CIT0009",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1007/978-981-10-2779-6_103-1"
+        },
+        {
+          "key": "CIT0010",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1191/1478088706qp063oa"
+        },
+        {
+          "key": "CIT0011",
+          "volume-title": "Successful Qualitative Research: A Practical Guide for Beginners",
+          "author": "Braun V.",
+          "year": "2013"
+        },
+        {
+          "key": "CIT0012",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1080/13645579.2016.1195588"
+        },
+        {
+          "key": "CIT0013",
+          "unstructured": "Braun, V., V. Clarke, and P. Weate. 2017. Using Thematic Analysis in Sport and Exercise Research. “ In \n                      Routledge Handbook of Qualitative Research in Sport and Exercise,\n                       edited by B. Smith and A. C. Sparkes, 191-205. London: Routledge."
+        },
+        {
+          "key": "CIT0014",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/135910530000500306"
+        },
+        {
+          "key": "CIT0015",
+          "first-page": "222",
+          "volume-title": "Qualitative Psychology: A Practical Guide to Research Methods",
+          "author": "Clarke V.",
+          "year": "2015",
+          "edition": "3"
+        },
+        {
+          "key": "CIT0016",
+          "first-page": "84",
+          "volume-title": "Analysing Qualitative Data in Psychology",
+          "author": "Clarke V.",
+          "year": "2016",
+          "edition": "2"
+        },
+        {
+          "key": "CIT0017",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1002/capr.2018.18.issue-2"
+        },
+        {
+          "key": "CIT0018",
+          "first-page": "5",
+          "author": "Connelly L. M.",
+          "year": "2016",
+          "journal-title": "Clinical Nurse Specialist"
+        },
+        {
+          "key": "CIT0019",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.21586/ross0000002"
+        },
+        {
+          "key": "CIT0020",
+          "volume-title": "Discursive Psychology",
+          "author": "Edwards D.",
+          "year": "1992"
+        },
+        {
+          "key": "CIT0021",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.12968/ijtr.2016.23.4.182"
+        },
+        {
+          "key": "CIT0022",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037/a0029313"
+        },
+        {
+          "key": "CIT0023",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.4135/9781483384436"
+        },
+        {
+          "key": "CIT0024",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1080/2159676X.2014.949835"
+        },
+        {
+          "key": "CIT0025",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037/spy0000041"
+        },
+        {
+          "key": "CIT0026",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/jan.13255"
+        },
+        {
+          "issue": "1",
+          "key": "CIT0027",
+          "first-page": "43",
+          "volume": "19",
+          "author": "Jankowski G.",
+          "year": "2017",
+          "journal-title": "Psychology of Women Section Review"
+        },
+        {
+          "key": "CIT0028",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1002/ev.1459"
+        },
+        {
+          "key": "CIT0029",
+          "first-page": "219",
+          "volume-title": "The Sage Handbook of Qualitative Business and Management Research Methods",
+          "author": "King N.",
+          "year": "2017"
+        },
+        {
+          "key": "CIT0030",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.4135/9781473983304"
+        },
+        {
+          "key": "CIT0031",
+          "volume-title": "The Social Construction of Lesbianism",
+          "author": "Kitzinger C.",
+          "year": "1987"
+        },
+        {
+          "key": "CIT0032",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/00380385030373002"
+        },
+        {
+          "key": "CIT0033",
+          "first-page": "3",
+          "volume-title": "Qualitative Nursing Research",
+          "author": "Morse J. M.",
+          "year": "1989"
+        },
+        {
+          "key": "CIT0034",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1049732306294511"
+        },
+        {
+          "key": "CIT0035",
+          "volume-title": "Discourse and Social Psychology: Beyond Attitudes and Behaviour",
+          "author": "Potter J.",
+          "year": "1987"
+        },
+        {
+          "key": "CIT0036",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.4324/9780203413081_chapter_9"
+        },
+        {
+          "key": "CIT0037",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1123/jsep.11.1.65"
+        },
+        {
+          "key": "CIT0038",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/14614456020040040601"
+        },
+        {
+          "key": "CIT0039",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.4135/9781526405555.n2"
+        },
+        {
+          "key": "CIT0040",
+          "volume-title": "Discursive Psychology: Theory, Method and Applications",
+          "author": "Wiggins S.",
+          "year": "2016"
+        },
+        {
+          "key": "CIT0041",
+          "volume-title": "Feminism and Discourse: Psychological Perspectives",
+          "author": "Wilkinson S.",
+          "year": "1995"
+        },
+        {
+          "key": "CIT0042",
+          "volume-title": "Introducing Qualitative Research in Psychology: Adventures in Theory and Method",
+          "author": "Willig C.",
+          "year": "2008",
+          "edition": "2"
+        }
+      ],
+      "container-title": [
+        "Qualitative Research in Sport, Exercise and Health"
+      ],
+      "original-title": [],
+      "language": "en",
+      "link": [
+        {
+          "URL": "https://www.tandfonline.com/doi/pdf/10.1080/2159676X.2019.1628806",
+          "content-type": "unspecified",
+          "content-version": "vor",
+          "intended-application": "similarity-checking"
+        }
+      ],
+      "deposited": {
+        "date-parts": [
+          [
+            2019,
+            6,
+            20
+          ]
+        ],
+        "date-time": "2019-06-20T08:58:08Z",
+        "timestamp": 1561021088000
+      },
+      "score": 1,
+      "resource": {
+        "primary": {
+          "URL": "https://www.tandfonline.com/doi/full/10.1080/2159676X.2019.1628806"
+        }
+      },
+      "subtitle": [],
+      "short-title": [],
+      "issued": {
+        "date-parts": [
+          [
+            2019,
+            6,
+            13
+          ]
+        ]
+      },
+      "references-count": 42,
+      "journal-issue": {
+        "issue": "4",
+        "published-online": {
+          "date-parts": [
+            [
+              2018,
+              11,
+              26
+            ]
+          ]
+        },
+        "published-print": {
+          "date-parts": [
+            [
+              2019,
+              8,
+              8
+            ]
+          ]
+        }
+      },
+      "alternative-id": [
+        "10.1080/2159676X.2019.1628806"
+      ],
+      "URL": "https://doi.org/10.1080/2159676x.2019.1628806",
+      "relation": {},
+      "ISSN": [
+        "2159-676X",
+        "2159-6778"
+      ],
+      "issn-type": [
+        {
+          "value": "2159-676X",
+          "type": "print"
+        },
+        {
+          "value": "2159-6778",
+          "type": "electronic"
+        }
+      ],
+      "subject": [],
+      "published": {
+        "date-parts": [
+          [
+            2019,
+            6,
+            13
+          ]
+        ]
+      },
+      "assertion": [
+        {
+          "value": "The publishing and review policy for this title is described in its Aims & Scope.",
+          "order": 1,
+          "name": "peerreview_statement",
+          "label": "Peer Review Statement"
+        },
+        {
+          "value": "http://www.tandfonline.com/action/journalInformation?show=aimsScope&journalCode=rqrs21",
+          "URL": "http://www.tandfonline.com/action/journalInformation?show=aimsScope&journalCode=rqrs21",
+          "order": 2,
+          "name": "aims_and_scope_url",
+          "label": "Aim & Scope"
+        },
+        {
+          "value": "2019-05-31",
+          "order": 0,
+          "name": "received",
+          "label": "Received",
+          "group": {
+            "name": "publication_history",
+            "label": "Publication History"
+          }
+        },
+        {
+          "value": "2019-06-04",
+          "order": 2,
+          "name": "accepted",
+          "label": "Accepted",
+          "group": {
+            "name": "publication_history",
+            "label": "Publication History"
+          }
+        },
+        {
+          "value": "2019-06-13",
+          "order": 3,
+          "name": "published",
+          "label": "Published",
+          "group": {
+            "name": "publication_history",
+            "label": "Publication History"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "doi": "10.1080/2159676X.2019.1704846",
+    "verified_title": "To saturate or not to saturate? Questioning data saturation as a useful concept for thematic analysis and sample-size rationales",
+    "metadata_source": "https://api.crossref.org/works/10.1080/2159676X.2019.1704846",
+    "basis": "原文引用语境与书目；Crossref出版商登记元数据；未声称已全文精读推荐文章",
+    "metadata": {
+      "indexed": {
+        "date-parts": [
+          [
+            2026,
+            10,
+            22
+          ]
+        ],
+        "date-time": "2026-10-22T03:17:49Z",
+        "timestamp": 1792639069446,
+        "version": "4.5.0"
+      },
+      "reference-count": 58,
+      "publisher": "Informa UK Limited",
+      "issue": "2",
+      "content-domain": {
+        "domain": [
+          "www.tandfonline.com"
+        ],
+        "crossmark-restriction": true
+      },
+      "short-container-title": [
+        "Qualitative Research in Sport, Exercise and Health"
+      ],
+      "published-print": {
+        "date-parts": [
+          [
+            2021,
+            3,
+            4
+          ]
+        ]
+      },
+      "DOI": "10.1080/2159676x.2019.1704846",
+      "type": "journal-article",
+      "created": {
+        "date-parts": [
+          [
+            2019,
+            12,
+            27
+          ]
+        ],
+        "date-time": "2019-12-27T01:13:08Z",
+        "timestamp": 1577409188000
+      },
+      "page": "201-216",
+      "update-policy": "https://doi.org/10.1080/tandf_crossmark_01",
+      "source": "Crossref",
+      "is-referenced-by-count": 4378,
+      "title": [
+        "To saturate or not to saturate? Questioning data saturation as a useful concept for thematic analysis and sample-size rationales"
+      ],
+      "prefix": "10.1080",
+      "volume": "13",
+      "author": [
+        {
+          "ORCID": "https://orcid.org/0000-0002-3435-091X",
+          "authenticated-orcid": false,
+          "given": "Virginia",
+          "family": "Braun",
+          "sequence": "first",
+          "affiliation": [
+            {
+              "name": "The School of Psychology, The University of Auckland, Auckland, Āotearoa/New Zealand"
+            }
+          ],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        },
+        {
+          "ORCID": "https://orcid.org/0000-0001-9405-7363",
+          "authenticated-orcid": false,
+          "given": "Victoria",
+          "family": "Clarke",
+          "sequence": "additional",
+          "affiliation": [
+            {
+              "name": "Department of Health and Social Sciences, Faculty of Health and Applied Sciences, University of the West of England, Bristol, UK"
+            }
+          ],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        }
+      ],
+      "member": "301",
+      "published-online": {
+        "date-parts": [
+          [
+            2019,
+            12,
+            26
+          ]
+        ]
+      },
+      "reference": [
+        {
+          "key": "cit0001",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.2466/03.CP.3.4"
+        },
+        {
+          "key": "cit0002",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1468794107085301"
+        },
+        {
+          "key": "cit0003",
+          "volume-title": "Transforming Qualitative Information: Thematic Analysis and Code Development",
+          "author": "Boyatzis R. E.",
+          "year": "1998"
+        },
+        {
+          "key": "cit0004",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1371/journal.pone.0059881"
+        },
+        {
+          "key": "cit0005",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037/13620-004"
+        },
+        {
+          "key": "cit0006",
+          "first-page": "183",
+          "volume-title": "The Counselling & Psychotherapy Research Handbook",
+          "author": "Braun V.",
+          "year": "2014"
+        },
+        {
+          "key": "cit0007",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1007/978-981-10-5251-4_103"
+        },
+        {
+          "key": "cit0008",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1191/1478088706qp063oa"
+        },
+        {
+          "key": "cit0009",
+          "volume-title": "Successful Qualitative Research: A Practical Guide for Beginners",
+          "author": "Braun V.",
+          "year": "2013"
+        },
+        {
+          "key": "cit0010",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1080/13645579.2016.1195588"
+        },
+        {
+          "key": "cit0011",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1080/2159676X.2019.1628806"
+        },
+        {
+          "key": "cit0012",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1186/1471-2288-11-26"
+        },
+        {
+          "key": "cit0013",
+          "first-page": "183",
+          "volume-title": "Qualitative Health Psychology: Theory and Methods",
+          "author": "Chamberlain K.",
+          "year": "2010"
+        },
+        {
+          "key": "cit0014",
+          "volume-title": "Constructing Grounded Theory: A Practical Guide through Qualitative Analysis",
+          "author": "Charmaz K.",
+          "year": "2006"
+        },
+        {
+          "issue": "1",
+          "key": "cit0015",
+          "doi-asserted-by": "crossref",
+          "first-page": "13",
+          "DOI": "10.53841/bpspowe.2019.2.1.13",
+          "volume": "2",
+          "author": "Clarke V.",
+          "year": "2019",
+          "journal-title": "Psychology of Women and Equalities Review"
+        },
+        {
+          "key": "cit0016",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1007/s11136-011-9943-2"
+        },
+        {
+          "key": "cit0017",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1468794116686650"
+        },
+        {
+          "key": "cit0018",
+          "unstructured": "Critical Appraisal Skills Programme 2018. “\n                      CASP Qualitative Checklist\n                      . [Online].” Accessed 1 September 2019. https://casp-uk.net/casp-tools-checklists/"
+        },
+        {
+          "key": "cit0019",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1016/B978-012214640-4/50011-5"
+        },
+        {
+          "key": "cit0020",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1359105316656233"
+        },
+        {
+          "key": "cit0021",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1080/08870440903194015"
+        },
+        {
+          "issue": "9",
+          "key": "cit0022",
+          "first-page": "1408",
+          "volume": "20",
+          "author": "Fusch P. I.",
+          "year": "2015",
+          "journal-title": "The Qualitative Report"
+        },
+        {
+          "key": "cit0023",
+          "volume-title": "The Discovery of Grounded Theory: Strategies for Qualitative Research",
+          "author": "Glaser B. G.",
+          "year": "1967"
+        },
+        {
+          "key": "cit0024",
+          "volume-title": "Qualitative Methods for Health Research",
+          "author": "Green J.",
+          "year": "2004"
+        },
+        {
+          "key": "cit0025",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1525822X16639015"
+        },
+        {
+          "key": "cit0026",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1525822X05279903"
+        },
+        {
+          "key": "cit0027",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.4135/9781483384436"
+        },
+        {
+          "key": "cit0028",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1525822X16640447"
+        },
+        {
+          "issue": "11",
+          "key": "cit0029",
+          "first-page": "2124",
+          "volume": "21",
+          "author": "Hancock M. E.",
+          "year": "2016",
+          "journal-title": "The Qualitative Report"
+        },
+        {
+          "key": "cit0030",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1049732318821692"
+        },
+        {
+          "key": "cit0031",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1049732316665344"
+        },
+        {
+          "key": "cit0032",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1586/erp.10.30"
+        },
+        {
+          "key": "cit0033",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037/amp0000151"
+        },
+        {
+          "key": "cit0034",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1016/0147-1767(85)90062-8"
+        },
+        {
+          "key": "cit0035",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1080/00380237.2018.1544514"
+        },
+        {
+          "key": "cit0036",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1049732315617444"
+        },
+        {
+          "key": "cit0037",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1123/jsr.21.1.18"
+        },
+        {
+          "key": "cit0038",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/codi.14045"
+        },
+        {
+          "issue": "3",
+          "key": "cit0039",
+          "volume": "11",
+          "author": "Mason M.",
+          "year": "2010",
+          "journal-title": "Forum: Qualitative Social Research"
+        },
+        {
+          "key": "cit0040",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037/0022-0167.52.2.250"
+        },
+        {
+          "key": "cit0041",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/104973239500500201"
+        },
+        {
+          "key": "cit0042",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/104973239700700401"
+        },
+        {
+          "key": "cit0043",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1049732315576699"
+        },
+        {
+          "key": "cit0044",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1098214016630406"
+        },
+        {
+          "key": "cit0045",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1468794116679873"
+        },
+        {
+          "key": "cit0046",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1468794112446106"
+        },
+        {
+          "key": "cit0047",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/bjhp.2017.22.issue-3"
+        },
+        {
+          "key": "cit0048",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1348/014466500163031"
+        },
+        {
+          "key": "cit0049",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1002/(ISSN)1098-240X"
+        },
+        {
+          "key": "cit0050",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1007/s11135-017-0574-8"
+        },
+        {
+          "key": "cit0051",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1002/capr.12018"
+        },
+        {
+          "key": "cit0052",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1080/13645579.2018.1454643"
+        },
+        {
+          "key": "cit0053",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1080/13645579.2018.1454642"
+        },
+        {
+          "key": "cit0054",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1093/intqhc/mzm042"
+        },
+        {
+          "key": "cit0055",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1007/s11524-015-9961-4"
+        },
+        {
+          "key": "cit0056",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/0957926592003001005"
+        },
+        {
+          "key": "cit0057",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1186/s12874-018-0594-7"
+        },
+        {
+          "key": "cit0058",
+          "first-page": "235",
+          "volume-title": "Qualitative Psychology: A Practical Guide to Research Methods",
+          "author": "Yardley L.",
+          "year": "2008"
+        }
+      ],
+      "container-title": [
+        "Qualitative Research in Sport, Exercise and Health"
+      ],
+      "original-title": [],
+      "language": "en",
+      "link": [
+        {
+          "URL": "https://www.tandfonline.com/doi/pdf/10.1080/2159676X.2019.1704846",
+          "content-type": "unspecified",
+          "content-version": "vor",
+          "intended-application": "similarity-checking"
+        }
+      ],
+      "deposited": {
+        "date-parts": [
+          [
+            2023,
+            9,
+            24
+          ]
+        ],
+        "date-time": "2023-09-24T07:31:37Z",
+        "timestamp": 1695540697000
+      },
+      "score": 1,
+      "resource": {
+        "primary": {
+          "URL": "https://www.tandfonline.com/doi/full/10.1080/2159676X.2019.1704846"
+        }
+      },
+      "subtitle": [],
+      "short-title": [],
+      "issued": {
+        "date-parts": [
+          [
+            2019,
+            12,
+            26
+          ]
+        ]
+      },
+      "references-count": 58,
+      "journal-issue": {
+        "issue": "2",
+        "published-print": {
+          "date-parts": [
+            [
+              2021,
+              3,
+              4
+            ]
+          ]
+        }
+      },
+      "alternative-id": [
+        "10.1080/2159676X.2019.1704846"
+      ],
+      "URL": "https://doi.org/10.1080/2159676x.2019.1704846",
+      "relation": {
+        "is-referenced-by": [
+          {
+            "id-type": "doi",
+            "id": "10.1007/s12119-025-10405-5",
+            "asserted-by": "object"
+          },
+          {
+            "id-type": "doi",
+            "id": "10.1007/s12528-025-09461-5",
+            "asserted-by": "object"
+          }
+        ]
+      },
+      "ISSN": [
+        "2159-676X",
+        "2159-6778"
+      ],
+      "issn-type": [
+        {
+          "value": "2159-676X",
+          "type": "print"
+        },
+        {
+          "value": "2159-6778",
+          "type": "electronic"
+        }
+      ],
+      "subject": [],
+      "published": {
+        "date-parts": [
+          [
+            2019,
+            12,
+            26
+          ]
+        ]
+      },
+      "assertion": [
+        {
+          "value": "The publishing and review policy for this title is described in its Aims & Scope.",
+          "order": 1,
+          "name": "peerreview_statement",
+          "label": "Peer Review Statement"
+        },
+        {
+          "value": "http://www.tandfonline.com/action/journalInformation?show=aimsScope&journalCode=rqrs21",
+          "URL": "http://www.tandfonline.com/action/journalInformation?show=aimsScope&journalCode=rqrs21",
+          "order": 2,
+          "name": "aims_and_scope_url",
+          "label": "Aim & Scope"
+        },
+        {
+          "value": "2019-09-27",
+          "order": 0,
+          "name": "received",
+          "label": "Received",
+          "group": {
+            "name": "publication_history",
+            "label": "Publication History"
+          }
+        },
+        {
+          "value": "2019-12-10",
+          "order": 2,
+          "name": "accepted",
+          "label": "Accepted",
+          "group": {
+            "name": "publication_history",
+            "label": "Publication History"
+          }
+        },
+        {
+          "value": "2019-12-26",
+          "order": 3,
+          "name": "published",
+          "label": "Published",
+          "group": {
+            "name": "publication_history",
+            "label": "Publication History"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "doi": "10.1093/intqhc/mzm042",
+    "verified_title": "Consolidated criteria for reporting qualitative research (COREQ): a 32-item checklist for interviews and focus groups",
+    "metadata_source": "https://api.crossref.org/works/10.1093/intqhc/mzm042",
+    "basis": "原文引用语境与书目；Crossref出版商登记元数据；未声称已全文精读推荐文章",
+    "metadata": {
+      "indexed": {
+        "date-parts": [
+          [
+            2026,
+            10,
+            22
+          ]
+        ],
+        "date-time": "2026-10-22T03:17:14Z",
+        "timestamp": 1792639034060,
+        "version": "4.5.0"
+      },
+      "reference-count": 0,
+      "publisher": "Oxford University Press (OUP)",
+      "issue": "6",
+      "content-domain": {
+        "domain": [],
+        "crossmark-restriction": false
+      },
+      "short-container-title": [
+        "International Journal for Quality in Health Care"
+      ],
+      "DOI": "10.1093/intqhc/mzm042",
+      "type": "journal-article",
+      "created": {
+        "date-parts": [
+          [
+            2007,
+            9,
+            14
+          ]
+        ],
+        "date-time": "2007-09-14T20:34:06Z",
+        "timestamp": 1189802046000
+      },
+      "page": "349-357",
+      "source": "Crossref",
+      "is-referenced-by-count": 38443,
+      "title": [
+        "Consolidated criteria for reporting qualitative research (COREQ): a 32-item checklist for interviews and focus groups"
+      ],
+      "prefix": "10.1093",
+      "volume": "19",
+      "author": [
+        {
+          "given": "A.",
+          "family": "Tong",
+          "sequence": "first",
+          "affiliation": [],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        },
+        {
+          "given": "P.",
+          "family": "Sainsbury",
+          "sequence": "additional",
+          "affiliation": [],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        },
+        {
+          "given": "J.",
+          "family": "Craig",
+          "sequence": "additional",
+          "affiliation": [],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        }
+      ],
+      "member": "286",
+      "published-online": {
+        "date-parts": [
+          [
+            2007,
+            9,
+            16
+          ]
+        ]
+      },
+      "container-title": [
+        "International Journal for Quality in Health Care"
+      ],
+      "original-title": [],
+      "language": "en",
+      "link": [
+        {
+          "URL": "http://academic.oup.com/intqhc/article-pdf/19/6/349/5070113/mzm042.pdf",
+          "content-type": "unspecified",
+          "content-version": "vor",
+          "intended-application": "similarity-checking"
+        }
+      ],
+      "deposited": {
+        "date-parts": [
+          [
+            2017,
+            8,
+            24
+          ]
+        ],
+        "date-time": "2017-08-24T00:29:03Z",
+        "timestamp": 1503534543000
+      },
+      "score": 1,
+      "resource": {
+        "primary": {
+          "URL": "https://academic.oup.com/intqhc/article-lookup/doi/10.1093/intqhc/mzm042"
+        }
+      },
+      "subtitle": [],
+      "short-title": [],
+      "issued": {
+        "date-parts": [
+          [
+            2007,
+            9,
+            16
+          ]
+        ]
+      },
+      "references-count": 0,
+      "journal-issue": {
+        "issue": "6",
+        "published-online": {
+          "date-parts": [
+            [
+              2007,
+              9,
+              16
+            ]
+          ]
+        }
+      },
+      "URL": "https://doi.org/10.1093/intqhc/mzm042",
+      "relation": {},
+      "ISSN": [
+        "1353-4505",
+        "1464-3677"
+      ],
+      "issn-type": [
+        {
+          "value": "1353-4505",
+          "type": "print"
+        },
+        {
+          "value": "1464-3677",
+          "type": "electronic"
+        }
+      ],
+      "subject": [],
+      "published": {
+        "date-parts": [
+          [
+            2007,
+            9,
+            16
+          ]
+        ]
+      }
+    }
+  }
+]

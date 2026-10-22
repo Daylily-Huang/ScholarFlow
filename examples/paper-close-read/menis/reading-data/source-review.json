@@ -1,0 +1,19 @@
+{
+  "original": "https://mdpi-res.com/d_attachment/histories/histories-03-00007/article_deploy/histories-03-00007.pdf",
+  "xml": "https://mdpi-res.com/d_attachment/histories/histories-03-00007/article_deploy/histories-03-00007.xml",
+  "pages": 22,
+  "critical_pdf_pages": [
+    7,
+    8
+  ],
+  "source_discrepancies": [
+    "1810年9月8日报刊报道与注17的9月19日档案日期，不在未见档案时自行定先后。",
+    "注33所标1771年Times与Gale馆藏起点1785有矛盾；保留原文，作为回查点。",
+    "Wollstonecraft若干引文与书目标1790；《女权辩护》常见初版1792，由Cambridge/LoC目录核对。"
+  ],
+  "checks": {
+    "wollstonecraft": "https://www.loc.gov/item/34033009/",
+    "times_archive": "https://www.gale.com/intl/primary-sources/standalone-collections",
+    "old_bailey": "https://www.oldbaileyonline.org/record/t18100919-56（本轮403，未声称已读原档）"
+  }
+}

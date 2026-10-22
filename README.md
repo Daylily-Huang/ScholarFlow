@@ -52,6 +52,16 @@ PPT 扩展仅需 Python 3.10+ 标准库，随包提供 OFL 字体；生成无需
 
 ---
 
+## 单篇文献带读 / Paper close reading
+
+新增独立技能 **[paper-close-read](skills/paper-close-read/SKILL.md)**：将一篇真实全文制作成离线HTML阅读页，提供3分钟入门、10分钟讲解、逐段原文/译文/白话/逻辑、概念卡、原地可操作演示及核心文献推荐。支持按定量、质性、概念论证等实际论证方式组织阅读；正文默认展开，18px可调，批注可导出。
+
+模型负责读懂、翻译与讲解，程序负责来源覆盖、结构校验、排版和交互。生成后离线阅读；不是PDF摘要器或自动科研裁定。它可独立使用，不启动下述四项研究流程的前置协议。
+
+- [安装与完整使用说明](docs/PAPER_CLOSE_READ.md)
+- [五类真实文献、可重建资料与浏览器检查](examples/paper-close-read/README.md)
+- 单独安装：`python scripts/install_reader.py --target <宿主skills目录>`；不会改动其他技能。
+
 ## 🏗️ 架构总览 (System Architecture)
 
 ScholarFlow 由四个高度模块化、既可独立运行又可无缝协同的 Agent 技能构成：

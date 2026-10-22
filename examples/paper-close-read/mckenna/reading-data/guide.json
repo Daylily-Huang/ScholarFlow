@@ -1,0 +1,418 @@
+{
+  "reading_profile": {
+    "article_type": [
+      "qualitative"
+    ],
+    "reader": "初学研究者",
+    "purpose": "看懂从访谈讲述到主题解释的路径"
+  },
+  "scope": "2021年PLOS ONE正式论文JATS全文正文、两张表及书目，原PDF随资料保留；外部补充文件仅目录。参与者身份标签简列，访谈引语保留原话与中文。编码演示为依据正文的教学重建，不是作者未公开的编码台账；已看关键原页单独记录。",
+  "story": {
+    "overview": {
+      "title": "能视频聊天，封控时为什么仍然孤独？",
+      "lead": "作者访谈英国首次封控中的8位孤独体验者，解释为何“仍能联系别人”也未必能填补孤独。",
+      "takeaway": "这篇从人的讲述补出“接触之外还缺什么”：亲近感、选择权与应对出口，共同影响封控中的孤独。",
+      "refs": [
+        "b-896c0084a3e8a9e0-1",
+        "b-1a52a1531c80d06e-1",
+        "b-6f8d3a4020c7f70b-1",
+        "b-5e18e7ed757b6e06-1",
+        "b-2e866c9c31e9d145-1",
+        "b-93330af02b1c2d12-1",
+        "b-77cc4575b8757298-1",
+        "b-67af4d9204fef568-1",
+        "b-bbd670fef2a07496-1",
+        "b-7aebef54b4eb0f6d-1"
+      ],
+      "format": "research-map",
+      "research_map": [
+        {
+          "step": "background",
+          "text": "英国首次封控减少当面接触，更多人转向电话、视频和线上聊天；如何在防疫时维持关系，成为直接的生活问题。",
+          "refs": [
+            "b-896c0084a3e8a9e0-1"
+          ]
+        },
+        {
+          "step": "gap",
+          "text": "当时有关疫情孤独体验的质性研究较少。只知道孤独人数或联系次数，还不足以了解人们具体失去了什么、如何应对。",
+          "refs": [
+            "b-1a52a1531c80d06e-1"
+          ]
+        },
+        {
+          "step": "question",
+          "text": "实行身体距离限制时，人们怎样经历孤独？哪些生活处境使这种感受产生或加重，他们又怎样尝试缓解？",
+          "refs": [
+            "b-6f8d3a4020c7f70b-1"
+          ]
+        },
+        {
+          "step": "method",
+          "text": "2020年5月对8位自述孤独者各做一次远程访谈，每次26—46分钟；反复阅读逐字稿、编码，再组织和修订主题。",
+          "refs": [
+            "b-5e18e7ed757b6e06-1",
+            "b-2e866c9c31e9d145-1",
+            "b-93330af02b1c2d12-1"
+          ]
+        },
+        {
+          "step": "findings",
+          "text": "形成四个主题：当面互动损失、自由受限、困难情绪、应对孤独。视频难补共同在场与触碰，被迫相处也会孤独，联系和转移注意的办法又更难实施。",
+          "refs": [
+            "b-77cc4575b8757298-1",
+            "b-67af4d9204fef568-1",
+            "b-bbd670fef2a07496-1"
+          ]
+        },
+        {
+          "step": "conclusion",
+          "text": "支持不能只增加联系次数，还需关注关系质量、选择空间和可用的应对资源。这解释的是受访者处境中的体验，并非估计所有人的孤独比例。",
+          "refs": [
+            "b-7aebef54b4eb0f6d-1"
+          ]
+        }
+      ]
+    },
+    "walkthrough": [
+      {
+        "title": "先弄清孤独为什么不能只数人头",
+        "bridge": "有家人、有网络，也可能觉得缺少联结",
+        "paragraphs": [
+          "作者把社会隔离与孤独分开：前者是少接触的客观情况，后者是想要的关系与实际关系之间的落差。一个人有很多家人，仍可能缺一个谈心的同辈；另一个人独处，却未必不满意。",
+          "所以研究不是再问多少人孤独，而要听孤独在这个处境里是什么样。数字可及性和交流质量进入问题，是因为它们影响人实际能够得到的关系。"
+        ],
+        "connection": "明确体验问题以后，就要选择能听到细节的材料方式。",
+        "refs": [
+          "b-dc8fb474b2381479-1",
+          "b-7212cc57d5be8c39-1",
+          "b-c4b2561591d7153f-1"
+        ],
+        "motions": [],
+        "concepts": [
+          "concept-lonely"
+        ]
+      },
+      {
+        "title": "为什么找八个人谈，而不是发一万份问卷",
+        "bridge": "问题需要的是处境与意义，不是发生率",
+        "paragraphs": [
+          "作者有目的地找封控期间感到孤独的人。每人一次半结构访谈，清单覆盖主题，追问则让“很难受”具体到某个夜晚、一次争执或一通电话。",
+          "这些讲述有其体验现实，也被当时处境、叙述和研究者理解所塑造。作者明确采用反思性主题分析，以材料丰富性和项目范围说明样本量，没有用饱和度作为停止理由。评价方法应从这套实际选择出发。"
+        ],
+        "connection": "有了录音和逐字稿，还需要说明四个主题怎样形成。",
+        "refs": [
+          "b-ae5171dc81abebf6-1",
+          "b-c6ad57e38ed45b14-1",
+          "b-5fe5abdb985441ad-1",
+          "b-5e18e7ed757b6e06-1",
+          "b-6537e9dda03aee01-1",
+          "b-2e866c9c31e9d145-1",
+          "b-7aee23f9c5fea655-1"
+        ],
+        "motions": [],
+        "concepts": []
+      },
+      {
+        "title": "从“我没有选择”到“自由受限”，中间发生了什么",
+        "bridge": "主题不是软件自动找出的高频词",
+        "paragraphs": [
+          "研究者先熟悉全部逐字稿，给相关片段加标签，再比较哪些标签能组织为连贯、不同又贴合材料的主题。重读材料会改变层级，作者实际将一项子主题提升为主主题。",
+          "下面以“我本来愿意待家，但现在没有选择”这句原话，演示如何从具体讲述走向对行动空间的关注，再理解“自由受限”。这是帮助阅读的重建，原文没有公开这句的逐条编码记录。"
+        ],
+        "connection": "理解主题如何形成后，再看它们之间怎样解释封控生活。",
+        "refs": [
+          "b-93330af02b1c2d12-1",
+          "b-67af4d9204fef568-1",
+          "b-a999847df4290938-1"
+        ],
+        "motions": [
+          {
+            "id": "motion-coding"
+          }
+        ],
+        "concepts": [
+          "concept-reflexive"
+        ]
+      },
+      {
+        "title": "屏幕补不上什么？把大标题拆成具体缺失",
+        "bridge": "说数字交流较差，还需要知道差在哪里",
+        "paragraphs": [
+          "有人思念亲友，也有人想念在图书馆、咖啡馆和人一起待着。视频、电话虽能建立联系，却受隐私、技术、平台差异和身体语言限制；触碰与拥抱则是另一层损失。",
+          "作者也保留一位参与者满意的电话经历，以及习惯隔离者更易适应的讲述。把这些例外放回来，主题就更准确：这是这些人的体验模式，不是所有线上交流都必然无用。"
+        ],
+        "connection": "除了联系质量，下面还要看“能不能自己决定联系”如何改变体验。",
+        "refs": [
+          "b-0684560990b627bd-1",
+          "b-4bd57c0245306e60-1",
+          "b-5ba27dfbc2f0de2c-1",
+          "b-9de79035db52b820-1",
+          "b-254596939791e9a5-1",
+          "b-e54fc9f8a4578331-1"
+        ],
+        "motions": [],
+        "concepts": []
+      },
+      {
+        "title": "独处与被迫独处之间，差的是选择",
+        "bridge": "待在同一间屋子，意义也可能不同",
+        "paragraphs": [
+          "参与者说自己本来愿意周末在家看电视，难的是现在不能选择出门。规则还来自室友、朋友及其家人对风险的判断，社交因而变成持续协商。",
+          "下方对照只改变选择条件，帮助理解作者为何把自由受限独立出来。它可以与关系紧张、挫败相连；随后出现的焦虑与孤独起伏也要保留，不能压成一个固定分数。"
+        ],
+        "connection": "于是应对不只是心理技巧，还受现实路径是否开放的影响。",
+        "refs": [
+          "b-67af4d9204fef568-1",
+          "b-a999847df4290938-1",
+          "b-c35891a5b4c70cb7-1",
+          "b-d3a7284e74866912-1",
+          "b-b7705286a032d8ca-1",
+          "b-8501fc240c1374c3-1"
+        ],
+        "motions": [
+          {
+            "id": "motion-choice"
+          }
+        ],
+        "concepts": [
+          "concept-agency"
+        ]
+      },
+      {
+        "title": "应对办法还在，出口却变窄了",
+        "bridge": "为什么“多联系别人”可能太简单",
+        "paragraphs": [
+          "有人找个明知答案的烹饪问题给母亲打电话，有人园艺、阅读或运动，试着重新联结、转移注意。意义在于怎样让当天更可承受，而不是选出一种已验证的最佳疗法。",
+          "封控同时减少见人和外出活动，让两类应对都更难。线上招募又可能漏掉最受数字鸿沟影响的人。因此研究的应用方向是理解并补足具体缺口，下一步也要听见目前未纳入的人。"
+        ],
+        "connection": "回到开头：孤独涉及期待、关系质量、选择和可用应对，支持需要逐项回应这些处境。",
+        "refs": [
+          "b-2e31905c0d0c9459-1",
+          "b-778ad7d17ee2e52b-1",
+          "b-54fde834706d9de1-1",
+          "b-4ace9c53281c9080-1",
+          "b-7774418b9217c2f0-1",
+          "b-7aebef54b4eb0f6d-1"
+        ],
+        "motions": [],
+        "concepts": []
+      }
+    ]
+  },
+  "concepts": [
+    {
+      "id": "concept-lonely",
+      "term": "社会隔离 / 孤独",
+      "meaning": "隔离关客观接触；孤独关期望与实际关系之间令人痛苦的落差。",
+      "distinction": "同住不保证不孤独，独居也不必然孤独。",
+      "example": "教学例子：与家人同住，却没有能聊某种心事的朋友。",
+      "refs": [
+        "b-dc8fb474b2381479-1"
+      ],
+      "anchor": "b-dc8fb474b2381479-1"
+    },
+    {
+      "id": "concept-reflexive",
+      "term": "反思性主题分析",
+      "meaning": "研究者通过反复阅读、编码和比较，形成对材料中重要模式的解释。",
+      "distinction": "软件整理材料，研究者参与命名与解释；主题不是自动挖出的词频。",
+      "example": "本文实际重看主题后，把一个子主题提升成独立主题。",
+      "refs": [
+        "b-5fe5abdb985441ad-1",
+        "b-93330af02b1c2d12-1"
+      ],
+      "anchor": "b-5fe5abdb985441ad-1"
+    },
+    {
+      "id": "concept-agency",
+      "term": "社交能动性 / 选择空间",
+      "meaning": "在这里指人安排自己如何与谁联系的实际可能与控制感。",
+      "distinction": "不只是有没有做某个动作，还包括能否选择做或不做。",
+      "example": "原文例子：自愿周末看电视，与想出去却不被允许，体验不同。",
+      "refs": [
+        "b-67af4d9204fef568-1",
+        "b-a999847df4290938-1"
+      ],
+      "anchor": "b-67af4d9204fef568-1"
+    }
+  ],
+  "mechanisms": [
+    {
+      "id": "motion-coding",
+      "scene": "evidence_coding",
+      "title": "一句原话，怎样支持一个主题",
+      "question": "研究者是在材料里关注什么？",
+      "anchor": "b-a999847df4290938-1",
+      "refs": [
+        "b-a999847df4290938-1",
+        "b-93330af02b1c2d12-1",
+        "b-67af4d9204fef568-1"
+      ],
+      "stages": [
+        "先读受访者的具体表达",
+        "关注没有选择的意义",
+        "将它联系到自由受限主题"
+      ],
+      "visual": {
+        "nodes": [
+          {
+            "id": "a",
+            "label": "受访者原话",
+            "lines": [
+              "本来愿意在家看电视",
+              "但现在没有那个选择"
+            ],
+            "stage": 0
+          },
+          {
+            "id": "b",
+            "label": "教学阅读关注",
+            "lines": [
+              "同一活动的选择权",
+              "而非只看有没有出门"
+            ],
+            "stage": 1
+          },
+          {
+            "id": "c",
+            "label": "作者主题",
+            "lines": [
+              "自由受限",
+              "与挫败、关系紧张相连"
+            ],
+            "stage": 2
+          }
+        ],
+        "edges": [
+          {
+            "from": "a",
+            "to": "b",
+            "relation": "interprets"
+          },
+          {
+            "from": "b",
+            "to": "c",
+            "relation": "interprets"
+          }
+        ]
+      },
+      "label": "分析过程示意",
+      "note": "依据3号参与者原话与作者分析方法所作教学重建，不是实际编码台账。"
+    },
+    {
+      "id": "motion-choice",
+      "scene": "argument_map",
+      "title": "同样在家，为什么感受可能不同",
+      "question": "改变选择条件，看看解释怎样变化。",
+      "anchor": "b-a999847df4290938-1",
+      "refs": [
+        "b-a999847df4290938-1",
+        "b-67af4d9204fef568-1",
+        "b-d3a7284e74866912-1"
+      ],
+      "stages": [
+        "先比较表面相同的活动",
+        "再揭示不同的选择条件",
+        "理解自由受限如何进入体验"
+      ],
+      "visual": {
+        "nodes": [
+          {
+            "id": "a",
+            "label": "自愿独处",
+            "lines": [
+              "可以出门或留在家",
+              "选择留在家看电视"
+            ],
+            "stage": 0
+          },
+          {
+            "id": "b",
+            "label": "被迫独处",
+            "lines": [
+              "想社交却无法安排",
+              "他人或政策限制选择"
+            ],
+            "stage": 1
+          },
+          {
+            "id": "c",
+            "label": "体验差别",
+            "lines": [
+              "受访者提到挫败",
+              "作者解释为自由受限"
+            ],
+            "stage": 2
+          }
+        ],
+        "edges": [
+          {
+            "from": "a",
+            "to": "b",
+            "relation": "compares"
+          },
+          {
+            "from": "b",
+            "to": "c",
+            "relation": "interprets"
+          }
+        ]
+      },
+      "label": "论证示意",
+      "note": "对照说明体验意义，不给出统计效应或普遍因果结论。"
+    }
+  ],
+  "further_reading": [
+    {
+      "citation": "Virginia Braun; Victoria Clarke (2006). Using thematic analysis in psychology. Qualitative Research in Psychology.",
+      "role": "延伸阅读：主题分析入门（本文未直接引用）",
+      "priority": "先读：方法入门",
+      "reason": "如果不知道从原话到主题之间做了什么，这篇补上熟悉材料、编码、组织与审查主题的步骤。",
+      "focus": "围绕本文分析段，对照主题形成的迭代过程。",
+      "url": "https://doi.org/10.1191/1478088706qp063oa",
+      "refs": [
+        "b-93330af02b1c2d12-1"
+      ]
+    },
+    {
+      "citation": "Virginia Braun; Victoria Clarke (2019). Reflecting on reflexive thematic analysis. Qualitative Research in Sport, Exercise and Health.",
+      "role": "反思性主题分析",
+      "priority": "再读：分析立场",
+      "reason": "它帮助理解为什么研究者参与解释，而不是试图把分析写成软件自动抽取。",
+      "focus": "重点区分不同主题分析取向，结合本文研究者反思段阅读。",
+      "url": "https://doi.org/10.1080/2159676X.2019.1628806",
+      "refs": [
+        "b-c931bf7c2253762f-1"
+      ]
+    },
+    {
+      "citation": "Virginia Braun; Victoria Clarke (2019). To saturate or not to saturate? Questioning data saturation as a useful concept for thematic analysis and sample-size rationales. Qualitative Research in Sport, Exercise and Health.",
+      "role": "本文样本量理由的直接依据",
+      "priority": "问八个人够不够时读",
+      "reason": "本文没有宣称达到数据饱和。读这篇能明白为什么反思性分析会用材料丰富性和范围来解释取样。",
+      "focus": "重点看饱和概念与不同分析立场是否相容，不将其当所有质性研究的统一规则。",
+      "url": "https://doi.org/10.1080/2159676X.2019.1704846",
+      "refs": [
+        "b-3b4c974a9c969433-1"
+      ]
+    },
+    {
+      "citation": "A. Tong; P. Sainsbury; J. Craig (2007). Consolidated criteria for reporting qualitative research (COREQ): a 32-item checklist for interviews and focus groups. International Journal for Quality in Health Care.",
+      "role": "COREQ报告清单来源",
+      "priority": "需要自己写访谈报告时读",
+      "reason": "它让你看到除了结果，还应怎样交代研究者、招募、访谈和分析过程。",
+      "focus": "用清单核对报告信息；完成报告项不等于自动证明解释质量。",
+      "url": "https://doi.org/10.1093/intqhc/mzm042",
+      "refs": [
+        "b-ae5171dc81abebf6-1"
+      ]
+    }
+  ],
+  "attribution": {
+    "citation": "Phoebe E McKenna-Plumley; Lisa Graham-Wisener; Emma Berry; Jenny M Groarke · 10.1371/journal.pone.0258344",
+    "url": "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0258344",
+    "license": "This is an open access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited.",
+    "changes": "原文归原作者；中文译文、白话、导读与示意图为AI辅助教学改写。原文来自出版商/PMC JATS；代码MIT许可不替代论文许可。"
+  }
+}
