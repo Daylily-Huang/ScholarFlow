@@ -105,7 +105,7 @@ def run(work):
     html, _ = build(data,records,guide,work,source)
     for name,obj in [('fulltext.json',data),('translations.json',records),('guide.json',guide)]:
         (work/name).write_text(json.dumps(obj,ensure_ascii=False,indent=2),encoding='utf-8')
-    (work/'synthetic.md').write_text(source,encoding='utf-8',newline='')
+    (work/'synthetic.md').write_bytes(source.encode('utf-8'))
     (work/'reader-a.html').write_text(html,encoding='utf-8')
     other=copy.deepcopy(data);other['paper_id']='synthetic-reader-fixture-b';other['front']['title']='Second independent synthetic paper'
     (work/'reader-b.html').write_text(build(other,records,guide,work,source)[0],encoding='utf-8')

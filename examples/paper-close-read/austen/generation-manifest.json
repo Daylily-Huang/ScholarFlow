@@ -1,6 +1,6 @@
 {
   "phase": "three-minute-research-map",
-  "skill_tree_sha256": "9d2218bede4984f5d276d9f361aca619152ece5cfc8d4334e086bc28420393f7",
+  "skill_tree_sha256": "0b989cb24b56086173abb57fce131a2bf4b2b3b0f89aef62dfed5e00d52fe213",
   "skill_files": {
     "skills/paper-close-read/assets/editorial.css": "4e96308320697a9ebc77e3a6449b898130586843038d6c7071fbadaeaf34f168",
     "skills/paper-close-read/assets/editorial.js": "52f04902816d53eb8009374f3c5c36584f61bc285f7218fd9a4cd58749597686",
@@ -27,7 +27,7 @@
     "skills/paper-close-read/scripts/render_further.py": "63bfb9af9c2fd661230675e60cadf35a9fe6a7c038388bd680a39973cbad2e22",
     "skills/paper-close-read/scripts/render_mechanisms.py": "f880ddcaf35637c493021f80dd96adeefcd8cf49dcbe3ea0fc1e5030b35439c0",
     "skills/paper-close-read/scripts/render_story.py": "bae0c60364d26014687313ab6d8d65778810422a505fb5b04d928bd1db6db8ee",
-    "skills/paper-close-read/scripts/selftest.py": "45651eab24e08e2727186c43d4f7b8dc3dc13845fb1f6d2160f34e0e5f48940b",
+    "skills/paper-close-read/scripts/selftest.py": "4efd7f29b46f73f98fbdc057c376b2dd64a88f84440516feef18028ee871cb5c",
     "skills/paper-close-read/scripts/split_frames.py": "9db0f8caf395ce14cc303ee2ec198f137f92cadba6733ca50fb81a1a764afc79",
     "skills/paper-close-read/scripts/validate_content.py": "c645c286b56af09ff8debba828f3131a42a583de87cadab15eb78aae2bacb1ba",
     "skills/paper-close-read/SKILL.md": "8c644c150c07a78473a76b2d66a160858f029dee83abf0b2e8a4aa1d01673176"
