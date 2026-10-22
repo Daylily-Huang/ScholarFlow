@@ -1,13 +1,13 @@
 # 🎓 ScholarFlow
 
 <p align="center">
-  <b>面向严谨科研的智能体全生命周期工作流套件</b><br>
-  <i>An evidence-grounded AI research workflow for hypothesis scrutiny, literature discovery, evidence extraction, and controversy-aware synthesis.</i>
+  <b>科研构想 · 文献检索 · 单篇带读 · 证据综合 · 科研 PPT</b><br>
+  <i>AI research skills for hypothesis scrutiny, literature discovery, guided paper reading, evidence synthesis, and editable presentations.</i>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Version-0.6.6-blue.svg" alt="Version 0.6.6">
-  <img src="https://img.shields.io/badge/Tests-1168%20Passed-brightgreen.svg" alt="1168 Tests Passed">
+  <a href="https://github.com/Daylily-Huang/ScholarFlow/actions/workflows/ci.yml"><img src="https://github.com/Daylily-Huang/ScholarFlow/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI checks on main"></a>
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
   <img src="https://img.shields.io/badge/Python-3.9%2B-brightgreen.svg" alt="Python Version">
   <img src="https://img.shields.io/badge/Dependencies-Zero%20Mandatory%20Pip-orange.svg" alt="Zero Mandatory Dependencies">
@@ -16,6 +16,75 @@
 </p>
 
 ---
+
+<a id="paper-close-read"></a>
+
+## 📖 文献阅读：把一篇论文变成看得懂的带读页
+
+**给 AI 助手一篇 PDF，得到一份可离线打开的中文 HTML：先看整篇在做什么，再把难点讲通，最后随时对照原文。**
+
+这是 ScholarFlow 自带的 **[paper-close-read](skills/paper-close-read/SKILL.md)**，可单独安装使用。按文章的论证方式组织讲解，支持自然科学与人文社科；现有五篇完整示例覆盖定量研究、质性访谈、哲学论证、历史和文学细读。
+
+[三步安装，开始读第一篇](#reader-install) · [先看真实效果](#reader-preview) · [五类完整示例](examples/paper-close-read/README.md)
+
+| 阅读方式 | 你会看到什么 |
+|---|---|
+| **3 分钟入门** | 背景 → 现有缺口 → 核心问题 → 方法 → 主要结果 → 结论与意义，先把整篇主线串起来 |
+| **10 分钟读懂** | 顺着问题和证据展开讲解；抽象概念与过程的演示直接放在对应解释下面，可播放、暂停、拖动和分步看 |
+| **逐段精读** | 英文原文、中文译文、通俗白话和递进逻辑一起看；正文默认展开，另有概念卡和核心文献推荐 |
+
+阅读页还支持 **搜索、18px 可调字号、阅读位置、高亮、批注、笔记导入/导出和回到顶部**。讲解与翻译由你的 AI 助手撰写，生成后的阅读页可离线使用。
+
+<a id="reader-preview"></a>
+
+### 看看真实效果
+
+以下是五篇真实文献示例中的浏览器实拍，点击图片可放大；演示在 HTML 中可以操作，下面展示的是静态截图。
+
+**① 先看整篇：六步读懂研究主线**
+
+[![三分钟入门：Facebook 与幸福感研究的背景、缺口、问题、方法、结果与结论](examples/paper-close-read/kross/overview-map.png)](examples/paper-close-read/kross/overview-map.png)
+
+**② 把难点讲直观：解释旁直接操作演示**
+
+[![十分钟讲解：在质性访谈案例中演示原话、阅读关注与主题解释之间的关系](examples/paper-close-read/mckenna/walkthrough.png)](examples/paper-close-read/mckenna/walkthrough.png)
+
+**③ 再按需读原文：原文、译文、白话与递进逻辑放在一起**
+
+[![逐段精读：英文原文与中文译文对照，下面附白话解释、逻辑要点与批注工具](examples/paper-close-read/kross/close-reading.png)](examples/paper-close-read/kross/close-reading.png)
+
+[查看五类完整示例与更多截图](examples/paper-close-read/README.md) · [下载体验用的阅读页](examples/paper-close-read/kross/reader.html)
+
+GitHub 中的 HTML 文件页显示源码。点击文件页的 **Download raw file**，保存 `reader.html` 后用浏览器打开，即可体验完整阅读页。
+
+<a id="reader-install"></a>
+
+### 安装并读第一篇
+
+需要 **Python 3.9+**，以及能读取本地文件的 AI 助手，例如 Codex 或 Claude Code。
+
+**1. 下载仓库，只安装文献阅读 skill。** 以下以 Codex 为例：
+
+```bash
+git clone https://github.com/Daylily-Huang/ScholarFlow.git
+cd ScholarFlow
+python scripts/install_reader.py --target ~/.codex/skills
+```
+
+Claude Code 用户把最后一行的目标改为 `~/.claude/skills`；其他助手填写各自的 skills 目录。安装器只复制 `paper-close-read`。目标已有不同版本时会停止，检查后可加 `--replace` 更新。
+
+不用命令行也可以：[下载仓库 ZIP](https://github.com/Daylily-Huang/ScholarFlow/archive/refs/heads/main.zip)，把 `skills/paper-close-read` **整个文件夹**复制到助手的 skills 目录。
+
+**2. 重新打开助手会话，提供论文 PDF，直接说：**
+
+> 用 paper-close-read 带我读这篇 PDF。我是这个主题的初学者，请生成可以离线打开的中文带读 HTML。
+
+**3. 用浏览器打开生成的 HTML，选择入门、讲解或逐段精读。**
+
+[完整使用说明与可选依赖](docs/PAPER_CLOSE_READ.md) · [技能入口](skills/paper-close-read/SKILL.md) · [示例来源与许可](examples/paper-close-read/LICENSE.md)
+
+---
+
 
 ## 🖥️ 可编辑科研 PPT 扩展
 
@@ -51,16 +120,6 @@ PPT 扩展仅需 Python 3.10+ 标准库，随包提供 OFL 字体；生成无需
 - **Principle 4: No single discipline defines the default ontology of ScholarFlow (没有任何单一学科定义 ScholarFlow 的默认本体)**：系统默认不以任何特定学科专家的偏见思考，首先作为中立科研证据系统运行，再动态加载对应学科透镜。
 
 ---
-
-## 单篇文献带读 / Paper close reading
-
-新增独立技能 **[paper-close-read](skills/paper-close-read/SKILL.md)**：将一篇真实全文制作成离线HTML阅读页，提供3分钟入门、10分钟讲解、逐段原文/译文/白话/逻辑、概念卡、原地可操作演示及核心文献推荐。支持按定量、质性、概念论证等实际论证方式组织阅读；正文默认展开，18px可调，批注可导出。
-
-模型负责读懂、翻译与讲解，程序负责来源覆盖、结构校验、排版和交互。生成后离线阅读；不是PDF摘要器或自动科研裁定。它可独立使用，不启动下述四项研究流程的前置协议。
-
-- [安装与完整使用说明](docs/PAPER_CLOSE_READ.md)
-- [五类真实文献、可重建资料与浏览器检查](examples/paper-close-read/README.md)
-- 单独安装：`python scripts/install_reader.py --target <宿主skills目录>`；不会改动其他技能。
 
 ## 🏗️ 架构总览 (System Architecture)
 
