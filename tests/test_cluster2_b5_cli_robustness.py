@@ -14,6 +14,7 @@
     零页 PDF 不得误判为"伪造/未命中"类失败（extraction-adversary EXT-B-03 场景移植）。
 """
 
+import importlib.util
 import json
 import os
 import subprocess
@@ -288,6 +289,8 @@ class TestGP6ImportFailureReporting(ValidatorFixtureCase):
         self.assertEqual(data["gp6"]["status"], "NOT_RUN")
 
 
+@unittest.skipUnless(importlib.util.find_spec("jsonschema"),
+                     "requires optional jsonschema; exercised by contract-validation CI")
 class TestSchemaFailExitCode(ValidatorFixtureCase):
     """H-17：schema 校验 FAIL → 退出码 1 + 结构化 FAIL 明细。"""
 
@@ -314,6 +317,14 @@ class TestSchemaFailExitCode(ValidatorFixtureCase):
         rc, data = self.write_and_run(self.base_session())
         self.assertEqual(data["json_schema"]["status"], "PASS")
         self.assertEqual(rc, 0)
+
+
+class TestSchemaUnavailableReporting(ValidatorFixtureCase):
+    def test_missing_optional_schema_library_is_reported_as_skipped(self):
+        rc, data = self.write_and_run(self.base_session(), clean_deployment=True)
+        self.assertEqual(rc, 0)
+        self.assertEqual(data["json_schema"]["status"], "SKIPPED")
+        self.assertIn("jsonschema", data["json_schema"]["note"])
 
 
 class TestAuditClaimsFullTokenNumbers(unittest.TestCase):

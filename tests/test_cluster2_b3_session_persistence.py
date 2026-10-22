@@ -326,6 +326,26 @@ class TestLockHardening(unittest.TestCase):
                 store.append_usage({"nested": True})
         self.assertEqual(len(store.read_usage()), 1)
 
+    @unittest.skipUnless(os.name == "posix", "POSIX lock recovery")
+    def test_live_owner_is_not_reclaimed_even_when_lock_is_old(self):
+        with open(self.lock_path, "w", encoding="ascii") as fh:
+            fh.write(str(os.getpid()))
+        old = time.time() - 60
+        os.utime(self.lock_path, (old, old))
+        with self.assertRaises(RevisionConflict):
+            with SessionStore(self.folder)._revision_lock(timeout=0.05):
+                self.fail("a live owner's lock was taken")
+        self.assertEqual(os.listdir(self.folder), [".session.lock"])
+
+    @unittest.skipUnless(os.name == "posix", "POSIX lock recovery")
+    def test_fresh_lock_without_pid_gets_a_grace_period(self):
+        with open(self.lock_path, "w", encoding="ascii") as fh:
+            fh.write("")
+        # Inspect recovery directly while the owner may still be writing its PID.
+        lock = _SessionFileLock(self.lock_path)
+        self.assertFalse(lock._recover_stale(timeout=5.0))
+        self.assertEqual(os.listdir(self.folder), [".session.lock"])
+
 
 # ------------------------------------------------- H-08/H-16 recover_commit
 class TestRecoverCommitGuards(unittest.TestCase):
