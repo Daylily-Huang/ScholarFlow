@@ -1,0 +1,12 @@
+{
+  "candidate": "7460dd569b7ba4e70c7b86ae602784ad7e48c54f",
+  "reader_regressions": 17,
+  "standalone_selftests": 40,
+  "linux_clean_checkout": {
+    "ran": 1188,
+    "result": "OK",
+    "skipped": 14
+  },
+  "formula_renderer": "latex2mathml==3.77.0",
+  "windows_full_suite": "not passed; local environment differences recorded separately"
+}
