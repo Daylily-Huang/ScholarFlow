@@ -1,0 +1,1653 @@
+[
+  {
+    "doi": "10.1007/s10676-017-9442-4",
+    "verified_title": "The other question: can and should robots have rights?",
+    "metadata_source": "https://api.crossref.org/works/10.1007/s10676-017-9442-4",
+    "basis": "原文引用语境与书目；Crossref出版商登记元数据；未声称已全文精读推荐文章",
+    "metadata": {
+      "indexed": {
+        "date-parts": [
+          [
+            2026,
+            10,
+            9
+          ]
+        ],
+        "date-time": "2026-10-09T19:31:52Z",
+        "timestamp": 1791574312445,
+        "version": "4.3.4"
+      },
+      "reference-count": 67,
+      "publisher": "Springer Science and Business Media LLC",
+      "issue": "2",
+      "license": [
+        {
+          "start": {
+            "date-parts": [
+              [
+                2017,
+                10,
+                17
+              ]
+            ],
+            "date-time": "2017-10-17T00:00:00Z",
+            "timestamp": 1508198400000
+          },
+          "content-version": "unspecified",
+          "delay-in-days": 0,
+          "URL": "http://creativecommons.org/licenses/by/4.0"
+        }
+      ],
+      "content-domain": {
+        "domain": [
+          "link.springer.com"
+        ],
+        "crossmark-restriction": false
+      },
+      "short-container-title": [
+        "Ethics Inf Technol"
+      ],
+      "published-print": {
+        "date-parts": [
+          [
+            2018,
+            6
+          ]
+        ]
+      },
+      "DOI": "10.1007/s10676-017-9442-4",
+      "type": "journal-article",
+      "created": {
+        "date-parts": [
+          [
+            2017,
+            10,
+            17
+          ]
+        ],
+        "date-time": "2017-10-17T10:36:19Z",
+        "timestamp": 1508236579000
+      },
+      "page": "87-99",
+      "update-policy": "https://doi.org/10.1007/springer_crossmark_policy",
+      "source": "Crossref",
+      "is-referenced-by-count": 183,
+      "title": [
+        "The other question: can and should robots have rights?"
+      ],
+      "prefix": "10.1007",
+      "volume": "20",
+      "author": [
+        {
+          "given": "David J.",
+          "family": "Gunkel",
+          "sequence": "first",
+          "affiliation": [],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        }
+      ],
+      "member": "297",
+      "published-online": {
+        "date-parts": [
+          [
+            2017,
+            10,
+            17
+          ]
+        ]
+      },
+      "reference": [
+        {
+          "key": "9442_CR1",
+          "doi-asserted-by": "crossref",
+          "DOI": "10.1017/CBO9780511978036",
+          "volume-title": "Machine ethics",
+          "author": "M Anderson",
+          "year": "2011",
+          "unstructured": "Anderson, M., & Anderson, S. L. (2011). Machine ethics. Cambridge: Cambridge University Press."
+        },
+        {
+          "key": "9442_CR2",
+          "unstructured": "Asaro, P. (2006). What should we want from a robot ethic? International Review of Information Ethics, 6 (12), 9–16. http://www.i-r-i-e.net/inhalt/006/006_full.pdf ."
+        },
+        {
+          "key": "9442_CR3",
+          "doi-asserted-by": "publisher",
+          "unstructured": "Bartneck, C., van der Hoek, M., Mubin, O., & Mahmud, A. A. (2007). Daisy, daisy, give me your answer do!—Switching off a robot. In Proceedings of the 2nd ACM/IEEE international conference on human-robot interaction (pp. 217–222). doi: 10.1145/1228716.1228746 .",
+          "DOI": "10.1145/1228716.1228746"
+        },
+        {
+          "issue": "3",
+          "key": "9442_CR4",
+          "doi-asserted-by": "publisher",
+          "first-page": "415",
+          "DOI": "10.1075/is.9.3.04bar",
+          "volume": "9",
+          "author": "C Bartnek",
+          "year": "2008",
+          "unstructured": "Bartnek, C., & Hu, J. (2008). Exploring the abuse of robots. Interaction Studies, 9(3), 415–433. doi: 10.1075/is.9.3.04bar .",
+          "journal-title": "Interaction Studies"
+        },
+        {
+          "key": "9442_CR5",
+          "volume-title": "Postmodern ethics",
+          "author": "Z Bauman",
+          "year": "1984",
+          "unstructured": "Bauman, Z. (1984). Postmodern ethics. Oxford: Blackwell."
+        },
+        {
+          "key": "9442_CR6",
+          "volume-title": "An introduction to the principles of morals and legislation",
+          "author": "J Bentham",
+          "year": "1780",
+          "unstructured": "Bentham, J. (1780). An introduction to the principles of morals and legislation (J. H. Burns & H. L. Hart, Ed.). Oxford: Oxford University Press, 2005."
+        },
+        {
+          "key": "9442_CR7",
+          "doi-asserted-by": "crossref",
+          "first-page": "313",
+          "DOI": "10.5840/enviroethics19931544",
+          "volume": "15",
+          "author": "T Birch",
+          "year": "1993",
+          "unstructured": "Birch, T. (1993). Moral considerability and universal consideration. Environmental Ethics, 15, 313–332.",
+          "journal-title": "Environmental Ethics"
+        },
+        {
+          "key": "9442_CR8",
+          "volume-title": "Superintelligence: Paths, dangers, strategies",
+          "author": "N Bostrom",
+          "year": "2014",
+          "unstructured": "Bostrom, N. (2014). Superintelligence: Paths, dangers, strategies. New York: Oxford University Press."
+        },
+        {
+          "key": "9442_CR9",
+          "doi-asserted-by": "crossref",
+          "DOI": "10.7551/mitpress/2376.001.0001",
+          "volume-title": "Designing sociable robots",
+          "author": "CL Breazeal",
+          "year": "2002",
+          "unstructured": "Breazeal, C. L. (2002). Designing sociable robots. Cambridge, MA: MIT Press."
+        },
+        {
+          "key": "9442_CR10",
+          "doi-asserted-by": "crossref",
+          "first-page": "63",
+          "DOI": "10.1075/nlp.8.11bry",
+          "volume-title": "Close engagements with artificial companions: Key social, psychological, ethical and design issues",
+          "author": "J Bryson",
+          "year": "2010",
+          "unstructured": "Bryson, J. (2010). Robots should be slaves. In Y. Wilks (Ed.), Close engagements with artificial companions: Key social, psychological, ethical and design issues (pp. 63–74). Amsterdam: John Benjamins."
+        },
+        {
+          "key": "9442_CR11",
+          "unstructured": "Bryson, J. (2016). Patiency is not a virtue: AI and the design of ethical systems. AAAI Spring Symposium Series. Ethical and Moral Considerations in Non-Human Agents. http://www.aaai.org/ocs/index.php/SSS/SSS16/paper/view/12686 ."
+        },
+        {
+          "key": "9442_CR12",
+          "volume-title": "Zoographies: The question of the animal from Heidegger to Derrida",
+          "author": "M Calarco",
+          "year": "2008",
+          "unstructured": "Calarco, M. (2008). Zoographies: The question of the animal from Heidegger to Derrida. New York: Columbia University Press."
+        },
+        {
+          "key": "9442_CR13",
+          "volume-title": "In defense of the land ethic: Essays in environmental philosophy",
+          "author": "JB Callicott",
+          "year": "1989",
+          "unstructured": "Callicott, J. B. (1989). In defense of the land ethic: Essays in environmental philosophy. Albany, NY: State University of New York Press."
+        },
+        {
+          "key": "9442_CR14",
+          "volume-title": "Culture and human-robot interaction in militarized spaces: A war story",
+          "author": "J Carpenter",
+          "year": "2015",
+          "unstructured": "Carpenter, J. (2015). Culture and human-robot interaction in militarized spaces: A war story. New York: Ashgate."
+        },
+        {
+          "issue": "3",
+          "key": "9442_CR15",
+          "doi-asserted-by": "publisher",
+          "first-page": "209",
+          "DOI": "10.1007/s10676-010-9235-5",
+          "volume": "12",
+          "author": "M Coeckelbergh",
+          "year": "2010",
+          "unstructured": "Coeckelbergh, M. (2010). Robot rights? Towards a social-relational justification of moral consideration. Ethics and Information Technology, 12(3), 209–221. doi: 10.1007/s10676-010-9235-5 .",
+          "journal-title": "Ethics and Information Technology"
+        },
+        {
+          "key": "9442_CR16",
+          "doi-asserted-by": "crossref",
+          "DOI": "10.1057/9781137025968",
+          "volume-title": "Growing moral relations: Critique of moral status ascription",
+          "author": "M Coeckelbergh",
+          "year": "2012",
+          "unstructured": "Coeckelbergh, M. (2012). Growing moral relations: Critique of moral status ascription. New York: Palgrave MacMillan."
+        },
+        {
+          "issue": "5",
+          "key": "9442_CR17",
+          "doi-asserted-by": "publisher",
+          "first-page": "715",
+          "DOI": "10.1007/s10806-013-9486-3",
+          "volume": "27",
+          "author": "M Coeckelbergh",
+          "year": "2014",
+          "unstructured": "Coeckelbergh, M., & Gunkel, D. J. (2014). Facing animals: A relational, other-oriented approach to moral standing. Journal of Agricultural & Environmental Ethics, 27(5), 715–733. doi: 10.1007/s10806-013-9486-3 .",
+          "journal-title": "Journal of Agricultural & Environmental Ethics"
+        },
+        {
+          "issue": "4",
+          "key": "9442_CR18",
+          "doi-asserted-by": "publisher",
+          "first-page": "717",
+          "DOI": "10.1007/s10806-016-9627-6",
+          "volume": "29",
+          "author": "M Coeckelbergh",
+          "year": "2016",
+          "unstructured": "Coeckelbergh, M., & Gunkel, D. J. (2016). Response to “The Problem of the Question About Animal Ethics” by Michal Piekarski. Journal of Agricultural and Environmental Ethics, 29(4), 717–721. doi: 10.1007/s10806-016-9627-6 .",
+          "journal-title": "Journal of Agricultural and Environmental Ethics"
+        },
+        {
+          "key": "9442_CR19",
+          "unstructured": "Committee on Legal Affairs. (2016). Draft Report with Recommendations to the Commission on Civil Law Rules on Robotics. European Parliament. http://www.europarl.europa.eu/ sides/getDoc.do?pubRef=-//EP//NONSGML%2BCOMPARL%2BPE-582.443%2B01%2BDOC%2BPDF%2BV0//EN ."
+        },
+        {
+          "key": "9442_CR20",
+          "unstructured": "Darling, K. (2012). Extending legal protection to social robots. IEEE Spectrum. http://spectrum.ieee.org/automaton/robotics/artificial-intelligence/extending-legal-protection-to-social-robots ."
+        },
+        {
+          "key": "9442_CR21",
+          "doi-asserted-by": "crossref",
+          "first-page": "213",
+          "DOI": "10.4337/9781783476732.00017",
+          "volume-title": "Robot law",
+          "author": "K Darling",
+          "year": "2016",
+          "unstructured": "Darling, K. (2016). Extending legal protection to social robots: The effects of anthropomophism, empathy, and violent behavior toward robotic objects. In R. Calo, A. M. Froomkin & I. Kerr (Eds.), Robot law (pp. 213–231). Northampton, MA: Edward Elgar."
+        },
+        {
+          "key": "9442_CR22",
+          "unstructured": "De Angeli, A., Brahnam, S., & Wallis, P. (2005). Abuse: The dark side of human–computer interaction. Interact 2005. http://www.agentabuse.org/ ."
+        },
+        {
+          "key": "9442_CR23",
+          "volume-title": "Democracy in America",
+          "author": "A Tocqueville De",
+          "year": "2004",
+          "unstructured": "De Tocqueville, A. (2004). Democracy in America (A. Goldhammer, Trans.). New York: Penguin."
+        },
+        {
+          "key": "9442_CR24",
+          "volume-title": "Brainstorms: Philosophical essays on mind and psychology",
+          "author": "DC Dennett",
+          "year": "1998",
+          "unstructured": "Dennett, D. C. (1998). Brainstorms: Philosophical essays on mind and psychology. Cambridge, MA: MIT Press."
+        },
+        {
+          "key": "9442_CR25",
+          "volume-title": "Paper Machine",
+          "author": "J Derrida",
+          "year": "2005",
+          "unstructured": "Derrida, J. (2005). Paper Machine (R. Bowlby, Trans.). Stanford, CA: Stanford University Press."
+        },
+        {
+          "key": "9442_CR26",
+          "volume-title": "The animal that therefore I am",
+          "author": "J Derrida",
+          "year": "2008",
+          "unstructured": "Derrida, J. (2008). The animal that therefore I am (M.-L. Mallet, Ed., D. Wills, Trans.). New York: Fordham University Press."
+        },
+        {
+          "key": "9442_CR27",
+          "volume-title": "Critical theory of technology",
+          "author": "A Feenberg",
+          "year": "1991",
+          "unstructured": "Feenberg, A. (1991). Critical theory of technology. Oxford: Oxford University Press."
+        },
+        {
+          "key": "9442_CR28",
+          "doi-asserted-by": "crossref",
+          "DOI": "10.1093/acprof:oso/9780199641321.001.0001",
+          "volume-title": "The ethics of information",
+          "author": "L Floridi",
+          "year": "2013",
+          "unstructured": "Floridi, L. (2013). The ethics of information. Oxford: Oxford University Press."
+        },
+        {
+          "key": "9442_CR29",
+          "unstructured": "Garreau, J. (2007). Bots on the ground: In the field of battle (or even above it), robots are a soldier’s best friend. Washington Post, 6 May. http://www.washingtonpost.com/wp-dyn/content/article/2007/05/05/AR2007050501009.html ."
+        },
+        {
+          "issue": "3",
+          "key": "9442_CR30",
+          "doi-asserted-by": "publisher",
+          "first-page": "274",
+          "DOI": "10.1145/2874239.2874278",
+          "volume": "45",
+          "author": "A Gerdes",
+          "year": "2015",
+          "unstructured": "Gerdes, A. (2015). The issue of moral consideration in robot ethics. ACM SIGCAS Computers & Society, 45(3), 274–280. doi: 10.1145/2874239.2874278 .",
+          "journal-title": "ACM SIGCAS Computers & Society"
+        },
+        {
+          "key": "9442_CR31",
+          "unstructured": "Goertzel, B. (2002). Thoughts on AI morality. Dynamical Psychology: An International, Interdisciplinary Journal of Complex Mental Processes. http://www.goertzel.org/dynapsyc/2002/AIMorality.htm ."
+        },
+        {
+          "key": "9442_CR32",
+          "volume-title": "Thinking otherwise: Philosophy, communication, technology",
+          "author": "DJ Gunkel",
+          "year": "2007",
+          "unstructured": "Gunkel, D. J. (2007). Thinking otherwise: Philosophy, communication, technology. West Lafayette, IN: Purdue University Press."
+        },
+        {
+          "key": "9442_CR33",
+          "doi-asserted-by": "crossref",
+          "DOI": "10.7551/mitpress/8975.001.0001",
+          "volume-title": "The machine question: Critical perspectives on AI, robots, and ethics",
+          "author": "DJ Gunkel",
+          "year": "2012",
+          "unstructured": "Gunkel, D. J. (2012). The machine question: Critical perspectives on AI, robots, and ethics. Cambridge, MA: MIT Press."
+        },
+        {
+          "key": "9442_CR34",
+          "first-page": "1",
+          "volume-title": "The nature of consciousness: Philosophical debates",
+          "author": "G Güzeldere",
+          "year": "1997",
+          "unstructured": "Güzeldere, G. (1997). The many faces of consciousness: A field guide. In N. Block, O. Flanagan & G. Güzeldere (Eds.), The nature of consciousness: Philosophical debates (pp. 1–68). Cambridge, MA: MIT Press."
+        },
+        {
+          "key": "9442_CR35",
+          "unstructured": "Hall, J. S. (2001). Ethics for machines. KurzweilAI.net, July 5. http://www.kurzweilai.net/ethics-for-machines ."
+        },
+        {
+          "key": "9442_CR36",
+          "volume-title": "When species meet",
+          "author": "DJ Haraway",
+          "year": "2008",
+          "unstructured": "Haraway, D. J. (2008). When species meet. Minneapolis, MN: University of Minnesota Press."
+        },
+        {
+          "key": "9442_CR37",
+          "volume-title": "The question concerning technology and other essays",
+          "author": "M Heidegger",
+          "year": "1977",
+          "unstructured": "Heidegger, M. (1977). The question concerning technology and other essays (W. Lovitt, Trans.). New York: Harper & Row."
+        },
+        {
+          "key": "9442_CR38",
+          "volume-title": "The is/ought question: A collection of papers on the central problem in moral philosophy",
+          "author": "WD Hudson",
+          "year": "1969",
+          "unstructured": "Hudson, W. D. (1969). The is/ought question: A collection of papers on the central problem in moral philosophy. London: Macmillan."
+        },
+        {
+          "key": "9442_CR39",
+          "volume-title": "A treatise of human nature",
+          "author": "D Hume",
+          "year": "1980",
+          "unstructured": "Hume, D. (1980). A treatise of human nature. New York: Oxford University Press."
+        },
+        {
+          "issue": "4",
+          "key": "9442_CR40",
+          "doi-asserted-by": "publisher",
+          "first-page": "195",
+          "DOI": "10.1007/s10676-006-9111-5",
+          "volume": "8",
+          "author": "DG Johnson",
+          "year": "2006",
+          "unstructured": "Johnson, D. G. (2006). Computer systems: Moral entities but not moral agents. Ethics and Information Technology, 8(4), 195–204. doi: 10.1007/s10676-006-9111-5 .",
+          "journal-title": "Ethics and Information Technology"
+        },
+        {
+          "key": "9442_CR41",
+          "volume-title": "Grounding for the metaphysics of morals",
+          "author": "I Kant",
+          "year": "1983",
+          "unstructured": "Kant, I. (1983). Grounding for the metaphysics of morals. Indianapolis, IN: Hackett Publishing."
+        },
+        {
+          "key": "9442_CR42",
+          "volume-title": "The singularity is near: When humans transcend biology",
+          "author": "R Kurzweil",
+          "year": "2005",
+          "unstructured": "Kurzweil, R. (2005). The singularity is near: When humans transcend biology. New York: Viking."
+        },
+        {
+          "key": "9442_CR43",
+          "volume-title": "Totality and infinity: An essay on exteriority",
+          "author": "E Levinas",
+          "year": "1969",
+          "unstructured": "Levinas, E. (1969). Totality and infinity: An essay on exteriority (A. Lingis, Trans.). Pittsburgh, PA: Duquesne University."
+        },
+        {
+          "key": "9442_CR44",
+          "doi-asserted-by": "crossref",
+          "DOI": "10.1201/b10697",
+          "volume-title": "Robots unlimited: Life in a virtual age",
+          "author": "D Levy",
+          "year": "2005",
+          "unstructured": "Levy, D. (2005). Robots unlimited: Life in a virtual age. Boca Raton, FL: CRC Press."
+        },
+        {
+          "issue": "3",
+          "key": "9442_CR45",
+          "doi-asserted-by": "publisher",
+          "first-page": "209",
+          "DOI": "10.1007/s12369-009-0022-6",
+          "volume": "1",
+          "author": "D Levy",
+          "year": "2009",
+          "unstructured": "Levy, D. (2009). The ethical treatment of artificially conscious robots. International Journal of Social Robotics, 1(3), 209–216. doi: 10.1007/s12369-009-0022-6 .",
+          "journal-title": "International Journal of Social Robotics"
+        },
+        {
+          "key": "9442_CR46",
+          "doi-asserted-by": "crossref",
+          "DOI": "10.2307/j.ctvpj7dd8",
+          "volume-title": "The ethical demand",
+          "author": "KE Løgstrup",
+          "year": "1997",
+          "unstructured": "Løgstrup, K. E. (1997). The ethical demand (H. Fink & A. MacIntyre, Trans.). Notre Dame: University of Notre Dame Press."
+        },
+        {
+          "key": "9442_CR47",
+          "volume-title": "The postmodern condition: A report on knowledge",
+          "author": "JF Lyotard",
+          "year": "1984",
+          "unstructured": "Lyotard, J. F. (1984). The postmodern condition: A report on knowledge (G. Bennington & B. Massumi, Trans.). Minneapolis, MN: University of Minnesota Press."
+        },
+        {
+          "key": "9442_CR48",
+          "volume-title": "The ethical demand",
+          "author": "A MacIntyre",
+          "year": "1997",
+          "unstructured": "MacIntyre, A., & Fink, H. (1997). Introduction. In K. E. Løgstrup (Ed.), The ethical demand. Notre Dame: University of Notre Dame Press."
+        },
+        {
+          "key": "9442_CR49",
+          "volume-title": "Capital: A critique of political economy",
+          "author": "K Marx",
+          "year": "1977",
+          "unstructured": "Marx, K. (1977). Capital: A critique of political economy (B. Fowkes, Trans.). New York: Vintage Books."
+        },
+        {
+          "key": "9442_CR50",
+          "doi-asserted-by": "crossref",
+          "DOI": "10.1215/9780822379065",
+          "volume-title": "Alterity Politics: Ethics and performative subjectivity",
+          "author": "J Nealon",
+          "year": "1998",
+          "unstructured": "Nealon, J. (1998). Alterity Politics: Ethics and performative subjectivity. Durham, NC: Duke University Press."
+        },
+        {
+          "key": "9442_CR51",
+          "volume-title": "Robot futures",
+          "author": "I Nourbakhsh",
+          "year": "2013",
+          "unstructured": "Nourbakhsh, I. (2013). Robot futures. Cambridge: MIT Press."
+        },
+        {
+          "issue": "4",
+          "key": "9442_CR52",
+          "doi-asserted-by": "publisher",
+          "first-page": "705",
+          "DOI": "10.1007/s10806-016-9626-7",
+          "volume": "29",
+          "author": "M Piekarski",
+          "year": "2016",
+          "unstructured": "Piekarski, M. (2016). The problem of the question about animal ethics: Discussion with Mark Coeckelbergh and David Gunkel. Journal of Agricultural and Environmental Ethics, 29(4), 705–715. doi: 10.1007/s10806-016-9626-7 .",
+          "journal-title": "Journal of Agricultural and Environmental Ethics"
+        },
+        {
+          "key": "9442_CR53",
+          "volume-title": "The media equation: How people treat computers, television, and new media like real people and places",
+          "author": "B Reeves",
+          "year": "1996",
+          "unstructured": "Reeves, B., & Nass, C. (1996). The media equation: How people treat computers, television, and new media like real people and places. Cambridge: Cambridge University Press."
+        },
+        {
+          "issue": "1",
+          "key": "9442_CR54",
+          "doi-asserted-by": "publisher",
+          "first-page": "17",
+          "DOI": "10.1007/s12369-012-0173-8",
+          "volume": "5",
+          "author": "AM Rosenthal-von der Pütten",
+          "year": "2013",
+          "unstructured": "Rosenthal-von der Pütten, A. M., Krämer, N. C., Hoffmann, L., Sobieraj, S., & Eimler, S. C. (2013). An experimental study on emotional reactions towards a robot. International Journal of Social Robotics, 5(1), 17–34. doi: 10.1007/s12369-012-0173-8 .",
+          "journal-title": "International Journal of Social Robotics"
+        },
+        {
+          "key": "9442_CR55",
+          "doi-asserted-by": "crossref",
+          "DOI": "10.1007/978-94-017-3375-5",
+          "volume-title": "The is-ought problem: An investigation in philosophical logic",
+          "author": "G Schurz",
+          "year": "1997",
+          "unstructured": "Schurz, G. (1997). The is-ought problem: An investigation in philosophical logic. Dordrecht: Springer."
+        },
+        {
+          "issue": "1",
+          "key": "9442_CR56",
+          "doi-asserted-by": "crossref",
+          "first-page": "43",
+          "DOI": "10.2307/2183201",
+          "volume": "73",
+          "author": "J Searle",
+          "year": "1964",
+          "unstructured": "Searle, J. (1964). How to derive “ought” from “is”. The Philosophical Review, 73(1), 43–58.",
+          "journal-title": "The Philosophical Review"
+        },
+        {
+          "key": "9442_CR57",
+          "volume-title": "What social robots can and should do: Proceedings of robophilosophy 2016",
+          "author": "J Seibt",
+          "year": "2016",
+          "unstructured": "Seibt, J., Nørskov, M., & Andersen, S. S. (2016). What social robots can and should do: Proceedings of robophilosophy 2016. Amsterdam: IOS Press."
+        },
+        {
+          "key": "9442_CR58",
+          "unstructured": "Singer, P., & Sagan, A. (2009). When robots have feelings. The Guardian. https://www.theguardian.com/commentisfree/2009/dec/14/rage-against-machines-robots ."
+        },
+        {
+          "key": "9442_CR59",
+          "volume-title": "Wired for war: The robotics revolution and conflict in the twenty-first century",
+          "author": "PW Singer",
+          "year": "2009",
+          "unstructured": "Singer, P. W. (2009). Wired for war: The robotics revolution and conflict in the twenty-first century. New York: Penguin Books."
+        },
+        {
+          "issue": "4",
+          "key": "9442_CR60",
+          "doi-asserted-by": "publisher",
+          "first-page": "203",
+          "DOI": "10.1007/s10676-004-6491-2",
+          "volume": "6",
+          "author": "R Sparrow",
+          "year": "2004",
+          "unstructured": "Sparrow, R. (2004). The turing triage test. Ethics and Information Technology, 6(4), 203–213. doi: 10.1007/s10676-004-6491-2 .",
+          "journal-title": "Ethics and Information Technology"
+        },
+        {
+          "key": "9442_CR100",
+          "doi-asserted-by": "publisher",
+          "unstructured": "Suzuki, Y., Galli, L., Ikeda, A., Itakura, S. & Kitazaki, M. (2015). Measuring empathy for human and robot hand pain using electroencephalography. Scientific Reports, 5. doi: 10.1038/srep15924 .",
+          "DOI": "10.1038/srep15924"
+        },
+        {
+          "key": "9442_CR61",
+          "volume-title": "Alone together: Why we expect more from technology and less from each other",
+          "author": "S Turkle",
+          "year": "2012",
+          "unstructured": "Turkle, S. (2012). Alone together: Why we expect more from technology and less from each other. New York: Basic Books."
+        },
+        {
+          "key": "9442_CR62",
+          "doi-asserted-by": "crossref",
+          "DOI": "10.1093/acprof:oso/9780190498511.001.0001",
+          "volume-title": "Technology and the virtues: A philosophical guide to a future worth wanting",
+          "author": "S Vallor",
+          "year": "2016",
+          "unstructured": "Vallor, S. (2016). Technology and the virtues: A philosophical guide to a future worth wanting. Oxford: Oxford University Press."
+        },
+        {
+          "key": "9442_CR63",
+          "doi-asserted-by": "crossref",
+          "DOI": "10.4324/9780203465028",
+          "volume-title": "Understanding consciousness",
+          "author": "M Velmans",
+          "year": "2000",
+          "unstructured": "Velmans, M. (2000). Understanding consciousness. London: Routledge."
+        },
+        {
+          "key": "9442_CR64",
+          "doi-asserted-by": "crossref",
+          "DOI": "10.1093/acprof:oso/9780195374049.001.0001",
+          "volume-title": "Moral machines: Teaching robots right from wrong",
+          "author": "W Wallach",
+          "year": "2009",
+          "unstructured": "Wallach, W., & Allen, C. (2009). Moral machines: Teaching robots right from wrong. Oxford: Oxford University Press."
+        },
+        {
+          "key": "9442_CR65",
+          "volume-title": "Computer power and human reason: From judgment to calculation",
+          "author": "J Weizenbaum",
+          "year": "1976",
+          "unstructured": "Weizenbaum, J. (1976). Computer power and human reason: From judgment to calculation. San Francisco: W. H. Freeman."
+        },
+        {
+          "issue": "3",
+          "key": "9442_CR66",
+          "doi-asserted-by": "publisher",
+          "first-page": "326",
+          "DOI": "10.1016/j.intcom.2008.02.002",
+          "volume": "20",
+          "author": "B Whitby",
+          "year": "2008",
+          "unstructured": "Whitby, B. (2008). Sometimes it’s hard to be a robot: A call for action on the ethics of abusing artificial agents. Interacting with Computers, 20(3), 326–333. doi: 10.1016/j.intcom.2008.02.002 .",
+          "journal-title": "Interacting with Computers"
+        }
+      ],
+      "container-title": [
+        "Ethics and Information Technology"
+      ],
+      "original-title": [],
+      "language": "en",
+      "link": [
+        {
+          "URL": "http://link.springer.com/article/10.1007/s10676-017-9442-4/fulltext.html",
+          "content-type": "text/html",
+          "content-version": "vor",
+          "intended-application": "text-mining"
+        },
+        {
+          "URL": "http://link.springer.com/content/pdf/10.1007/s10676-017-9442-4.pdf",
+          "content-type": "application/pdf",
+          "content-version": "vor",
+          "intended-application": "text-mining"
+        },
+        {
+          "URL": "http://link.springer.com/content/pdf/10.1007/s10676-017-9442-4.pdf",
+          "content-type": "application/pdf",
+          "content-version": "vor",
+          "intended-application": "similarity-checking"
+        }
+      ],
+      "deposited": {
+        "date-parts": [
+          [
+            2025,
+            6,
+            26
+          ]
+        ],
+        "date-time": "2025-06-26T10:57:20Z",
+        "timestamp": 1750935440000
+      },
+      "score": 1,
+      "resource": {
+        "primary": {
+          "URL": "http://link.springer.com/10.1007/s10676-017-9442-4"
+        }
+      },
+      "subtitle": [],
+      "short-title": [],
+      "issued": {
+        "date-parts": [
+          [
+            2017,
+            10,
+            17
+          ]
+        ]
+      },
+      "references-count": 67,
+      "journal-issue": {
+        "issue": "2",
+        "published-print": {
+          "date-parts": [
+            [
+              2018,
+              6
+            ]
+          ]
+        }
+      },
+      "alternative-id": [
+        "9442"
+      ],
+      "URL": "https://doi.org/10.1007/s10676-017-9442-4",
+      "relation": {},
+      "ISSN": [
+        "1388-1957",
+        "1572-8439"
+      ],
+      "issn-type": [
+        {
+          "value": "1388-1957",
+          "type": "print"
+        },
+        {
+          "value": "1572-8439",
+          "type": "electronic"
+        }
+      ],
+      "subject": [],
+      "published": {
+        "date-parts": [
+          [
+            2017,
+            10,
+            17
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "doi": "10.1007/s10676-010-9235-5",
+    "verified_title": "Robot rights? Towards a social-relational justification of moral consideration",
+    "metadata_source": "https://api.crossref.org/works/10.1007/s10676-010-9235-5",
+    "basis": "原文引用语境与书目；Crossref出版商登记元数据；未声称已全文精读推荐文章",
+    "metadata": {
+      "indexed": {
+        "date-parts": [
+          [
+            2026,
+            10,
+            16
+          ]
+        ],
+        "date-time": "2026-10-16T05:30:30Z",
+        "timestamp": 1792128630769,
+        "version": "4.4.0"
+      },
+      "reference-count": 53,
+      "publisher": "Springer Science and Business Media LLC",
+      "issue": "3",
+      "content-domain": {
+        "domain": [],
+        "crossmark-restriction": false
+      },
+      "short-container-title": [
+        "Ethics Inf Technol"
+      ],
+      "published-print": {
+        "date-parts": [
+          [
+            2010,
+            9
+          ]
+        ]
+      },
+      "DOI": "10.1007/s10676-010-9235-5",
+      "type": "journal-article",
+      "created": {
+        "date-parts": [
+          [
+            2010,
+            6,
+            26
+          ]
+        ],
+        "date-time": "2010-06-26T03:32:46Z",
+        "timestamp": 1277523166000
+      },
+      "page": "209-221",
+      "source": "Crossref",
+      "is-referenced-by-count": 338,
+      "title": [
+        "Robot rights? Towards a social-relational justification of moral consideration"
+      ],
+      "prefix": "10.1007",
+      "volume": "12",
+      "author": [
+        {
+          "given": "Mark",
+          "family": "Coeckelbergh",
+          "sequence": "first",
+          "affiliation": [],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        }
+      ],
+      "member": "297",
+      "published-online": {
+        "date-parts": [
+          [
+            2010,
+            6,
+            27
+          ]
+        ]
+      },
+      "reference": [
+        {
+          "key": "9235_CR1",
+          "unstructured": "UK Government. (2006). Robo-rights: Utopian dream or rise of the machines? (report) Office of Science and Innovation’s Horizon Scanning Centre, Dec."
+        },
+        {
+          "key": "9235_CR2",
+          "doi-asserted-by": "crossref",
+          "first-page": "9",
+          "DOI": "10.29173/irie134",
+          "volume": "6",
+          "author": "PM Asaro",
+          "year": "2006",
+          "unstructured": "Asaro, P. M. (2006). What should we want from a robot ethic? International Review of Information Ethics, 6, 9–16.",
+          "journal-title": "International Review of Information Ethics"
+        },
+        {
+          "key": "9235_CR3",
+          "unstructured": "Asimov, I. (1942). Runaround. (short story) Astounding Science Fiction, March."
+        },
+        {
+          "key": "9235_CR4",
+          "volume-title": "The social construction of reality: A treatise in the sociology of knowledge",
+          "author": "PL Berger",
+          "year": "1966",
+          "unstructured": "Berger, P. L., & Luckmann, T. (1966). The social construction of reality: A treatise in the sociology of knowledge. Garden City, NY: Anchor Books."
+        },
+        {
+          "key": "9235_CR5",
+          "doi-asserted-by": "crossref",
+          "first-page": "167",
+          "DOI": "10.1016/S0921-8890(02)00373-1",
+          "volume": "42",
+          "author": "C Breazeal",
+          "year": "2003",
+          "unstructured": "Breazeal, C. (2003). Toward sociable robots. Robotics and Autonomous Systems, 42, 167–175.",
+          "journal-title": "Robotics and Autonomous Systems"
+        },
+        {
+          "key": "9235_CR6",
+          "unstructured": "Brooks, R. (2000, June 19). Will robots rise up and demand their rights? Time."
+        },
+        {
+          "issue": "4",
+          "key": "9235_CR7",
+          "doi-asserted-by": "crossref",
+          "first-page": "403",
+          "DOI": "10.1080/09540090600879711",
+          "volume": "18",
+          "author": "DJ Calverley",
+          "year": "2006",
+          "unstructured": "Calverley, D. J. (2006). Android science and animal rights, does an analogy exist? Connection Science, 18(4), 403–417.",
+          "journal-title": "Connection Science"
+        },
+        {
+          "issue": "3",
+          "key": "9235_CR8",
+          "doi-asserted-by": "crossref",
+          "first-page": "3",
+          "DOI": "10.1080/10455759709358746",
+          "volume": "8",
+          "author": "J Clark",
+          "year": "1997",
+          "unstructured": "Clark, J. (1997). A social ecology. Capitalism Nature Socialism, 8(3), 3–33.",
+          "journal-title": "Capitalism Nature Socialism"
+        },
+        {
+          "issue": "3",
+          "key": "9235_CR60",
+          "doi-asserted-by": "crossref",
+          "first-page": "217",
+          "DOI": "10.1007/s12369-009-0026-2",
+          "volume": "1",
+          "author": "M Coeckelbergh",
+          "year": "2009",
+          "unstructured": "Coeckelbergh, M. (2009a). Persona robots, appearance, and human good: A methodological reflection on roboethics. International Journal of Social Robotics, 1(3), 217–221.",
+          "journal-title": "International Journal of Social Robotics"
+        },
+        {
+          "issue": "2",
+          "key": "9235_CR61",
+          "doi-asserted-by": "crossref",
+          "first-page": "181",
+          "DOI": "10.1007/s00146-009-0208-3",
+          "volume": "24",
+          "author": "M Coeckelbergh",
+          "year": "2009",
+          "unstructured": "Coeckelbergh, M. (2009b). Virtual moral agency, virtual moral responsibility. AI & Society, 24(2), 181–189.",
+          "journal-title": "AI & Society"
+        },
+        {
+          "key": "9235_CR62",
+          "author": "M Coeckelbergh",
+          "year": "2010",
+          "unstructured": "Coeckelbergh, M. (2010). Moral appearances: Emotions, robots, and human morality. Ethics and Information Technology. doi: 10.1007/s10676-010-9221-y .",
+          "journal-title": "Ethics and Information Technology"
+        },
+        {
+          "key": "9235_CR9",
+          "doi-asserted-by": "crossref",
+          "unstructured": "Dautenhahn, K., et al. (2005). What is a robot companion—friend, assistant, or Butler? Intelligent robots and systems, IEEE/RSJ International Conference on In Intelligent Robots and Systems.",
+          "DOI": "10.1109/IROS.2005.1545189"
+        },
+        {
+          "key": "9235_CR10",
+          "volume-title": "Babies and beasts: The argument from marginal cases",
+          "author": "DA Dombrowski",
+          "year": "1997",
+          "unstructured": "Dombrowski, D. A. (1997). Babies and beasts: The argument from marginal cases. Urbana-Champaign: University of Illinois Press."
+        },
+        {
+          "key": "9235_CR11",
+          "doi-asserted-by": "crossref",
+          "first-page": "1",
+          "DOI": "10.1007/s10676-005-0454-0",
+          "volume": "7",
+          "author": "C Ess",
+          "year": "2005",
+          "unstructured": "Ess, C. (2005). Lost in translation?: Intercultural dialogues on privacy and information ethics. Ethics and Information Technology, 7, 1–6.",
+          "journal-title": "Ethics and Information Technology"
+        },
+        {
+          "issue": "4–5",
+          "key": "9235_CR12",
+          "doi-asserted-by": "crossref",
+          "first-page": "651",
+          "DOI": "10.1111/j.1467-9973.2008.00573.x",
+          "volume": "39",
+          "author": "L Floridi",
+          "year": "2008",
+          "unstructured": "Floridi, L. (2008). Artificial intelligence’s new frontier: Artificial companions and the fourth revolution. Metaphilosophy, 39(4–5), 651–655.",
+          "journal-title": "Metaphilosophy"
+        },
+        {
+          "issue": "3",
+          "key": "9235_CR13",
+          "doi-asserted-by": "crossref",
+          "first-page": "349",
+          "DOI": "10.1023/B:MIND.0000035461.63578.9d",
+          "volume": "14",
+          "author": "L Floridi",
+          "year": "2004",
+          "unstructured": "Floridi, L., & Sanders, J. W. (2004). On the morality of artificial agents. Minds and Machines, 14(3), 349–379.",
+          "journal-title": "Minds and Machines"
+        },
+        {
+          "key": "9235_CR14",
+          "volume-title": "In a different voice: Psychological theory and women’s development",
+          "author": "C Gilligan",
+          "year": "1982",
+          "unstructured": "Gilligan, C. (1982). In a different voice: Psychological theory and women’s development. Cambridge, MA: Harvard University Press."
+        },
+        {
+          "key": "9235_CR15",
+          "unstructured": "Gruen, L. (2003). The moral status of animals. Stanford encyclopaedia of philosophy. Retrieved from http://plato.stanford.edu/entries/moral-animal/ ."
+        },
+        {
+          "key": "9235_CR16",
+          "doi-asserted-by": "crossref",
+          "first-page": "449",
+          "DOI": "10.1017/S0031819107000058",
+          "volume": "82",
+          "author": "J Hacker-Wright",
+          "year": "2007",
+          "unstructured": "Hacker-Wright, J. (2007). Moral status in virtue ethics. Philosophy, 82, 449–473.",
+          "journal-title": "Philosophy"
+        },
+        {
+          "issue": "1–2",
+          "key": "9235_CR17",
+          "doi-asserted-by": "crossref",
+          "first-page": "67",
+          "DOI": "10.1353/hms.1999.a385520",
+          "volume": "25",
+          "author": "R Hursthouse",
+          "year": "1999",
+          "unstructured": "Hursthouse, R. (1999). Virtue ethics and human nature. Hume Studies, 25(1–2), 67–82.",
+          "journal-title": "Hume Studies"
+        },
+        {
+          "key": "9235_CR18",
+          "unstructured": "Kant, I. (1785/1991). Groundwork of the metaphysics of morals. (H. J. Paton, Trans.) London: Routledge."
+        },
+        {
+          "key": "9235_CR19",
+          "volume-title": "Love’s labor: Essays on women, equality, and dependency",
+          "author": "Eva F Kittay",
+          "year": "1999",
+          "unstructured": "Kittay, Eva F. (1999). Love’s labor: Essays on women, equality, and dependency. New York: Routliedge."
+        },
+        {
+          "key": "9235_CR20",
+          "volume-title": "The singularity is near",
+          "author": "R Kurzweil",
+          "year": "2005",
+          "unstructured": "Kurzweil, R. (2005). The singularity is near. New York: Viking."
+        },
+        {
+          "key": "9235_CR21",
+          "unstructured": "Latour, B. (1993). We have never been modern (C. Porter, Trans.). Cambridge, MA: Harvard University Press."
+        },
+        {
+          "key": "9235_CR22",
+          "doi-asserted-by": "crossref",
+          "unstructured": "Latour, B. (2004). Politics of nature: How to bring the sciences into democracy (C. Porter, Trans.). Cambridge, MA: Harvard University Press.",
+          "DOI": "10.4159/9780674039964"
+        },
+        {
+          "key": "9235_CR23",
+          "doi-asserted-by": "crossref",
+          "DOI": "10.1093/oso/9780199256044.001.0001",
+          "volume-title": "Reassembling the social: An introduction to Actor-network theory",
+          "author": "B Latour",
+          "year": "2005",
+          "unstructured": "Latour, B. (2005). Reassembling the social: An introduction to Actor-network theory. Oxford/New York: Oxford University Press."
+        },
+        {
+          "key": "9235_CR24",
+          "unstructured": "Leopold, A. (1949/1966). A sand county almanac. New York: Oxford University Press."
+        },
+        {
+          "issue": "3",
+          "key": "9235_CR25",
+          "doi-asserted-by": "crossref",
+          "first-page": "209",
+          "DOI": "10.1007/s12369-009-0022-6",
+          "volume": "1",
+          "author": "D Levy",
+          "year": "2009",
+          "unstructured": "Levy, D. (2009). The ethical treatment of artificially conscious robots. International Journal of Social Robotics, 1(3), 209–216.",
+          "journal-title": "International Journal of Social Robotics"
+        },
+        {
+          "key": "9235_CR26",
+          "volume-title": "After virtue: A study in moral theory",
+          "author": "A MacIntyre",
+          "year": "1984",
+          "unstructured": "MacIntyre, A. (1984). After virtue: A study in moral theory (2nd ed.). Notre Dame, IN: University of Notre Dame Press.",
+          "edition": "2"
+        },
+        {
+          "key": "9235_CR27",
+          "volume-title": "Dependent rational animals: Why human beings need the virtues",
+          "author": "A MacIntyre",
+          "year": "1999",
+          "unstructured": "MacIntyre, A. (1999). Dependent rational animals: Why human beings need the virtues. Chicago: Open Court."
+        },
+        {
+          "key": "9235_CR28",
+          "unstructured": "Marx, K. (1844/1975). Comments on James Mill. In K. Marx & F. Engels (Eds.), Collected works (C. Dutt, Trans.). London: Lawrence and Wishart."
+        },
+        {
+          "key": "9235_CR29",
+          "doi-asserted-by": "crossref",
+          "unstructured": "McNally, P., & Inayatullah, S. (1998). The rights of robots: Technology, law and culture in the 21st Century. Futures 20: 119–136. Available at http://www.metafuture.org/Articles/TheRightsofRobots.htm .",
+          "DOI": "10.1016/0016-3287(88)90019-5"
+        },
+        {
+          "key": "9235_CR30",
+          "volume-title": "Animals and why they matter",
+          "author": "M Midgley",
+          "year": "1984",
+          "unstructured": "Midgley, M. (1984). Animals and why they matter. Athens: University of Georgia Press."
+        },
+        {
+          "key": "9235_CR31",
+          "unstructured": "Mill, J. S. (1863/1867). Utilitarianism (3rd ed.). London: Longmans, Green, Reader, and Dyer."
+        },
+        {
+          "key": "9235_CR32",
+          "unstructured": "Noddings, N. (1984). Caring: A feminine approach to ethics and moral education. Berkeley: University of California Press."
+        },
+        {
+          "issue": "4",
+          "key": "9235_CR33",
+          "doi-asserted-by": "crossref",
+          "first-page": "755",
+          "DOI": "10.1017/S000842390005040X",
+          "volume": "20",
+          "author": "R Nordahl",
+          "year": "1987",
+          "unstructured": "Nordahl, R. (1987). Marx and utopia: A critique of the “Orthodox” view. Canadian Journal of Political Science/Revue canadienne de science politique, 20(4), 755–783.",
+          "journal-title": "Canadian Journal of Political Science/Revue canadienne de science politique"
+        },
+        {
+          "key": "9235_CR34",
+          "doi-asserted-by": "crossref",
+          "DOI": "10.1017/CBO9780511841286",
+          "volume-title": "Women and human development: The capabilities approach",
+          "author": "MC Nussbaum",
+          "year": "2000",
+          "unstructured": "Nussbaum, M. C. (2000). Women and human development: The capabilities approach. Cambridge: Cambridge University Press."
+        },
+        {
+          "key": "9235_CR35",
+          "volume-title": "Frontiers of justice: Disability, nationality, species membership",
+          "author": "MC Nussbaum",
+          "year": "2006",
+          "unstructured": "Nussbaum, M. C. (2006). Frontiers of justice: Disability, nationality, species membership. Cambridge, MA: The Belknap Press of Harvard University Press."
+        },
+        {
+          "key": "9235_CR36",
+          "volume-title": "The case for animal rights",
+          "author": "T Regan",
+          "year": "1983",
+          "unstructured": "Regan, T. (1983). The case for animal rights. Berkeley: The University of California Press."
+        },
+        {
+          "key": "9235_CR37",
+          "volume-title": "Maternal thinking: Toward a politics of peace",
+          "author": "S Ruddick",
+          "year": "1989",
+          "unstructured": "Ruddick, S. (1989). Maternal thinking: Toward a politics of peace. New York: Ballantine Books."
+        },
+        {
+          "key": "9235_CR38",
+          "doi-asserted-by": "crossref",
+          "unstructured": "Sartre, J. -P. (1943/1969). Being and nothingness: An essay on phenomenological ontology. Abingdon: Routledge.",
+          "DOI": "10.4324/9780203827123"
+        },
+        {
+          "key": "9235_CR39",
+          "volume-title": "The construction of social reality",
+          "author": "JR Searle",
+          "year": "1995",
+          "unstructured": "Searle, J. R. (1995). The construction of social reality. New York: Free Press."
+        },
+        {
+          "issue": "1",
+          "key": "9235_CR40",
+          "doi-asserted-by": "crossref",
+          "first-page": "12",
+          "DOI": "10.1177/1463499606061731",
+          "volume": "6",
+          "author": "JR Searle",
+          "year": "2006",
+          "unstructured": "Searle, J. R. (2006). Social ontology: Some basic principles. Anthropological Theory, 6(1), 12–29.",
+          "journal-title": "Anthropological Theory"
+        },
+        {
+          "key": "9235_CR41",
+          "doi-asserted-by": "crossref",
+          "first-page": "1800",
+          "DOI": "10.1126/science.1164582",
+          "volume": "322",
+          "author": "NE Sharkey",
+          "year": "2008",
+          "unstructured": "Sharkey, N. E. (2008). The ethical frontiers of robotics. Science, 322, 1800–1801.",
+          "journal-title": "Science"
+        },
+        {
+          "key": "9235_CR42",
+          "volume-title": "Animal liberation",
+          "author": "P Singer",
+          "year": "1975",
+          "unstructured": "Singer, P. (1975). Animal liberation. New York: Random House."
+        },
+        {
+          "key": "9235_CR43",
+          "volume-title": "Practical ethics",
+          "author": "P Singer",
+          "year": "1993",
+          "unstructured": "Singer, P. (1993). Practical ethics (2nd ed.). Cambridge: Cambridge University Press.",
+          "edition": "2"
+        },
+        {
+          "key": "9235_CR44",
+          "volume-title": "Sources of the self: The making of the modern identity",
+          "author": "C Taylor",
+          "year": "1989",
+          "unstructured": "Taylor, C. (1989). Sources of the self: The making of the modern identity. Cambridge, MA: Harvard University Press."
+        },
+        {
+          "key": "9235_CR45",
+          "doi-asserted-by": "crossref",
+          "first-page": "495",
+          "DOI": "10.1007/s00146-007-0091-8",
+          "volume": "22",
+          "author": "S Torrance",
+          "year": "2008",
+          "unstructured": "Torrance, S. (2008). Ethics and consciousness in artificial agents. AI & Society, 22, 495–521.",
+          "journal-title": "AI & Society"
+        },
+        {
+          "key": "9235_CR46",
+          "unstructured": "Veruggio, G. (2006). EURON roboethics roadmap (release 1.1). EURON Roboethics Atelier, Genua."
+        },
+        {
+          "key": "9235_CR47",
+          "volume-title": "Moral machines: Teaching robots right from wrong",
+          "author": "W Wallach",
+          "year": "2008",
+          "unstructured": "Wallach, W., & Allen, C. (2008). Moral machines: Teaching robots right from wrong. Oxford: Oxford University Press."
+        },
+        {
+          "key": "9235_CR48",
+          "volume-title": "Moral status: Obligations to persons and other living things",
+          "author": "MA Warren",
+          "year": "1997",
+          "unstructured": "Warren, M. A. (1997). Moral status: Obligations to persons and other living things. Oxford: Oxford University Press."
+        },
+        {
+          "issue": "3",
+          "key": "9235_CR49",
+          "doi-asserted-by": "crossref",
+          "first-page": "326",
+          "DOI": "10.1016/j.intcom.2008.02.002",
+          "volume": "20",
+          "author": "B Whitby",
+          "year": "2008",
+          "unstructured": "Whitby, B. (2008). Sometimes it’s hard to be a robot: A call for action on the ethics of abusing artificial agents. Interacting with Computers, 20(3), 326–333.",
+          "journal-title": "Interacting with Computers"
+        },
+        {
+          "key": "9235_CR50",
+          "unstructured": "United Nations. The Universal Declaration of Human Rights. Retrieved from http://www.un.org/en/documents/udhr/ ."
+        }
+      ],
+      "container-title": [
+        "Ethics and Information Technology"
+      ],
+      "original-title": [],
+      "language": "en",
+      "link": [
+        {
+          "URL": "http://www.springerlink.com/index/pdf/10.1007/s10676-010-9235-5",
+          "content-type": "unspecified",
+          "content-version": "vor",
+          "intended-application": "similarity-checking"
+        }
+      ],
+      "deposited": {
+        "date-parts": [
+          [
+            2025,
+            2,
+            22
+          ]
+        ],
+        "date-time": "2025-02-22T03:08:09Z",
+        "timestamp": 1740193689000
+      },
+      "score": 1,
+      "resource": {
+        "primary": {
+          "URL": "http://link.springer.com/10.1007/s10676-010-9235-5"
+        }
+      },
+      "subtitle": [],
+      "short-title": [],
+      "issued": {
+        "date-parts": [
+          [
+            2010,
+            6,
+            27
+          ]
+        ]
+      },
+      "references-count": 53,
+      "journal-issue": {
+        "issue": "3",
+        "published-print": {
+          "date-parts": [
+            [
+              2010,
+              9
+            ]
+          ]
+        }
+      },
+      "alternative-id": [
+        "9235"
+      ],
+      "URL": "https://doi.org/10.1007/s10676-010-9235-5",
+      "relation": {},
+      "ISSN": [
+        "1388-1957",
+        "1572-8439"
+      ],
+      "issn-type": [
+        {
+          "value": "1388-1957",
+          "type": "print"
+        },
+        {
+          "value": "1572-8439",
+          "type": "electronic"
+        }
+      ],
+      "subject": [],
+      "published": {
+        "date-parts": [
+          [
+            2010,
+            6,
+            27
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "doi": "10.1145/2874239.2874278",
+    "verified_title": "The issue of moral consideration in robot ethics",
+    "metadata_source": "https://api.crossref.org/works/10.1145/2874239.2874278",
+    "basis": "原文引用语境与书目；Crossref出版商登记元数据；未声称已全文精读推荐文章",
+    "metadata": {
+      "indexed": {
+        "date-parts": [
+          [
+            2026,
+            6,
+            27
+          ]
+        ],
+        "date-time": "2026-06-27T00:02:11Z",
+        "timestamp": 1782518531910,
+        "version": "3.54.5"
+      },
+      "reference-count": 21,
+      "publisher": "Association for Computing Machinery (ACM)",
+      "issue": "3",
+      "license": [
+        {
+          "start": {
+            "date-parts": [
+              [
+                2016,
+                1,
+                5
+              ]
+            ],
+            "date-time": "2016-01-05T00:00:00Z",
+            "timestamp": 1451952000000
+          },
+          "content-version": "vor",
+          "delay-in-days": 0,
+          "URL": "https://www.acm.org/publications/policies/copyright_policy#Background"
+        }
+      ],
+      "content-domain": {
+        "domain": [
+          "dl.acm.org"
+        ],
+        "crossmark-restriction": true
+      },
+      "short-container-title": [
+        "SIGCAS Comput. Soc."
+      ],
+      "published-print": {
+        "date-parts": [
+          [
+            2016,
+            1,
+            5
+          ]
+        ]
+      },
+      "abstract": "<jats:p>\n            This paper discusses whether we should grant moral consideration to robots. Contemporary approaches in support of doing so centers around a relational appearance based approach, which takes departure in the fact that we already by now enter into ethical demanding relations with (even simplistic) robots\n            <jats:italic>as if</jats:italic>\n            they had a mind of their own. Hence, it is assumed that moral status can be viewed as socially constructed and negotiated\n            <jats:italic>within</jats:italic>\n            relations. However, I argue that a relational turn risks turning the\n            <jats:italic>as if</jats:italic>\n            into\n            <jats:italic>if</jats:italic>\n            at the cost of losing sight of what matters in human-human relations. Therefore, I stick to a human centered framework and introduce a moral philosophical perspective, primarily based on Kant's\n            <jats:italic>Tugendlehre</jats:italic>\n            and his conception of duties as well as the Formula of Humanity, which also holds a relational perspective. This enables me to discuss preliminary arguments for moral considerations of robots.\n          </jats:p>",
+      "DOI": "10.1145/2874239.2874278",
+      "type": "journal-article",
+      "created": {
+        "date-parts": [
+          [
+            2016,
+            1,
+            7
+          ]
+        ],
+        "date-time": "2016-01-07T14:04:54Z",
+        "timestamp": 1452175494000
+      },
+      "page": "274-279",
+      "update-policy": "https://doi.org/10.1145/crossmark-policy",
+      "source": "Crossref",
+      "is-referenced-by-count": 50,
+      "title": [
+        "The issue of moral consideration in robot ethics"
+      ],
+      "prefix": "10.1145",
+      "volume": "45",
+      "author": [
+        {
+          "given": "Anne",
+          "family": "Gerdes",
+          "sequence": "first",
+          "affiliation": [
+            {
+              "name": "University of Southern Denmark"
+            }
+          ],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        }
+      ],
+      "member": "320",
+      "published-online": {
+        "date-parts": [
+          [
+            2016,
+            1,
+            5
+          ]
+        ]
+      },
+      "reference": [
+        {
+          "key": "e_1_2_1_1_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1145/1228716.1228746"
+        },
+        {
+          "key": "e_1_2_1_2_1",
+          "first-page": "200",
+          "article-title": "Facing up the Problem of Consciousness",
+          "volume": "3",
+          "author": "Chalmers D. J.",
+          "year": "1995",
+          "unstructured": "Chalmers , D. J. 1995 . Facing up the Problem of Consciousness . Journal of Consciousness Studies (2) : 3 , 200 -- 219 . Chalmers, D. J. 1995. Facing up the Problem of Consciousness. Journal of Consciousness Studies (2): 3, 200--219.",
+          "journal-title": "Journal of Consciousness Studies (2)"
+        },
+        {
+          "key": "e_1_2_1_3_1",
+          "volume-title": "Growing moral relations: critique of moral status ascription",
+          "author": "Coeckelbergh M.",
+          "unstructured": "Coeckelbergh , M. 2012. Growing moral relations: critique of moral status ascription . Palgrave Macmillan , NY. Coeckelbergh, M. 2012. Growing moral relations: critique of moral status ascription. Palgrave Macmillan, NY."
+        },
+        {
+          "key": "e_1_2_1_4_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1007/s10676-010-9235-5"
+        },
+        {
+          "key": "e_1_2_1_5_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1007/s00146-009-0208-3"
+        },
+        {
+          "key": "e_1_2_1_6_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1098/rstb.2006.2004"
+        },
+        {
+          "key": "e_1_2_1_7_1",
+          "doi-asserted-by": "crossref",
+          "unstructured": "Fine A. 1993. Fictionalism. Midwest studies in philosophy XVIII.1--18.  Fine A. 1993. Fictionalism. Midwest studies in philosophy XVIII.1--18.",
+          "DOI": "10.1111/j.1475-4975.1993.tb00254.x"
+        },
+        {
+          "key": "e_1_2_1_8_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1023/B:MIND.0000035461.63578.9d"
+        },
+        {
+          "key": "e_1_2_1_9_1",
+          "volume-title": "The Machine Question -- Critical Perspectives on AI, Robots, and Ethics",
+          "author": "Gunkel D. J.",
+          "unstructured": "Gunkel , D. J. 2012. The Machine Question -- Critical Perspectives on AI, Robots, and Ethics . The MIT Press . MA. Gunkel, D. J. 2012. The Machine Question -- Critical Perspectives on AI, Robots, and Ethics. The MIT Press. MA."
+        },
+        {
+          "key": "e_1_2_1_10_1",
+          "volume-title": "Proceedings of Robo-Philosophy",
+          "author": "Gunkel D. J.",
+          "year": "2014",
+          "unstructured": "Gunkel , D. J. 2014 . The Other Question: The Isssue of Robot Rights . Proceedings of Robo-Philosophy 2014. Sociable Robots and the Future of Social Relations. Frontiers in Artificial Intelligence and Applications. IOS Press Gunkel, D. J. 2014. The Other Question: The Isssue of Robot Rights. Proceedings of Robo-Philosophy 2014. Sociable Robots and the Future of Social Relations. Frontiers in Artificial Intelligence and Applications. IOS Press"
+        },
+        {
+          "key": "e_1_2_1_11_1",
+          "unstructured": "Heynes C. 2013. Report of the Special Rapporteur on extrajudicial summary or arbitrary executions on Lethal Autonomous Robot Systems. A/HCR/23/47 fhttp://www.ohchr.org/Documents/HRBodies/HRCouncil/RegularSession/Session23/A-HRC-23-47_en.pdf.  Heynes C. 2013. Report of the Special Rapporteur on extrajudicial summary or arbitrary executions on Lethal Autonomous Robot Systems. A/HCR/23/47 fhttp://www.ohchr.org/Documents/HRBodies/HRCouncil/RegularSession/Session23/A-HRC-23-47_en.pdf."
+        },
+        {
+          "key": "e_1_2_1_12_1",
+          "volume-title": "On Virtue Ethics",
+          "author": "Hursthouse R.",
+          "unstructured": "Hursthouse , R. 1999. On Virtue Ethics . Oxford University Press . Oxford. NY Hursthouse, R. 1999. On Virtue Ethics. Oxford University Press. Oxford. NY"
+        },
+        {
+          "key": "e_1_2_1_13_1",
+          "volume-title": "The Metaphysics of Morals, transl. by M. J. Gregor",
+          "author": "Kant I.",
+          "unstructured": "Kant , I. 1991. The Metaphysics of Morals, transl. by M. J. Gregor . Cambridge University Press . Kant, I. 1991. The Metaphysics of Morals, transl. by M. J. Gregor. Cambridge University Press."
+        },
+        {
+          "key": "e_1_2_1_14_1",
+          "unstructured": "Kant I. 1785. Akademieausgabe vol. IV Grundlegung zur Metaphysik der Sitten. http://www.korpora.org/Kant/aa04/Inhalt4.html  Kant I. 1785. Akademieausgabe vol. IV Grundlegung zur Metaphysik der Sitten. http://www.korpora.org/Kant/aa04/Inhalt4.html"
+        },
+        {
+          "key": "e_1_2_1_15_1",
+          "volume-title": "Dependent rational animals: Why human beings need the virtues. Carus Publ",
+          "author": "MacIntyre A.",
+          "unstructured": "MacIntyre , A. 1999. Dependent rational animals: Why human beings need the virtues. Carus Publ . Company . Chicago. MacIntyre, A. 1999. Dependent rational animals: Why human beings need the virtues. Carus Publ. Company. Chicago."
+        },
+        {
+          "key": "e_1_2_1_16_1",
+          "volume-title": "Robot Futures",
+          "author": "Nourbakhsh I. R.",
+          "unstructured": "Nourbakhsh , I. R. 2013. Robot Futures . MIT. Cambridge. MA. Nourbakhsh, I. R. 2013. Robot Futures. MIT. Cambridge. MA."
+        },
+        {
+          "key": "e_1_2_1_17_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1007/s10676-004-6491-2"
+        },
+        {
+          "key": "e_1_2_1_18_1",
+          "volume-title": "Alone Together -- Why We Expect More From Technology and Less From Each Other",
+          "author": "Turkle S.",
+          "unstructured": "Turkle , S. 2011. Alone Together -- Why We Expect More From Technology and Less From Each Other . Basic Books , NY. Turkle, S. 2011. Alone Together -- Why We Expect More From Technology and Less From Each Other. Basic Books, NY."
+        },
+        {
+          "key": "e_1_2_1_19_1",
+          "volume-title": "The Philosophy of as if. Transl. by C. K",
+          "author": "Vaihinger H.",
+          "unstructured": "Vaihinger . H. 1924. The Philosophy of as if. Transl. by C. K . Ogden . London . Vaihinger. H. 1924. The Philosophy of as if. Transl. by C. K. Ogden. London."
+        },
+        {
+          "key": "e_1_2_1_20_1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.7208/chicago/9780226852904.001.0001"
+        },
+        {
+          "key": "e_1_2_1_21_1",
+          "volume-title": "Moral Machines -- Teaching Robots Right from Wrong",
+          "author": "Wallach W.",
+          "unstructured": "Wallach , W. , Allen, C. 2009. Moral Machines -- Teaching Robots Right from Wrong . New York : Oxford University Press . Wallach, W., Allen, C. 2009. Moral Machines -- Teaching Robots Right from Wrong. New York: Oxford University Press."
+        }
+      ],
+      "container-title": [
+        "ACM SIGCAS Computers and Society"
+      ],
+      "original-title": [],
+      "language": "en",
+      "link": [
+        {
+          "URL": "https://dl.acm.org/doi/10.1145/2874239.2874278",
+          "content-type": "unspecified",
+          "content-version": "vor",
+          "intended-application": "text-mining"
+        },
+        {
+          "URL": "https://dl.acm.org/doi/pdf/10.1145/2874239.2874278",
+          "content-type": "unspecified",
+          "content-version": "vor",
+          "intended-application": "similarity-checking"
+        }
+      ],
+      "deposited": {
+        "date-parts": [
+          [
+            2025,
+            6,
+            18
+          ]
+        ],
+        "date-time": "2025-06-18T04:53:51Z",
+        "timestamp": 1750222431000
+      },
+      "score": 1,
+      "resource": {
+        "primary": {
+          "URL": "https://dl.acm.org/doi/10.1145/2874239.2874278"
+        }
+      },
+      "subtitle": [],
+      "short-title": [],
+      "issued": {
+        "date-parts": [
+          [
+            2016,
+            1,
+            5
+          ]
+        ]
+      },
+      "references-count": 21,
+      "journal-issue": {
+        "issue": "3",
+        "published-print": {
+          "date-parts": [
+            [
+              2016,
+              1,
+              5
+            ]
+          ]
+        }
+      },
+      "alternative-id": [
+        "10.1145/2874239.2874278"
+      ],
+      "URL": "https://doi.org/10.1145/2874239.2874278",
+      "relation": {},
+      "ISSN": [
+        "0095-2737"
+      ],
+      "issn-type": [
+        {
+          "value": "0095-2737",
+          "type": "print"
+        }
+      ],
+      "subject": [],
+      "published": {
+        "date-parts": [
+          [
+            2016,
+            1,
+            5
+          ]
+        ]
+      },
+      "assertion": [
+        {
+          "value": "2016-01-05",
+          "order": 2,
+          "name": "published",
+          "label": "Published",
+          "group": {
+            "name": "publication_history",
+            "label": "Publication History"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "citation": "Jonas 1984",
+    "metadata_source": "https://press.uchicago.edu/ucp/books/book/chicago/I/bo5953283.html",
+    "basis": "已核对出版社目录介绍及原文书目；未取得原书全文"
+  }
+]

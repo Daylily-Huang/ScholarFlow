@@ -1,0 +1,2325 @@
+[
+  {
+    "doi": "10.1146/annurev.psych.54.101601.145030",
+    "verified_title": "Diary Methods: Capturing Life as it is Lived",
+    "metadata_source": "https://api.crossref.org/works/10.1146/annurev.psych.54.101601.145030",
+    "basis": "原文引用语境与书目；Crossref出版商登记元数据；未声称已全文精读推荐文章",
+    "metadata": {
+      "indexed": {
+        "date-parts": [
+          [
+            2026,
+            10,
+            17
+          ]
+        ],
+        "date-time": "2026-10-17T02:23:05Z",
+        "timestamp": 1792203785123,
+        "version": "4.4.0"
+      },
+      "reference-count": 115,
+      "publisher": "Annual Reviews",
+      "issue": "1",
+      "content-domain": {
+        "domain": [],
+        "crossmark-restriction": false
+      },
+      "short-container-title": [
+        "Annu. Rev. Psychol."
+      ],
+      "published-print": {
+        "date-parts": [
+          [
+            2003,
+            2
+          ]
+        ]
+      },
+      "abstract": "<jats:p>In diary studies, people provide frequent reports on the events and experiences of their daily lives. These reports capture the particulars of experience in a way that is not possible using traditional designs. We review the types of research questions that diary methods are best equipped to answer, the main designs that can be used, current technology for obtaining diary reports, and appropriate data analysis strategies. Major recent developments include the use of electronic forms of data collection and multilevel models in data analysis. We identify several areas of research opportunities: 1. in technology, combining electronic diary reports with collateral measures such as ambulatory heart rate; 2. in measurement, switching from measures based on between-person differences to those based on within-person changes; and 3. in research questions, using diaries to (a) explain why people differ in variability rather than mean level, (b) study change processes during major events and transitions, and (c) study interpersonal processes using dyadic and group diary methods.</jats:p>",
+      "DOI": "10.1146/annurev.psych.54.101601.145030",
+      "type": "journal-article",
+      "created": {
+        "date-parts": [
+          [
+            2002,
+            12,
+            23
+          ]
+        ],
+        "date-time": "2002-12-23T14:02:14Z",
+        "timestamp": 1040652134000
+      },
+      "page": "579-616",
+      "source": "Crossref",
+      "is-referenced-by-count": 2823,
+      "title": [
+        "Diary Methods: Capturing Life as it is Lived"
+      ],
+      "prefix": "10.1146",
+      "volume": "54",
+      "author": [
+        {
+          "given": "Niall",
+          "family": "Bolger",
+          "sequence": "first",
+          "affiliation": [
+            {
+              "name": "Psychology Department, New York University, New York, New York 10003;"
+            }
+          ],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        },
+        {
+          "given": "Angelina",
+          "family": "Davis",
+          "sequence": "additional",
+          "affiliation": [
+            {
+              "name": "Psychology Department, New York University, New York, New York 10003;"
+            }
+          ],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        },
+        {
+          "given": "Eshkol",
+          "family": "Rafaeli",
+          "sequence": "additional",
+          "affiliation": [
+            {
+              "name": "Psychology Department, New York University, New York, New York 10003;"
+            }
+          ],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        }
+      ],
+      "member": "22",
+      "reference": [
+        {
+          "key": "b1",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-006X.67.5.746"
+        },
+        {
+          "key": "b2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1023/A:1021878516875"
+        },
+        {
+          "key": "b3",
+          "volume-title": "The Use of Personal Documents in Psychological Science.",
+          "author": "Allport GW",
+          "year": "1942"
+        },
+        {
+          "key": "b4",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-3514.75.3.670"
+        },
+        {
+          "key": "b5",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.2307/353882"
+        },
+        {
+          "key": "b6",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/j.1741-3737.2001.00417.x"
+        },
+        {
+          "key": "b7",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-3514.64.5.794"
+        },
+        {
+          "key": "b8",
+          "unstructured": "Barrett DJ, Feldman Barrett L. 2000.\n                      The Experience-Sampling Program (ESP)\n                      . http://www2.bc.edu/~barretli/esp/"
+        },
+        {
+          "key": "b9",
+          "volume-title": "EQS Structural Equations Program Manual.",
+          "author": "Bentler PM",
+          "year": "1995"
+        },
+        {
+          "key": "b10",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-3514.57.5.808"
+        },
+        {
+          "key": "b11",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-3514.61.3.440"
+        },
+        {
+          "key": "b12",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-3514.69.5.890"
+        },
+        {
+          "key": "b13",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-3514.79.6.953"
+        },
+        {
+          "key": "b14",
+          "author": "Borsboom D",
+          "year": "2002",
+          "journal-title": "Psychol. Rev."
+        },
+        {
+          "key": "b15",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0003-066X.36.2.129"
+        },
+        {
+          "key": "b16",
+          "volume-title": "HLM: Hierarchical Linear and Nonlinear Modeling with the HLM/2L and HLM/3L Programs.",
+          "author": "Bryk AS",
+          "year": "1996"
+        },
+        {
+          "key": "b17",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1007/BF00995536"
+        },
+        {
+          "key": "b18",
+          "doi-asserted-by": "crossref",
+          "unstructured": "Csikszentmihalyi M, Larson R. 1992. Validity and reliability of the Experience Sampling Method. SeedeVries 1992, pp. 43–57",
+          "DOI": "10.1017/CBO9780511663246.006"
+        },
+        {
+          "key": "b19",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1006/jrpe.1997.2203"
+        },
+        {
+          "key": "b20",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1002/bs.3830170503"
+        },
+        {
+          "key": "b21",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1017/CBO9780511663246"
+        },
+        {
+          "key": "b22",
+          "volume-title": "Analyses of Longitudinal Data.",
+          "author": "Diggle P",
+          "year": "2001"
+        },
+        {
+          "key": "b23",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.2307/2136536"
+        },
+        {
+          "key": "b24",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.2307/353883"
+        },
+        {
+          "key": "b25",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-3514.73.5.1107"
+        },
+        {
+          "key": "b26",
+          "volume-title": "Ambulatory Assessment: Computer Assisted Psychological and Psychophysiological Methods in Monitoring and Field Studies.",
+          "author": "Fahrenberg J",
+          "year": "1996"
+        },
+        {
+          "key": "b27",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-3514.69.1.153"
+        },
+        {
+          "key": "b28",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/089443930101900204"
+        },
+        {
+          "key": "b29",
+          "unstructured": "Feldman Barrett L, Jamner LD. 2000.\n                      Capturing the vicissitudes of life: electronic experience sampling\n                      . Workshop presented at Annu. Meet. Soc. Personal. Soc. Psychol., 1st, Nashville, TN"
+        },
+        {
+          "key": "b30",
+          "unstructured": "Gleason MEJ, Bolger N, Shrout P. 2001.\n                      The effects of research design on reports of mood: comparing daily diary, panel, and cross-sectional designs\n                      . Presented at Annu. Meet. Soc. Personal. Soc. Psychol., 2nd, San Antonio, TX"
+        },
+        {
+          "key": "b31",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.2307/1130293"
+        },
+        {
+          "key": "b32",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/j.1475-6811.1999.tb00203.x"
+        },
+        {
+          "key": "b33",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/1467-6494.00052"
+        },
+        {
+          "key": "b34",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-3514.62.6.944"
+        },
+        {
+          "key": "b35",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.4324/9781410604118"
+        },
+        {
+          "key": "b36",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1016/S0304-3959(00)00450-4"
+        },
+        {
+          "key": "b37",
+          "unstructured": "Jamner LD, Shapiro D, Alberts J. 1998.\n                      Mood, blood pressure, and heart rate: strategies for developing a more effective ambulatory mood diary.\n                      In\n                      Technology and Methods in Behavioral Medicine\n                      , ed. DS Krantz, A Baum, pp. 195–220. Mahwah, NJ: Erlbaum"
+        },
+        {
+          "key": "b38",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/01461672002610003"
+        },
+        {
+          "key": "b39",
+          "volume-title": "LISREL 8 User's Reference Guide.",
+          "author": "Jöreskog KG",
+          "year": "1996"
+        },
+        {
+          "key": "b40",
+          "unstructured": "Kashy DA, Kenny DA. 2000.\n                      The analysis of data from dyads and groups.\n                      In\n                      Handbook of Research Methods in Social Psychology\n                      , ed. HT Reis, CM Judd, pp. 451–77. New York: Cambridge Univ. Press"
+        },
+        {
+          "key": "b41",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/1467-6494.05031"
+        },
+        {
+          "key": "b42",
+          "unstructured": "Kenny D, Kashy D, Bolger N. 1998.\n                      Data analysis in social psychology.\n                      In\n                      Handbook of Social Psychology\n                      , ed. D Gilbert, S Fiske, G Lindzey, pp. 233–65. New York: McGraw-Hill"
+        },
+        {
+          "key": "b43",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-3514.48.2.339"
+        },
+        {
+          "key": "b44",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037/10409-008"
+        },
+        {
+          "key": "b45",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-006X.63.1.52"
+        },
+        {
+          "key": "b46",
+          "unstructured": "Larsen RJ. 1990.\n                      Spectral analysis of longitudinal data.\n                      In\n                      Statistical Methods in Longitudinal Research: Time Series and Categorical Longitudinal Data. Vol. 2:\n                      Statistical Modeling and Decision Science\n                      , ed. A von Eye, pp. 319–50. San Diego, CA: Academic"
+        },
+        {
+          "key": "b47",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-3514.58.1.164"
+        },
+        {
+          "key": "b48",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/j.1467-6494.1978.tb00191.x"
+        },
+        {
+          "key": "b49",
+          "volume-title": "Divergent Realities: The Emotional Lives of Mothers, Fathers, and Adolescents.",
+          "author": "Larson R",
+          "year": "1994"
+        },
+        {
+          "key": "b50",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-3514.74.5.1238"
+        },
+        {
+          "key": "b51",
+          "unstructured": "Laurenceau JP, Feldman Barrett LA, Rovine MJ. 2002. Intimacy in marriage: a daily-diary and multilevel modeling approach. Submitted"
+        },
+        {
+          "key": "b52",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0278-6133.17.1.48"
+        },
+        {
+          "key": "b53",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.2307/1130295"
+        },
+        {
+          "key": "b54",
+          "volume-title": "Generalized, Linear, and Mixed Models.",
+          "author": "McCulloch CE",
+          "year": "2001"
+        },
+        {
+          "key": "b55",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037/0022-3514.83.4.896"
+        },
+        {
+          "key": "b56",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037/0022-3514.80.3.489"
+        },
+        {
+          "key": "b57",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1007/BF02294246"
+        },
+        {
+          "key": "b58",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.4135/9780857029027.d84"
+        },
+        {
+          "key": "b59",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1080/00224499909551970"
+        },
+        {
+          "key": "b60",
+          "volume-title": "Modeling Intraindividual Variability with Repeated Measures Data: Methods and Applications.",
+          "author": "Moskowitz DS",
+          "year": "2002"
+        },
+        {
+          "key": "b61",
+          "volume-title": "Mplus Version 2 User's Guide.",
+          "author": "Muthén B",
+          "year": "2002"
+        },
+        {
+          "key": "b62",
+          "unstructured": "Nesselroade JR, McArdle JJ, Aggen SH, Meyers JM. 2002. Dynamic factor analysis models for representing process in multivariate time-series. SeeMoskowitz & Hershberger 2002, pp. 235–65"
+        },
+        {
+          "key": "b63",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0033-295X.84.3.231"
+        },
+        {
+          "key": "b64",
+          "doi-asserted-by": "crossref",
+          "unstructured": "Paty JA, Kassel JD, Shiffman S. 1992. The importance of assessing base rates for clinical studies: an example of stimulus control of smoking. SeedeVries 1992, pp. 347–52",
+          "DOI": "10.1017/CBO9780511663246.031"
+        },
+        {
+          "key": "b65",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/1467-8721.00123"
+        },
+        {
+          "key": "b66",
+          "unstructured": "Perrez M, Reicherts M. 1996. A computer-assisted self-monitoring procedure for assessing stress-related behavior under real life conditions. SeeFahrenberg & Myrtek 1996, pp. 51–67"
+        },
+        {
+          "key": "b67",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1002/1099-0879(200010)7:4<326::AID-CPP266>3.0.CO;2-0"
+        },
+        {
+          "key": "b68",
+          "unstructured": "Perrez M, Wilhelm P, Schoebi D, Horner M. 2001. Simultaneous computer assisted assessment of causal attribution and social coping in families. SeeFahrenberg & Myrtek 2001, pp. 25–43"
+        },
+        {
+          "key": "b69",
+          "volume-title": "MLn User's Guide.",
+          "author": "Prosser R",
+          "year": "1996"
+        },
+        {
+          "key": "b70",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/014662167700100306"
+        },
+        {
+          "key": "b71",
+          "doi-asserted-by": "crossref",
+          "unstructured": "Rafaeli E, Revelle W. 1999.\n                      Personality, Motivation, and Cognition (PMC) Diary Program\n                      . http://personality-project.org/pmc/diary.html",
+          "DOI": "10.21236/ADA359851"
+        },
+        {
+          "key": "b72",
+          "unstructured": "Rafaeli E, Revelle W. 2002. Affective synchrony: individual differences in mixed emotions. Submitted"
+        },
+        {
+          "key": "b73",
+          "unstructured": "Raffety BD. 2001.\n                      Interactive Software Interview System (ISIS)\n                      . Email raffety@ccplex.com"
+        },
+        {
+          "key": "b74",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0893-3200.9.2.161"
+        },
+        {
+          "key": "b75",
+          "volume-title": "Hierarchical Linear Models: Applications and Data Analysis Methods.",
+          "author": "Raudenbush SW",
+          "year": "2002"
+        },
+        {
+          "key": "b76",
+          "unstructured": "Reardon A, Young MA, Blodgett C. 2001.\n                      Patterns of symptom remission in seasonal affective disorder\n                      . Poster presented at Annu. Meet. Soc. Res. Psychopathol., Madison, WI"
+        },
+        {
+          "key": "b77",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1016/0304-3959(96)02994-6"
+        },
+        {
+          "key": "b78",
+          "unstructured": "Reis HT. 1994.\n                      Domains of experience: investigating relationship processes from three perspectives.\n                      In\n                      Theoretical Frameworks in Personal Relationships\n                      , ed. R Erber, R Gilmore, pp. 87–110. Mahwah, NJ: Erlbaum"
+        },
+        {
+          "key": "b79",
+          "unstructured": "Reis HT, Gable SL. 2000.\n                      Event-sampling and other methods for studying everyday experience.\n                      In\n                      Handbook of Research Methods in Social and Personality Psychology\n                      , ed. TH Reis, MC Judd, pp. 190–222. New York: Cambridge Univ. Press"
+        },
+        {
+          "key": "b80",
+          "unstructured": "Reis HT, Shaver P. 1988.\n                      Intimacy as an interpersonal process.\n                      In\n                      Handbook of Relationships\n                      , ed. SW Duck, pp. 367–389. Chichester, UK: Wiley"
+        },
+        {
+          "key": "b81",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0893-3200.11.1.90"
+        },
+        {
+          "key": "b82",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/0146167298241006"
+        },
+        {
+          "key": "b83",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/j.1741-3737.2001.01052.x"
+        },
+        {
+          "key": "b84",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0033-295X.96.2.341"
+        },
+        {
+          "key": "b85",
+          "volume-title": "SAS/STAT User's Guide, Version 7.",
+          "author": "SAS Inst.",
+          "year": "1999"
+        },
+        {
+          "key": "b86",
+          "volume-title": "New Methods for the Analysis of Change.",
+          "author": "Sayer AG",
+          "year": "2001"
+        },
+        {
+          "key": "b87",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0893-164X.14.3.277"
+        },
+        {
+          "key": "b88",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1017/S0048577298970883"
+        },
+        {
+          "key": "b89",
+          "unstructured": "Shiffman S. 2000.\n                      Real-time self-report of momentary states in the natural environment: computerized ecological momentary assessment.\n                      In\n                      The Science of Self-reports: Implications for Research and Practice\n                      , ed. AA Stone, JS Turkkan, CA Bachrach, JB Jobe, HS Kurtzman, VS Cain, pp. 277–96. Mahwah, NJ: Erlbaum"
+        },
+        {
+          "key": "b90",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037/0022-006X.65.2.292.a"
+        },
+        {
+          "key": "b91",
+          "unstructured": "Shiffman S, Stone AA. 1998.\n                      Ecological momentary assessment: a new tool for behavioral medicine research.\n                      In\n                      Technology and Methods in Behavioral Medicine\n                      , ed. DS Krantz, A Baum, pp. 117–31. Mahwah, NJ: Erlbaum"
+        },
+        {
+          "key": "b92",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.2307/1165280"
+        },
+        {
+          "key": "b93",
+          "unstructured": "Singer JD. 2002. Fitting individual growth models using SAS PROC MIXED. SeeMoskowitz & Hershberger 2002, pp. 135–70"
+        },
+        {
+          "key": "b94",
+          "volume-title": "Multilevel Analysis: An Introduction to Basic and Advanced Multilevel Modeling.",
+          "author": "Snijders TAB",
+          "year": "1999"
+        },
+        {
+          "key": "b95",
+          "first-page": "37",
+          "volume": "2",
+          "author": "Stonborough THW",
+          "year": "1942",
+          "journal-title": "Appl. Anthropol."
+        },
+        {
+          "key": "b96",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1054/jpai.2000.7568"
+        },
+        {
+          "key": "b97",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-3514.74.6.1670"
+        },
+        {
+          "key": "b98",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1093/abm/16.3.199"
+        },
+        {
+          "key": "b99",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1207/S15324796ABM2403_09"
+        },
+        {
+          "key": "b100",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1097/00006842-199703000-00009"
+        },
+        {
+          "key": "b101",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0278-6133.13.2.103"
+        },
+        {
+          "key": "b102",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/0022-4537.00200"
+        },
+        {
+          "key": "b103",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/j.1467-6494.1991.tb02387.x"
+        },
+        {
+          "key": "b104",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-3514.59.2.291"
+        },
+        {
+          "key": "b105",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.2307/353881"
+        },
+        {
+          "key": "b106",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-3514.71.4.729"
+        },
+        {
+          "key": "b107",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1017/CBO9780511819322"
+        },
+        {
+          "key": "b108",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1023/A:1024587217927"
+        },
+        {
+          "key": "b109",
+          "volume-title": "Linear Mixed Models for Longitudinal Data.",
+          "author": "Verbeke G",
+          "year": "2000"
+        },
+        {
+          "key": "b110",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-3514.71.1.166"
+        },
+        {
+          "key": "b111",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/j.1467-6494.1991.tb00261.x"
+        },
+        {
+          "key": "b112",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0022-3514.35.10.742"
+        },
+        {
+          "key": "b113",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/j.1467-6494.1991.tb00252.x"
+        },
+        {
+          "key": "b114",
+          "unstructured": "Wilhelm P. 2001.\n                      A multi-level approach to analyze ambulatory assessment data: an examination of family members' emotional states in daily life.\n                      In\n                      Progress in Ambulatory Assessment: Computer-assisted Psychological and Psychophysiological Methods in Monitoring and Field Studies\n                      , ed. J Fahrenberg, M Myrtek, pp. 173–89. Kirkland, WA: Hogrefe & Huber"
+        },
+        {
+          "key": "b115",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0033-2909.116.2.363"
+        }
+      ],
+      "container-title": [
+        "Annual Review of Psychology"
+      ],
+      "original-title": [],
+      "language": "en",
+      "link": [
+        {
+          "URL": "https://www.annualreviews.org/doi/pdf/10.1146/annurev.psych.54.101601.145030",
+          "content-type": "unspecified",
+          "content-version": "vor",
+          "intended-application": "similarity-checking"
+        }
+      ],
+      "deposited": {
+        "date-parts": [
+          [
+            2021,
+            10,
+            17
+          ]
+        ],
+        "date-time": "2021-10-17T13:56:28Z",
+        "timestamp": 1634478988000
+      },
+      "score": 1,
+      "resource": {
+        "primary": {
+          "URL": "https://www.annualreviews.org/doi/10.1146/annurev.psych.54.101601.145030"
+        }
+      },
+      "subtitle": [],
+      "short-title": [],
+      "issued": {
+        "date-parts": [
+          [
+            2003,
+            2
+          ]
+        ]
+      },
+      "references-count": 115,
+      "journal-issue": {
+        "issue": "1",
+        "published-print": {
+          "date-parts": [
+            [
+              2003,
+              2
+            ]
+          ]
+        }
+      },
+      "alternative-id": [
+        "10.1146/annurev.psych.54.101601.145030"
+      ],
+      "URL": "https://doi.org/10.1146/annurev.psych.54.101601.145030",
+      "relation": {},
+      "ISSN": [
+        "0066-4308",
+        "1545-2085"
+      ],
+      "issn-type": [
+        {
+          "value": "0066-4308",
+          "type": "print"
+        },
+        {
+          "value": "1545-2085",
+          "type": "electronic"
+        }
+      ],
+      "subject": [],
+      "published": {
+        "date-parts": [
+          [
+            2003,
+            2
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "doi": "10.1207/s15327752jpa4901_13",
+    "verified_title": "The Satisfaction With Life Scale",
+    "metadata_source": "https://api.crossref.org/works/10.1207/s15327752jpa4901_13",
+    "basis": "原文引用语境与书目；Crossref出版商登记元数据；未声称已全文精读推荐文章",
+    "metadata": {
+      "indexed": {
+        "date-parts": [
+          [
+            2026,
+            10,
+            22
+          ]
+        ],
+        "date-time": "2026-10-22T03:01:20Z",
+        "timestamp": 1792638080965,
+        "version": "4.5.0"
+      },
+      "reference-count": 23,
+      "publisher": "Informa UK Limited",
+      "issue": "1",
+      "content-domain": {
+        "domain": [],
+        "crossmark-restriction": false
+      },
+      "short-container-title": [
+        "Journal of Personality Assessment"
+      ],
+      "published-print": {
+        "date-parts": [
+          [
+            1985,
+            2
+          ]
+        ]
+      },
+      "DOI": "10.1207/s15327752jpa4901_13",
+      "type": "journal-article",
+      "created": {
+        "date-parts": [
+          [
+            2005,
+            12,
+            20
+          ]
+        ],
+        "date-time": "2005-12-20T15:49:33Z",
+        "timestamp": 1135093773000
+      },
+      "page": "71-75",
+      "source": "Crossref",
+      "is-referenced-by-count": 24112,
+      "title": [
+        "The Satisfaction With Life Scale"
+      ],
+      "prefix": "10.1080",
+      "volume": "49",
+      "author": [
+        {
+          "given": "Ed",
+          "family": "Diener",
+          "sequence": "first",
+          "affiliation": [],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        },
+        {
+          "given": "Robert A.",
+          "family": "Emmons",
+          "sequence": "additional",
+          "affiliation": [],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        },
+        {
+          "given": "Randy J.",
+          "family": "Larsen",
+          "sequence": "additional",
+          "affiliation": [],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        },
+        {
+          "given": "Sharon",
+          "family": "Griffin",
+          "sequence": "additional",
+          "affiliation": [],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        }
+      ],
+      "member": "301",
+      "published-online": {
+        "date-parts": [
+          [
+            2010,
+            6,
+            10
+          ]
+        ]
+      },
+      "reference": [
+        {
+          "key": "p_1_204",
+          "doi-asserted-by": "crossref",
+          "first-page": "470",
+          "DOI": "10.1093/geronj/24.4.470",
+          "volume": "24",
+          "author": "Adams D. L.",
+          "year": "1969",
+          "journal-title": "Journal of Gerontology"
+        },
+        {
+          "key": "p_2_205",
+          "doi-asserted-by": "crossref",
+          "unstructured": "Andrews, F. M. & Withey, S. B. (1976). Social indicators of well-being: America's perception of life quality. New York: Plenum.",
+          "DOI": "10.1007/978-1-4684-2253-5"
+        },
+        {
+          "key": "p_3_206",
+          "unstructured": "Bradburn, N. M. (1969). The structure ofpsychological well-being. Chicago: Aldine."
+        },
+        {
+          "key": "p_4_207",
+          "unstructured": "Buss, A. H. & Plomin, R. (1975). A temperament theory of personality development. New York: Wiley ."
+        },
+        {
+          "key": "p_5_208",
+          "unstructured": "Campbell, A., Converse, P. E. & Rodgers, W. L. (1976). The quality of American life. NewYork: Russell Sage."
+        },
+        {
+          "key": "p_6_209",
+          "unstructured": "Cantril, H. (1965). Thepatterns ofhuman concern. New Brunswick, NJ: Rutgers University Press."
+        },
+        {
+          "key": "p_7_210",
+          "unstructured": "Crowne, D. P. & Marlowe, D. (1964). Theapproval motive. New York: Wiley."
+        },
+        {
+          "key": "p_8_211",
+          "unstructured": "Derogatis, L. R., Lipman, R. S., Rickels, J. & Covi, L. (1974). The Hopkins Symptom Checklist: A measure of primary symptom dimensions. In P. Pichot (Ed.), Psychological measurements in psychopharmacology: Modern problems in pharmacopsychiatry. Basel, Switzerland: S. Kraeer. \""
+        },
+        {
+          "key": "p_9_212",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037//0033-2909.95.3.542"
+        },
+        {
+          "key": "p_10_213",
+          "unstructured": "Eysenck, H. J.& Eysenck, S. B. G. (1964). Manual of the' EysenckpersonalEty invenrory, San Diego, CA: Educational and Industrial Testing Service."
+        },
+        {
+          "key": "p_11_214",
+          "unstructured": "Fordgce, M. W. (1978). Prospectus: The selfdescription inventory. Unpublished paper, Edison Community College, Ft. Myers, FL."
+        },
+        {
+          "key": "p_12_215",
+          "unstructured": "Gurin, G.,Veroff, J. & Feld, S. (1960). American's view of their mental health. New York: Basic Books."
+        },
+        {
+          "key": "p_13_216",
+          "first-page": "257",
+          "volume": "35",
+          "author": "Kaamann R.",
+          "year": "1983",
+          "journal-title": "Affectometer 2: A scale to measure current level of general happings$. Australiah Journal of Psychology"
+        },
+        {
+          "key": "p_14_217",
+          "unstructured": "Ko~kna, A. & Stones, M. J. (1980). Tqe measurement of hapdiness: Development ofthe Memorial University of Newfoufldland Scale of Ha piness (MUNSCH). Journol of Gerontology, f5,906-912."
+        },
+        {
+          "key": "p_15_218",
+          "unstructured": "Larsen, R. J. (1983). Manual for the leffect Intensity Measure. Unpublished manuscript, University of Illinois at Urbana-Champaign."
+        },
+        {
+          "key": "p_16_219",
+          "unstructured": "Larsen, R. J., Diener,E. & Emmons, R. A. (1983). Validity and meaning of measures af subjective well-being. Paper presented at the Midwestern Psychological Association Canvention, Chicago."
+        },
+        {
+          "key": "p_17_220",
+          "doi-asserted-by": "crossref",
+          "first-page": "85",
+          "DOI": "10.1093/geronj/30.1.85",
+          "volume": "30",
+          "author": "Lawton M. P.",
+          "year": "1975",
+          "journal-title": "Journal of Gerontology."
+        },
+        {
+          "key": "p_18_221",
+          "doi-asserted-by": "crossref",
+          "first-page": "134",
+          "DOI": "10.1093/geronj/16.2.134",
+          "volume": "16",
+          "author": "Neugarten B. L.",
+          "year": "1916",
+          "journal-title": "Journal of Gerontology"
+        },
+        {
+          "key": "p_19_222",
+          "doi-asserted-by": "crossref",
+          "unstructured": "Rosqnberg, M. (1965). Society and the adolescent so&-image. Princeton, NJ: Princeton University Press.",
+          "DOI": "10.1515/9781400876136"
+        },
+        {
+          "key": "p_20_223",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1007/BF00352944"
+        },
+        {
+          "key": "p_21_224",
+          "doi-asserted-by": "crossref",
+          "unstructured": "Tatarkiewicz, W. (1976). Analysis of- happiness. 603 E. Daniel The Hague, Netherlands: Martinus Nijhoff.",
+          "DOI": "10.1007/978-94-010-1380-2"
+        },
+        {
+          "key": "p_22_225",
+          "unstructured": "Champaigll9 IL 61820"
+        },
+        {
+          "key": "p_23_226",
+          "unstructured": "Tellegen, A. (1979). DSfferentialpersonaZity questionnaire. Unpublished materials, University of ~$~~~d$~y\"~~';~,2' 19\" Minnesota."
+        }
+      ],
+      "container-title": [
+        "Journal of Personality Assessment"
+      ],
+      "original-title": [],
+      "language": "en",
+      "link": [
+        {
+          "URL": "http://www.tandfonline.com/doi/pdf/10.1207/s15327752jpa4901_13",
+          "content-type": "unspecified",
+          "content-version": "vor",
+          "intended-application": "similarity-checking"
+        }
+      ],
+      "deposited": {
+        "date-parts": [
+          [
+            2019,
+            4,
+            11
+          ]
+        ],
+        "date-time": "2019-04-11T12:45:33Z",
+        "timestamp": 1554986733000
+      },
+      "score": 1,
+      "resource": {
+        "primary": {
+          "URL": "http://www.tandfonline.com/doi/abs/10.1207/s15327752jpa4901_13"
+        }
+      },
+      "subtitle": [],
+      "short-title": [],
+      "issued": {
+        "date-parts": [
+          [
+            1985,
+            2
+          ]
+        ]
+      },
+      "references-count": 23,
+      "journal-issue": {
+        "issue": "1",
+        "published-online": {
+          "date-parts": [
+            [
+              2010,
+              6,
+              10
+            ]
+          ]
+        },
+        "published-print": {
+          "date-parts": [
+            [
+              1985,
+              2
+            ]
+          ]
+        }
+      },
+      "alternative-id": [
+        "10.1207/s15327752jpa4901_13"
+      ],
+      "URL": "https://doi.org/10.1207/s15327752jpa4901_13",
+      "relation": {},
+      "ISSN": [
+        "0022-3891",
+        "1532-7752"
+      ],
+      "issn-type": [
+        {
+          "value": "0022-3891",
+          "type": "print"
+        },
+        {
+          "value": "1532-7752",
+          "type": "electronic"
+        }
+      ],
+      "subject": [],
+      "published": {
+        "date-parts": [
+          [
+            1985,
+            2
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "doi": "10.1073/pnas.1011492107",
+    "verified_title": "High income improves evaluation of life but not emotional well-being",
+    "metadata_source": "https://api.crossref.org/works/10.1073/pnas.1011492107",
+    "basis": "原文引用语境与书目；Crossref出版商登记元数据；未声称已全文精读推荐文章",
+    "metadata": {
+      "indexed": {
+        "date-parts": [
+          [
+            2026,
+            10,
+            21
+          ]
+        ],
+        "date-time": "2026-10-21T23:03:26Z",
+        "timestamp": 1792623806221,
+        "version": "4.5.0"
+      },
+      "reference-count": 23,
+      "publisher": "National Academy of Sciences",
+      "issue": "38",
+      "content-domain": {
+        "domain": [
+          "www.pnas.org"
+        ],
+        "crossmark-restriction": true
+      },
+      "short-container-title": [
+        "Proc. Natl. Acad. Sci. U.S.A."
+      ],
+      "published-print": {
+        "date-parts": [
+          [
+            2010,
+            9,
+            21
+          ]
+        ]
+      },
+      "abstract": "<jats:p>Recent research has begun to distinguish two aspects of subjective well-being. Emotional well-being refers to the emotional quality of an individual's everyday experience—the frequency and intensity of experiences of joy, stress, sadness, anger, and affection that make one's life pleasant or unpleasant. Life evaluation refers to the thoughts that people have about their life when they think about it. We raise the question of whether money buys happiness, separately for these two aspects of well-being. We report an analysis of more than 450,000 responses to the Gallup-Healthways Well-Being Index, a daily survey of 1,000 US residents conducted by the Gallup Organization. We find that emotional well-being (measured by questions about emotional experiences yesterday) and life evaluation (measured by Cantril's Self-Anchoring Scale) have different correlates. Income and education are more closely related to life evaluation, but health, care giving, loneliness, and smoking are relatively stronger predictors of daily emotions. When plotted against log income, life evaluation rises steadily. Emotional well-being also rises with log income, but there is no further progress beyond an annual income of ~$75,000. Low income exacerbates the emotional pain associated with such misfortunes as divorce, ill health, and being alone. We conclude that high income buys life satisfaction but not happiness, and that low income is associated both with low life evaluation and low emotional well-being.</jats:p>",
+      "DOI": "10.1073/pnas.1011492107",
+      "type": "journal-article",
+      "created": {
+        "date-parts": [
+          [
+            2010,
+            9,
+            7
+          ]
+        ],
+        "date-time": "2010-09-07T22:21:32Z",
+        "timestamp": 1283898092000
+      },
+      "page": "16489-16493",
+      "update-policy": "https://doi.org/10.1073/pnas.cm10313",
+      "source": "Crossref",
+      "is-referenced-by-count": 2259,
+      "title": [
+        "High income improves evaluation of life but not emotional well-being"
+      ],
+      "prefix": "10.1073",
+      "volume": "107",
+      "author": [
+        {
+          "given": "Daniel",
+          "family": "Kahneman",
+          "sequence": "first",
+          "affiliation": [
+            {
+              "name": "Center for Health and Well-being, Princeton University, Princeton, NJ 08544"
+            }
+          ],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        },
+        {
+          "given": "Angus",
+          "family": "Deaton",
+          "sequence": "additional",
+          "affiliation": [
+            {
+              "name": "Center for Health and Well-being, Princeton University, Princeton, NJ 08544"
+            }
+          ],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        }
+      ],
+      "member": "341",
+      "published-online": {
+        "date-parts": [
+          [
+            2010,
+            9,
+            7
+          ]
+        ]
+      },
+      "reference": [
+        {
+          "key": "e_1_3_3_1_2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1023/A:1014411319119"
+        },
+        {
+          "key": "e_1_3_3_2_2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1007/s11205-007-9146-y"
+        },
+        {
+          "key": "e_1_3_3_3_2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1257/jel.46.1.95"
+        },
+        {
+          "key": "e_1_3_3_4_2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1162/JEEA.2009.7.2-3.519"
+        },
+        {
+          "key": "e_1_3_3_5_2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037/0033-2909.95.3.542"
+        },
+        {
+          "key": "e_1_3_3_6_2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1126/science.1103572"
+        },
+        {
+          "key": "e_1_3_3_7_2",
+          "first-page": "285",
+          "volume-title": "The Science Of Well-Being",
+          "author": "Kahneman D",
+          "year": "2005",
+          "unstructured": "D Kahneman, J Riis The Science Of Well-Being, eds FA Huppert, N Baylis, B Keverne (Oxford Univ. Press, Oxford), pp. 285–304 (2005)."
+        },
+        {
+          "key": "e_1_3_3_8_2",
+          "volume-title": "Happiness Around the World: The Paradox of Happy Peasants and Miserable Millionaires",
+          "author": "Graham C",
+          "year": "2010",
+          "unstructured": "C Graham Happiness Around the World: The Paradox of Happy Peasants and Miserable Millionaires (Oxford University Press, New York, 2010)."
+        },
+        {
+          "key": "e_1_3_3_9_2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037/a0018066"
+        },
+        {
+          "key": "e_1_3_3_10_2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1016/S0047-2727(02)00168-8"
+        },
+        {
+          "key": "e_1_3_3_11_2",
+          "first-page": "434",
+          "volume-title": "Well-Being: The Foundations of Hedonic Psychology",
+          "author": "Diener E",
+          "year": "1999",
+          "unstructured": "E Diener, EM Suh Well-Being: The Foundations of Hedonic Psychology, eds D Kahneman, E Diener, N Schwarz (Russell Sage Foundation, New York), pp. 434–452 (1999)."
+        },
+        {
+          "key": "e_1_3_3_12_2",
+          "volume-title": "Happiness: Lessons from a New Science",
+          "author": "Layard R",
+          "year": "2005",
+          "unstructured": "R Layard Happiness: Lessons from a New Science (Penguin, New York, 2005)."
+        },
+        {
+          "key": "e_1_3_3_13_2",
+          "doi-asserted-by": "crossref",
+          "first-page": "165",
+          "DOI": "10.7551/mitpress/2242.003.0012",
+          "volume-title": "Culture and Subjective Well-Being",
+          "author": "Inglehart R",
+          "year": "2000",
+          "unstructured": "R Inglehart, HD Klingemann Culture and Subjective Well-Being, eds E Diener, EM Suh (MIT Press, Cambridge, MA), pp. 165–184 (2000)."
+        },
+        {
+          "key": "e_1_3_3_14_2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1007/BF00292648"
+        },
+        {
+          "key": "e_1_3_3_15_2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1257/jep.22.2.53"
+        },
+        {
+          "key": "e_1_3_3_16_2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1007/s11205-008-9422-5"
+        },
+        {
+          "key": "e_1_3_3_17_2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1073/pnas.1003744107"
+        },
+        {
+          "key": "e_1_3_3_18_2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/j.1360-0443.2007.02071.x"
+        },
+        {
+          "key": "e_1_3_3_19_2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1080/14622200701188851"
+        },
+        {
+          "key": "e_1_3_3_20_2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/j.1360-0443.2004.00687.x"
+        },
+        {
+          "key": "e_1_3_3_21_2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/0956797610371963"
+        },
+        {
+          "key": "e_1_3_3_22_2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037/0033-2909.134.4.536"
+        },
+        {
+          "key": "e_1_3_3_23_2",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1007/s11205-005-5074-x"
+        }
+      ],
+      "container-title": [
+        "Proceedings of the National Academy of Sciences"
+      ],
+      "original-title": [],
+      "language": "en",
+      "link": [
+        {
+          "URL": "https://pnas.org/doi/pdf/10.1073/pnas.1011492107",
+          "content-type": "unspecified",
+          "content-version": "vor",
+          "intended-application": "similarity-checking"
+        }
+      ],
+      "deposited": {
+        "date-parts": [
+          [
+            2024,
+            3,
+            30
+          ]
+        ],
+        "date-time": "2024-03-30T02:41:24Z",
+        "timestamp": 1711766484000
+      },
+      "score": 1,
+      "resource": {
+        "primary": {
+          "URL": "https://pnas.org/doi/full/10.1073/pnas.1011492107"
+        }
+      },
+      "subtitle": [],
+      "short-title": [],
+      "issued": {
+        "date-parts": [
+          [
+            2010,
+            9,
+            7
+          ]
+        ]
+      },
+      "references-count": 23,
+      "journal-issue": {
+        "issue": "38",
+        "published-print": {
+          "date-parts": [
+            [
+              2010,
+              9,
+              21
+            ]
+          ]
+        }
+      },
+      "alternative-id": [
+        "10.1073/pnas.1011492107"
+      ],
+      "URL": "https://doi.org/10.1073/pnas.1011492107",
+      "relation": {},
+      "ISSN": [
+        "0027-8424",
+        "1091-6490"
+      ],
+      "issn-type": [
+        {
+          "value": "0027-8424",
+          "type": "print"
+        },
+        {
+          "value": "1091-6490",
+          "type": "electronic"
+        }
+      ],
+      "subject": [],
+      "published": {
+        "date-parts": [
+          [
+            2010,
+            9,
+            7
+          ]
+        ]
+      },
+      "assertion": [
+        {
+          "value": "2010-09-07",
+          "order": 2,
+          "name": "published",
+          "label": "Published",
+          "group": {
+            "name": "publication_history",
+            "label": "Publication History"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "doi": "10.1177/1745691612442904",
+    "verified_title": "A Review of Facebook Research in the Social Sciences",
+    "metadata_source": "https://api.crossref.org/works/10.1177/1745691612442904",
+    "basis": "原文引用语境与书目；Crossref出版商登记元数据；未声称已全文精读推荐文章",
+    "metadata": {
+      "indexed": {
+        "date-parts": [
+          [
+            2026,
+            10,
+            7
+          ]
+        ],
+        "date-time": "2026-10-07T04:11:51Z",
+        "timestamp": 1791346311648,
+        "version": "4.3.1"
+      },
+      "reference-count": 126,
+      "publisher": "SAGE Publications",
+      "issue": "3",
+      "license": [
+        {
+          "start": {
+            "date-parts": [
+              [
+                2012,
+                5,
+                1
+              ]
+            ],
+            "date-time": "2012-05-01T00:00:00Z",
+            "timestamp": 1335830400000
+          },
+          "content-version": "tdm",
+          "delay-in-days": 0,
+          "URL": "https://journals.sagepub.com/page/policies/text-and-data-mining-license"
+        }
+      ],
+      "content-domain": {
+        "domain": [
+          "journals.sagepub.com"
+        ],
+        "crossmark-restriction": true
+      },
+      "short-container-title": [
+        "Perspect Psychol Sci"
+      ],
+      "published-print": {
+        "date-parts": [
+          [
+            2012,
+            5
+          ]
+        ]
+      },
+      "abstract": "<jats:p>With over 800 million active users, Facebook is changing the way hundreds of millions of people relate to one another and share information. A rapidly growing body of research has accompanied the meteoric rise of Facebook as social scientists assess the impact of Facebook on social life. In addition, researchers have recognized the utility of Facebook as a novel tool to observe behavior in a naturalistic setting, test hypotheses, and recruit participants. However, research on Facebook emanates from a wide variety of disciplines, with results being published in a broad range of journals and conference proceedings, making it difficult to keep track of various findings. And because Facebook is a relatively recent phenomenon, uncertainty still exists about the most effective ways to do Facebook research. To address these issues, the authors conducted a comprehensive literature search, identifying 412 relevant articles, which were sorted into 5 categories: descriptive analysis of users, motivations for using Facebook, identity presentation, the role of Facebook in social interactions, and privacy and information disclosure. The literature review serves as the foundation from which to assess current findings and offer recommendations to the field for future research on Facebook and online social networks more broadly.</jats:p>",
+      "DOI": "10.1177/1745691612442904",
+      "type": "journal-article",
+      "created": {
+        "date-parts": [
+          [
+            2012,
+            5,
+            17
+          ]
+        ],
+        "date-time": "2012-05-17T09:32:29Z",
+        "timestamp": 1337247149000
+      },
+      "page": "203-220",
+      "update-policy": "https://doi.org/10.1177/sage-journals-update-policy",
+      "source": "Crossref",
+      "is-referenced-by-count": 843,
+      "title": [
+        "A Review of Facebook Research in the Social Sciences"
+      ],
+      "prefix": "10.1177",
+      "volume": "7",
+      "author": [
+        {
+          "given": "Robert E.",
+          "family": "Wilson",
+          "sequence": "first",
+          "affiliation": [
+            {
+              "name": "Department of Psychology, Washington University in St. Louis, MO"
+            }
+          ],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        },
+        {
+          "given": "Samuel D.",
+          "family": "Gosling",
+          "sequence": "additional",
+          "affiliation": [
+            {
+              "name": "Department of Psychology, University of Texas, Austin"
+            }
+          ],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        },
+        {
+          "given": "Lindsay T.",
+          "family": "Graham",
+          "sequence": "additional",
+          "affiliation": [
+            {
+              "name": "Department of Psychology, University of Texas, Austin"
+            }
+          ],
+          "role": [
+            {
+              "vocabulary": "crossref",
+              "role": "author"
+            }
+          ]
+        }
+      ],
+      "member": "179",
+      "published-online": {
+        "date-parts": [
+          [
+            2012,
+            5,
+            16
+          ]
+        ]
+      },
+      "reference": [
+        {
+          "key": "bibr1-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1007/11957454_3"
+        },
+        {
+          "key": "bibr2-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1525/si.2000.23.1.1"
+        },
+        {
+          "key": "bibr3-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1109/PASSAT/SocialCom.2011.150"
+        },
+        {
+          "key": "bibr4-1745691612442904",
+          "volume-title": "Proceedings CHI 2012",
+          "author": "Archambault A."
+        },
+        {
+          "key": "bibr5-1745691612442904",
+          "unstructured": "Arrington M. (2005). 85% of college students use Facebook. TechCrunch. Retrieved from http://www.techcrunch.com/2005/09/07/85-of-college-students-use-facebook"
+        },
+        {
+          "key": "bibr6-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/0956797609360756"
+        },
+        {
+          "key": "bibr7-1745691612442904",
+          "unstructured": "Backstrom L. (2011). Anatomy of Facebook. Palo Alto, CA: Facebook. Retrieved from http://www.facebook.com/note.php?note_id=10150388519243859"
+        },
+        {
+          "key": "bibr8-1745691612442904",
+          "doi-asserted-by": "crossref",
+          "unstructured": "Backstrom L., Boldi P., Rosa M., Ugander J., Vigna S. (2011). Four degrees of separation. Retrieved from http://arxiv.org/abs/1111.4570",
+          "DOI": "10.1145/2380718.2380723"
+        },
+        {
+          "key": "bibr9-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1089/cpb.2008.0228"
+        },
+        {
+          "key": "bibr10-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/j.1745-6916.2007.00051.x"
+        },
+        {
+          "key": "bibr11-1745691612442904",
+          "first-page": "B8",
+          "author": "Bilton N.",
+          "year": "2010",
+          "journal-title": "New York Times"
+        },
+        {
+          "key": "bibr12-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1145/1518701.1518849"
+        },
+        {
+          "key": "bibr13-1745691612442904",
+          "doi-asserted-by": "crossref",
+          "first-page": "1",
+          "DOI": "10.1089/cyber.2010.9999",
+          "volume": "13",
+          "author": "Bohnert D.",
+          "year": "2010",
+          "journal-title": "Cybertechnology, Behavior, and Social Networking"
+        },
+        {
+          "key": "bibr14-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1354856507084416"
+        },
+        {
+          "key": "bibr15-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/j.1083-6101.2007.00393.x"
+        },
+        {
+          "key": "bibr16-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1191/1478088706qp063oa"
+        },
+        {
+          "key": "bibr17-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1080/02614360802334922"
+        },
+        {
+          "key": "bibr18-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1007/s10869-011-9221-x"
+        },
+        {
+          "key": "bibr19-1745691612442904",
+          "unstructured": "Buchanan E., Ess C. (2011). Internet research ethics. Available from http://internetresearchethics.org/"
+        },
+        {
+          "key": "bibr20-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/0146167208320061"
+        },
+        {
+          "key": "bibr21-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1145/1518701.1518847"
+        },
+        {
+          "key": "bibr22-1745691612442904",
+          "first-page": "455",
+          "volume": "85",
+          "author": "Burke M.",
+          "year": "2010",
+          "journal-title": "Postgraduate Medical Journal"
+        },
+        {
+          "key": "bibr23-1745691612442904",
+          "unstructured": "Carmichael M. (2011). The demographics of social media: Ad and marketing news. Retrieved from http://adage.com/article/adagestat/demographics-facebook-linkedin-myspace-twitter/227569/"
+        },
+        {
+          "key": "bibr24-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1609/icwsm.v4i1.14029"
+        },
+        {
+          "key": "bibr25-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1089/cpb.2008.0226"
+        },
+        {
+          "key": "bibr26-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1109/PASSAT/SocialCom.2011.21"
+        },
+        {
+          "key": "bibr27-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/j.1083-6101.2009.01494.x"
+        },
+        {
+          "key": "bibr28-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1109/PerComW.2012.6197508"
+        },
+        {
+          "key": "bibr29-1745691612442904",
+          "first-page": "26",
+          "volume": "88",
+          "author": "Dholakia U. M.",
+          "year": "2010",
+          "journal-title": "Harvard Business Review"
+        },
+        {
+          "key": "bibr30-1745691612442904",
+          "unstructured": "Dougherty H. (2010). Facebook reaches top U.S. ranking. Experian Hitwise. Retrieved from http://weblogs.hitwise.com/heather-dougherty/2010/03/facebook_reaches_top_ranking_i.html"
+        },
+        {
+          "key": "bibr31-1745691612442904",
+          "volume-title": "Grooming, gossip, and the evolution of language",
+          "author": "Dunbar R.",
+          "year": "1998"
+        },
+        {
+          "key": "bibr32-1745691612442904",
+          "first-page": "1",
+          "volume": "36",
+          "author": "Ellison N.",
+          "year": "2006",
+          "journal-title": "Proceedings of the Annual Conference of the International Communication Association"
+        },
+        {
+          "key": "bibr33-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/j.1083-6101.2007.00367.x"
+        },
+        {
+          "key": "bibr34-1745691612442904",
+          "unstructured": "Facebook. (2011a). Facebook data team: Papers. Palo Alto, CA: Facebook. Retrieved from http://www.facebook.com/data#!/data?sk=app_4949752878"
+        },
+        {
+          "key": "bibr35-1745691612442904",
+          "unstructured": "Facebook. (2011b). Facebook terms. Palo Alto, CA: Facebook. Retrieved from http://www.facebook.com/terms.php"
+        },
+        {
+          "key": "bibr36-1745691612442904",
+          "unstructured": "Facebook. (2012). Statistics of Facebook. Palo Alto, CA: Facebook. Retrieved from http://newsroom.fb.com/content/default.aspx?NewsAreaId=22"
+        },
+        {
+          "key": "bibr37-1745691612442904",
+          "unstructured": "Fletcher D. (2010, May 31). Friends (and moms) without borders. Time. Retrieved from http://www.time.com/time/video/player/0,32068,86888223001_1990764,00.html"
+        },
+        {
+          "key": "bibr38-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1016/j.chb.2008.08.006"
+        },
+        {
+          "key": "bibr39-1745691612442904",
+          "first-page": "1",
+          "author": "Friedlander L.",
+          "year": "2011",
+          "journal-title": "SAGE Open"
+        },
+        {
+          "key": "bibr40-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1002/per.724"
+        },
+        {
+          "key": "bibr41-1745691612442904",
+          "unstructured": "Gertner J. (2011, August 24). Does America need manufacturing? New York Times Magazine. Retrieved from http://www.nytimes.com/2011/08/28/magazine/does-america-need-manufacturing.html?pagewanted=1&_r=2&hp"
+        },
+        {
+          "key": "bibr42-1745691612442904",
+          "unstructured": "Ginger J. (2008). Dataset documentation. The Facebook Project. Retrieved from www.thefacebookproject.com/resource/datasets.html#top"
+        },
+        {
+          "key": "bibr43-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1109/JSAC.2011.111011"
+        },
+        {
+          "key": "bibr44-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1145/1397735.1397743"
+        },
+        {
+          "key": "bibr45-1745691612442904",
+          "volume-title": "Presentation of self in everyday life",
+          "author": "Goffman E.",
+          "year": "1959"
+        },
+        {
+          "key": "bibr46-1745691612442904",
+          "unstructured": "Gosling S. (2009). The ancient psychological roots of Facebook behavior. The Harvard Business Review. Retrieved from http://www.blogs.hbr.org/now-new-next/2009/03/the-ancient-psychological-root.html"
+        },
+        {
+          "key": "bibr47-1745691612442904",
+          "volume-title": "Paper presented at the International Conference on Weblogs and Social Media",
+          "author": "Gosling S. D.",
+          "year": "2007"
+        },
+        {
+          "key": "bibr48-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1002/9781444343120.ch30"
+        },
+        {
+          "key": "bibr49-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1086/225469"
+        },
+        {
+          "key": "bibr50-1745691612442904",
+          "first-page": "1137",
+          "volume": "94",
+          "author": "Grimmelmann J.",
+          "year": "2009",
+          "journal-title": "Iowa Law Review"
+        },
+        {
+          "key": "bibr51-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1145/1102199.1102214"
+        },
+        {
+          "key": "bibr52-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037/0022-3514.82.6.903"
+        },
+        {
+          "key": "bibr53-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1016/j.chb.2010.11.020"
+        },
+        {
+          "key": "bibr54-1745691612442904",
+          "first-page": "95",
+          "volume": "31",
+          "author": "Hodge M.",
+          "year": "2007",
+          "journal-title": "Southern Illinois University Law Journal"
+        },
+        {
+          "key": "bibr55-1745691612442904",
+          "volume-title": "Cultures and organizations: Software of the mind",
+          "author": "Hofstede G.",
+          "year": "1991"
+        },
+        {
+          "key": "bibr56-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037/0003-066X.55.7.709"
+        },
+        {
+          "key": "bibr57-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1145/1357054.1357213"
+        },
+        {
+          "key": "bibr58-1745691612442904",
+          "first-page": "212",
+          "volume-title": "Social networking communities and eDating services: Concepts and implications, IGI-global (information science reference)",
+          "author": "Karl K.",
+          "year": "2008"
+        },
+        {
+          "key": "bibr59-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.4018/jvcsn.2010040102"
+        },
+        {
+          "key": "bibr60-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/j.1468-2389.2010.00499.x"
+        },
+        {
+          "key": "bibr61-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1108/02683940910974134"
+        },
+        {
+          "key": "bibr62-1745691612442904",
+          "volume-title": "Proceedings of the 15th Americas Conference on Information Systems",
+          "author": "Krasnova H.",
+          "year": "2009"
+        },
+        {
+          "key": "bibr63-1745691612442904",
+          "unstructured": "Kreutz C. (2009, June 19). The next billion—The rise of social net- work sites in developing countries. Web2forDev.com. Retrieved from www.web2fordev.net/component/content/article/1-latest-news/69-social-networks"
+        },
+        {
+          "key": "bibr64-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1109/JSAC.2011.111005"
+        },
+        {
+          "key": "bibr65-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1145/1180875.1180901"
+        },
+        {
+          "key": "bibr66-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1145/1240624.1240695"
+        },
+        {
+          "key": "bibr67-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1145/1460563.1460675"
+        },
+        {
+          "key": "bibr68-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1145/1531674.1531717"
+        },
+        {
+          "key": "bibr69-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/1461444809342058"
+        },
+        {
+          "key": "bibr70-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/j.1083-6101.2008.01432.x"
+        },
+        {
+          "key": "bibr71-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1016/j.socnet.2008.07.002"
+        },
+        {
+          "issue": "15",
+          "key": "bibr72-1745691612442904",
+          "first-page": "A1",
+          "volume": "54",
+          "author": "Lipka S.",
+          "year": "2007",
+          "journal-title": "Chronicle for Higher Education"
+        },
+        {
+          "key": "bibr73-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1146/annurev.psych.51.1.571"
+        },
+        {
+          "key": "bibr74-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1080/17439880902923606"
+        },
+        {
+          "key": "bibr75-1745691612442904",
+          "unstructured": "Markoff J. (2007). The tangled history of Facebook. New York Times. Retrieved from http://www.nytimes.com/2007/08/31/business/worldbusiness/31iht-facebook.5.7340806.html"
+        },
+        {
+          "key": "bibr76-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1080/17439880902923655"
+        },
+        {
+          "key": "bibr77-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1037/12076-006"
+        },
+        {
+          "key": "bibr78-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1109/HICSS.2011.379"
+        },
+        {
+          "key": "bibr79-1745691612442904",
+          "volume-title": "Explorations in personality",
+          "author": "Murray H. A.",
+          "year": "1938"
+        },
+        {
+          "key": "bibr80-1745691612442904",
+          "unstructured": "Nash M. (2011). 23+ interesting Facebook infographics. Retrieved from http://ibrandstudio.com/inspiration/facebook-infographics"
+        },
+        {
+          "key": "bibr81-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1145/1452520.1452527"
+        },
+        {
+          "key": "bibr82-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1145/1644893.1644901"
+        },
+        {
+          "key": "bibr83-1745691612442904",
+          "volume-title": "Paper presented at the 4th International Conference on New Trends in Information Science and Service Science",
+          "author": "Pantano E.",
+          "year": "2010"
+        },
+        {
+          "key": "bibr84-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1016/j.appdev.2008.12.010"
+        },
+        {
+          "key": "bibr85-1745691612442904",
+          "volume-title": "Paper presented at the 61th Annual Conference of the International Communication Association",
+          "author": "Peña J.",
+          "year": "2011"
+        },
+        {
+          "key": "bibr86-1745691612442904",
+          "unstructured": "Phillips S. (2007, July 25). A brief history of Facebook. Guardian. Retrieved from www.guardian.co.uk/technology/2007/jul/25/media.newmedia"
+        },
+        {
+          "key": "bibr87-1745691612442904",
+          "unstructured": "Press Trust of India. (2011). Egyptian couple names newly-born daughter “Facebook.” Hindustan Times. Retrieved from http://www.hindustantimes.com/Egyptian-couple-names-newly-born-daughter-Facebook/Article1-665347.aspx"
+        },
+        {
+          "key": "bibr88-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1109/iThings/CPSCom.2011.86"
+        },
+        {
+          "key": "bibr89-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/0022022108323786"
+        },
+        {
+          "key": "bibr90-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1016/j.jrp.2008.09.002"
+        },
+        {
+          "key": "bibr91-1745691612442904",
+          "first-page": "15",
+          "author": "Raynes-Goldie K.",
+          "year": "2010",
+          "journal-title": "First Monday"
+        },
+        {
+          "key": "bibr92-1745691612442904",
+          "unstructured": "Richmond R. (2010). A guide to Facebook’s new privacy settings. New York Times. Retrieved from http://gadgetwise.blogs.nytimes.com/2010/05/27/5-steps-to-reset-your-facebook-privacy-settings/"
+        },
+        {
+          "key": "bibr93-1745691612442904",
+          "unstructured": "Ries T. (2010). 250 million people engage with Facebook on external sites monthly. Retrieved from http://therealtimereport.com/2010/12/11/250-million-people-engage-with-facebook-on-external-sites-monthly"
+        },
+        {
+          "key": "bibr94-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1016/j.chb.2008.12.024"
+        },
+        {
+          "key": "bibr95-1745691612442904",
+          "unstructured": "Rusli E. (2012). Facebook files for an I.P.O. New York Times. Retrieved from http://dealbook.nytimes.com/2012/02/01/facebook-files-for-an-i-p-o/?hp"
+        },
+        {
+          "key": "bibr96-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1109/CTIT.2011.6107957"
+        },
+        {
+          "key": "bibr97-1745691612442904",
+          "unstructured": "Schonfeld E. (2010). Facebook closing in on 500 million visitors a month. TechCrunch. Retrieved from http://techcrunch.com/2010/04/21/facebook-500-million-visitors-comscore/"
+        },
+        {
+          "key": "bibr98-1745691612442904",
+          "unstructured": "Schrag Z. (2010). Is Facebook data mining human subjects research? Institutional Review Blog. Retrieved from http://www.institutionalreviewblog.com/2010/11/is-facebook-data-mining-human-subjects.html"
+        },
+        {
+          "key": "bibr99-1745691612442904",
+          "volume-title": "Paper presented at the Poke 1.0 Facebook Social Research Symposium, University of London",
+          "author": "Selwyn N.",
+          "year": "2007"
+        },
+        {
+          "key": "bibr100-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1027/1864-1105.20.2.67"
+        },
+        {
+          "key": "bibr101-1745691612442904",
+          "unstructured": "Siegler M. (2011). Facebook secondary stock just surged to $34—That’s an $85 billion valuation. TechCrunch. Retrieved from http://techcrunch.com/2011/03/21/facebook-85-billion-valuation/"
+        },
+        {
+          "key": "bibr102-1745691612442904",
+          "first-page": "311",
+          "volume": "2",
+          "author": "Solberg L.",
+          "year": "2010",
+          "journal-title": "University of Illinois Journal of Law, Technology & Policy"
+        },
+        {
+          "key": "bibr103-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1016/j.appdev.2008.07.002"
+        },
+        {
+          "key": "bibr104-1745691612442904",
+          "unstructured": "Stillwell D., Kosinski M. (2011). MyPersonality project. Retrieved from http://www.mypersonality.org/wiki/doku.php"
+        },
+        {
+          "key": "bibr105-1745691612442904",
+          "volume-title": "The psychology of digital media at work",
+          "author": "Stopfer J. M."
+        },
+        {
+          "key": "bibr106-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1145/1753326.1753559"
+        },
+        {
+          "key": "bibr107-1745691612442904",
+          "volume-title": "Resilient identities: Self, relationships, and the construction of social reality",
+          "author": "Swann W. B.",
+          "year": "1999"
+        },
+        {
+          "key": "bibr108-1745691612442904",
+          "unstructured": "Swartz J. (2012). Facebook may file for IPO this week. USA Today. Retrieved from http://www.usatoday.com/tech/news/story/2012-01-27/facebook-ipo-could-come-next-week/52823968/1"
+        },
+        {
+          "key": "bibr109-1745691612442904",
+          "unstructured": "Syncapse. (2010). The value of a Facebook fan: An empirical review. Retrieved from http://www.brandchannel.com/images/papers/504_061810_wp_syncapse_facebook.pdf"
+        },
+        {
+          "key": "bibr110-1745691612442904",
+          "first-page": "871",
+          "volume-title": "Proceedings From 7th European Conference on E-Learning",
+          "author": "Taraszow T.",
+          "year": "2008"
+        },
+        {
+          "key": "bibr111-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1109/MALWARE.2010.5665793"
+        },
+        {
+          "key": "bibr112-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/j.1083-6101.2008.00409.x"
+        },
+        {
+          "key": "bibr113-1745691612442904",
+          "unstructured": "Tsotsis A. (2011). Mark Zuckerberg explains his law of social sharing. TechCrunch. Retrieved from http://techcrunch.com/2011/07/06/mark-zuckerberg-explains-his-law-of-social-sharing-video/"
+        },
+        {
+          "key": "bibr114-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1080/13691180801999050"
+        },
+        {
+          "key": "bibr115-1745691612442904",
+          "unstructured": "Ugander J., Karrer B., Backstrom L., Marlow C. (2011). The anatomy of the Facebook social graph. Retrieved from http://arxiv.org/abs/1111.4503"
+        },
+        {
+          "key": "bibr116-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1109/ICME.2011.6011927"
+        },
+        {
+          "key": "bibr117-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1145/1592665.1592675"
+        },
+        {
+          "key": "bibr118-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1016/j.jesp.2009.04.026"
+        },
+        {
+          "key": "bibr119-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1177/0093650208330251"
+        },
+        {
+          "key": "bibr120-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/j.1468-2958.2007.00312.x"
+        },
+        {
+          "key": "bibr121-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1016/j.chb.2009.10.001"
+        },
+        {
+          "key": "bibr122-1745691612442904",
+          "volume-title": "Nonreactive measures in the social sciences",
+          "author": "Webb E. J.",
+          "year": "1981"
+        },
+        {
+          "key": "bibr123-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1016/j.jesp.2008.12.009"
+        },
+        {
+          "key": "bibr124-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1089/cyber.2009.0365"
+        },
+        {
+          "key": "bibr125-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1007/s10676-010-9227-5"
+        },
+        {
+          "key": "bibr126-1745691612442904",
+          "doi-asserted-by": "publisher",
+          "DOI": "10.1111/j.1083-6101.2008.01429.x"
+        }
+      ],
+      "container-title": [
+        "Perspectives on Psychological Science"
+      ],
+      "original-title": [],
+      "language": "en",
+      "link": [
+        {
+          "URL": "https://journals.sagepub.com/doi/pdf/10.1177/1745691612442904",
+          "content-type": "application/pdf",
+          "content-version": "vor",
+          "intended-application": "text-mining"
+        },
+        {
+          "URL": "https://journals.sagepub.com/doi/full-xml/10.1177/1745691612442904",
+          "content-type": "application/xml",
+          "content-version": "vor",
+          "intended-application": "text-mining"
+        },
+        {
+          "URL": "https://journals.sagepub.com/doi/pdf/10.1177/1745691612442904",
+          "content-type": "unspecified",
+          "content-version": "vor",
+          "intended-application": "similarity-checking"
+        }
+      ],
+      "deposited": {
+        "date-parts": [
+          [
+            2026,
+            5,
+            2
+          ]
+        ],
+        "date-time": "2026-05-02T08:34:04Z",
+        "timestamp": 1777710844000
+      },
+      "score": 1,
+      "resource": {
+        "primary": {
+          "URL": "https://journals.sagepub.com/doi/10.1177/1745691612442904"
+        }
+      },
+      "subtitle": [],
+      "short-title": [],
+      "issued": {
+        "date-parts": [
+          [
+            2012,
+            5
+          ]
+        ]
+      },
+      "references-count": 126,
+      "journal-issue": {
+        "issue": "3",
+        "published-print": {
+          "date-parts": [
+            [
+              2012,
+              5
+            ]
+          ]
+        }
+      },
+      "alternative-id": [
+        "10.1177/1745691612442904"
+      ],
+      "URL": "https://doi.org/10.1177/1745691612442904",
+      "relation": {},
+      "ISSN": [
+        "1745-6916",
+        "1745-6924"
+      ],
+      "issn-type": [
+        {
+          "value": "1745-6916",
+          "type": "print"
+        },
+        {
+          "value": "1745-6924",
+          "type": "electronic"
+        }
+      ],
+      "subject": [],
+      "published": {
+        "date-parts": [
+          [
+            2012,
+            5
+          ]
+        ]
+      }
+    }
+  }
+]

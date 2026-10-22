@@ -1,0 +1,359 @@
+{
+  "reading_profile": {
+    "article_type": [
+      "quantitative"
+    ],
+    "reader": "初学研究者",
+    "purpose": "理解反复测量如何回答使用与幸福感的关系"
+  },
+  "scope": "2013年PLOS ONE正式论文，出版商/PMC JATS全文正文、原图、表格与书目；补充材料仅目录，未展开外部DOCX。逐段译文保留原段信息并在中文中顺畅整合句式。原PDF保留于reading-data；页码由文本定位，已实际核对的关键块另标verified。教学图不模拟原始观测，历史平台规模均指本文年代。",
+  "story": {
+    "overview": {
+      "title": "刷得更多以后，人会感觉更差吗？",
+      "lead": "作者追踪年轻人两周内的Facebook使用与心情，发现用得更多之后，心情和生活满意度往往更差。",
+      "takeaway": "它用反复追踪补上单次调查缺少的时间线，得到两类幸福感的负向关联，尚未完成因果实验。",
+      "refs": [
+        "b-efe3717fa2b0a49f-1",
+        "b-23a060fc34e70f29-1",
+        "b-e720fce02def5479-1",
+        "b-56bda74d95b96890-1",
+        "b-790a145d6afcddbc-1",
+        "b-e85ea94e04abfdea-1",
+        "b-ec0aa68e2bcd3d35-1"
+      ],
+      "format": "research-map",
+      "research_map": [
+        {
+          "step": "background",
+          "text": "Facebook让人随时联系别人，但这种联系是否真的让人过得更好，关系到日常社交怎样影响幸福感。",
+          "refs": [
+            "b-efe3717fa2b0a49f-1"
+          ]
+        },
+        {
+          "step": "gap",
+          "text": "以前多在同一时点比较不同的人，分不清是刷得多之后不开心，还是本来不开心的人更爱刷；也看不到同一个人的变化。",
+          "refs": [
+            "b-efe3717fa2b0a49f-1"
+          ]
+        },
+        {
+          "step": "question",
+          "text": "同一个人在一段时间里Facebook用得更多，下一次回复时会不会心情更差？两周整体使用量是否对应生活满意度下降？",
+          "refs": [
+            "b-efe3717fa2b0a49f-1"
+          ]
+        },
+        {
+          "step": "method",
+          "text": "招募82名年轻人，两周内每天发5次短信，询问即时感受和这段时间的使用；控制前次心情比较后次变化，研究前后另测生活满意度。",
+          "refs": [
+            "b-23a060fc34e70f29-1",
+            "b-e720fce02def5479-1",
+            "b-56bda74d95b96890-1"
+          ]
+        },
+        {
+          "step": "findings",
+          "text": "区间使用越多，随后心情越差；两周平均使用越多，生活满意度下降越多。这两条结果分别对应即时感受和整体生活评价。",
+          "refs": [
+            "b-790a145d6afcddbc-1",
+            "b-e85ea94e04abfdea-1"
+          ]
+        },
+        {
+          "step": "conclusion",
+          "text": "Facebook使用与幸福感下降有关，追踪设计让先后顺序更清楚；要确认减少使用能否改善幸福感，还需要随机改变使用量的实验。",
+          "refs": [
+            "b-ec0aa68e2bcd3d35-1"
+          ]
+        }
+      ]
+    },
+    "walkthrough": [
+      {
+        "title": "先区分两种幸福感，才知道要测什么",
+        "bridge": "“过得好吗”不是一个没有歧义的问题",
+        "paragraphs": [
+          "当下心情和对整个生活的评价可能不同。一个人今天心烦，仍认为生活总体不错；反过来也可能发生。作者把前者叫情感幸福感，后者叫认知幸福感。",
+          "即时心情适合一天问几次；生活满意度则在两周头尾测。这样的测量安排由问题决定，不能把两条线当成同一个结果重复两遍。"
+        ],
+        "connection": "明确结果以后，还需要把使用与感受放进正确的时间格子。",
+        "refs": [
+          "b-efe3717fa2b0a49f-1",
+          "b-e720fce02def5479-1",
+          "b-016fbfa8c32d513c-1"
+        ],
+        "motions": [],
+        "concepts": [
+          "concept-wellbeing"
+        ]
+      },
+      {
+        "title": "每次短信同时记录“现在”与“刚过去的区间”",
+        "bridge": "有时间戳还不够，问题问的时间对象也要清楚",
+        "paragraphs": [
+          "T1先问当时心情，T2再问当前心情及自上次以来用了多少Facebook。使用虽然在T2报告，指的是T1到T2之间，而不是T2之后。",
+          "原地看下方演示：时间向右推进，区间使用和末次情绪逐步进入记录。随后分析控制T1心情，检查区间使用与T2状态。使用数值是滑块自评，没有直接换算成分钟。"
+        ],
+        "connection": "现在记录能配对了；接着必须处理同一个人会贡献许多行的结构。",
+        "refs": [
+          "b-e720fce02def5479-1",
+          "b-56bda74d95b96890-1"
+        ],
+        "motions": [
+          {
+            "id": "motion-time"
+          }
+        ],
+        "concepts": []
+      },
+      {
+        "title": "把自己的变化与人与人的差异分开",
+        "bridge": "4,589行记录来自有限的参与者",
+        "paragraphs": [
+          "假设甲平时爱刷、也总比乙烦躁，直接比较两人的所有行可能混入他们原本差异。作者用多层模型认出记录属于谁，将第一层预测变量减去各人平均，并允许个人截距、斜率不同。",
+          "表1也把个人内和个人间相关分开。先认清你要问的是“甲比乙怎样”，还是“甲比自己平时怎样”，才有可能读对模型和表格。缺失回复的补接与清理标准另做了敏感性检查。"
+        ],
+        "connection": "在这个比较框架里，结果系数才有明确含义。",
+        "refs": [
+          "b-092ed94f7990e9d3-1",
+          "b-56bda74d95b96890-1",
+          "b-c51fb10bb25dbec2-1",
+          "b-cc64a712bc08d8d1-1",
+          "b-c3b951786dc75dc1-1"
+        ],
+        "motions": [],
+        "concepts": [
+          "concept-within"
+        ]
+      },
+      {
+        "title": "量表方向不同，两个系数怎样读",
+        "bridge": "不能只见到正负号就判断好坏",
+        "paragraphs": [
+          "情感题0是很积极，100是很消极，因此B=0.08是使用自评分更高时，后次消极感受更高。生活满意度则分数越高越满意，因此B=−0.012是控制起点后终点评价更低。",
+          "两条线都指向较差变化，但它们采用不同汇总与分析层级。两周头尾样本平均满意度可以上升，同时高使用者相对变化较差；总体均值与条件关联回答不同问题。"
+        ],
+        "connection": "接下来要看这是不是一般社交、原有难受或孤独带来的现象。",
+        "refs": [
+          "b-016fbfa8c32d513c-1",
+          "b-408526ab23d4dd54-1",
+          "b-790a145d6afcddbc-1",
+          "b-e85ea94e04abfdea-1"
+        ],
+        "motions": [],
+        "concepts": []
+      },
+      {
+        "title": "让解释接受对照，才知道结论走到哪一步",
+        "bridge": "负向关联出现以后，其他故事仍然可能成立",
+        "paragraphs": [
+          "面对面或电话互动没有出现同样负向结果：即时感受反而改善。再看方向，先前情绪和担忧未显著预测随后使用，孤独却可以；控制孤独后，使用与幸福感的关联仍在。",
+          "下图把“已有数据检查的解释”与“仍需新研究的问题”放在一起。作者削弱了部分替代解释，并没有把自然使用变成随机分配。社会比较、运动挤占等可能机制也未在本研究中直接确证。"
+        ],
+        "connection": "因此收获是一条值得继续追问的时间关联，下一步是实验与过程测量。",
+        "refs": [
+          "b-be23f38c5462e94d-1",
+          "b-a156371475a47953-1",
+          "b-7ac0c8a68ebb444e-1",
+          "b-1d9b3cc937b0ecc1-1",
+          "b-ec0aa68e2bcd3d35-1"
+        ],
+        "motions": [
+          {
+            "id": "motion-inference"
+          }
+        ],
+        "concepts": []
+      },
+      {
+        "title": "把结论用在今天，需要补哪些研究",
+        "bridge": "2013年的年轻用户不是所有平台、所有人",
+        "paragraphs": [
+          "作者要求扩展年龄与平台，并强调效应较小、情绪量表尚可拆分。探索发现直接接触较多时Facebook负向关联更强，可以启发社会比较研究，却不支持简单建议人少交朋友。",
+          "如果你要继续研究，应分别记录使用方式、情绪过程和人群背景，设计能够改变或更细分暴露的比较。核心文献推荐帮助补上量表、日记设计与平台研究背景。"
+        ],
+        "connection": "回到开头：本文通过追踪让顺序更清楚，也具体指出了哪些解释仍等待验证。",
+        "refs": [
+          "b-10f289a2f01f7f55-1",
+          "b-91ef9f57062738ef-1",
+          "b-1d9b3cc937b0ecc1-1",
+          "b-ec0aa68e2bcd3d35-1",
+          "b-5f14e2d8e5574697-1",
+          "b-4a83e4cd0b5c91d0-1"
+        ],
+        "motions": [],
+        "concepts": []
+      }
+    ]
+  },
+  "concepts": [
+    {
+      "id": "concept-wellbeing",
+      "term": "主观幸福感：即时感受 / 生活评价",
+      "meaning": "前者关心此刻感觉，后者关心对生活总体评价。",
+      "distinction": "情感题高分更消极；SWLS高分更满意，方向须分别读。",
+      "example": "教学例子：考试当天很紧张，仍可能认为生活总体满意。",
+      "refs": [
+        "b-efe3717fa2b0a49f-1",
+        "b-e720fce02def5479-1",
+        "b-016fbfa8c32d513c-1"
+      ],
+      "anchor": "b-efe3717fa2b0a49f-1"
+    },
+    {
+      "id": "concept-within",
+      "term": "个人内变化 / 个人间差异",
+      "meaning": "一个人相对自己平常的变化，与两个人平均水平的差别是两种比较。",
+      "distinction": "不能用人与人之间的相关，直接替代同一个人的时间关系。",
+      "example": "教学例子：甲总比乙爱刷，不代表甲每次多刷后都会更差。",
+      "refs": [
+        "b-56bda74d95b96890-1",
+        "b-cc64a712bc08d8d1-1",
+        "b-c3b951786dc75dc1-1"
+      ],
+      "anchor": "b-56bda74d95b96890-1"
+    }
+  ],
+  "mechanisms": [
+    {
+      "id": "motion-time",
+      "scene": "repeated_measures",
+      "title": "一段使用，怎样接上前后两次感受",
+      "question": "使用在T2提问，为什么叫T1–2？",
+      "anchor": "b-56bda74d95b96890-1",
+      "refs": [
+        "b-e720fce02def5479-1",
+        "b-56bda74d95b96890-1"
+      ],
+      "stages": [
+        "T1记录起始感受",
+        "T1与T2之间发生自然使用",
+        "T2回顾区间使用并记录当前感受"
+      ],
+      "visual": {
+        "before": "此刻感受：T1",
+        "interval": "区间内Facebook使用",
+        "after": "当前感受＋区间回顾",
+        "meaning": "分析：比较使用与T2状态，同时纳入T1状态"
+      },
+      "note": "教学时间线；无虚构观测数值。",
+      "label": "测量过程示意"
+    },
+    {
+      "id": "motion-inference",
+      "scene": "argument_map",
+      "title": "从观测关系到因果问题，还差什么",
+      "question": "哪些解释已有检查，哪些需要下一项研究？",
+      "anchor": "b-be23f38c5462e94d-1",
+      "refs": [
+        "b-be23f38c5462e94d-1",
+        "b-7ac0c8a68ebb444e-1",
+        "b-ec0aa68e2bcd3d35-1"
+      ],
+      "stages": [
+        "观察到时间关联",
+        "用直接互动与孤独作检查",
+        "机制与随机干预仍需新研究"
+      ],
+      "visual": {
+        "nodes": [
+          {
+            "id": "a",
+            "label": "核心记录",
+            "lines": [
+              "区间使用与后次感受",
+              "控制前次状态"
+            ],
+            "stage": 0
+          },
+          {
+            "id": "b",
+            "label": "已有对照",
+            "lines": [
+              "直接互动结果不同",
+              "控制孤独后仍有关联"
+            ],
+            "stage": 1
+          },
+          {
+            "id": "c",
+            "label": "下一步",
+            "lines": [
+              "随机改变使用量",
+              "直接测可能机制"
+            ],
+            "stage": 2
+          }
+        ],
+        "edges": [
+          {
+            "from": "a",
+            "to": "b",
+            "relation": "precedes"
+          },
+          {
+            "from": "b",
+            "to": "c",
+            "relation": "precedes"
+          }
+        ]
+      },
+      "label": "论证示意",
+      "note": "箭头表示研究问题推进，不能读成已识别的因果链。"
+    }
+  ],
+  "further_reading": [
+    {
+      "citation": "Niall Bolger; Angelina Davis; Eshkol Rafaeli (2003). Diary Methods: Capturing Life as it is Lived. Annual Review of Psychology.",
+      "role": "经验取样与日记法背景",
+      "priority": "先读：研究设计",
+      "reason": "如果卡在“同一个人多次回复为什么要分层分析”，这篇直接补个人内变化与记录设计的思路。",
+      "focus": "重点读日记设计怎样对应变化问题，对照本文T1、T1–2、T2的安排。",
+      "url": "https://doi.org/10.1146/annurev.psych.54.101601.145030",
+      "refs": [
+        "b-8fc453f1da0cab3b-1"
+      ]
+    },
+    {
+      "citation": "Ed Diener; Robert A. Emmons; Randy J. Larsen; Sharon Griffin (1985). The Satisfaction With Life Scale. Journal of Personality Assessment.",
+      "role": "生活满意度量表来源",
+      "priority": "理解测量时读",
+      "reason": "它帮你分清生活评价与当下心情，理解本文为什么另在两周头尾测SWLS。",
+      "focus": "重点看量表测什么，而非把即时情绪题也叫生活满意度。",
+      "url": "https://doi.org/10.1207/s15327752jpa4901_13",
+      "refs": [
+        "b-efe3717fa2b0a49f-1"
+      ]
+    },
+    {
+      "citation": "Daniel Kahneman; Angus Deaton (2010). High income improves evaluation of life but not emotional well-being. Proceedings of the National Academy of Sciences.",
+      "role": "情绪体验与生活评价的区分",
+      "priority": "理解两类幸福感时读",
+      "reason": "同一生活条件可以与两种幸福感有不同关系，读它能理解本文将两条结果线分开的必要性。",
+      "focus": "对照两类结果定义与比较方式，不把收入研究结论搬成平台结论。",
+      "url": "https://doi.org/10.1073/pnas.1011492107",
+      "refs": [
+        "b-9ad262495fed0ffd-1"
+      ]
+    },
+    {
+      "citation": "Robert E. Wilson; Samuel D. Gosling; Lindsay T. Graham (2012). A Review of Facebook Research in the Social Sciences. Perspectives on Psychological Science.",
+      "role": "本文引用的领域综述",
+      "priority": "补背景时读",
+      "reason": "它帮助定位2013年研究面对的既有问题，理解为什么论文强调时间变化的缺口。",
+      "focus": "按本文引言的问题查看既有研究类型；推荐依据为书目与摘要核验。",
+      "url": "https://doi.org/10.1177/1745691612442904",
+      "refs": [
+        "b-dbf3eff7e48ac68b-1"
+      ]
+    }
+  ],
+  "attribution": {
+    "citation": "Ethan Kross; Philippe Verduyn; Emre Demiralp; Jiyoung Park; David Seungjae Lee; Natalie Lin; Holly Shablack; John Jonides; Oscar Ybarra · 10.1371/journal.pone.0069841",
+    "url": "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0069841",
+    "license": "This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are properly credited.",
+    "changes": "原文归原作者；中文译文、白话、导读与示意图为AI辅助教学改写。原文来自出版商/PMC JATS；代码MIT许可不替代论文许可。"
+  }
+}

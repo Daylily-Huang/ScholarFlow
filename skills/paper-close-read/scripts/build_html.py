@@ -1,0 +1,137 @@
+"""Build a standalone offline reader from verified source structure and authored explanations."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from render_full import esc, embed_image, render_full
+from validate_content import validate
+from render_further import render_further
+
+ROOT = Path(__file__).resolve().parent.parent
+
+
+def refs_html(refs):
+    return ' '.join(f'<a class="evidence" href="#{esc(ref)}">查看证据 {n + 1}</a>' for n, ref in enumerate(refs))
+
+
+def render_guide(guide, asset_root):
+    if guide.get('story'):
+        from render_story import render_story
+        return render_story(guide['story'], guide.get('mechanisms', []), guide.get('concepts', []))
+    motion_links = ''.join(f'<p><a class="evidence" href="#{esc(m["id"])}">{esc(m["title"])}</a></p>' for m in guide.get('mechanisms', []))
+    motion_links = '<section class="motion-guide-links"><h3>用动图跨过这些难点</h3>' + motion_links + '</section>' if motion_links else ''
+    claims = []
+    for n, claim in enumerate(guide.get("claims", [])):
+        claims.append(f'<article class="claim" id="g-{n}"><span class="eyebrow">证据路线 {n + 1} · {esc(claim.get("kind", "作者论述"))}</span>'
+                      f'<h3>{esc(claim.get("title", ""))}</h3><p data-ann-id="g-{n}-text">{esc(claim.get("text", ""))}</p>'
+                      f'{refs_html(claim.get("refs", []))}</article>')
+    checks = []
+    for n, check in enumerate(guide.get("checks", [])):
+        checks.append(f'<article class="check"><h3>{esc(check.get("question", ""))}</h3>'
+                      f'<label>先用自己的话想一想（不用提交）<textarea data-recall="{n}" rows="2"></textarea></label>'
+                      f'<details open><summary>对照解释与证据</summary><p>{esc(check.get("answer", ""))}</p>{refs_html(check.get("refs", []))}</details></article>')
+    glossary = ''.join(f'<details open><summary>{esc(t.get("term", ""))}</summary><p>{esc(t.get("meaning", ""))}</p></details>' for t in guide.get("glossary", []))
+    limits = ''.join('<li>' + esc(s) + '</li>' for s in guide.get("limits", []))
+    transfer = ''.join('<li>' + esc(s) + '</li>' for s in guide.get("transfer", []))
+    animations = []
+    for n, anim in enumerate(guide.get("animations", [])):
+        frames = [embed_image(x, asset_root) for x in anim["frames"]]
+        durations = anim["durations"]
+        if not frames or len(frames) != len(durations) or any(not isinstance(x, (int, float)) or x <= 0 for x in durations):
+            raise ValueError("Animation frames/durations must have equal nonzero length and positive durations")
+        payload = esc(json.dumps({"frames": frames, "durations": durations}))
+        animations.append(f'<figure class="anim" data-animation="{payload}"><h3>{esc(anim["title"])}</h3>'
+                          f'<p>教学示意 · 非原文数值</p><img src="{frames[0]}" alt="{esc(anim.get("alt", anim["title"]))}">'
+                          '<div class="controls"><button data-action="first" aria-label="第一帧">⏮</button><button data-action="prev" aria-label="上一帧">◀</button>'
+                          '<button data-action="play">播放</button><button data-action="next" aria-label="下一帧">▶</button>'
+                          f'<input aria-label="动画帧" type="range" min="0" max="{len(frames)-1}" value="0">'
+                          '<span class="frame-count"></span><label>速度<select><option value="0.5">0.5×</option><option selected value="1">1×</option><option value="2">2×</option></select></label></div>'
+                          f'<figcaption>{esc(anim.get("explanation", ""))}</figcaption></figure>')
+    return (f'<section class="entry"><span class="eyebrow">先弄懂一个问题</span><h2>{esc(guide.get("question", "导读待补"))}</h2>'
+            f'<p class="lead" data-ann-id="guide-answer">{esc(guide.get("answer", "回答待补"))}</p>'
+            f'<p>{esc(guide.get("why", ""))}</p><p class="muted">路线名称表示阅读深度；用时因论文和基础而异。</p></section>'
+            f'{motion_links}<section><h2>这篇论文的证据路线</h2>{"".join(claims)}</section>'
+            f'<section><h2>适用条件与未解问题</h2><ul>{limits}</ul></section>'
+            f'<div data-deep><section><h2>卡住时再看</h2>{glossary or "<p>暂无额外术语。</p>"}{"".join(animations)}</section>'
+            f'<section><h2>用到其他研究时要准备什么</h2><ul>{transfer}</ul></section>'
+            f'<section><h2>试着讲给别人听</h2>{"".join(checks)}</section></div>')
+
+
+def build(data, records, guide, asset_root, source_text=None, allow_incomplete=False):
+    report = validate(data, records, guide, source_text, allow_incomplete)
+    if report["errors"]:
+        raise ValueError('\n'.join(report["errors"]))
+    full, missing = render_full(data, {r["id"]: r for r in records}, asset_root, guide.get('mechanisms', []))
+    if guide.get('concepts'):
+        from render_concepts import render_concepts
+        for concept in guide['concepts']:
+            anchor = concept.get('anchor', concept['refs'][0])
+            marker = 'id="' + anchor + '"'
+            at = full.find(marker)
+            end = full.find('</article>', at) if at >= 0 else -1
+            if end >= 0:
+                full = full[:end+10] + render_concepts([concept]) + full[end+10:]
+    if guide.get('mechanisms'):
+        full = '<div class="motion-index">' + ''.join(f'<a href="#{esc(m["id"])}">▶ {esc(m["title"])}</a>' for m in guide['mechanisms']) + '</div>' + full
+    ordered = sorted(enumerate(data['sections']), key=lambda pair: pair[1].get('kind', 'body') != 'body')
+    navigation = ''.join(f'<a href="#f-{i:02d}">{esc(s.get("display_name", s["name"]))}</a>' for i, s in ordered if s['items'])
+    if guide.get('further_reading'):
+        recommendation = render_further(guide['further_reading'])
+        link = '<a href="#f-further-reading">核心文献推荐</a>'
+        appendix = next((i for i,s in ordered if s['items'] and (s.get('kind', 'body') != 'body' or s['name'].strip().lower() in {'references', 'acknowledgments', 'acknowledgements', '参考文献', '致谢'})), None)
+        marker = f'<section class="fsect" id="f-{appendix:02d}">' if appendix is not None else ''
+        if marker and marker in full:
+            full = full.replace(marker, recommendation + marker, 1)
+            nav_marker = f'<a href="#f-{appendix:02d}">'
+            navigation = navigation.replace(nav_marker, link + nav_marker, 1)
+        else:
+            full += recommendation
+            navigation += link
+    title = data["front"]["title"]
+    config = {"paperId": data["paper_id"], "title": title,
+              "revision": hashlib.sha256(json.dumps([data, records, guide], ensure_ascii=False, sort_keys=True).encode()).hexdigest()[:20]}
+    config_json = json.dumps(config, ensure_ascii=False).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
+    warnings = ''.join('<li>' + esc(w) + '</li>' for w in report["warnings"])
+    verified = sum(item.get("source", {}).get("status") == "verified" for section in data["sections"] for item in section["items"])
+    scope = esc(guide.get("scope", "导读为精选；全文模式覆盖本次提供的 Markdown，不代表已核对 PDF 全文完整性。"))
+    css = (ROOT / 'assets/reader.css').read_text(encoding='utf-8-sig') + '\n' + (ROOT / 'assets/editorial.css').read_text(encoding='utf-8-sig')
+    reader = (ROOT / 'assets/reader.js').read_text(encoding='utf-8-sig')
+    annotation = (ROOT / 'scripts/annotate.js').read_text(encoding='utf-8-sig')
+    enhancements = (ROOT / 'assets/editorial.js').read_text(encoding='utf-8-sig') + '\n' + (ROOT / 'assets/mechanisms.js').read_text(encoding='utf-8-sig')
+    attribution = ''
+    if guide.get('attribution'):
+        a=guide['attribution']
+        attribution='<div class="source-attribution"><h3>原文归属与改写</h3><p>'+esc(a['citation'])+'</p><p>'+esc(a['url'])+'</p><p>'+esc(a['license'])+'</p><p>'+esc(a['changes'])+'</p></div>'
+    draft = '<p class="warning">待补稿：讲解或翻译不完整。</p>' if allow_incomplete else ''
+    result = f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)} · 精读</title><style>{css}</style></head>
+<body class="{'source-zh' if data['front'].get('language') == 'zh' else 'source-en'}"><a class="skip" href="#main">跳至正文</a><header><span class="eyebrow">文献慢读 · 从问题走到证据</span><h1>{esc(title)}</h1><p>{esc(data['front'].get('citation', ''))}</p>{draft}<a href="#source-notes">来源说明</a></header>
+<div class="toolbar"><div class="seg" aria-label="阅读路线"><button data-route="full" aria-pressed="true">逐段精读</button><button data-route="quick" aria-pressed="false">3 分钟入门</button><button data-route="deep" aria-pressed="false">10 分钟读懂</button></div><label class="font-label" for="font-size">字号 <select id="font-size"><option value="16">16px</option><option value="18" selected>18px · 默认</option><option value="20">20px</option></select></label><button id="resume">继续上次</button><button id="export-reading">导出阅读笔记</button><span id="progress" aria-live="polite"></span></div>
+<div class="layout"><aside><label for="search">检索原文与讲解</label><input id="search" type="search" placeholder="输入术语、数值或问题"><p id="search-count" aria-live="polite"></p><nav aria-label="全文目录">{navigation}</nav></aside><main id="main"><div id="mode-guide" hidden>{render_guide(guide, asset_root)}</div><div id="mode-full">{full}</div><section id="source-notes"><h2>来源说明</h2><p>{scope}</p><p>{report['source_blocks']} 个来源块 · {report['paragraphs']} 段 · {report['translations']} 条译文；原页文字核对 {verified} 块。逐块状态见来源标签提示。</p><ul>{warnings}</ul><p>译文与讲解由 AI 辅助整理。</p>{attribution}</section></main></div>
+<p id="storage-status" role="status"></p><noscript>交互需要浏览器启用 JavaScript；原文如下。</noscript><style>noscript+style{{display:none}}</style><noscript><style>#mode-full[hidden]{{display:block!important}}</style></noscript>
+<script id="reader-config" type="application/json">{config_json}</script><script>{reader}</script><script>{annotation}</script><script>{enhancements}</script></body></html>'''
+    return result, report
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__)
+    for name in ('data', 'translations', 'guide', 'output'):
+        ap.add_argument(name, type=Path)
+    ap.add_argument('--asset-root', type=Path, required=True)
+    ap.add_argument('--source', type=Path)
+    ap.add_argument('--allow-incomplete', action='store_true')
+    args = ap.parse_args()
+    values = [json.loads(p.read_text(encoding='utf-8-sig')) for p in (args.data, args.translations, args.guide)]
+    source = None
+    if args.source:
+        with args.source.open(encoding='utf-8-sig', newline='') as f:
+            source = f.read()
+    result, report = build(*values, args.asset_root, source, args.allow_incomplete)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(result, encoding='utf-8')
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+
+
+if __name__ == '__main__':
+    main()

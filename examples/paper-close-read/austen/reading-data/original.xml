@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.3 20210610//EN" "JATS-journalpublishing1-3.dtd">
+<article xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" article-type="research-article" dtd-version="1.3" xml:lang="en">
+  <front>
+    <journal-meta>
+      <journal-id journal-id-type="publisher-id">humanities</journal-id>
+      <journal-title-group>
+        <journal-title>Humanities</journal-title>
+        <abbrev-journal-title abbrev-type="publisher">Humanities</abbrev-journal-title>
+        <abbrev-journal-title abbrev-type="pubmed">Humanities</abbrev-journal-title>
+      </journal-title-group>
+      <issn pub-type="epub">2076-0787</issn>
+      <publisher>
+        <publisher-name>MDPI</publisher-name>
+      </publisher>
+    </journal-meta>
+    <article-meta>
+      <article-id pub-id-type="doi">10.3390/h11040093</article-id>
+      <article-id pub-id-type="publisher-id">humanities-11-00093</article-id>
+      <article-categories>
+        <subj-group>
+          <subject>Article</subject>
+        </subj-group>
+      </article-categories>
+      <title-group>
+        <article-title>From Nobody to Somebody: Romantic Epistemology in Jane Austen&#x2019;s <italic>Persuasion</italic></article-title>
+      </title-group>
+      <contrib-group>
+        <contrib contrib-type="author">
+          <contrib-id contrib-id-type="orcid" authenticated="true">https://orcid.org/0000-0001-9653-061X</contrib-id>
+          <name>
+            <surname>Bystydzie&#x144;ska</surname>
+            <given-names>Gra&#x17C;yna</given-names>
+          </name>
+        </contrib>
+      </contrib-group>
+      <aff id="af1-humanities-11-00093">Institute of English Studies, Faculty of Modern Languages, University of Warsaw, 00-927 Warsaw, Poland; <email>g.bystydzienska@uw.edu.pl</email></aff>
+      <pub-date pub-type="epub">
+        <day>23</day>
+        <month>07</month>
+        <year>2022</year>
+      </pub-date>
+      <pub-date pub-type="collection">
+        <month>08</month>
+        <year>2022</year>
+      </pub-date>
+      <volume>11</volume>
+      <issue>4</issue>
+      <elocation-id>93</elocation-id>
+      <history>
+        <date date-type="received">
+          <day>18</day>
+          <month>05</month>
+          <year>2022</year>
+        </date>
+        <date date-type="accepted">
+          <day>20</day>
+          <month>07</month>
+          <year>2022</year>
+        </date>
+      </history>
+      <permissions>
+        <copyright-statement>&#xA9; 2022 by the author.</copyright-statement>
+        <copyright-year>2022</copyright-year>
+        <license license-type="open-access">
+          <license-p>Licensee MDPI, Basel, Switzerland. This article is an open access article distributed under the terms and conditions of the Creative Commons Attribution (CC BY) license (<ext-link ext-link-type="uri" xlink:href="https://creativecommons.org/licenses/by/4.0/">https://creativecommons.org/licenses/by/4.0/</ext-link>).</license-p>
+        </license>
+      </permissions>
+      <abstract>
+        <p>The aim of this article is to substantiate the thesis that together with the development of the plot of <italic>Persuasion</italic>, the cognitive power of the principal heroine expands, and she becomes a highly sensitive reader of human minds. This thesis is supported by references to the new &#x2018;Romantic&#x2019; psychology, emphasizing the close links between the innate aspects of the mind and the body. Psychological insight demonstrates the fragmentation of Anne Elliot&#x2019;s mind, the role of the unconscious, and the division between the interior and the exterior. There is also analysis of the significance of Anne&#x2019;s frequent change of transitory lodgings, along with interpretation of the narrative strategy, especially free indirect speech and mediated speech (the function of eavesdropping) and the important role of body language.</p>
+      </abstract>
+      <kwd-group>
+        <kwd>Jane Austen</kwd>
+        <kwd>
+          <italic>Persuasion</italic>
+        </kwd>
+        <kwd>body language</kwd>
+        <kwd>mind reading</kwd>
+        <kwd>free indirect speech</kwd>
+        <kwd>eavesdropping</kwd>
+      </kwd-group>
+      <funding-group>
+        <funding-statement>This research received no external funding.</funding-statement>
+      </funding-group>
+    </article-meta>
+  </front>
+  <body>
+    <sec id="sec1-humanities-11-00093" sec-type="intro">
+      <title>1. Introduction</title>
+      <p><italic>Persuasion</italic> is Jane Austen&#x2019;s last completed novel and at the same time the most psychologically developed. The aim of this article is to present arguments for the thesis that in addition to the maturation of Anne Elliot, the novel represents an expansion of her cognitive powers, and she becomes a very sensitive reader of human minds. At the same time, readers learn more and more about Anne&#x2019;s complicated psychological state. The new &#x2018;Romantic&#x2019; psychology which emphasizes the links between the body and the mind, the physiological and the mental state, would have helped the reader to understand the complex inner state of the heroine (Cf. Juliet <xref ref-type="bibr" rid="B12-humanities-11-00093">McMaster 2004</xref>; <xref ref-type="bibr" rid="B10-humanities-11-00093">Hillman and Maude 2015</xref>; <xref ref-type="bibr" rid="B17-humanities-11-00093">Richardson 2001</xref>, <xref ref-type="bibr" rid="B18-humanities-11-00093">2002</xref>; <xref ref-type="bibr" rid="B19-humanities-11-00093">Smith 2017</xref>; <xref ref-type="bibr" rid="B24-humanities-11-00093">Wiltshire 2003</xref>; <xref ref-type="bibr" rid="B13-humanities-11-00093">Mullan 2005</xref>). In other words, this article is about how Anne Elliot &#x2018;reads&#x2019; other characters and how she herself may be &#x2018;read&#x2019;. </p>
+      <p>In my reflections on body language in <italic>Persuasion</italic> I have been mainly inspired by the works of Alan Richardson, which were later discussed in Karah L. Smith&#x2019;s article, &#x2018;Cognitive Embodiment and Mind Reading in Jane Austen&#x2019;s Persuasion&#x2019;. Alan Richardson&#x2019;s works are not only focused on body language but also on the state of brain science at the time and other aspects of Anne&#x2019;s inner life, such as the fragmentation of her character, the role of the unconscious, and the division between the exterior and the interior. Karah L. Smith concentrates on the importance of body language in <italic>Persuasion</italic> and its presentation in the text. I agree with both scholars when they notice a close relation between the physiology of the body and the state of the characters&#x2019; minds and emotions. Both scholars point to the unique capacity of Anne Elliot as a mind reader. Moreover, Karah Smith rightly observes that reading minds is an imperfect tool, as Anne cannot be sure till the very end of the novel of Captain Wentworth&#x2019;s love for her.</p>
+      <p>In my article, I am seeking to provide further evidence of Anne Elliot&#x2019;s body language and inner states. I do not deal only with Anne&#x2019;s mind reading and her observations of her own inward reactions but try to &#x2018;read&#x2019; Anne&#x2019;s character through other literary signals in the text, such as her frequent change of houses, that present her as a lonely, unstable character, lacking family support. In addition, the use of free indirect speech reveals Anne&#x2019;s sensitivity, emotions, and her changeable moods. The frequent scenes of overhearing point to the restrictive role of a society with its decorum and the suppression of emotions, although sincerity and emotions become gradually more and more important.</p>
+      <p>Anne Elliot, the middle daughter of Sir Walter Elliot of Kellynch Hall, seems to be nobody in the eyes of her family. The words &#x2018;nobody&#x2019; or &#x2018;nothing&#x2019; indeed appear frequently, especially in the opening chapters of the novel. She &#x2018;was nobody with either father or sister&#x2026; she was only Anne&#x2019;.<xref ref-type="fn" rid="fn001-humanities-11-00093">1</xref> Anne does not at first travel with her family to Bath &#x2018;for nobody will want her in Bath&#x2019; (p. 31), Anne tries &#x2018;not to be in the way of anybody&#x2019; (p. 82). To Elizabeth, Anne &#x2018;is nothing&#x2026; compared with you [Mrs. Clay]&#x2019; (p. 142). Anne is a Cinderella with two &#x2018;ugly&#x2019; sisters. Her elder sister, Elizabeth, performs the role of the mistress of the house in Kellynch Hall; her younger sister, Mary, is already well married, so her social position is higher than Anne&#x2019;s, according to contemporary standards. When their mother was alive, Kellynch Hall was Anne&#x2019;s beloved home, but it is no surprise that after the death of her mother Anne could not feel happy there, nor treat it as her home. This aspect of the novel, Anne&#x2019;s &#x2018;homelessness&#x2019;, in the sense that she does not have a real home, is visible and meaningful in the novel. As body language reveals quite a lot about characters and their emotions, so readers &#x2018;read&#x2019; Anne&#x2019;s character through the distinctive signals in the text. &#x2018;Homelessness&#x2019; is one such meaningful signal for our understanding of the social situation at the time, but it also helps us to &#x2018;read&#x2019; Anne&#x2019;s character.</p>
+    </sec>
+    <sec id="sec2-humanities-11-00093">
+      <title>2. Houses and &#x2018;Homelessness&#x2019;</title>
+      <p>Kellynch Hall, in opposition to Austen&#x2019;s other big houses, such as, for instance, Pemberley or Donwell Abbey, is not described from outside in a way emphasizing its social position and prestige. Instead of the &#x2018;objective&#x2019; visual presentation, we learn something about the place, or rather about its inhabitants, from emblematic objects that are present inside the house: a great number of mirrors and the Baronetage. In this way, readers get some hints about the vanity and the snobbery of Sir Walter and Elizabeth. Sir Walter pays a lot of attention to his appearance and we are informed that after the move to Camden Place in Bath, mirrors are also present. On their visit to Camden Place, Mary and Charles are asked to admire them.
+      <disp-quote><p>Here, they were interrupted by the absolute necessity of Charles following the others to admire mirrors and China.</p><attrib>(p. 219)</attrib></disp-quote></p>
+      <p>After leaving Kellynch Hall, Anne keeps in her memory some fragmentary reminiscences of the garden&#x2014;shrubberies, flower garden, the grove&#x2014;which refer to her enjoyment of nature, but these elements also metaphorically indicate that, like her family, the house no longer represents a solid unity, and it probably does not fulfil its social function any longer. </p>
+      <p>As Anne&#x2019;s spendthrift father had to let Kellynch Hall to a naval officer, Admiral Croft and his wife, Anne goes to her younger sister&#x2019;s house at Uppercross. There is a very brief description of Uppercross Cottage, where Mary lives with her family, and the Great House, the place of the older Musgroves and their daughters. The Great House &#x2018;with its high walls, great gates, and old trees, substantial and unmodernised&#x2019; (p. 34) concisely conveys its general characteristics of being old and monumental, while Uppercross Cottage is modernized and thus &#x2018;improved&#x2019; from a farmhouse &#x2018;with its veranda, French windows and other prettinesses,&#x2019; (p. 34). Uppercross Cottage has to suit the taste of a new, younger generation of inhabitants (Cf. <xref ref-type="bibr" rid="B3-humanities-11-00093">Byrne 2014, pp. 156&#x2013;57</xref>).</p>
+      <p>Mary asks for Anne&#x2019;s help so at least she feels useful there, but she stays on the periphery of social life. She has to put up with Mary&#x2019;s changeable and selfish personality and to be at her disposal. Nevertheless, her situation improves a little as she is accepted there and quite well-liked at the Great House. Both Uppercross Cottage and the Great House seem to be lacking the harmony and order, which according to Austen reflect the positive values and taste of their inhabitants and their unquestionable social position. The atmosphere of Uppercross Cottage reflects Mary&#x2019;s unstable temper, and the interior alterations in the Great House show the change of taste of the younger generation of the family that tries hard to present their more fashionable way of living and to bring &#x2018;the proper air of confusion by a grand piano-forte and a harp, flower-stands, and little tables placed in every direction&#x2019; (p. 38). It is only at Uppercross that Anne starts speaking. This happens in the third chapter of the novel after she has been almost entirely silent during the two opening chapters. From this point onward, most of the novel is frequently filtered through free indirect discourse in Anne&#x2019;s consciousness, so she often becomes the focalizer of the novel. Anne does not speak a lot; she is rather reticent, and she is mainly a patient listener. She can &#x2018;do little more than listen patiently&#x2019; (p. 44). As Julia Giordano rightly notes, Anne protects herself with evasion and concealment (<xref ref-type="bibr" rid="B8-humanities-11-00093">Giordano 1993, p. 119</xref>). Speaking is associated with authority and power, and Anne does not have authority yet: she only gradually gains a measure of authority during the course of the novel. She does not have many people she listens to or talks to, especially in the first half of the novel, so most of her conversations are internal, revealing her own thoughts and emotions.</p>
+      <p>Although surrounded by other people, Anne is a solitary person. When she offers to play the piano, it is only to enable others to dance, while she remains invisible and her musical abilities remain unnoticed: &#x2018;her performance was little thought of&#x2019; (p. 44). She feels a sad regret that &#x2018;she had never, since the age of fourteen, never since the loss of her mother, known the happiness of being listened to, or encouraged by any just appreciation or real taste&#x2019; (p. 45).</p>
+      <p>Anne has other transitory &#x2018;homes&#x2019;: one of the inns in Lyme Regis, and the very limited space of the Harvilles&#x2019; rooms, which nevertheless provide &#x2018;the picture of repose and domestic happiness&#x2019; (p. 98). Then, after Louisa&#x2019;s accident, she returns to Uppercross Cottage, and her last &#x2018;home&#x2019; is Camden Place in Bath, a &#x2018;very good house&#x2019; in &#x2018;a lofty dignified situation, such as becomes a man of consequence&#x2019; (p. 134). Camden Place is also hardly described from the outside except for its situation on one of the new late eighteenth-century speculative developments on the upland farmland surrounding Bath, where &#x2018;rural views and healthy locations were&#x2026; powerful selling points&#x2019; (p. 23) (Cf. <xref ref-type="bibr" rid="B6-humanities-11-00093">Fawcett 2013</xref>). We may guess that it is only after Anne&#x2019;s marriage to Frederick Wentworth that she is going to have a real home of her own, although the ending is ambiguous; as Anne will be the wife of a sailor, she has to be ready for war and an uncertain future.<xref ref-type="fn" rid="fn002-humanities-11-00093">2</xref> Having a home is not so much connected with the place, with the house itself, but with her emotional situation because after the reunion with Wentworth, Camden Place is called home&#x2014;&#x2018;At last Anne was at home again&#x2019; (p. 247)&#x2014;although when she had first arrived there she had &#x2018;entered it with a sinking heart, anticipating an imprisonment of many months&#x2019; (p. 134). As I have indicated elsewhere (<xref ref-type="bibr" rid="B4-humanities-11-00093">Bystydzie&#x144;ska 2002</xref>), houses in Austen&#x2019;s novels constitute &#x2018;universes&#x2019; in miniature, and the way she presents them reveals a lot about her fictional reality as well as her aesthetic, moral, and social views. There is always a close interrelation between houses and their inhabitants in Austen&#x2019;s novels. The description given by Sir Walter and Elizabeth of Camden Place in Bath shows that it satisfied their vanity and snobbery. We can notice it in the choice of the vocabulary&#x2014;&#x2018;lofty dignified situation&#x2019; (p. 134), &#x2018;their house was undoubtedly the best&#x2019;, &#x2018;their drawing-rooms had many decided advantages over all the others&#x2019;, &#x2018;and the superiority was not less in the style of the fitting-up or the taste of the furniture.&#x2019; (p. 134) In fact, hardly any character in this novel lives in his or her own house. This applies not only to Anne, her father and Elizabeth, but also to Captain Wentworth, the Crofts, Mr. and Mrs. Harville, and Captain Benwick. It was customary for visitors to Bath to rent a house or rooms, and naval officers coming home from the sea or war may have had no established lodgings on shore. This lack of stability enhances the presentation of Anne as a lonely character, without a well-established position in the social group. Her position changes for the better after Louisa Musgrove&#x2019;s accident in Lyme. In Lyme, we may notice another, hitherto unknown, aspect of Anne&#x2019;s character. She reveals her agency, for it is only she who tries to overcome the general panic. All the members of the expedition to Lyme look to her for direction, she manages to organize help for Louisa, and she tries to take care of her and to give some peace and comfort to other members of the group.<xref ref-type="fn" rid="fn003-humanities-11-00093">3</xref>
+      <disp-quote><p>Anne, attending with all the strength, and zeal, and thought, which instinct supplied&#x2026; still tried at intervals, to suggest comfort to others, tried to quiet Mary, to animate Charles, to assuage the feelings of Captain Wentworth. Both seemed to look to her for directions.</p><attrib>(p. 110)</attrib></disp-quote></p>
+      <p>Even Anne&#x2019;s former fianc&#xE9;, Wentworth, admits that she is the best person to take care of Louisa: &#x2018;but if Anne will stay, no one so proper, so capable as Anne&#x2019; (p. 114). Lyme seems to be a turning point for Anne also because it is there that she encounters genuinely friendly people such as Captain Harville and his wife, who take very good care of Louisa after her accident, and Captain Benwick, with whom she discusses Romantic writers, Byron and Scott. Anne notices that sincere, friendly, and direct communication between people is possible. Nevertheless, Anne and Captain Wentworth do not have any direct communication. The rules of decorum seem to be very important at that time. For instance, Captain Wentworth can only show his bitterness by silence. Meeting Anne again, after eight years, he behaves with &#x2018;cold politeness &#x2019;and &#x2018;ceremonial grace&#x2019; (p. 71). Anne is critical about Mr. Elliot&#x2019;s character, &#x2018;Mr. Elliot was too generally agreeable&#x2019; (p. 159) Yet she has to politely accept his company at the concert. Sir Walter and Admiral Croft are very polite to each other but more scornful in private. What Anne learns about Captain Wentworth (after a break of almost eight years in communication) comes from her observations of his behavior and from overhearing conversations (<xref ref-type="bibr" rid="B7-humanities-11-00093">Gaylin 2002</xref>).</p>
+    </sec>
+    <sec id="sec3-humanities-11-00093">
+      <title>3. Overhearing and Lack of Direct and Sincere Communication</title>
+      <p>The episodes of overhearing occur at critical moments of the narrative. The first episode takes place when Anne meets her former fianc&#xE9; at the Musgroves&#x2019; home. He pretends not to pay much attention to her, and she is very agitated when she overhears his conversation with other people: &#x2018;When he talked, she heard the same voice, and discerned the same mind&#x2019; (p. 62). Anne gets evidence that Captain Wentworth has not changed over the years of their separation. A very significant eavesdropping scene happens during her walk from Uppercross to Winthrop. Anne is again solitary among a group of people. &#x2018;Her spirits wanted the solitude and silence which only numbers could give&#x2019; (p. 88). Anne is, however, sitting on her own behind the hedgerow when she overhears Wentworth&#x2019;s conversation with Louisa Musgrove (she was &#x2018;in the middle of some eager speech&#x2019;) (p. 86) about the firmness of a lady&#x2019;s character in which Wentworth compares a firm lady to a nut. They also talk about the power of persuasion. Louisa is indirectly contrasted with Anne. She talks a lot and is not easily persuaded. Anne, in contrast, is reticent and eight years earlier had been persuaded by Lady Russell, to whom Wentworth seemed a nobody, to break off the engagement. Overhearing the conversation creates a great deal of pain for Anne, and she believes that Wentworth is interested in Louisa and that he intends to marry her (<xref ref-type="bibr" rid="B20-humanities-11-00093">Tanner 1986</xref>). The scene shows how inadequate overhearing may be. In a similar way, in Molland&#x2019;s confectionery in Bath, Wentworth overhears a conversation about the probability of marriage between Anne and Mr. Elliot, her cousin. This piece of gossip makes him jealous of Mr. Elliot; it has quite an impact on his later behavior at the concert, and it delays his reunion with Anne. Again and again, we notice how misleading such overheard conversations or listening to gossip may be and what may happen when no direct and sincere communication between the characters takes place.</p>
+      <p>At the White Hart Inn, first Anne and Captain Wentworth overhear a conversation between Mrs. Musgrove and Mrs. Croft criticizing long engagements, and they both feel embarrassed; Anne feels nervous because she takes the conversation as a reference to herself. &#x2018;She felt its application to herself, felt it in a nervous thrill all over her&#x2019; (p. 232).</p>
+      <p>&#x2018;Captain Wentworth&#x2019;s pen ceased to move&#x2026;and he turned round the next instant to give a look, one quick, conscious look at her&#x2019; (ibid.).</p>
+      <p>The other important scene of eavesdropping happens in the penultimate chapter of the novel, describing a crucial scene at the same inn. The roles are reversed. Anne is the active speaker, and this is her longest and most passionate speech in the novel. She reveals her expectations and shows that she values constancy and sincerity. Harville&#x2019;s comment about the inconstancy of women prompts her to observe that men have advantages that women lack due to their educational and career opportunities. 
+      <disp-quote><p>Men have had every advantage of us in telling their own story. Education has been theirs in so much higher a degree, the pen has been in their hands.</p><attrib>(p. 235)</attrib></disp-quote>
+      Women are more static, and they have fewer occupations and diversions yet, Anne argues, they love the longest.</p>
+      <p>Captain Wentworth overhears this speech and writes a letter to Anne, revealing his love to her. Finally, a happy reunion between them takes place. Thus, the communication between them is not direct but mediated; this time it is successful and leads to a happy ending. It is mainly due to the complicated social and psychological situation between the characters that a direct dialogue is so difficult. As Tony Tanner indicates in his article, <italic>Persuasion</italic> is a novel of &#x2018;in-betweenness&#x2019; (<xref ref-type="bibr" rid="B20-humanities-11-00093">Tanner 1986</xref>). The novel is set in a transitional period when the values of the landed aristocracy were gradually giving way to those of the <italic>nouveau riche</italic> represented by Wentworth. After all, it turns out at the end of the novel that &#x2018;Captain Wentworth, with five-and-twenty thousand pounds, and as high in his profession as merit and activity could place him, was no longer nobody&#x2019; (p. 250).</p>
+      <p>Anne with her agency and determination proves that she is definitely &#x2018;somebody&#x2019; now, that she is an independent woman with her own opinions and she is ready to present her views to male listeners like Harville and Wentworth. The frequent use of the device of overhearing also shows that sincere and direct communication between individuals was difficult. Moreover, it indicates that the impact of the social life with its rules of decorum and sometimes superficial politeness, frequently tinged with hypocrisy, was impeding real contact between people. Austen&#x2019;s earlier novel, <italic>Sense and Sensibility,</italic> shows the problem of too much direct expression of emotion, but this late novel of Austen&#x2019;s (1818) reveals through Anne&#x2019;s conversation with Captain Benwick that Romantic philosophy and poetry were well-known to her,<xref ref-type="fn" rid="fn004-humanities-11-00093">4</xref> and we notice great interest in emotions. In contrast, Anne describes Mr. Elliot as &#x2018;rational, discreet, polished, but he was not open. There was never any burst of feeling, any warmth of indignation or delight, at the evil or good of others. This to Anne was a decided imperfection&#x2019; (p. 159). The fact that Anne sums up Mr. Elliot&#x2019;s personality so well indicates that she is a good reader of character. She did not have a good opinion about his character even before she learned about some unfavorable facts of his life from her widowed friend Mrs. Smith. Lack of direct and sincere communication resulted in the necessity of using personal observations and reading of body language in particular. Of course, it is not surprising that Wentworth becomes the main object of Anne&#x2019;s observation.</p>
+    </sec>
+    <sec id="sec4-humanities-11-00093">
+      <title>4. Body Language</title>
+      <p>The emotional state of the character may be revealed through body language. Anne Elliot possesses a superior ability in reading such signals of the body, much better than the older, more experienced Lady Russell.
+      <disp-quote><p>There is a quickness of perception in some, a nicety in the discernment of character, a natural penetration, in short, which no experience in others can equal, and Lady Russell had been less gifted in this part of understanding than her young friend.</p><attrib>(p. 251)</attrib></disp-quote></p>
+      <p>The empirical psychology that was developing in the second half of the eighteenth century encouraged such observations of the body, which revealed some emotional states of the mind. In cognitive psychology, this is currently called mind-reading. Empirical psychologists rejected what were termed innate ideas and instead appealed to observation and experience and to cognitive faculties of the mind. They put some emphasis on the unity of the soul and the body, while the soul for some scholars such as Johannes von Muralt, was the mind (<italic>anima rationalis</italic>) (<xref ref-type="bibr" rid="B22-humanities-11-00093">Vidal 2000</xref>). As Alan Richardson notes, in <italic>Persuasion</italic>, Austen turns to biological and innate aspects of mind and character, in some ways ahead of the brain science of the Romantic epoch (Cf. <xref ref-type="bibr" rid="B18-humanities-11-00093">Richardson 2002</xref>). We notice a very close association between the body and the mind of the characters. For instance, after Louisa Musgrove&#x2019;s accident in Lyme, Louisa&#x2019;s character alters. From a person who was very joyful and full of life, she becomes more nervous and more melancholy; and, to the surprise of her family and friends, she decides to marry a shy and melancholy reader of Romantic literature, Captain Benwick.</p>
+      <p>After a long break in their relations, Anne is very curious to learn more about Wentworth&#x2019;s present feelings. She quietly but carefully observes her former fianc&#xE9;, and she tries to read his mind. It is admitted that mind-reading may not always be a very accurate method of cognition. So, Wentworth, who behaved in a polite but rather formal and cool manner during their first meeting, is probably playing a part, not being aware of Anne&#x2019;s feelings and attitude to him after an almost eight-year break in their acquaintance. Anne watches Wentworth&#x2019;s facial expression when Mrs. Musgrove mentions her late son, Dick, and she knows from observing his face that he does not agree with Mrs. Musgrove&#x2019;s opinion. &#x2018;There was a momentary expression in Captain Wentworth&#x2019;s face at this speech, a certain glance of his bright eye, and curl of his handsome mouth&#x2019; (p. 66). Her comment on Wentworth&#x2019;s involuntary facial expression indicates that Anne after many years of the Captain&#x2019;s absence remembers all the minute details of his reactions.</p>
+      <p>The importance of Anne&#x2019;s observation is emphasized by the remark of the narrator&#x2014;&#x2018;Other opportunities of making her observations could not fail to occur&#x2019; (p. 80). When her younger sister, Mary, utters a patronizing remark about the Hayter family from Winthrop, she receives an artificial smile from Captain Wentworth &#x2018;followed by a contemptuous glance, as he turned away, which Anne perfectly knew the meaning of&#x2019; (p. 85). Anne notices also the disdain in his eyes when in Bath, Elizabeth, her elder sister, gives him a card with an invitation to her evening party. Wentworth is no longer nobody to her but with his fortune and good looks becomes somebody who &#x2018;would move about well in her drawing-room&#x2019; (p. 227). Anne presents the reaction of Wentworth after Louisa&#x2019;s accident and describes and interprets his posture &#x2018;as he sat near a table, leaning over it with folded arms, and face concealed, as if overpowered by the various feelings of his soul, and trying by prayer and reflection to calm them&#x2019; (p. 112). Anne reads well a momentary feeling of guilt on the part of Mrs. Clay, when she is caught by Anne talking to Mr. Elliot who was not supposed to be in Bath at that time (p. 229). Anne&#x2019;s feelings are often revealed by her sudden blush as she is a very sensitive person, but Wentworth blushes as well when he meets Anne quite unexpectedly in the street in Bath, and he feels very embarrassed. &#x2018;He was more obviously struck and confused by the sight of her than she had ever observed before; he looked quite red&#x2019; (p. 174). Looks and gazes play a very important role in this novel. As Robyn Warhol rightly points out (<xref ref-type="bibr" rid="B23-humanities-11-00093">Warhol 1992</xref>), looking functions for Anne as an alternative language, as communication without words. Anne is &#x2018;in an incessant and fearful sort of a watch for him [Wentworth]&#x2019; (p. 177). Without talking to him she may learn quite a lot from his looks. Sometimes this acquires a comic effect as there seems to be an abundance of looks. During their walk in Bath, Lady Russell pretends she is not looking at Wentworth on the other side of the street (but searching for window curtains) and Anne talking to her &#x2018;should have lost the right moment for seeing whether he saw them&#x2019; (p. 178). While in Lyme, Wentworth notices an admiring look from Mr. Elliot at Anne and Anne notices both looks. Meeting Mr. Elliot in Bath again, Wentworth starts to be jealous of him, and it delays his reunion with Anne. At the concert Anne tries to catch a look from Wentworth. The lack of a look also seems to be meaningful: Anne &#x2018;could not quit the room in peace without seeing Wentworth once more, without the interchange of one friendly look&#x2019; (p. 188). Even Anne&#x2019;s response to his love letter may be expressed by &#x2018;A word, <bold>a look</bold>, will be enough to decide whether I enter your father&#x2019;s house this evening or never&#x2019; (p. 239).</p>
+      <p>There is not much of a plot in this novel, not too many events take place, and much more happens inside Anne&#x2019;s thoughts and heart. She has a very rich inner life; and, as she has no reliable confidante, so we are able to learn about her inner life by observing her physiological reactions to some events (mainly looks and blushes: not many manifestations of body language are shown). After all, she is often the focalizer and she is also the main observer). Through her free indirect speech, we get to know what is going on in her mind and heart. When Anne hears about a probable visit by Captain Wentworth at the Uppercross Cottage (she is to see him for the first time after a long break in their communication), she is very nervous, &#x2018;a thousand feelings rushed on Anne of which this was the most consoling, that it would soon be over&#x2019; (p. 58). The language confirms the shortness of the visit. The quick sequence of events is simply enumerated.: &#x2018;Her eye half met Captain Wentworth&#x2019;s, a bow, a courtesy passed; she heard his voice&#x2019; (p. 58). We may observe that here because of nervousness she gives him only half a look. In a characteristic way her encounters with Wentworth very often happen among a crowd of people: &#x2018;the room seemed full, full of persons and voices&#x2019; (p. 58). The subjectivity of Anne&#x2019;s feelings and impressions is emphasized by the verb &#x2018;seemed&#x2019;, which underlines her inner loneliness, although she is among quite a large group of people. The visit is soon over, as is expressed in her agitated, nervous free indirect speech. &#x2018;&#x2018;It is over! It is over!&#x2019; She repeated to herself again and again, in nervous gratitude. &#x2018;The worst is over!&#x2019; (p. 58) Here the character&#x2019;s voice momentarily takes over the narrative voice. However, the next part of the sentence belongs to the narrator (&#x2018;she repeated to herself again and again in nervous gratitude&#x2019;). The use of repetition, of more colloquial language and exclamations, indicate not only Anne&#x2019;s subjectivity and nervousness but also the intensity of her feelings at the moment and the contraction of time.<xref ref-type="fn" rid="fn005-humanities-11-00093">5</xref></p>
+      <p>At her first meeting with him for a longer time at the Musgroves&#x2019;, Anne is a silent observer, looking at his behavior and listening attentively to his conversations with other people, and suffering silently because of his formal behavior towards her. &#x2018;His cold politeness, his ceremonial grace, were worse than anything&#x2019; (p. 71). She offers to play the piano so that the other members of the party could dance, but we can learn that she plays mechanically, &#x2018;without consciousness&#x2019; (p. 71) and her eyes are sometimes full of tears. We can notice here the division between her interior and exterior, as she can observe that Wentworth has looked once at her and once must have spoken of her. Another time, during his visit at Uppercross Cottage, his kind help to get rid of a child clinging to her back makes her so nervous that she has to take care to recover in silence (cf. p. 80).</p>
+      <p>After a long and tiring walk to Winthrop, Anne is advised and escorted by Wentworth to the Crofts&#x2019; gig and through free indirect speech we learn a lot about her feelings and thoughts. She feels grateful to him for his &#x2018;perception of her fatigue&#x2019; (p. 90), for his friendship and his &#x2018;warm and amiable heart&#x2019; (p. 90). Anne feels both pleasure and pain: pleasure because of his care for her, and pain because she thinks that he plans to marry Louisa Musgrove. Anne is driven by the Crofts and she is not only absorbed in her feelings and reflections but also has to maintain the conversation with them. As with the piano playing, she does it unconsciously. &#x2018;Her answers to the kindness and the remarks of her companions were at first unconsciously given&#x2019; (p. 90). </p>
+      <p>When Anne sees Wentworth through the window of Molland&#x2019;s for the first time in Bath, her senses collapse, she experiences a temporary blindness and total confusion.
+	  <disp-quote><p>For a few minutes she saw nothing before her: it was all confusion. She was lost, and when she had scolded back her senses, she found the others, still waiting for the carriage.</p><attrib>(p. 173)</attrib></disp-quote>     
+      This is an example of the fragmentation and the division of the subject. Only after a few minutes is Anne able to restore her composure again (<xref ref-type="bibr" rid="B18-humanities-11-00093">Richardson 2002, p. 149</xref>).</p>
+      <p>When Anne learns that Louisa is going to marry Benwick and not Wentworth, some hope for her own happiness returns to her. Hearing Wentworth saying that he had never been in love with Louisa, Anne is overwhelmed by her feelings and she reveals them by a quick enumeration of some of her flitting emotions and a reference to her physical state. She &#x2018;was struck, gratified, confused, and beginning to breathe very quick, and feel an hundred things in a moment&#x2019; (p. 182). &#x2018;No, it was no regret which made Anne&#x2019;s heart beat in spite of herself, and brought the colour into her cheeks when she thought of Captain Wentworth unshackled and free&#x2019; (p. 166). Anne goes through a very individual, personal experience &#x2018;in spite of all the various noises of the room, the almost ceaseless slam of the door, and ceaseless buzz of persons walking through&#x2019; (p. 182), for as usual in this novel there are quite a lot of people around and quite a lot of background noise. Austen uses this method to link the individual character with the social setting of the novel.<xref ref-type="fn" rid="fn006-humanities-11-00093">6</xref></p>
+      <p>In the scene that takes place in the White Hart Inn, Anne, who has not spoken a lot throughout the novel, becomes the central character. As we have already noted, she talks to Harville, but Wentworth overhears her conversation and other characters have a good chance of hearing it as well. She argues with strength and passion, as if she wants to persuade others to accept her point of view. She is no longer a patient listener but wants to convince her interlocutor; she has her own opinions on the under-privileged situation of women and she tries to defend her standpoint on the constancy of women&#x2019;s love. She also reveals her own emotions, saying that women have the privilege &#x2018;of loving longest, when existence or when hope is gone!&#x2019; (p. 237). After reading the letter from Wentworth, declaring his love for her, due to &#x2018;overpowering happiness&#x2019; (p. 239) Anne again feels a total confusion and she has a temporary loss of cognition. &#x2018;She began not to understand a word they [Charles, Mary, and Henrietta] said, and was obliged to plead indisposition and excuse herself&#x2019; (p. 239).</p>
+      <p>After a happy reunion with Captain Wentworth in the street in Bath, they choose &#x2018;the comparatively quiet and retired gravel walk&#x2019; (p. 242) to talk about their emotions and their situation. In a characteristic way, although they are completely engrossed in each other, in the background there is a normal social life going on as usual: &#x2018;they slowly paced the gradual ascent, heedless of every group around them, seeing neither sauntering politicians, bustling housekeepers, flirting girls, nor nursery-maids and children&#x2019; (p. 242).</p>
+      <p>After the mediated communication between the two lovers (overhearing, a letter) one might expect at last a direct dialogue between them. Instead, we have a report and summary by the sympathetic narrator, a little longer report than in other Austen novels, with some fragments of Wentworth&#x2019;s free indirect speech when he blames himself for his pride and for his inadequate behavior, with only two responses from Anne. However, we should recall that Austen omits scenes of proposals and very personal declarations of love in her other novels as well.</p>
+    </sec>
+    <sec id="sec5-humanities-11-00093" sec-type="conclusions">
+      <title>5. Conclusions</title>
+      <p>Let us remember that the development of the heroine goes together with her development as the focalizer. Not given a voice in the initial chapters, Anne starts to talk in the third chapter of the novel, and she often becomes a focalizer, so that we observe the events of the plot also from her subjective point of view, through her free indirect speech. The free indirect speech gives us some access into her mind, her inner thoughts, and also her emotional state. Sometimes she informs her readers about her nervousness or sadness or happiness, but we also get to know about her feelings through the language she uses. Her agency as a focalizer expands as the plot develops and, as a character, she changes. The turning point seems to be Louisa&#x2019;s accident in Lyme, and the climax of Anne&#x2019;s development is the scene in the White Hart Inn, when she talks about women&#x2019;s constancy in love and the privileged situation of men: for the long duration of her passionate speech, she definitely becomes the central character, as everybody in the room listens to her arguments or overhears them.</p>
+      <p><italic>Persuasion</italic> is an interesting novel as it introduces some innovations in Austen&#x2019;s art. We cannot observe, as in her other novels, the maturing of the heroine, as Anne whom we meet at 27 years old is already a mature person, but we may observe that she changes and gains more experience. We can notice that she does not have support and respect from her family, and she is treated as &#x2018;nobody&#x2019;. She also seems to change her transitory houses quite frequently, and she has to wait for her own &#x2018;home&#x2019; throughout the whole novel. After her broken engagement when she was 19, she has been waiting for the happy fulfilment of her love for a long time, being in a state of &#x2018;in between&#x2019;, very much in love with her former fianc&#xE9; but uncertain about his feelings and so suffering anxiety and pain. Most of the &#x2018;plot&#x2019; takes place in her mind, and among Austen&#x2019;s heroines she is the one with the richest interior. Because of Austen&#x2019;s expansive use of free indirect speech, she is the most psychologically developed of all the heroines of Austen&#x2019;s novels. This is also a novel about difficulties with direct communication about emotions and a lot is revealed through overhearing and the final letter written by Wentworth, so through mediated forms of communication. This is also the novel in which the new empirical psychology is used and Anne&#x2019;s great ability of mind-reading is shown through her acute observation of other characters&#x2019; facial expressions, gestures and behavior. Austen&#x2019;s readers also receive additional knowledge about the main heroine through her body language (mainly looks and blushes). We may notice her gradual &#x2018;expansion&#x2019; of speech; from her silence in the initial chapters, through her scarce remarks until she gradually becomes the focalizer in the novel, with her focalization &#x2018;expanding&#x2019; in the second half. In the climactic scene in the penultimate chapter Anne finally presents herself as &#x2018;somebody&#x2019;. In her long and passionate conversation, she presents courageously her own opinions on women and their unprivileged situation.</p>
+      <p>We can, I think, agree with Barbara <xref ref-type="bibr" rid="B9-humanities-11-00093">Hardy</xref> (<xref ref-type="bibr" rid="B9-humanities-11-00093">1979, p. 192</xref>) that &#x2018;Up to <italic>Persuasion</italic> she [Jane Austen] has been concerned with the dangers of the imagination, but <italic>Persuasion</italic> shows us the perpetual and common difficulty of being human&#x2019;.</p>
+    </sec>
+  </body>
+  <back>
+    <notes>
+      <title>Institutional Review Board Statement</title>
+      <p>Not applicable.</p>
+    </notes>
+    <notes>
+      <title>Informed Consent Statement</title>
+      <p>Not applicable.</p>
+    </notes>
+    <notes notes-type="COI-statement">
+      <title>Conflicts of Interest</title>
+      <p>The author declares no conflict of interest.</p>
+    </notes>
+    <fn-group>
+      <title>Notes</title>
+      <fn id="fn001-humanities-11-00093">
+        <label>1</label>
+        <p>(<xref ref-type="bibr" rid="B2-humanities-11-00093">Austen 1994, p. 4</xref>). Subsequent parenthetical references will be to this edition.</p>
+      </fn>
+      <fn id="fn002-humanities-11-00093">
+        <label>2</label>
+        <p>Byrne has written about the possibility of a war and the ending of <italic>Persuasion</italic>, <italic>Jane Austen&#x2019;s Possessions and Dispossession</italic>, pp. 170&#x2013;72. In addition, Giordano mentions the lack of a happy ending as the struggle against the rules of the genre (a comedy), &#x2018;The Word as Battleground&#x2019;, p. 121.</p>
+      </fn>
+      <fn id="fn003-humanities-11-00093">
+        <label>3</label>
+        <p>Many critics see this accident in Lyme as a turning point in the novel, for instance, John Wiltshire and Rebecca <xref ref-type="bibr" rid="B16-humanities-11-00093">Posusta</xref> (<xref ref-type="bibr" rid="B16-humanities-11-00093">2014</xref>).</p>
+      </fn>
+      <fn id="fn004-humanities-11-00093">
+        <label>4</label>
+        <p>On Jane Austen and Romanticism see: (<xref ref-type="bibr" rid="B11-humanities-11-00093">Leggatt 2017</xref>; <xref ref-type="bibr" rid="B17-humanities-11-00093">Richardson 2001</xref>; <xref ref-type="bibr" rid="B21-humanities-11-00093">Thomas 1987</xref>).</p>
+      </fn>
+      <fn id="fn005-humanities-11-00093">
+        <label>5</label>
+        <p>(<xref ref-type="bibr" rid="B14-humanities-11-00093">Page 1969</xref>). Page quotes a useful definition of free indirect speech after S. Ullmann, <italic>Style in the French</italic>&#xA0;Novel (1957); free indirect speech &#x2018;supersedes the borderline between narrative and inner speech, so that the two imperceptibly merge into one another.&#x2019; (p. 738) See also (<xref ref-type="bibr" rid="B1-humanities-11-00093">Abbott 2002, p. 70</xref>).</p>
+      </fn>
+      <fn id="fn006-humanities-11-00093">
+        <label>6</label>
+        <p>On the solitary heroine and society, see (<xref ref-type="bibr" rid="B5-humanities-11-00093">Chapman 2020</xref>; <xref ref-type="bibr" rid="B15-humanities-11-00093">Pinch 1993</xref>).</p>
+      </fn>
+    </fn-group>
+    <ref-list>
+      <title>References</title>
+      <ref id="B1-humanities-11-00093">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Abbott</surname>
+              <given-names>H. Porter</given-names>
+            </name>
+          </person-group>
+          <source>The Cambridge Introduction to Narrative</source>
+          <publisher-name>Cambridge University Press</publisher-name>
+          <publisher-loc>Cambridge</publisher-loc>
+          <year>2002</year>
+        </element-citation>
+      </ref>
+      <ref id="B2-humanities-11-00093">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Austen</surname>
+              <given-names>Jane</given-names>
+            </name>
+          </person-group>
+          <source>Persuasion</source>
+          <publisher-name>Penguin Popular Classics</publisher-name>
+          <publisher-loc>Harmondsworth</publisher-loc>
+          <year>1994</year>
+        </element-citation>
+      </ref>
+      <ref id="B3-humanities-11-00093">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Byrne</surname>
+              <given-names>Sandie</given-names>
+            </name>
+          </person-group>
+          <source>Jane Austen&#x2019;s Possessions and Dispossessions: The Significance of Objects</source>
+          <publisher-name>Palgrave Macmillan</publisher-name>
+          <publisher-loc>Basingstoke</publisher-loc>
+          <year>2014</year>
+        </element-citation>
+      </ref>
+      <ref id="B4-humanities-11-00093">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bystydzie&#x144;ska</surname>
+              <given-names>Gra&#x17C;yna</given-names>
+            </name>
+          </person-group>
+          <article-title>Houses and Landscapes in Jane Austen&#x2019;s Novels</article-title>
+          <source>Approaches to Literature</source>
+          <year>2002</year>
+          <volume>2</volume>
+          <fpage>47</fpage>
+          <lpage>57</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B5-humanities-11-00093">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Chapman</surname>
+              <given-names>Alison</given-names>
+            </name>
+          </person-group>
+          <article-title>Giving Way to the World: Distraction and Sociability in Jane Austen&#x2019;s Persuasion</article-title>
+          <source>Persuasions: The Jane Austen Journal</source>
+          <year>2020</year>
+          <volume>42</volume>
+          <fpage>247</fpage>
+          <lpage>55</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B6-humanities-11-00093">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Fawcett</surname>
+              <given-names>Trevor</given-names>
+            </name>
+          </person-group>
+          <article-title>John Jelly&#x2019;s Botanical Garden</article-title>
+          <source>The Survey of Bath and the District</source>
+          <year>2013</year>
+          <volume>28</volume>
+          <fpage>23</fpage>
+          <lpage>28</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B7-humanities-11-00093">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gaylin</surname>
+              <given-names>Ann</given-names>
+            </name>
+          </person-group>
+          <article-title>Eavesdropping and the gentle art of Persuasion</article-title>
+          <source>Eavesdropping in the Novel from Austen to Proust</source>
+          <publisher-name>Cambridge University Press</publisher-name>
+          <publisher-loc>Cambridge</publisher-loc>
+          <year>2002</year>
+          <fpage>43</fpage>
+          <lpage>55</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B8-humanities-11-00093">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Giordano</surname>
+              <given-names>Julia</given-names>
+            </name>
+          </person-group>
+          <article-title>The Word as Battleground in Persuasion</article-title>
+          <source>Anxious Power: Reading, Writing and Ambivalence in Narrative by Women</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Singley</surname>
+              <given-names>Carol J.</given-names>
+            </name>
+            <name>
+              <surname>Sweeney</surname>
+              <given-names>Susan Elizabeth</given-names>
+            </name>
+          </person-group>
+          <publisher-name>State University of New York Press</publisher-name>
+          <publisher-loc>Albany</publisher-loc>
+          <year>1993</year>
+          <fpage>107</fpage>
+          <lpage>24</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B9-humanities-11-00093">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Hardy</surname>
+              <given-names>Barbara</given-names>
+            </name>
+          </person-group>
+          <source>A Reading of Jane Austen</source>
+          <publisher-name>The Athlone Press</publisher-name>
+          <publisher-loc>London</publisher-loc>
+          <year>1979</year>
+        </element-citation>
+      </ref>
+      <ref id="B10-humanities-11-00093">
+        <element-citation publication-type="book">
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Hillman</surname>
+              <given-names>David</given-names>
+            </name>
+            <name>
+              <surname>Maude</surname>
+              <given-names>Ulrika</given-names>
+            </name>
+          </person-group>
+          <source>The Cambridge Companion to the Body in Literature</source>
+          <publisher-name>Cambridge University Press</publisher-name>
+          <publisher-loc>Cambridge</publisher-loc>
+          <year>2015</year>
+        </element-citation>
+      </ref>
+      <ref id="B11-humanities-11-00093">
+        <element-citation publication-type="web">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Leggatt</surname>
+              <given-names>Alex</given-names>
+            </name>
+          </person-group>
+          <article-title>Jane Austen and the Legacies of Romanticism</article-title>
+          <year>2017</year>
+          <comment>Available online: <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://alexleggatt.com/was-jane-austen-powerless-in-the-presentation-of-strong-feelings/" ext-link-type="uri">https://alexleggatt.com/was-jane-austen-powerless-in-the-presentation-of-strong-feelings/</ext-link></comment>
+          <date-in-citation content-type="access-date" iso-8601-date="2022-03-17">(accessed on 17 March 2022)</date-in-citation>
+        </element-citation>
+      </ref>
+      <ref id="B12-humanities-11-00093">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>McMaster</surname>
+              <given-names>Juliet</given-names>
+            </name>
+          </person-group>
+          <source>Reading the Body in the Eighteenth-Century Novel</source>
+          <publisher-name>Palgrave Macmillan</publisher-name>
+          <publisher-loc>Basingstoke and New York</publisher-loc>
+          <year>2004</year>
+        </element-citation>
+      </ref>
+      <ref id="B13-humanities-11-00093">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Mullan</surname>
+              <given-names>John</given-names>
+            </name>
+          </person-group>
+          <article-title>Psychology</article-title>
+          <source>Jane Austen in Context</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Todd</surname>
+              <given-names>Janet</given-names>
+            </name>
+          </person-group>
+          <publisher-name>Cambridge University Press</publisher-name>
+          <publisher-loc>Cambridge</publisher-loc>
+          <year>2005</year>
+          <fpage>377</fpage>
+          <lpage>86</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B14-humanities-11-00093">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Page</surname>
+              <given-names>Norman</given-names>
+            </name>
+          </person-group>
+          <article-title>Categories of Speech in Persuasion</article-title>
+          <source>The Modern Language Review</source>
+          <year>1969</year>
+          <volume>64</volume>
+          <fpage>734</fpage>
+          <lpage>41</lpage>
+          <pub-id pub-id-type="doi">10.2307/3723914</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B15-humanities-11-00093">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Pinch</surname>
+              <given-names>Adela</given-names>
+            </name>
+          </person-group>
+          <article-title>Lost in a Book: Jane Austen&#x2019;s Persuasion</article-title>
+          <source>Studies in Romanticism</source>
+          <year>1993</year>
+          <volume>32</volume>
+          <fpage>97</fpage>
+          <lpage>117</lpage>
+          <pub-id pub-id-type="doi">10.2307/25600997</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B16-humanities-11-00093">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Posusta</surname>
+              <given-names>Rebecca</given-names>
+            </name>
+          </person-group>
+          <article-title>Architecture of the Mind and Place in Jane Austen&#x2019;s Persuasion</article-title>
+          <source>Critical Survey</source>
+          <year>2014</year>
+          <volume>26</volume>
+          <fpage>76</fpage>
+          <lpage>91</lpage>
+          <pub-id pub-id-type="doi">10.3167/cs.2014.260106</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B17-humanities-11-00093">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Richardson</surname>
+              <given-names>Alan</given-names>
+            </name>
+          </person-group>
+          <article-title>Of heartache and head injury: Minds, brains and the subject of Persuasion</article-title>
+          <source>British Romanticism and the Science of the Mind</source>
+          <publisher-name>Cambridge University Press</publisher-name>
+          <publisher-loc>Cambridge</publisher-loc>
+          <year>2001</year>
+          <fpage>93</fpage>
+          <lpage>113</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B18-humanities-11-00093">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Richardson</surname>
+              <given-names>Alan</given-names>
+            </name>
+          </person-group>
+          <article-title>Of Heartache and Head Injury: Reading Minds in Persuasion</article-title>
+          <source>Poetics Today</source>
+          <year>2002</year>
+          <volume>23</volume>
+          <fpage>141</fpage>
+          <lpage>60</lpage>
+          <pub-id pub-id-type="doi">10.1215/03335372-23-1-141</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B19-humanities-11-00093">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Smith</surname>
+              <given-names>Karah L.</given-names>
+            </name>
+          </person-group>
+          <article-title>Cognitive Embodiment and Mind Reading in Jane Austen&#x2019;s Persuasion</article-title>
+          <source>The Inquiries Journal Blog</source>
+          <year>2017</year>
+          <volume>9</volume>
+          <fpage>10</fpage>
+          <comment>Available online: <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://www.inquiriesjournal.com/a?id=1676" ext-link-type="uri">http://www.inquiriesjournal.com/a?id=1676</ext-link></comment>
+          <date-in-citation content-type="access-date" iso-8601-date="2021-12-15">(accessed on 15 December 2021)</date-in-citation>
+        </element-citation>
+      </ref>
+      <ref id="B20-humanities-11-00093">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Tanner</surname>
+              <given-names>Tony</given-names>
+            </name>
+          </person-group>
+          <article-title>In Between: Persuasion</article-title>
+          <source>Jane Austen</source>
+          <publisher-name>Palgrave</publisher-name>
+          <publisher-loc>London</publisher-loc>
+          <year>1986</year>
+          <fpage>208</fpage>
+          <lpage>49</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B21-humanities-11-00093">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Thomas</surname>
+              <given-names>Keith</given-names>
+            </name>
+          </person-group>
+          <article-title>Jane Austen and the Romantic Lyric: Persuasion and Coleridge&#x2019;s Conversation Poems</article-title>
+          <source>ELH</source>
+          <year>1987</year>
+          <volume>54</volume>
+          <fpage>893</fpage>
+          <lpage>924</lpage>
+          <pub-id pub-id-type="doi">10.2307/2873102</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B22-humanities-11-00093">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Vidal</surname>
+              <given-names>Fernando</given-names>
+            </name>
+          </person-group>
+          <article-title>The Eighteenth Century as &#x2018;Century of Psychology&#x2019;</article-title>
+          <source>Jahrbuch f&#xFC;r Recht und Ethik</source>
+          <year>2000</year>
+          <volume>8</volume>
+          <fpage>407</fpage>
+          <lpage>34</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B23-humanities-11-00093">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Warhol</surname>
+              <given-names>Robyn</given-names>
+            </name>
+          </person-group>
+          <article-title>The Look, the Body, and the Heroine: A Feminist-Narratological Reading of Persuasion</article-title>
+          <source>Novel</source>
+          <year>1992</year>
+          <volume>26</volume>
+          <fpage>5</fpage>
+          <lpage>19</lpage>
+          <pub-id pub-id-type="doi">10.2307/1345602</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B24-humanities-11-00093">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Wiltshire</surname>
+              <given-names>John</given-names>
+            </name>
+          </person-group>
+          <article-title>Mansfield Park, Emma, Persuasion</article-title>
+          <source>The Cambridge Companion to Jane Austen</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Copeland</surname>
+              <given-names>Edward</given-names>
+            </name>
+          </person-group>
+          <publisher-name>Cambridge University Press</publisher-name>
+          <publisher-loc>Cambridge</publisher-loc>
+          <year>2003</year>
+          <fpage>58</fpage>
+          <lpage>83</lpage>
+        </element-citation>
+      </ref>
+    </ref-list>
+    <fn-group>
+      <fn>
+        <p><bold>Publisher&#x2019;s Note:</bold> MDPI stays neutral with regard to jurisdictional claims in published maps and institutional affiliations.</p>
+      </fn>
+    </fn-group>
+  </back>
+</article>

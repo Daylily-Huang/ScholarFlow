@@ -1,0 +1,1480 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.1 20151215//EN" "JATS-journalpublishing1.dtd">
+<article xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" article-type="research-article" dtd-version="1.1" xml:lang="en">
+  <front>
+    <journal-meta>
+      <journal-id journal-id-type="publisher-id">information</journal-id>
+      <journal-title-group>
+        <journal-title>Information</journal-title>
+        <abbrev-journal-title abbrev-type="publisher">Information</abbrev-journal-title>
+        <abbrev-journal-title abbrev-type="pubmed">Information</abbrev-journal-title>
+      </journal-title-group>
+      <issn pub-type="epub">2078-2489</issn>
+      <publisher>
+        <publisher-name>MDPI</publisher-name>
+      </publisher>
+    </journal-meta>
+    <article-meta>
+      <article-id pub-id-type="doi">10.3390/info9040073</article-id>
+      <article-id pub-id-type="publisher-id">information-09-00073</article-id>
+      <article-categories>
+        <subj-group>
+          <subject>Article</subject>
+        </subj-group>
+      </article-categories>
+      <title-group>
+        <article-title>Can Social Robots Qualify for Moral Consideration? Reframing the Question about Robot Rights</article-title>
+      </title-group>
+      <contrib-group>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Tavani</surname>
+            <given-names>Herman T.</given-names>
+          </name>
+        </contrib>
+      </contrib-group>
+      <aff id="af1-information-09-00073">Department of Philosophy, Rivier University, Nashua, NH 03060, USA; <email>htavani@rivier.edu</email></aff>
+      <pub-date pub-type="epub">
+        <day>29</day>
+        <month>03</month>
+        <year>2018</year>
+      </pub-date>
+      <pub-date pub-type="collection">
+        <month>04</month>
+        <year>2018</year>
+      </pub-date>
+      <volume>9</volume>
+      <issue>4</issue>
+      <elocation-id>73</elocation-id>
+      <history>
+        <date date-type="received">
+          <day>25</day>
+          <month>02</month>
+          <year>2018</year>
+        </date>
+        <date date-type="accepted">
+          <day>22</day>
+          <month>03</month>
+          <year>2018</year>
+        </date>
+      </history>
+      <permissions>
+        <copyright-statement>&#xA9; 2018 by the author.</copyright-statement>
+        <copyright-year>2018</copyright-year>
+        <license license-type="open-access">
+          <license-p>Licensee MDPI, Basel, Switzerland. This article is an open access article distributed under the terms and conditions of the Creative Commons Attribution (CC BY) license (<ext-link ext-link-type="uri" xlink:href="http://creativecommons.org/licenses/by/4.0/">http://creativecommons.org/licenses/by/4.0/</ext-link>).</license-p>
+        </license>
+      </permissions>
+      <abstract>
+        <p>A controversial question that has been hotly debated in the emerging field of robot ethics is whether robots should be granted rights. Yet, a review of the recent literature in that field suggests that this seemingly straightforward question is far from clear and unambiguous. For example, those who favor granting rights to robots have not always been clear as to which kinds of robots should (or should not) be eligible; nor have they been consistent with regard to which kinds of rights&#x2014;civil, legal, moral, etc.&#x2014;should be granted to qualifying robots. Also, there has been considerable disagreement about which essential criterion, or cluster of criteria, a robot would need to satisfy to be eligible for rights, and there is ongoing disagreement as to whether a robot must satisfy the conditions for (moral) agency to qualify either for rights or (at least some level of) moral consideration. One aim of this paper is to show how the current debate about whether to grant rights to robots would benefit from an analysis and clarification of some key concepts and assumptions underlying that question. My principal objective, however, is to show why we should reframe that question by asking instead whether some kinds of social robots qualify for moral consideration as moral patients. In arguing that the answer to this question is &#x201C;yes,&#x201D; I draw from some insights in the writings of Hans Jonas to defend my position.</p>
+      </abstract>
+      <kwd-group>
+        <kwd>robot ethics</kwd>
+        <kwd>robot rights</kwd>
+        <kwd>social robots</kwd>
+        <kwd>moral agents</kwd>
+        <kwd>moral consideration</kwd>
+        <kwd>moral patients</kwd>
+        <kwd>Hans Jonas</kwd>
+      </kwd-group>
+    </article-meta>
+  </front>
+  <body>
+    <sec id="sec1-information-09-00073" sec-type="intro">
+      <title>1. Introduction</title>
+      <p>In the emerging field of robot ethics&#x2014;a branch of applied ethics as well as artificial intelligence (AI) that is also sometimes referred to as &#x201C;robo-ethics&#x201D; [<xref ref-type="bibr" rid="B1-information-09-00073">1</xref>,<xref ref-type="bibr" rid="B2-information-09-00073">2</xref>] and &#x201C;machine ethics&#x201D; [<xref ref-type="bibr" rid="B3-information-09-00073">3</xref>,<xref ref-type="bibr" rid="B4-information-09-00073">4</xref>]&#x2014;a controversial question that continues to be hotly debated is whether or not we should grant rights to robots. Although this question may seem fairly straightforward, a review of the recent literature on that topic suggests otherwise. Arguably, this question is ambiguous and imprecise with respect to at least five critical points, which in turn raise five distinct and important sub-questions: (i) Which <italic>kinds of robots</italic> deserve rights? (ii) Which <italic>kinds of rights</italic> do these (qualifying) robots deserve? (iii) Which <italic>criterion</italic>, or cluster of criteria, would be essential for determining when a robot could qualify for rights? (iv) Does a robot need to satisfy the conditions for (moral) <italic>agency</italic> in order to qualify for at least some level of moral consideration? (v) Assuming that certain kinds of robots may qualify for some level of moral consideration, which <italic>kind of rationale</italic> would be considered adequate for defending that view?</p>
+      <p>Regarding (i), those who favor granting rights to robots have not always been clear as to which kinds of robots should (or should not) be eligible to receive them; for example, is it the case that only &#x201C;socially intelligent&#x201D; robots that are physically embodied and also display some level of autonomy can qualify as candidates for rights, or is it possible that some sophisticated (soft)bots might also qualify? With regard to (ii), robot-rights supporters have not always been clear as to which kinds of rights&#x2014;legal, moral, civil, etc.&#x2014;should be granted to eligible robots; nor, as Gunkel [<xref ref-type="bibr" rid="B5-information-09-00073">5</xref>] notes, have they always been consistent with respect to a key distinction between normative vs. descriptive aspects of the &#x201C;rights&#x201D; question (i.e., &#x201C;Should robots have rights?&#x201D; vs. &#x201C;Can robots have rights?&#x201D;). Surrounding (iii) is an ongoing disagreement about which criterion, or which cluster of criteria, would be essential for determining when a robot could qualify for rights. For example, some authors have argued that robots must possess either an essential <italic>property</italic> (or cluster of essential properties)&#x2014;i.e., consciousness, personhood, rationality, autonomy, sentience, and so forth&#x2014;to qualify for rights. Others, however, have suggested that certain kinds of socially intelligent robots could be eligible for rights, or at least could qualify for some level of moral consideration, because of their status as <italic>relational entities</italic> and the way in which humans relate socially to these kinds of robots (see, for example, Coekelbergh [<xref ref-type="bibr" rid="B6-information-09-00073">6</xref>]). Regarding (iv), a contentious point of disagreement has to do with whether a robot must first be a moral <italic>agent</italic> (i.e., an artificial moral agent) to be granted moral standing of any kind. With respect to (v), there has been considerable disagreement regarding the competing, and sometimes conflicting, rationales&#x2014;i.e., theoretical ethical frameworks&#x2014;that have been used so far to defend granting moral consideration to robots.</p>
+      <p>I examine each of these points in the following five sections of this paper, via a series of questions that I title:
+	  <list list-type="bullet">
+        <list-item>
+          <p>The <italic>robot</italic> question</p>
+        </list-item>
+        <list-item>
+          <p>The <italic>rights</italic> question</p>
+        </list-item>
+        <list-item>
+          <p>The <italic>criterion</italic> question</p>
+        </list-item>
+        <list-item>
+          <p>The <italic>agency</italic> question</p>
+        </list-item>
+        <list-item>
+          <p>The <italic>rationale</italic> question</p>
+        </list-item>
+      </list></p>
+      <p>First, I argue that we need to restrict the kinds of robots under consideration, for now at least, to a category of <italic>social robots</italic>, i.e., to physically-embodied robots (including robotic companions) that are socially intelligent and designed to interact with humans in ways that humans interact with each other. Second, I argue that we should replace the term &#x201C;rights,&#x201D; as currently used by many in the context of robot ethics, with the expression &#x201C;moral consideration&#x201D;; this will also help us to avoid many of the pitfalls associated with &#x201C;rights discourse&#x201D; or with the &#x201C;language of rights,&#x201D; which do not need to be resolved for our purposes. Third, I argue that with respect to the question of essential criterion/criteria, both the &#x201C;property&#x201D; and the &#x201C;relational&#x201D; accounts&#x2014;arguably the two main competing and best known views&#x2014;are problematic. (While the property account, based on the view that we would need to be able to ascribe one or more essential properties to robots, fails to show us why one property or set of properties should be privileged over another, we will see that the relational account also leaves us with many unresolved questions and thus fails to provide an adequate alternative strategy to the property account.) Fourth, I argue against the view that robots need to qualify as (artificial) moral agents to be eligible for moral standing; instead, I propose that some social robots qualify for moral consideration in virtue of their status as <italic>moral patients</italic>, even if it turns out that some of them may also have the potential to qualify as (full) moral agents in the future. (The qualifications for being a moral patient are described in detail in <xref ref-type="sec" rid="sec5-information-09-00073">Section 5</xref>). Fifth, and finally, I put forth a rationale in defense of this view that differs significantly from those advanced by others, such as Gerdes [<xref ref-type="bibr" rid="B7-information-09-00073">7</xref>] and Gunkel [<xref ref-type="bibr" rid="B5-information-09-00073">5</xref>], who also make the case for granting moral consideration to social robots as moral patients. Whereas Gerdes appeals to aspects of Immanuel Kant&#x2019;s moral philosophy, Gunkel suggests that we look to Emmanuel Levinas&#x2019;s philosophical system for an appropriate rationale. Alternatively, I believe that we can apply a moral framework put forth by Jonas in <italic>The Imperative of Responsibility: In Search of an Ethics for the Technological Age</italic> [<xref ref-type="bibr" rid="B8-information-09-00073">8</xref>] to show why social robots can indeed qualify as moral patients that qualify for moral consideration. </p>
+    </sec>
+    <sec id="sec2-information-09-00073">
+      <title>2. The &#x201C;Robot Question&#x201D;: Which Kinds of Robots (If Any) Deserve Rights?</title>
+      <p>What, exactly, is a robot? We should note at the outset that there does not appear to be any clear-cut or universally agreed upon definition of &#x201C;robot.&#x201D; Bekey [<xref ref-type="bibr" rid="B9-information-09-00073">9</xref>] (p. 8) offers a working definition of a robot as &#x201C;<italic>a machine, situated in the world, that senses, thinks, and acts</italic>&#x201D; (Italics Bekey). One problem with this definition, however, is that it may be either too narrow or too restrictive, at least for the purposes of this paper; another, and perhaps more important, problem is that we would first need to &#x201C;unpack&#x201D; and reach some agreement about the meaning of key terms such as &#x201C;senses,&#x201D; thinks,&#x201D; and &#x201C;acts&#x201D; in the context of artificial entities. Perhaps as Capurro and Nagenborg [<xref ref-type="bibr" rid="B10-information-09-00073">10</xref>] (p. vii) suggest, the definition of a robot may ultimately depend on the &#x201C;social and cultural perception&#x201D; in which an &#x201C;artificial device is embedded.&#x201D; Nevertheless, the term &#x201C;robot&#x201D; is currently used to refer to a wide range of (robotic) entities and technologies. For example, &#x201C;robot&#x201D; is sometimes intended to include &#x201C;soft&#x201D; bots (such as AI programs), as well as physical robotic entities. So, Wallach and Allen [<xref ref-type="bibr" rid="B4-information-09-00073">4</xref>] (p. 3) suggest using the expression &#x201C;(ro)bot&#x201D; to include both. For our purposes, however, we will eliminate softbots from further consideration, focusing instead on a certain kind of physical robot.</p>
+      <p>Sullins [<xref ref-type="bibr" rid="B11-information-09-00073">11</xref>] (p. 154) differentiates two categories of robots (or robotic technologies): &#x201C;tele robots&#x201D; and &#x201C;autonomous robots.&#x201D; Whereas the former are controlled remotely by humans (and function mainly as tools), the latter are capable of making at least some of the &#x201C;major decisions about their actions&#x201D; (by using their own programming code). Other authors, however, draw an important distinction between &#x201C;service robots&#x201D; and &#x201C;industrial robots.&#x201D; While industrial robots have been around for many years, Scheutz [<xref ref-type="bibr" rid="B12-information-09-00073">12</xref>] notes that service robots now far outnumber industrial robots. For example, LaGrandeur [<xref ref-type="bibr" rid="B13-information-09-00073">13</xref>] (p. 98) points out that by 2011, the total number of robots in use worldwide was 18.2 million, 17 million of which were service robots. But it is important to note that not all service robots are necessarily <italic>social robots</italic>. Darling [<xref ref-type="bibr" rid="B14-information-09-00073">14</xref>] (p. 215), who defines a social robot as a &#x201C;physically embodied, autonomous agent that communicates and interacts with humans on a social level,&#x201D; believes that we need to distinguish social robots not only from industrial robots but also from other kinds of service robots that are &#x201C;not designed to be social&#x201D;. In drawing this distinction, she describes some specific examples of early social robots, which include a range of &#x201C;interactive robotic toys&#x201D; such as <italic>Pleo</italic> (a robotic dinosaur), <italic>Aibo</italic> (a robotic dog), and <italic>Paro</italic> (a robotic baby seal), as well as research robots such as MIT&#x2019;s <italic>Cog</italic> and <italic>Kismet</italic>.</p>
+      <p>How can we successfully distinguish social robots from certain kinds of advanced service robots, or even differentiate them from some very sophisticated kinds of home appliances? Darling concedes that, initially, it might be difficult for one to distinguish between a social robot, such as <italic>Paro</italic>, and an appliance in one&#x2019;s house, such as a toaster. For example, she notes that one might argue that both are physical devices designed to perform a function. However, Darling (p. 216) goes on to point out that whereas the latter device was designed simply to make toast, a social robot &#x201C;has been designed to act as a companion to humans&#x201D;. Of course, some social robots are more than mere companions, since they also &#x201C;assist&#x201D; humans (e.g., in the case of the elderly) and thereby can also enhance or augment the lives of those humans in critical ways. As Breazeal [<xref ref-type="bibr" rid="B15-information-09-00073">15</xref>] (p. 1) points out, social robots are &#x201C;able to communicate and interact with us&#x2026;and even relate to us in a human-like way&#x201D;.</p>
+      <p>Another factor that some authors appeal to in distinguishing social robots from other kinds of service robots has to do with our tendency, as humans, to form &#x201C;emotional attachments&#x201D; [<xref ref-type="bibr" rid="B16-information-09-00073">16</xref>,<xref ref-type="bibr" rid="B17-information-09-00073">17</xref>] with the former. For example, Scheutz [<xref ref-type="bibr" rid="B12-information-09-00073">12</xref>] (p. 205) notes that social robots are &#x201C;specifically designed for personal interactions that will involve emotions and feelings.&#x201D; Darling (p. 218) also points out that many of these kinds of robots are designed to &#x201C;display emotional cues,&#x201D; attributing this to the fact that the &#x201C;autonomous behavior&#x201D; of many social robots causes them to &#x201C;appear lifelike enough to generate emotional projection.&#x201D; It is perhaps worth noting that Lin [<xref ref-type="bibr" rid="B18-information-09-00073">18</xref>] (p. 11) has questioned whether designing &#x201C;anthropomorphized machines&#x201D; that enable humans to form emotional attachments with them might be engaging in some sort of &#x201C;deception&#x201D;; however, we will not examine that question here, since it is beyond the scope of this paper. </p>
+      <p>Darling (p. 220) notes that social robots &#x201C;elicit behavior in us&#x201D; that is significantly different from what we exhibit towards other kinds of robots as well as other devices, as in the case of her example of toasters. She also notes that as we progress from &#x201C;treating social robots like toasters&#x201D; to treating them &#x201C;more like our pets,&#x201D; we will likely encounter some ethical concerns. One significant ethical issue&#x2014;and the main one for our purposes&#x2014;is whether social robots can qualify for <italic>rights</italic> of some kind. In limiting our analysis to the category of social robots, as defined above in Darling (p. 215), we can avoid having to consider (for now, at least) whether rights can/should also be granted to some kinds of softbots, as well as to some sophisticated service robots that do not satisfy all of the conditions for our working definition of a social robot.</p>
+    </sec>
+    <sec id="sec3-information-09-00073">
+      <title>3. The &#x201C;Rights&#x201D; Question: Which Kinds of Rights (If Any) Do Robots Deserve?</title>
+      <p>We begin by noting that the &#x201C;language of rights&#x201D; is itself somewhat convoluted, partly because of a proliferation of expressions that are far from uniform, clear, or unambiguous. For example, the current literature is replete with instances of the following kinds of &#x201C;rights-laden&#x201D; expressions: human rights, natural rights, moral rights, legal rights, civil rights, constitutional rights, employee rights, animal rights (sometimes also referred to as &#x201C;animal interests&#x201D; in legal scholarship), and so forth. Within the specific context of robot rights, another ambiguity has to do with normative vs. descriptive aspects of the &#x201C;rights question&#x201D;. For example, Gunkel [<xref ref-type="bibr" rid="B5-information-09-00073">5</xref>] (pp. 2&#x2013;3) notes that two distinct questions need to be separated: &#x201C;Can robots have rights?&#x201D; and &#x201C;Should robots have rights?&#x201D; The former question, he suggests, can be reformulated as &#x201C;Are robots capable of having rights?&#x201D; The latter question, on the contrary, can be reformulated as &#x201C;Ought robots be considered moral subjects?&#x201D; Gunkel also points out that following the classical description of the &#x201C;is-ought fallacy,&#x201D; articulated by David Hume (1711&#x2013;1776), one might be tempted to infer either (i) &#x201C;Robots cannot have rights; therefore, they should not have rights&#x201D; or (ii) &#x201C;robots can have rights; therefore, they should have rights.&#x201D; But Gunkel (p. 3) notes that is possible that (iii) &#x201C;Even though robots can have rights, they should not have rights&#x201D; and (iv) &#x201C;Even though robots cannot have rights, they should have rights.&#x201D; So we need to be clearer and more precise about which &#x201C;rights-based question&#x201D; we are asking in the context of robots. Our focus will be mainly on the normative aspect of the question&#x2014;viz., <italic>should</italic> robots have rights (or do they <italic>deserve</italic> rights)?</p>
+      <p>We next turn to what I take to be the main question that needs answering in this section: Which <italic>kinds of rights</italic> (moral, legal, etc.) are at issue in the debate about robot rights? Many philosophers, beginning at least as far back as Thomas Aquinas (1225&#x2013;1274), have held the view that all humans possess some natural rights. Some legal theorists and philosophers have since argued that &#x201C;natural rights,&#x201D; or what many now commonly refer to as <italic>human rights</italic> or <italic>moral rights</italic>, are derived from natural law (and thus exist independently of any legal rights that might happen to be granted to citizens of a certain nation via that nation&#x2019;s system of laws). While it is one thing for philosophers to assert that all humans are endowed with natural rights, it is far more difficult to provide a fool-proof logical argument to defend that claim. For example, philosopher Jeremy Bentham (1748&#x2013;1832) famously asserted that natural rights are nothing more than &#x201C;nonsense on stilts&#x201D;. So, many philosophers and legal theorists have since focused their attention on issues affecting legal rights (sometimes also referred to as &#x201C;positive rights&#x201D;).</p>
+      <p>Currently, the European Union (EU) is considering a policy that would grant some sort of legal rights to robots (i.e., along lines that are similar to way the EU currently grants rights to other artificial entities, such as corporations) [<xref ref-type="bibr" rid="B19-information-09-00073">19</xref>]. But many details still need to be worked out before this proposal for extending rights/protections to robots can be enacted into EU law. It is also worth noting that in October 2017, Saudi Arabia granted full citizenship to a (female) humanoid robot named <italic>Sophia</italic> [<xref ref-type="bibr" rid="B20-information-09-00073">20</xref>]; this move, which surprised many, could also be interpreted to imply that Sophia would thereby have certain legal rights, such as the right to vote. While the Saudi Kingdom may have been the first nation to grant full civil rights to a robot, many critics have pointed out that women living in Saudi Arabia still do not yet fully enjoy the same rights granted to Sophia. However, we will not examine this and other controversial aspects of the Saudi government&#x2019;s decision regarding Sophia&#x2014;i.e., beyond its implications for the question of granting legal rights to robots&#x2014;since doing so would take us beyond the scope of this section (and paper).</p>
+      <p>Some authors, including Laukyte [<xref ref-type="bibr" rid="B21-information-09-00073">21</xref>] and Darling [<xref ref-type="bibr" rid="B14-information-09-00073">14</xref>,<xref ref-type="bibr" rid="B22-information-09-00073">22</xref>], have suggested that the category of legal rights may provide the best model for for understanding and addressing issues involving rights in the context of robots. Laukyte (p. 1) has proposed granting legal (or &#x201C;social&#x201D;) rights/protections to robots as &#x201C;group agents&#x201D;. She notes, for example, that corporations can qualify for legal rights as group agents (consisting of groups of human persons). So Laukyte considers whether &#x201C;artificial group agents&#x201D; (comprised solely of artificial entities) could also qualify for legal/social rights and protections. But since her formulation of the rights question presupposes that robots can qualify as <italic>agents</italic> (of some sort), we postpone our analysis of this kind of strategy until <xref ref-type="sec" rid="sec5-information-09-00073">Section 5</xref> where we focus specifically on aspects of (moral) agency in connection with robot rights.</p>
+      <p>Darling [<xref ref-type="bibr" rid="B14-information-09-00073">14</xref>] (p. 228), who also discusses the possibility of granting legal rights to robots, notes that we may want to delineate the kinds of robots we wish to protect by defining them as &#x201C;(1) an embodied object with (2) a defined degree of autonomous behavior that is (3) specifically designed to interact with humans on a social level and respond to mistreatment in a lifelike way.&#x201D; But Darling [<xref ref-type="bibr" rid="B14-information-09-00073">14</xref>,<xref ref-type="bibr" rid="B22-information-09-00073">22</xref>] (p. 2; p. 230) also believes that our ultimate basis with regard to granting any kind of protection to robots, whether in the form of explicit rights or some degree of moral status/standing, may be rooted less in our legal structures (or on &#x201C;any societal effects&#x201D; that these robots might have) and &#x201C;more on our own feelings&#x201D; towards robots. So even if we are unable to enact specific laws to protect social robots, Darling&#x2019;s insight can be interpreted to suggest that we at least begin to think about granting them some level of <italic>moral consideration</italic>.</p>
+      <p>I believe that we can avoid many of the quagmires inherent in the current debate about granting explicit rights to robots by focusing instead on the question of whether they might qualify for moral consideration. In shifting our focus away from questions employing rights-based language to questions about whether some robots may deserve moral standing, based on some level of moral consideration, we also avoid having to answer, directly at least, some controversial questions pertaining to whether non-human entities of any kind should be granted explicit rights&#x2014;legal, moral, or otherwise. Additionally, we avoid having to address at least two critical sub-questions: What, exactly, are rights? How do they originate?</p>
+      <p>Of course, it may seem that shifting the discussion away from &#x201C;rights&#x201D; and towards &#x201C;moral consideration&#x201D; is merely &#x201C;kicking the can down the road&#x201D;. However, I believe that there are some pragmatic advantages for making such a move. For one thing, the decision to grant rights is a binary one&#x2014;the entity in question will either be granted or not granted one or more specific rights; moral consideration, on the contrary, can be granted in various degrees or levels. For another thing, when we speak of granting rights to an entity, we tend to focus our attention on <italic>the entity</italic> in question (in this case, the robot) to determine whether it possesses certain characteristics deemed worthy of being a rights recipient. But when we speak of granting moral consideration to an entity, we often focus more on how <italic>we</italic>, as humans, feel about the entity with respect to whether it deserves some kind of moral standing (as, for example, in the case of animals).</p>
+      <p>Also, the term &#x201C;rights,&#x201D; for whatever reason(s), seems to evoke an emotional response on the part of many who oppose granting rights of any kind to non-humans. Some rights-opponents, including many conservative lawmakers, fear that rights often imply entitlements and thus ought to be restricted and limited&#x2014;not only in the case of granting new kinds of rights to non-human entities, such as robots, but even granting additional rights to the human constituents they represent in their respective legislatures. Yet some of these rights-opponents may be open to the question of granting moral consideration, rather than explicit (full-blown) rights, to animals, robots, etc. So I believe that there are good reasons to change the focus of the current debate to the question of whether to grant moral consideration to social robots (as defined in <xref ref-type="sec" rid="sec2-information-09-00073">Section 2</xref>).</p>
+    </sec>
+    <sec id="sec4-information-09-00073">
+      <title>4. The &#x201C;Criterion&#x201D; Question: The Property Account vs. the Relational Account</title>
+      <p>In recent literature on robot rights, we find two competing views with regard to the kinds of essential criteria that a robot must satisfy in order to qualify for rights or, for that matter, any kind of moral consideration whatsoever. One view has been dubbed by Coeckelbergh [<xref ref-type="bibr" rid="B6-information-09-00073">6</xref>,<xref ref-type="bibr" rid="B23-information-09-00073">23</xref>,<xref ref-type="bibr" rid="B24-information-09-00073">24</xref>] and others as the &#x201C;property account&#x201D;; in this scheme, a robot would be eligible to be granted rights, or at least some level of moral consideration, if it could convincingly show that it possessed one or more essential properties, such as consciousness, intentionality, rationality, personhood, autonomy, sentience, etc. Regardless of whether robots actually possess any of these properties, Darling [<xref ref-type="bibr" rid="B14-information-09-00073">14</xref>] (p. 216) points out that humans are &#x201C;disposed&#x201D; to attribute &#x201C;intent, states of mind, and feelings&#x201D; to social robots.</p>
+      <p>An alternative view to the property account, and one that has gained traction in recent years, suggests that we can bypass (controversial) property-based criteria altogether, in favor of a criterion based on a &#x201C;relational&#x201D; connection between humans and social robots. Proponents of this &#x201C;relational account&#x201D; (see, for example, [<xref ref-type="bibr" rid="B5-information-09-00073">5</xref>,<xref ref-type="bibr" rid="B24-information-09-00073">24</xref>]) argue that there is no need to look &#x201C;inside&#x201D; the robot to see whether it actually possesses properties a, b, c, and so forth. All that matters on this view is whether the robot <italic>appears</italic> or behaves &#x201C;as if&#x201D; it might possess these properties when engaged in social interactions with humans (i.e., in the same way that humans appear to exhibit such properties in human&#x2013;human interactions). For Coeckelbergh [<xref ref-type="bibr" rid="B25-information-09-00073">25</xref>] (p. 18), what matters is the &#x201C;moral significance of appearance&#x201D;&#x2014;i.e., how robots &#x201C;appear to us, humans&#x201D;. In his &#x201C;relational ontology,&#x201D; where humans and robots are viewed as &#x201C;relational entities,&#x201D; Coeckelbergh [<xref ref-type="bibr" rid="B24-information-09-00073">24</xref>] (p. 45) claims that &#x201C;<italic>relations are prior to the relata</italic>&#x201D; (Italics Coeckelbergh). This relational approach to understanding human&#x2013;robot interaction has been described by Coeckelbergh and others (e.g., Gerdes [<xref ref-type="bibr" rid="B7-information-09-00073">7</xref>] and Gunkel [<xref ref-type="bibr" rid="B5-information-09-00073">5</xref>]) as the &#x201C;relational turn&#x201D; in the context of the debate about robot rights.</p>
+      <p>Does the relational account have an advantage over the property account? We have already noted that one problem for those who embrace the latter has to do with answering the question concerning <italic>which</italic> property is essential for a robot to possess. For example, some suggest that for a robot to qualify for moral standing of any kind, it must possess consciousness [<xref ref-type="bibr" rid="B26-information-09-00073">26</xref>] or satisfy the conditions for &#x201C;personhood&#x201D; [<xref ref-type="bibr" rid="B27-information-09-00073">27</xref>]. Other &#x201C;property-ascription&#x201D; proponents, however, argue that a robot must exhibit sentience to be eligible for rights. So, one reason why proponents of this view have found it difficult to defend has to do with the lack of a generally agreed upon property (or cluster of properties) that a robot would need to possess to qualify for moral status. But even if there were agreement on which property or properties are essential, a more significant problem for property-ascriptivists would be showing that the robot actually <italic>possessed</italic> the relevant properties in question. Consider, for example, that philosophers have also found it difficult to show that humans possess some of these same properties (as illustrated in the classic philosophical &#x201C;problem of other minds&#x201D;). Another difficulty for property-ascriptivists who link moral rights for humans to the possession of one or more essential properties (affecting mental states) is the question of what happens when those properties are lost or become significantly diminished, as in the case of comatose patients and severely brain-damaged humans who have either no or very limited cognitive capacities. Would these humans possibly forfeit their moral rights, in these cases?</p>
+      <p>So the property account is not only problematic as a framework for attributing rights to robots, since it can also be controversial when used as a standard for preserving moral rights in the case of some humans. But as Gerdes [<xref ref-type="bibr" rid="B7-information-09-00073">7</xref>] aptly points out, we shouldn&#x2019;t automatically accept the relational account merely because there are problems with the property account. In other words, it doesn&#x2019;t follow that the former account is adequate simply because the latter is problematic. (Consider, for example, that making such a move could involve committing the Fallacy of the False Dichotomy, if it turns out that alternative positions are also available.) We will next see that the relational account, like the property account, is also beset with difficulties.</p>
+      <p>Initially, the relational account might seem promising, or at least an attractive alternative to the property account. In making the case for this view, Coeckelbergh describes some important relationships that humans form with social robots. But one question we can ask is whether all of these relationships are as significantly dependent on a robot&#x2019;s &#x201C;appearance,&#x201D; as Coeckelbergh and other advocates of the relational approach seem to suggest. Consider, for example, trust relationships involving humans and robots, which most would view as an important kind of relationship. Coeckelbergh [<xref ref-type="bibr" rid="B28-information-09-00073">28</xref>] (p. 57) claims that humans &#x201C;trust robots if they appear trustworthy.&#x201D; But is it necessarily the case that we must always take into account how a robot &#x201C;appears to us&#x201D; before we enter into a trust relationship with it? I have argued elsewhere [<xref ref-type="bibr" rid="B29-information-09-00073">29</xref>,<xref ref-type="bibr" rid="B30-information-09-00073">30</xref>] that humans can enter into trust relationships with disembodied robots (or artificial agents), including multi-agent systems that can also be diffused in a vast network of humans and artificial agents; in these cases, the trust relationship need not be based on any aspects of a robot&#x2019;s <italic>appearance</italic>&#x2014;at least not in the physical sense of &#x201C;appearance&#x201D;. Other human&#x2013;robot trust frameworks, such as those put forth by Taddeo [<xref ref-type="bibr" rid="B31-information-09-00073">31</xref>,<xref ref-type="bibr" rid="B32-information-09-00073">32</xref>] and Grodzinsky, Miller, and Wolf [<xref ref-type="bibr" rid="B33-information-09-00073">33</xref>,<xref ref-type="bibr" rid="B34-information-09-00073">34</xref>] also support the view that trust relationships between humans and robots need not be based on the latter&#x2019;s appearance. So if this view is correct, then trust relationships (and possibly some other kinds of important relationships as well) between humans and robots would neither depend on, nor be significantly influenced by, a robot&#x2019;s (physical) appearance. Thus, it would seem that the relational account would be more helpful if it could specify <italic>which</italic> important &#x201C;human&#x2013;robot relations&#x201D; depend on, or are influenced by, a robot&#x2019;s appearance (and which need not be).</p>
+      <p>Gerdes [<xref ref-type="bibr" rid="B7-information-09-00073">7</xref>] (p. 274) has criticized the relational account on different grounds; one of her main concerns with this approach is that it could lead to our interacting with robots in ways that, over time, would threaten or &#x201C;obscure&#x201D; our conventional notions of human&#x2013;human relationships, which could also &#x201C;radically alter our <italic>Lebenswelt</italic>&#x201D;. To support her critique, Gerdes cites Turkle [<xref ref-type="bibr" rid="B16-information-09-00073">16</xref>] (p. 295) who worries that the &#x201C;robotic moment,&#x201D; which we have now begun to experience, could lead humans to desire relations with robots in a way that is preferential to our relations with fellow humans. Another concern that Gerdes (p. 276) has with the relational account is with its emphasis on &#x201C;appearance,&#x201D; where all that matters is whether a robot &#x201C;appears&#x201D; or behaves &#x201C;as if&#x201D; it might possess relevant properties when interacting socially with humans (as noted above in Coeckelbergh [<xref ref-type="bibr" rid="B24-information-09-00073">24</xref>]); more specifically, she is critical of the &#x201C;as if&#x201D; analogical reasoning used by Coeckelbergh and other proponents of the relational account. Gerdes (p. 274, Italics Gerdes) worries that this approach &#x201C;risks turning the <italic>as if</italic> into <italic>if</italic> at the cost of losing sight of what matters in human-human relations&#x201D;. So, Gerdes (p. 278) argues for a &#x201C;human-centered framework&#x201D; as an alternative to the relational account. While a fuller examination of Gerdes&#x2019;s critique is beyond the scope of this section of the paper, we briefly return to her argument in <xref ref-type="sec" rid="sec6-information-09-00073">Section 6</xref> (where we examine some ethical frameworks that have been used as rationales for granting moral consideration to social robots). We can conclude this section by pointing out that neither the property nor the relational accounts are fully adequate for showing us why social robots qualify (or do not qualify) for moral consideration.</p>
+    </sec>
+    <sec id="sec5-information-09-00073" sec-type="subjects">
+      <title>5. The &#x201C;Agency Question&#x201D;: Moral Agents vs. Moral Patients</title>
+      <p>An alternative scheme to both the property and relational accounts focuses on the question of whether a robot must first satisfy the conditions required for being an <italic>agent</italic> of some sort to be granted any kind of moral standing. Gunkel [<xref ref-type="bibr" rid="B5-information-09-00073">5</xref>] (p. 1) refers to this line of inquiry as the &#x201C;agent-oriented problematic&#x201D; in the context of robot ethics. This &#x201C;problematic&#x201D; introduces a number of thorny questions, the first of which is: Can a robot actually qualify as an agent&#x2014;i.e., an <italic>artificial</italic> agent (AA)? Assuming that a robot can indeed be an agent, what kind of AA must it also be to qualify for at least some level of moral consideration&#x2014;a rational AA? An autonomous AA? A moral AA? Or some combination of AAs? We briefly consider some requirements that a robot would need to satisfy in order to qualify for each kind of AA.</p>
+      <p>First, we should note that many authors believe that if an artificial entity is capable of acting, or of carrying out an act on behalf of a human, it can be viewed as an AA. For example, Dennett [<xref ref-type="bibr" rid="B35-information-09-00073">35</xref>], who defines an AA as an automaton, suggests that even a thermostat could qualify as an AA. However, we can ask which kinds of AAs also qualify as <italic>rational</italic> AAs? Laukyte [<xref ref-type="bibr" rid="B21-information-09-00073">21</xref>] (p. 2) describes the latter as AAs that &#x201C;can <italic>act</italic> rationally &#x2026; in an environment&#x201D; (Italics Laukyte). But what, exactly, does it mean for an AA to &#x201C;act rationally&#x201D;? I have argued elsewhere [<xref ref-type="bibr" rid="B36-information-09-00073">36</xref>] (p. 96) that for an AA to be considered a <italic>rational AA</italic>, it must be able to decide &#x201C;whether to carry out [an] act&#x201D; and be able to &#x201C;make a decision about which act to carry out, where more than one option is available&#x201D;. However, not all rational AAs are necessarily autonomous AAs; nor do all rational AAs also necessarily qualify as moral AAs (or what Wallach and Allen [<xref ref-type="bibr" rid="B4-information-09-00073">4</xref>] refer to as AMAs (artificial moral agents)? To be a moral agent, it is generally agreed that an agent&#x2014;whether human or artificial&#x2014;must be autonomous, i.e., have at least some degree of autonomy in making decisions.</p>
+      <p>Can an AA exhibit genuine autonomy? Floridi and Sanders [<xref ref-type="bibr" rid="B37-information-09-00073">37</xref>] (p. 60) suggest that some AAs might indeed qualify as (fully) autonomous AAs, or what they call &#x201C;AAAs&#x201D;. They distinguish between AAAs and non-autonomous AAs, which they refer to as &#x201C;artificial heteronomous agents&#x201D; (AHAs) in the following way: Whereas an AHA is &#x201C;simply an [AA] that is not autonomous,&#x201D; an AAA has &#x201C;some kind of control over its states and actions, senses its environment &#x2026; and interacts &#x2026; without the direct intervention of other agents&#x201D;. Floridi and Sanders [<xref ref-type="bibr" rid="B38-information-09-00073">38</xref>] expand on their earlier definition of an AAA, pointing out that it can: (a) interact with its environment; (b) change its internal state dynamically; and (c) adapt its behavior based on experience. In a later work, Floridi [<xref ref-type="bibr" rid="B39-information-09-00073">39</xref>] (p. 14) notes that an AAA&#x2019;s having the feature or property of adaptability is important because it &#x201C;imbues&#x201D; that AA with a &#x201C;certain degree of...independence&#x201D;. However, some question Floridi and Sanders&#x2019; view that AAAs can be fully autonomous. Elsewhere [<xref ref-type="bibr" rid="B30-information-09-00073">30</xref>,<xref ref-type="bibr" rid="B40-information-09-00073">40</xref>], I have argued that some AAs can qualify as autonomous in a &#x201C;functional sense of autonomy&#x201D;&#x2014;i.e., they can be &#x201C;functionally autonomous AAs&#x201D; or what I call &#x201C;FAAAs&#x201D;. (A detailed discussion of that argument, however, would take us beyond the scope of this paper). But even if an AA could be an AAA, in Floridi and Sanders&#x2019; sense, we can ask whether it would also necessarily qualify as a moral AA or AMA (to use Wallach and Allen&#x2019;s expression)?</p>
+      <p>Floridi [<xref ref-type="bibr" rid="B41-information-09-00073">41</xref>] (135&#x2013;136) believes that some (A)AAs can be moral agents because they are &#x201C;sources of moral action&#x201D;. He also believes that because AAs can &#x201C;cause moral harm or moral good,&#x201D; they have &#x201C;moral efficacy&#x201D;. But Johnson [<xref ref-type="bibr" rid="B42-information-09-00073">42</xref>], who agrees that AAs may have moral efficacy, argues that they qualify only as &#x201C;moral entities&#x201D; and not moral agents because AAs lack freedom. Others, including Himma [<xref ref-type="bibr" rid="B43-information-09-00073">43</xref>], have argued that AAs cannot satisfy the conditions for moral agency because they lack consciousness and intentionality. So there is considerable disagreement on whether an AA could ever be an AMA, or artificial moral agent. As Behdadi and Munthe [<xref ref-type="bibr" rid="B44-information-09-00073">44</xref>] (p. 2) so aptly put the question: &#x201C;<italic>What, if anything, is necessary and sufficient for an artificial entity to be a moral agent (an AMA)?</italic>&#x201D; (Italics Behdadi and Munthe).</p>
+      <p>Wallach and Allen [<xref ref-type="bibr" rid="B4-information-09-00073">4</xref>] describe AMAs in terms of what they call &#x201C;functional morality,&#x201D; which is based on a threshold in which an AA exhibits a certain level of autonomy in conjunction with a certain level of &#x201C;ethical sensitivity&#x201D;. Unfortunately, for our purposes, Wallach and Allen seem to be more concerned with whether AAs are capable of making &#x201C;good moral decisions&#x201D; than in answering an important philosophical question about whether AAs can be genuine moral agents. (See, for example, my critique of [<xref ref-type="bibr" rid="B4-information-09-00073">4</xref>] in [<xref ref-type="bibr" rid="B45-information-09-00073">45</xref>]). In fact, Wallach and Allen argue that the latter kind of (theoretical) question actually distracts from the &#x201C;important question&#x201D; about how we might design AAs to &#x201C;act appropriately in morally charged situations&#x201D; [<xref ref-type="bibr" rid="B4-information-09-00073">4</xref>] (p. 202).</p>
+      <p>Others, however, would disagree that the question about whether AAs can be genuine moral agents is a &#x201C;distraction&#x201D; of some sort, arguing instead that it is indeed an important philosophical question that needs to be addressed. For example, Moor [<xref ref-type="bibr" rid="B46-information-09-00073">46</xref>,<xref ref-type="bibr" rid="B47-information-09-00073">47</xref>] offers an interesting analysis of this question by differentiating AAs that can have various levels of moral import&#x2014;ranging from what he calls &#x201C;ethical-impact agents&#x201D; (at the lowest level) to &#x201C;full ethical agents&#x201D; (at the highest level in his model). Moor also notes out that as of right now, at least, there are no &#x201C;full&#x201D; ethical AAs, and he concedes that there may never be. But even if it turns out that AAs never achieve full moral agency, a major contribution of Moor&#x2019;s scheme is that it provides explicit criteria for showing how AAs can have four different degrees of ethical impacts, based on their exhibiting four distinct levels of autonomy.</p>
+      <p>Regardless of whether robots (and other kinds of AAs and artificial entities) can ever qualify as (full) moral agents, we will see that at least some social robots can qualify as <italic>moral patients</italic>. How, exactly, does a moral patient differ from a moral agent? Floridi [<xref ref-type="bibr" rid="B41-information-09-00073">41</xref>] (pp. 135&#x2013;136) distinguishes between the two in the following way: While moral patients are &#x201C;receivers of moral action,&#x201D; they are not the &#x201C;sources of moral action&#x201D; (as in the case of moral agents). Floridi also argues that moral patients, unlike moral agents, are not capable of &#x201C;causing moral harm or moral good.&#x201D; Of course, moral patients can be active (non-moral) agents and they are also capable of affecting us in ways that can cause us harm in a nonmoral sense. Nevertheless, moral patients, unlike moral agents, are not morally culpable for their actions. But like moral agents, moral patients qualify for moral consideration and thus have at least some moral standing.</p>
+      <p>Some authors (e.g., Darling [<xref ref-type="bibr" rid="B14-information-09-00073">14</xref>]; Gerdes [<xref ref-type="bibr" rid="B7-information-09-00073">7</xref>]; Gunkel [<xref ref-type="bibr" rid="B5-information-09-00073">5</xref>]) draw relevant comparisons between animals and robots as moral patients. While animals may not be moral agents (and thus morally accountable for what they do or fail to do), they nevertheless qualify as moral patients that warrant moral consideration from humans. One reason for viewing animals as moral patients is because of their ability, like humans, to feel pain and suffer emotionally. We should note that many animal-rights proponents, appealing to an argument originally advanced in the writings of Jeremy Bentham (mentioned above), claim that animals qualify for moral consideration solely because of their ability to suffer pain&#x2014;and thus irrespective of any rational capacity they may or may not also have. (Of course, animals can also affect human emotion, causing us pain as well as joy). So if we extend the analogy involving animals to social robots, it would seem to follow that if the latter are also capable of exhibiting sentience, of some sort, they could qualify as moral patients and thus warrant some level of moral consideration.</p>
+      <p>It is also important to note that critics, including Hogan [<xref ref-type="bibr" rid="B48-information-09-00073">48</xref>], question some of the analogies drawn between animals and machines, especially with respect to sentience. However, we can still ask whether a robot that appears to exhibit sentience of some kind, even if &#x201C;artificial sentience,&#x201D; could qualify as a moral patient. Consider the example of an artificial boy named &#x201C;David,&#x201D; in the Steven Spielberg film <italic>A.I. Artificial Intelligence.</italic> David would certainly seem to qualify as a social robot (as defined in <xref ref-type="sec" rid="sec2-information-09-00073">Section 2</xref> above). Does &#x201C;he&#x201D; also qualify as a moral patient, based on his behavior that appears to exhibit emotions and feelings of pain? It would seem reasonable to at least consider whether we can extend the sentience-based analogy to social robots like David (who project to us the behavior of feeling of pain) to ask whether those robots qualify for some moral consideration. But even if it turns out that we have at least some degree of moral obligation to social robots like David, it does not follow that they would necessarily have any reciprocal obligations towards humans. Note, for example, the kind of one-way moral obligations that humans have to fellow-human moral patients, such as young children, and that humans also have to at least some (non-human) animals (especially pets). But since young children and animals are not themselves moral agents, they have no moral obligations to us in return. (Portions of this and the two preceding paragraphs draw from and expand upon some claims originally included in my [<xref ref-type="bibr" rid="B49-information-09-00073">49</xref>]).</p>
+      <p>Generally, it is assumed that if someone/some entity is a moral agent, it is also a moral patient, even though the converse does not hold. However, Power [<xref ref-type="bibr" rid="B50-information-09-00073">50</xref>] has suggested that it might be possible for some robots to be moral agents without also being moral patients. But I will not pursue that question here, since my main concern has been with establishing that <italic>social</italic> robots can qualify as moral patients and thus have some level of moral standing (i.e., independent of the &#x201C;agency question&#x201D;). In this sense, my position leaves open the question of whether some robots might one day also qualify as (artificial) moral agents. In defending my view regarding social robots as moral patients, I next employ a rationale that draws from some key aspects of a novel ethical framework introduced by Hans Jonas [<xref ref-type="bibr" rid="B8-information-09-00073">8</xref>,<xref ref-type="bibr" rid="B51-information-09-00073">51</xref>].</p>
+    </sec>
+    <sec id="sec6-information-09-00073">
+      <title>6. The &#x201C;Rationale&#x201D; Question: Applying the Jonas Model</title>
+      <p>Before articulating the details of my Jonas-inspired rationale, I wish to note that I am not alone, nor am I the first to argue that social robots can qualify for moral consideration as moral patients. Others, including Gerdes [<xref ref-type="bibr" rid="B7-information-09-00073">7</xref>] and Gunkel [<xref ref-type="bibr" rid="B5-information-09-00073">5</xref>]), have also argued in support of this view. However, the kinds of rationales they have used to defend that position are very different from the one I put forth in this section. For example, Gerdes&#x2019;s rationale draws from elements in the moral philosophy of Immanuel Kant (1724&#x2013;1804)&#x2014;in particular, from what Kant has to say in his <italic>Tugendlehre</italic> [<xref ref-type="bibr" rid="B52-information-09-00073">52</xref>] about our indirect duties to non-humans (animals). Gerdes (pp. 276&#x2013;277) appeals to a Kantian distinction between our &#x201C;duties <italic>to</italic> others&#x201D; and our &#x201C;duties <italic>with regard to</italic> non-humans,&#x201D; and she interprets Kant to hold the view that &#x201C;having indirect duties <italic>with regard to</italic> non-human entities and animals rest upon our [direct] duties to ourselves&#x201D;. As in the case of Darling [<xref ref-type="bibr" rid="B14-information-09-00073">14</xref>], Gerdes (p. 278) suggests that when it comes to granting moral consideration to non-human entities, we can use the metaphor of a &#x201C;continuum on a scale of artifacts&#x201D; in which we move from tools to living entities; in this scheme, robots with which we could form social relations (i.e., social robots) can qualify for moral consideration.</p>
+      <p>Gunkel&#x2019;s rationale, on the contrary, draws from the philosophical writings of Emmanuel Levinas (1906&#x2013;1995) and focuses on the significance of &#x201C;the other&#x201D; in Levinas&#x2019;s ethical framework. In particular, Gunkel [<xref ref-type="bibr" rid="B5-information-09-00073">5</xref>] (p. 9) advocates for a model that he calls &#x201C;thinking otherwise&#x201D; (introduced in Gunkel [<xref ref-type="bibr" rid="B53-information-09-00073">53</xref>]) which builds on Levinas&#x2019;s insights affecting &#x201C;the other&#x201D; in a way that would enable us to grant moral consideration to &#x201C;other kinds of (non-human) entities&#x201D; and, most notably, also help us to appreciate the ethical significance of robots. But Gunkel [<xref ref-type="bibr" rid="B5-information-09-00073">5</xref>] also concedes that the &#x201C;other&#x201D; in Levinas&#x2019;s system is typically understood in terms of &#x201C;other humans,&#x201D; since Levinas&#x2019;s anthropocentrism privileges the &#x201C;human face&#x201D; (see, for example, Levinas [<xref ref-type="bibr" rid="B54-information-09-00073">54</xref>]). Despite this anthropocentric bias, however, Gunkel (p. 11) believes that Levinas&#x2019;s framework can nevertheless be interpreted or reformulated in such a way that humans could &#x201C;be obligated to consider <italic>all kinds of others</italic> as Other, including &#x2026; <italic>robots</italic>&#x201D; (Italics Gunkel). Elsewhere, Gunkel [<xref ref-type="bibr" rid="B55-information-09-00073">55</xref>] (p. 179) notes that like animals, &#x201C;machines can take on a face&#x201D;. So Gunkel [<xref ref-type="bibr" rid="B5-information-09-00073">5</xref>] (p. 11) interprets Levinas in such a way that we can &#x201C;see the face or the faceplate of the social robot,&#x201D; even though Gunkel acknowledges that in the conventional reading of Levinas&#x2019;s system, &#x201C;the &#x2019;Other&#x2019; is still unapologetically human&#x201D;.</p>
+      <p>Both Gerdes and Gunkel provide some interesting insights in defending their respective positions as to why we should grant moral consideration to social robots. However, I do not find either rationale to be entirely adequate. (A detailed critique of each would, unfortunately, take us beyond the scope of this paper). Alternatively, I put forth a novel&#x2014;and, I believe, more satisfactory&#x2014;rationale for defending the view that social robots qualify for moral consideration (as moral patients) by drawing from some concepts introduced in an ethical framework advanced by Jonas [<xref ref-type="bibr" rid="B8-information-09-00073">8</xref>], who argued that we need a &#x201C;new system of ethics&#x201D; to deal with our modern technological world.</p>
+      <p>Although Jonas put forth his ideas in the pre-robot era, I believe that his remarks on the impact of modern technology for our system of ethics can be applied to, and can inform, the current debate about robot rights. I have argued elsewhere [<xref ref-type="bibr" rid="B56-information-09-00073">56</xref>] that even if the introduction of information and communication technology (ICT) has not radically altered our moral condition to the point that we need an entirely new framework of ethics (in Jonas&#x2019;s sense)&#x2014;as Michelfelder [<xref ref-type="bibr" rid="B57-information-09-00073">57</xref>] has argued that it does not&#x2014;Jonas&#x2019;s insights regarding modern technology (in general) have nonetheless helped us to understand some of the novel kinds of challenges that ICT poses for our traditional ethical systems. For example, Jonas&#x2019;s framework invites us to ask whether any new &#x201C;ethical objects&#x201D; have been introduced by ICT. I also believe that his ethical framework can help us to make sense of the way that our moral condition has been significantly affected, in more recent years, by human&#x2013;robot interactions, in particular. First, however, it would be helpful to describe some of the broader aspects of Jonas&#x2019;s ethical framework, as well as the context in which he developed his system of ethics. So, I next present a very brief description of the backdrop in which Jonas advanced his views.</p>
+      <p>A student of Martin Heidegger (1889&#x2013;1976), Jonas was influenced by his teacher&#x2019;s notion of &#x201C;being-in-the-world&#x201D; (and Jonas applied/extended this concept to our modern &#x201C;technological world&#x201D;). In Heidegger&#x2019;s view, humans do not exist simply as entities isolated (or apart) from &#x201C;the world&#x201D;; rather, their very existence or being (<italic>dasein</italic>) is one that is already in the world. So the notion of humans as organisms that are somehow pitted against, or even conceived as apart from, nature would make no sense in Heidegger&#x2019;s view. Building on this notion, Jonas points out that we now exist in (i.e., have &#x201C;being-in&#x201D;) the <italic>technological-world</italic> [<xref ref-type="bibr" rid="B58-information-09-00073">58</xref>]. For Jonas, contemporary human existence can now be viewed in terms of a &#x201C;technological network&#x201D; (in which we interact in significant ways with non-human entities or &#x201C;objects&#x201D;). Moreover, &#x201C;being-in-the-technological-world&#x201D; also means that we, as humans, are now able to act in &#x201C;novel&#x201D; (and much more powerful) ways&#x2014;e.g., Jonas notes that we can now easily render the entire earth uninhabitable via nuclear technology, as well as through pollution and over consumption of natural resources (see, for instance, Jonas&#x2019;s description in [<xref ref-type="bibr" rid="B51-information-09-00073">51</xref>], (pp. 205&#x2013;207). So he believed that a &#x201C;new ethics&#x201D;&#x2014;one that is centered on what he called the &#x201C;imperative of responsibility&#x201D;&#x2014;is now required.</p>
+      <p>In <italic>The Imperative of Responsibility: In Search of an Ethics for the Technological Age</italic>, Jonas [<xref ref-type="bibr" rid="B8-information-09-00073">8</xref>] (p. 1) notes that in our traditional scheme of ethics, the &#x201C;human condition&#x201D; was viewed as something &#x201C;determined by the nature of man and the nature of things&#x201D; and thus fixed or &#x201C;given once for all&#x201D;&#x2014;a view that is implied, for example, in traditional ethical frameworks such as Kant&#x2019;s and Aristotle&#x2019;s. The view that our human (and, by extension, our moral) condition is &#x201C;readily determinable&#x201D; is, according to Jonas, no longer accurate in the era of modern technology because &#x201C;new objects of action have been added&#x201D; and these objects have &#x201C;opened up a whole new dimension of ethical relevance.&#x201D; Jonas argues that because the nature of human action has changed in fundamental ways, and because ethics is concerned with action, &#x201C;a change in ethics&#x201D; is required as well. As Jonas (p. 23) puts the matter, &#x201C;novel powers to act&#x201D; made possible by modern technology require &#x201C;novel ethical rules and perhaps even a new ethics&#x201D;.</p>
+      <p>Why does Jonas believe that the nature of human action has changed so dramatically because of modern technology? For one thing, he notes that our actions can now have a &#x201C;global reach&#x201D; (as, for example, in the case of a human actor steering a military drone to strike a target located thousands of miles away); for another, our actions can now also significantly affect &#x201C;future generations of humans&#x201D; (i.e., in ways that were not previously possible). So, Jonas believed that these changes (with respect to novel actions) made possible by modern technology have created for us a new &#x201C;moral condition&#x201D;. Jonas (p. 8) further believed that our new moral condition is one in which ethical significance can no longer be limited to the &#x201C;direct dealing of man with man&#x201D; in the here and now. For example, he suggested that our traditional conception of &#x201C;neighbor ethics&#x201D;&#x2014;involving only human&#x2013;human interactions&#x2014;is no longer adequate in the era of modern technology.</p>
+      <p>Jonas also noted that in our traditional scheme of ethics, we assumed that human beings alone were worthy of moral consideration. Now, however, we are required to extend the sphere of moral consideration to consider additional &#x201C;objects,&#x201D; including &#x201C;abstract objects&#x201D; such as future generations of human beings (noted above), as well as (the whole of) nature itself. Jonas (pp. ix&#x2013;x) also believed that the new moral condition created by the &#x201C;altered nature of human action&#x201D; has raised some important issues of responsibility for which our previous ethics &#x201C;has left us unprepared.&#x201D; In his view, our former ethical system has been &#x201C;overshadowed&#x201D;; so Jonas (p. 6) argued that a &#x201C;new dimension of responsibility&#x201D; is now required because of these new kinds of &#x201C;ethical objects&#x201D; introduced by modern technology. (Portions of this and the two preceding paragraphs draw from and expand upon some claims originally included in my [<xref ref-type="bibr" rid="B56-information-09-00073">56</xref>]).</p>
+      <p>As already suggested, Jonas believed that ethical consideration, which had traditionally been accorded to human beings alone, must now be extended to include eligible <italic>non-human</italic> entities (or objects). It is worth noting that many twentieth-century environmentalists were significantly influenced by Jonas, in putting forth their arguments for extending the domain of ethical consideration to include trees, land, and the ecosystem itself as (new) ethical objects. More recently, Floridi [<xref ref-type="bibr" rid="B59-information-09-00073">59</xref>,<xref ref-type="bibr" rid="B60-information-09-00073">60</xref>] has suggested that the domain of ethical consideration should be further expanded to include entities in addition to the (biologic) life forms in our &#x201C;ecosphere&#x201D;&#x2014;i.e., it should also include objects that reside in (what Floridi calls) the &#x201C;infosphere.&#x201D; Floridi and Sanders [<xref ref-type="bibr" rid="B38-information-09-00073">38</xref>] suggest that if we explore the infosphere, we will find several interesting analogies with the ecosphere, some of which have moral relevance. The question for our purposes, of course, is whether we can extend the domain of ethical objects to include social robots. </p>
+      <p>In applying Jonas&#x2019;s framework to questions about the moral status of social robots, it would seem that we have a <italic>direct</italic> moral duty&#x2014;or as Jonas refers to it, an &#x201C;imperative of responsibility&#x201D;&#x2014;to these robots (as moral patients). This direct duty/obligation is very different from the kind of &#x201C;indirect duty&#x201D; that would apply in the Kantian ethical framework (and as noted above, also used by Gerdes in her rationale for granting moral consideration to social robots). But why, in Jonas&#x2019;s view, do we have a direct, rather than merely an indirect, responsibility to social robots? For one thing, we noted that in Jonas&#x2019;s scheme, the moral obligations that humans have to each other are direct moral obligations to &#x201C;being-in-the-technological-world&#x201D;. In light of such moral obligations, we can ask what kind of place social robots are now beginning to have, and will likely continue to have, in our technological-world. It is apparent that social robots have already begun to play crucial roles in our (technological) world, and this trend, in all likelihood, will increase significantly in the near future. For example, social robots have already augmented/enhanced our human nature in providing us with some new &#x201C;powers to act&#x201D; (and evolving robotic technologies of the future will also likely continue to give humans additional powers to act, which were not previously possible). Arguably, social robots and their interactions with humans may be one of the most important aspects of the ever-evolving (technological) network in the technological-world [<xref ref-type="bibr" rid="B58-information-09-00073">58</xref>]. If this interpretation is correct, it would seem to follow that we have direct moral obligations towards social robots.</p>
+      <p>Jonas&#x2019;s position, building on Heidegger&#x2019;s original notion of being-in-the-world, could perhaps be summarized in terms of three chained arguments: Argument 1: <italic>Humans have direct moral obligations to each other; human existence is being-in-the-world; therefore, humans have direct moral obligations to human beings-in-the-world</italic>. Using the conclusion of this argument as a premise for the next, we move to Argument 2: <italic>Being-in-the-world is (now) being-in-the-technological-world; therefore, humans have direct moral obligations to being-in-the-technological-world</italic>. And using the conclusion from this argument as a premise, we proceed to Argument 3: <italic>Social robots represent an increasingly significant part of the technological-world; therefore, humans have direct moral obligations to social robots</italic> [<xref ref-type="bibr" rid="B58-information-09-00073">58</xref>]. (Note that this argument, which draws substantially from a more developed and comprehensive argument in [<xref ref-type="bibr" rid="B58-information-09-00073">58</xref>], is used here with Carr&#x2019;s permission).</p>
+      <p>If the above argument holds, I believe that Jonas&#x2019;s ethical framework offers us not only a novel, but also a more robust, rationale for granting moral consideration to robots than either Kant&#x2019;s or Levinas&#x2019;s ethical systems. Unlike Kant&#x2019;s framework, Jonas&#x2019;s can show why our obligations to social robots are direct (e.g., because social robots are a significant part of our technological-world to which we, as humans, already have direct moral obligations). And unlike Levinas&#x2019;s system&#x2014;even if we accept Gunkel&#x2019;s rather generous interpretation of Levinas, where &#x201C;the others&#x201D; who qualify for moral standing can include social robots as well as &#x201C;other humans&#x201D;&#x2014;Jonas&#x2019;s ethical framework explicitly includes non-human entities as &#x201C;objects&#x201D; eligible for moral consideration. (Although an anonymous reviewer has suggested that I might be underestimating the thrust of Gunkel&#x2019;s position, I still believe that Jonas&#x2019;s framework provides us with a stronger and more elegant argument for why we should grant moral consideration to social robots).</p>
+      <p>It is perhaps worth noting that in my discussion/analysis of some traditional ethical frameworks in this paper, I have not examined aspects of either utilitarianism or virtue ethics. One could, of course, make a basic utilitarian argument for treating social robots morally on the grounds that doing so could result in (overall) desirable social outcomes for humans. Alternatively, a virtue ethicist might argue that by treating robots with moral consideration, we could improve upon our own moral characters as humans (a view that is also indirectly intimated in Kant&#x2019;s theory). However, both of these views would ultimately justify our granting moral status to social robots because of how those robots either: (a) benefit society as a whole (i.e., have an instrumental value that can be determined via a kind of cost-benefit analysis), or (b) make us feel better about ourselves as persons (in which case these robots have value because they could help us further develop our own moral characters). So neither theory focuses on the entity in question&#x2014;i.e., the social robot itself&#x2014;in determining why <italic>it</italic> would qualify (or would not qualify) for being treated morally.</p>
+      <p>A virtue of Jonas&#x2019;s framework, however, is that it provides a rationale for why social robots can qualify for moral consideration independently of what those robots can do <italic>for humans</italic>. In that framework, a social robot&#x2019;s eligibility for moral consideration is tied to its <italic>coexistence with humans</italic> in the technological-world. In that world, social robots could also be viewed as &#x201C;co-active&#x201D; players of a &#x201C;human&#x2013;robot team,&#x201D; as in the sense described by de Laat [<xref ref-type="bibr" rid="B61-information-09-00073">61</xref>]). While an anonymous reviewer has pointed out that Coeckelbergh and other relationists have also discussed some aspects of our co-existence/co-activity with social robots in the technological-world, I believe that what is appreciably different in Jonas&#x2019;s framework is the emphasis it places on the ways in which social robots enhance our ability to act in that world, which, as we have noted, can also profoundly affect the future of humankind. </p>
+      <p>Although social robots could indeed contribute to human flourishing (as utilitarians might correctly point out), they do this in ways that also enhance and augment human nature (i.e., by giving humans novel powers to act in the technological-world) and not by merely serving as a means to some more desirable end for humans (which would satisfy the conditions for a utilitarian rationale). And even though treating social robots morally could help us to improve our own moral characters as humans (as virtue ethicists could correctly point out), that is not the principal reason why social robots qualify for moral consideration. So unlike Jonas&#x2019;s ethical system, neither the utilitarian nor virtue-ethics frameworks (nor those provided by Kant and Levinas) provide us with an adequate rationale for granting moral consideration to social robots.</p>
+      <p>In closing, I wish to address two potential criticisms, both of which have been intimated by anonymous reviewers who worry that my position could possibly be construed to imply: (i) Jonas&#x2019;s ethical framework is, in every respect, a more plausible account than alternative ethical theories; and (ii) any kind of entity that belongs to our technological world could, on my interpretation and application of Jonas&#x2019;s framework, conceivably qualify as an object of moral consideration. Regarding (i), I have argued only for applying Jonas&#x2019;s ethical framework in the context of the debate about robot rights. One reason that I believe that his framework provides the most promising account for analyzing key questions concerning the moral status of social robots is because it, unlike alternative ethical theories, specifically invites us to consider the &#x201C;new kinds of ethical objects&#x201D; that have been introduced by modern technology. But I am not prepared to defend Jonas&#x2019;s framework as <italic>the</italic> definitive ethical theory, which would replace all traditional ethical theories, since I also believe that deontological, utilitarian, and virtue-ethics theories work well in many other contexts. And even though there may be hidden problems in Jonas&#x2019;s framework, as in the case of every ethical theory, my focus in this paper has been solely on applying his framework to questions affecting the moral status of social robots, as opposed to subjecting that theory itself to a thorough critique.</p>
+      <p>With regard to (ii), it is possible that some readers might indeed interpret my position as being overly broad, in which case they could view it as a rationale for potentially granting moral status to many other, if not all, kinds of entities in our technological world (and possibly even to all &#x201C;information objects&#x201D; residing in the &#x201C;infosphere&#x201D;). However, I believe that my argument, in its present form, successfully limits moral consideration to one category of (artificial) entities/objects inhabiting our current technological word&#x2014;viz., <italic>social robots</italic> that can also <italic>qualify as moral patients</italic>. Of course, it is quite conceivable that other kinds of entities/objects might also eventually qualify for some kind of moral consideration, i.e., on grounds or criteria that are altogether different from what I have proposed in my Jonas&#x2013;inspired argument. But I do not believe that the argument I presented here would commit me, in any way, to a broader position that potentially extends moral status to other kinds of robots (such as sophisticated softbots, for example), or to other kinds of artificial entities/objects with whom we co-exist in our current technological world. On the contrary, I believe that I have shown how the scope of my argument is limited in the sense that it merely offers a rationale for why some social robots can qualify for moral consideration as moral patients.</p>
+    </sec>
+    <sec id="sec7-information-09-00073" sec-type="conclusions">
+      <title>7. Conclusions</title>
+      <p>The objectives of this paper were threefold, viz., to show: (1) why the current debate about whether robots deserve (or do not deserve) rights has been neither clear nor consistent with respect to five key points or sub-questions; (2) that the original question about whether robot deserve rights needs to be reframed and refined, asking instead whether social robots qualify for moral consideration as moral patients; and (3) how a novel ethical framework put forth by Jonas can be applied in defending my claim that these kinds of robots can indeed qualify as moral patients that deserve moral consideration. While I am not the first author to argue for granting moral consideration to social robots, i.e., as moral patients, I believe that this paper provides the first attempt to apply Jonas&#x2019;s ethical system in formulating a rationale for defending that position.</p>
+    </sec>
+  </body>
+  <back>
+    <ack>
+      <title>Acknowledgments</title>
+      <p>In addition to three anonymous reviewers provided by the journal, I would like to thank the following colleagues for their very helpful comments and suggestions on earlier drafts of this paper: Maria Bottis, George Bouchagiar, Lloyd Carr, Anne Gerdes, Frances Grodzinsky, and Lundy Lewis. I am especially grateful to Lloyd Carr&#x2014;a former student in Hans Jonas&#x2019;s graduate courses at The New School for Social Research (NYC) in the late 1960s/early 1970s, a time when Jonas was developing many of his views that would eventually comprise <italic>The Imperative of Responsibility: In Search of an Ethics for the Technological Age</italic>&#x2014;for his extraordinary help while I was composing <xref ref-type="sec" rid="sec6-information-09-00073">Section 6</xref> where I describe and apply Jonas&#x2019;s ethical framework. I am deeply indebted to Lloyd Carr for sharing with me his first-hand knowledge about the development of Jonas&#x2019;s ethical system, as well as for his insightful comments on several earlier versions of this paper.</p>
+    </ack>
+    <notes notes-type="COI-statement">
+      <title>Conflicts of Interest</title>
+      <p>The author declares no conflicts of interest.</p>
+    </notes>
+    <ref-list>
+      <title>References</title>
+      <ref id="B1-information-09-00073">
+        <label>1.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Decker</surname>
+              <given-names>M.</given-names>
+            </name>
+            <name>
+              <surname>Gutmann</surname>
+              <given-names>M.</given-names>
+            </name>
+          </person-group>
+          <article-title>Robo- and Information-Ethics: Some Introducing Remarks</article-title>
+          <source>Robo- and Information-Ethics: Some Fundamentals</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Decker</surname>
+              <given-names>M.</given-names>
+            </name>
+            <name>
+              <surname>Gutmann</surname>
+              <given-names>M.</given-names>
+            </name>
+          </person-group>
+          <publisher-name>LIT Verlag</publisher-name>
+          <publisher-loc>Berlin, Germany</publisher-loc>
+          <year>2012</year>
+          <fpage>3</fpage>
+          <lpage>6</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B2-information-09-00073">
+        <label>2.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Verrugio</surname>
+              <given-names>G.</given-names>
+            </name>
+            <name>
+              <surname>Abney</surname>
+              <given-names>K.</given-names>
+            </name>
+          </person-group>
+          <article-title>Roboethics: The Applied Ethics for a New Science</article-title>
+          <source>Robot Ethics: The Ethical and Social Implications of Robotics</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Lin</surname>
+              <given-names>P.</given-names>
+            </name>
+            <name>
+              <surname>Abney</surname>
+              <given-names>K.</given-names>
+            </name>
+            <name>
+              <surname>Bekey</surname>
+              <given-names>G.</given-names>
+            </name>
+          </person-group>
+          <publisher-name>MIT Press</publisher-name>
+          <publisher-loc>Cambridge, MA, USA</publisher-loc>
+          <year>2012</year>
+          <fpage>347</fpage>
+          <lpage>363</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B3-information-09-00073">
+        <label>3.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Anderson</surname>
+              <given-names>M.</given-names>
+            </name>
+            <name>
+              <surname>Anderson</surname>
+              <given-names>S.L.</given-names>
+            </name>
+          </person-group>
+          <article-title>General Introduction</article-title>
+          <source>Machine Ethics</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Anderson</surname>
+              <given-names>M.</given-names>
+            </name>
+            <name>
+              <surname>Anderson</surname>
+              <given-names>S.L.</given-names>
+            </name>
+          </person-group>
+          <publisher-name>Cambridge University Press</publisher-name>
+          <publisher-loc>Cambridge, MA, USA</publisher-loc>
+          <year>2011</year>
+          <fpage>1</fpage>
+          <lpage>4</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B4-information-09-00073">
+        <label>4.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Wallach</surname>
+              <given-names>W.</given-names>
+            </name>
+            <name>
+              <surname>Allen</surname>
+              <given-names>C.</given-names>
+            </name>
+          </person-group>
+          <source>Moral Machines: Teaching Robots Right from Wrong</source>
+          <publisher-name>Oxford University Press</publisher-name>
+          <publisher-loc>New York, NY, USA</publisher-loc>
+          <year>2009</year>
+        </element-citation>
+      </ref>
+      <ref id="B5-information-09-00073">
+        <label>5.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gunkel</surname>
+              <given-names>D.J.</given-names>
+            </name>
+          </person-group>
+          <article-title>The Other Question: Can and Should Robots Have Rights?</article-title>
+          <source>Ethics Inf. Technol.</source>
+          <year>2017</year>
+          <fpage>1</fpage>
+          <lpage>13</lpage>
+          <pub-id pub-id-type="doi">10.1007/s10676-017-9442-4</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B6-information-09-00073">
+        <label>6.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Coeckelbergh</surname>
+              <given-names>M.</given-names>
+            </name>
+          </person-group>
+          <article-title>Robot Rights? Towards a Social-Relational Justification of Moral Consideration</article-title>
+          <source>Ethics Inf. Technol.</source>
+          <year>2010</year>
+          <volume>12</volume>
+          <fpage>209</fpage>
+          <lpage>221</lpage>
+          <pub-id pub-id-type="doi">10.1007/s10676-010-9235-5</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B7-information-09-00073">
+        <label>7.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gerdes</surname>
+              <given-names>A.</given-names>
+            </name>
+          </person-group>
+          <article-title>The Issue of Moral Consideration in Robot Ethics</article-title>
+          <source>ACM SIGCAS Comput. Soc.</source>
+          <year>2015</year>
+          <volume>45</volume>
+          <fpage>274</fpage>
+          <lpage>279</lpage>
+          <pub-id pub-id-type="doi">10.1145/2874239.2874278</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B8-information-09-00073">
+        <label>8.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Jonas</surname>
+              <given-names>H.</given-names>
+            </name>
+          </person-group>
+          <source>The Imperative of Responsibility: In Search of an Ethics for the Technological Age</source>
+          <publisher-name>University of Chicago Press</publisher-name>
+          <publisher-loc>Chicago, IL, USA</publisher-loc>
+          <year>1984</year>
+        </element-citation>
+      </ref>
+      <ref id="B9-information-09-00073">
+        <label>9.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bekey</surname>
+              <given-names>G.</given-names>
+            </name>
+          </person-group>
+          <article-title>Current Trends in Robotics: Technology and Ethics</article-title>
+          <source>Robot Ethics: The Ethical and Social Implications of Robotics</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Lin</surname>
+              <given-names>P.</given-names>
+            </name>
+            <name>
+              <surname>Abney</surname>
+              <given-names>K.</given-names>
+            </name>
+            <name>
+              <surname>Bekey</surname>
+              <given-names>G.</given-names>
+            </name>
+          </person-group>
+          <publisher-name>MIT Press</publisher-name>
+          <publisher-loc>Cambridge, MA, USA</publisher-loc>
+          <year>2012</year>
+          <fpage>17</fpage>
+          <lpage>34</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B10-information-09-00073">
+        <label>10.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Capurro</surname>
+              <given-names>R.</given-names>
+            </name>
+            <name>
+              <surname>Nagenborg</surname>
+              <given-names>M.</given-names>
+            </name>
+          </person-group>
+          <article-title>Introduction</article-title>
+          <source>Ethics and Robotics</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Capurro</surname>
+              <given-names>R.</given-names>
+            </name>
+            <name>
+              <surname>Nagenborg</surname>
+              <given-names>M.</given-names>
+            </name>
+          </person-group>
+          <publisher-name>AKA Press</publisher-name>
+          <publisher-loc>Heidelberg, Germany</publisher-loc>
+          <year>2009</year>
+		  <fpage>v</fpage>
+		  <lpage>ix</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B11-information-09-00073">
+        <label>11.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Sullins</surname>
+              <given-names>J.P.</given-names>
+            </name>
+          </person-group>
+		  <article-title>When Is a Robot a Moral Agent?</article-title>
+          <source>Machine Ethics</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Anderson</surname>
+              <given-names>M.</given-names>
+            </name>
+            <name>
+              <surname>Anderson</surname>
+              <given-names>S.L.</given-names>
+            </name>
+          </person-group>
+          <publisher-name>Cambridge University Press</publisher-name>
+          <publisher-loc>Cambridge, MA, USA</publisher-loc>
+          <year>2011</year>
+          <fpage>151</fpage>
+          <lpage>161</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B12-information-09-00073">
+        <label>12.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Scheutz</surname>
+              <given-names>M.</given-names>
+            </name>
+          </person-group>
+          <article-title>The Inherent Dangers of Unidirectional Emotional Bonds between Humans and Social Robots</article-title>
+          <source>Robot Ethics: The Ethical and Social Implications of Robotics</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Lin</surname>
+              <given-names>P.</given-names>
+            </name>
+            <name>
+              <surname>Abney</surname>
+              <given-names>K.</given-names>
+            </name>
+            <name>
+              <surname>Bekey</surname>
+              <given-names>G.</given-names>
+            </name>
+          </person-group>
+          <publisher-name>MIT Press</publisher-name>
+          <publisher-loc>Cambridge, MA, USA</publisher-loc>
+          <year>2012</year>
+          <fpage>205</fpage>
+          <lpage>221</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B13-information-09-00073">
+        <label>13.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>LaGrandeur</surname>
+              <given-names>K.</given-names>
+            </name>
+          </person-group>
+          <article-title>Emotion, Artificial Intelligence, and Ethics</article-title>
+          <source>Beyond Artificial Intelligence: The Disappearing Human&#x2013;Machine Divide</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Romportl</surname>
+              <given-names>J.</given-names>
+            </name>
+            <name>
+              <surname>Zackova</surname>
+              <given-names>E.</given-names>
+            </name>
+            <name>
+              <surname>Kelemen</surname>
+              <given-names>J.</given-names>
+            </name>
+          </person-group>
+          <publisher-name>Springer</publisher-name>
+          <publisher-loc>Berlin, Germany</publisher-loc>
+          <year>2015</year>
+		  <fpage>97</fpage>
+		  <lpage>109</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B14-information-09-00073">
+        <label>14.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Darling</surname>
+              <given-names>K.</given-names>
+            </name>
+          </person-group>
+          <article-title>Extending Legal Protection to Social Robots: The Effects of Anthropomorphism, Empathy, and Violent Behavior towards Robotic Objects</article-title>
+          <source>Robot Law</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Calor</surname>
+              <given-names>R.</given-names>
+            </name>
+            <name>
+              <surname>Froomkin</surname>
+              <given-names>A.M.</given-names>
+            </name>
+            <name>
+              <surname>Keri</surname>
+              <given-names>I.</given-names>
+            </name>
+          </person-group>
+          <publisher-name>Edgar Elgar Publishing</publisher-name>
+          <publisher-loc>Cheltenham, UK</publisher-loc>
+          <year>2016</year>
+          <fpage>213</fpage>
+          <lpage>231</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B15-information-09-00073">
+        <label>15.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Breazeal</surname>
+              <given-names>C.L.</given-names>
+            </name>
+          </person-group>
+          <source>Designing Sociable Robots</source>
+          <publisher-name>MIT Press</publisher-name>
+          <publisher-loc>Cambridge, MA, USA</publisher-loc>
+          <year>2002</year>
+        </element-citation>
+      </ref>
+      <ref id="B16-information-09-00073">
+        <label>16.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Turkle</surname>
+              <given-names>S.</given-names>
+            </name>
+          </person-group>
+          <source>Alone Together: Why We Expect More from Technology and Less from Each Other</source>
+          <publisher-name>Basic Books</publisher-name>
+          <publisher-loc>New York, NY, USA</publisher-loc>
+          <year>2011</year>
+        </element-citation>
+      </ref>
+      <ref id="B17-information-09-00073">
+        <label>17.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Turkle</surname>
+              <given-names>S.</given-names>
+            </name>
+          </person-group>
+          <article-title>Authenticity in the Age of Digital Companions</article-title>
+          <source>Machine Ethics</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Anderson</surname>
+              <given-names>M.</given-names>
+            </name>
+            <name>
+              <surname>Anderson</surname>
+              <given-names>M.L.</given-names>
+            </name>
+          </person-group>
+          <publisher-name>Cambridge University Press</publisher-name>
+          <publisher-loc>Cambridge, MA, USA</publisher-loc>
+          <year>2011</year>
+          <fpage>62</fpage>
+          <lpage>78</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B18-information-09-00073">
+        <label>18.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Lin</surname>
+              <given-names>P.</given-names>
+            </name>
+          </person-group>
+          <article-title>Introduction to Robot Ethics</article-title>
+          <source>Robot Ethics: The Ethical and Social Implications of Robotics</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Lin</surname>
+              <given-names>P.</given-names>
+            </name>
+            <name>
+              <surname>Abney</surname>
+              <given-names>K.</given-names>
+            </name>
+            <name>
+              <surname>Bekey</surname>
+              <given-names>G.</given-names>
+            </name>
+          </person-group>
+          <publisher-name>MIT Press</publisher-name>
+          <publisher-loc>Cambridge, MA, USA</publisher-loc>
+          <year>2012</year>
+          <fpage>3</fpage>
+          <lpage>15</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B19-information-09-00073">
+        <label>19.</label>
+        <element-citation publication-type="web">
+          <person-group person-group-type="author">
+            <collab>Committee on Legal Affairs</collab>
+          </person-group>
+          <article-title>Draft Report with Recommendations to the Commission on Civil Law Rules on Robotics. European Parliament</article-title>
+          <year>2016</year>
+          <comment>Available online: <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://www.europarl.europa.eu/sides/getDoc.do?type=COMPARL&amp;reference=PE-582.443&amp;format=PDF&amp;language=EN&amp;secondRef=01" ext-link-type="uri">http://www.europarl.europa.eu/sides/getDoc.do?type=COMPARL&amp;reference=PE-582.443&amp;format=PDF&amp;language=EN&amp;secondRef=01</ext-link></comment>
+          <date-in-citation content-type="access-date" iso-8601-date="2018-01-18">(accessed on 18 January 2018)</date-in-citation>
+        </element-citation>
+      </ref>
+      <ref id="B20-information-09-00073">
+        <label>20.</label>
+        <element-citation publication-type="web">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Wootson</surname>
+              <given-names>C.R.</given-names>
+            </name>
+          </person-group>
+          <article-title>Saudi Arabia, Which Denies Women Equal Rights, Makes a Robot a Citizen</article-title>
+          <source>The Washington Post</source>
+          <day>29</day>
+          <month>October</month>
+          <year>2017</year>
+          <comment>Available online: <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.washingtonpost.com/news/innovations/wp/2017/10/29/saudi-arabia-which-denies-women-equal-rights-makes-a-robot-a-citizen/?utm_term=.e59cdc8cd981" ext-link-type="uri">https://www.washingtonpost.com/news/innovations/wp/2017/10/29/saudi-arabia-which-denies-women-equal-rights-makes-a-robot-a-citizen/?utm_term=.e59cdc8cd981</ext-link></comment>
+          <date-in-citation content-type="access-date" iso-8601-date="2018-02-26">(accessed on 26 February 2018)</date-in-citation>
+        </element-citation>
+      </ref>
+      <ref id="B21-information-09-00073">
+        <label>21.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Laukyte</surname>
+              <given-names>M.</given-names>
+            </name>
+          </person-group>
+          <article-title>Artificial Agents Among Us: Should We Recognize Them as Agents Proper?</article-title>
+          <source>Ethics Inf. Technol.</source>
+          <year>2017</year>
+          <volume>19</volume>
+          <fpage>1</fpage>
+          <lpage>17</lpage>
+          <pub-id pub-id-type="doi">10.1007/s10676-016-9411-3</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B22-information-09-00073">
+        <label>22.</label>
+        <element-citation publication-type="web">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Darling</surname>
+              <given-names>K.</given-names>
+            </name>
+          </person-group>
+          <article-title>Extending Legal Protection to Social Robots</article-title>
+          <year>2012</year>
+          <comment>Available online: <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://spectrum.ieee.org/automaton/robotics/artificial-intelligence/extending-legal-protection-to-social-robots" ext-link-type="uri">https://spectrum.ieee.org/automaton/robotics/artificial-intelligence/extending-legal-protection-to-social-robots</ext-link></comment>
+          <date-in-citation content-type="access-date" iso-8601-date="2017-11-27">(accessed on 27 November 2017)</date-in-citation>
+        </element-citation>
+      </ref>
+      <ref id="B23-information-09-00073">
+        <label>23.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Coeckelbergh</surname>
+              <given-names>M.</given-names>
+            </name>
+          </person-group>
+          <article-title>Moral Appearances: Emotions, Robots, and Human Morality</article-title>
+          <source>Ethics Inf. Technol.</source>
+          <year>2010</year>
+          <volume>12</volume>
+          <fpage>235</fpage>
+          <lpage>241</lpage>
+          <pub-id pub-id-type="doi">10.1007/s10676-010-9221-y</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B24-information-09-00073">
+        <label>24.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Coeckelbergh</surname>
+              <given-names>M.</given-names>
+            </name>
+          </person-group>
+          <source>Growing Moral Relations: Critique of Moral Status Ascription</source>
+          <publisher-name>Palgrave Macmillan</publisher-name>
+          <publisher-loc>New York, NY, USA</publisher-loc>
+          <year>2012</year>
+        </element-citation>
+      </ref>
+      <ref id="B25-information-09-00073">
+        <label>25.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Coeckelbergh</surname>
+              <given-names>M.</given-names>
+            </name>
+          </person-group>
+          <article-title>Virtual Moral Agency, Virtual Moral Responsibility: On the Moral Significance of Appearance, Perception, and Performance of Artificial Agents</article-title>
+          <source>AI Soc.</source>
+          <year>2009</year>
+          <volume>24</volume>
+          <fpage>181</fpage>
+          <lpage>189</lpage>
+          <pub-id pub-id-type="doi">10.1007/s00146-009-0208-3</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B26-information-09-00073">
+        <label>26.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Levy</surname>
+              <given-names>D.</given-names>
+            </name>
+          </person-group>
+          <article-title>The Ethical Treatment of Artificially Conscious Robots</article-title>
+          <source>Int. J. Soc. Robot.</source>
+          <year>2009</year>
+          <volume>1</volume>
+          <fpage>209</fpage>
+          <lpage>216</lpage>
+          <pub-id pub-id-type="doi">10.1007/s12369-009-0022-6</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B27-information-09-00073">
+        <label>27.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Sparrow</surname>
+              <given-names>R.</given-names>
+            </name>
+          </person-group>
+          <article-title>Can Machines Be People? Reflections on the Turing Triage Test</article-title>
+          <source>Machine Ethics</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Anderson</surname>
+              <given-names>M.</given-names>
+            </name>
+            <name>
+              <surname>Anderson</surname>
+              <given-names>S.L.</given-names>
+            </name>
+          </person-group>
+          <publisher-name>Cambridge University Press</publisher-name>
+          <publisher-loc>Cambridge, MA, USA</publisher-loc>
+          <year>2011</year>
+          <fpage>301</fpage>
+          <lpage>315</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B28-information-09-00073">
+        <label>28.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Coeckelbergh</surname>
+              <given-names>M.</given-names>
+            </name>
+          </person-group>
+          <article-title>Can We Trust Robots?</article-title>
+          <source>Ethics Inf. Technol.</source>
+          <year>2012</year>
+          <volume>14</volume>
+          <fpage>53</fpage>
+          <lpage>60</lpage>
+          <pub-id pub-id-type="doi">10.1007/s10676-011-9279-1</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B29-information-09-00073">
+        <label>29.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Buechner</surname>
+              <given-names>J.</given-names>
+            </name>
+            <name>
+              <surname>Tavani</surname>
+              <given-names>H.T.</given-names>
+            </name>
+          </person-group>
+          <article-title>Trust and Multi-Agent Systems: Applying the &#x2018;Diffuse, Default Model&#x2019; of Trust to Experiments Involving Artificial Agents</article-title>
+          <source>Ethics Inf. Technol.</source>
+          <year>2011</year>
+          <volume>13</volume>
+          <fpage>39</fpage>
+          <lpage>51</lpage>
+          <pub-id pub-id-type="doi">10.1007/s10676-010-9249-z</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B30-information-09-00073">
+        <label>30.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Tavani</surname>
+              <given-names>H.T.</given-names>
+            </name>
+          </person-group>
+          <article-title>Levels of Trust in the Context of Machine Ethics</article-title>
+          <source>Philos. Technol.</source>
+          <year>2015</year>
+          <volume>28</volume>
+          <fpage>75</fpage>
+          <lpage>90</lpage>
+          <pub-id pub-id-type="doi">10.1007/s13347-014-0165-8</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B31-information-09-00073">
+        <label>31.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Taddeo</surname>
+              <given-names>M.</given-names>
+            </name>
+          </person-group>
+          <article-title>Defining Trust and E-Trust: Old Theories and New Problems</article-title>
+          <source>Int. J. Technol. Hum. Interact.</source>
+          <year>2009</year>
+          <volume>5</volume>
+          <fpage>23</fpage>
+          <lpage>35</lpage>
+          <pub-id pub-id-type="doi">10.4018/jthi.2009040102</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B32-information-09-00073">
+        <label>32.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Taddeo</surname>
+              <given-names>M.</given-names>
+            </name>
+          </person-group>
+          <article-title>Modeling Trust in Artificial Agents: A First Step in the Analysis of E-Trust</article-title>
+          <source>Minds Mach.</source>
+          <year>2010</year>
+          <volume>20</volume>
+          <fpage>243</fpage>
+          <lpage>257</lpage>
+          <pub-id pub-id-type="doi">10.1007/s11023-010-9201-3</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B33-information-09-00073">
+        <label>33.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Grodzinsky</surname>
+              <given-names>F.S.</given-names>
+            </name>
+            <name>
+              <surname>Miller</surname>
+              <given-names>K.W.</given-names>
+            </name>
+            <name>
+              <surname>Wolf</surname>
+              <given-names>M.J.</given-names>
+            </name>
+          </person-group>
+          <article-title>Developing Artificial Agents Worthy of Trust: Would You Buy a Used Car from this Artificial Agent?</article-title>
+          <source>Ethics Inf. Technol.</source>
+          <year>2011</year>
+          <volume>13</volume>
+          <fpage>17</fpage>
+          <lpage>27</lpage>
+          <pub-id pub-id-type="doi">10.1007/s10676-010-9255-1</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B34-information-09-00073">
+        <label>34.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Grodzinsky</surname>
+              <given-names>F.S.</given-names>
+            </name>
+            <name>
+              <surname>Miller</surname>
+              <given-names>K.W.</given-names>
+            </name>
+            <name>
+              <surname>Wolf</surname>
+              <given-names>M.J.</given-names>
+            </name>
+          </person-group>
+          <article-title>Trust in Artificial Agents</article-title>
+          <source>Routledge Handbook on Trust and Philosophy</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Simon</surname>
+              <given-names>J.</given-names>
+            </name>
+          </person-group>
+          <publisher-name>Routledge</publisher-name>
+          <publisher-loc>New York, NY, USA</publisher-loc>
+          <year>2018</year>
+		  <comment>In press</comment>
+        </element-citation>
+      </ref>
+      <ref id="B35-information-09-00073">
+        <label>35.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Dennett</surname>
+              <given-names>D.</given-names>
+            </name>
+          </person-group>
+          <source>The Intentional Stance</source>
+          <publisher-name>MIT Press</publisher-name>
+          <publisher-loc>Cambridge, MA, USA</publisher-loc>
+          <year>1987</year>
+        </element-citation>
+      </ref>
+      <ref id="B36-information-09-00073">
+        <label>36.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Tavani</surname>
+              <given-names>H.T.</given-names>
+            </name>
+          </person-group>
+          <article-title>Ethical Aspects of Autonomous Systems</article-title>
+          <source>Robo- and Information-Ethics: Some Fundamentals</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Decker</surname>
+              <given-names>M.</given-names>
+            </name>
+            <name>
+              <surname>Gutmann</surname>
+              <given-names>M.</given-names>
+            </name>
+          </person-group>
+          <publisher-name>LIT Verlag</publisher-name>
+          <publisher-loc>Berlin, Germany</publisher-loc>
+          <year>2012</year>
+          <fpage>89</fpage>
+          <lpage>122</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B37-information-09-00073">
+        <label>37.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Floridi</surname>
+              <given-names>L.</given-names>
+            </name>
+            <name>
+              <surname>Sanders</surname>
+              <given-names>J.W.</given-names>
+            </name>
+          </person-group>
+          <article-title>Artificial Evil and the Foundation of Computer Ethics</article-title>
+          <source>Ethics Inf. Technol.</source>
+          <year>2001</year>
+          <volume>3</volume>
+          <fpage>55</fpage>
+          <lpage>66</lpage>
+          <pub-id pub-id-type="doi">10.1023/A:1011440125207</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B38-information-09-00073">
+        <label>38.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Floridi</surname>
+              <given-names>L.</given-names>
+            </name>
+            <name>
+              <surname>Sanders</surname>
+              <given-names>J.W.</given-names>
+            </name>
+          </person-group>
+          <article-title>On the Morality of Artificial Agents</article-title>
+          <source>Minds Mach.</source>
+          <year>2004</year>
+          <volume>14</volume>
+          <fpage>349</fpage>
+          <lpage>379</lpage>
+          <pub-id pub-id-type="doi">10.1023/B:MIND.0000035461.63578.9d</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B39-information-09-00073">
+        <label>39.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Floridi</surname>
+              <given-names>L.</given-names>
+            </name>
+          </person-group>
+          <article-title>Foundations of Information Ethics</article-title>
+          <source>The Handbook of Information and Computer Ethics</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Himma</surname>
+              <given-names>K.E.</given-names>
+            </name>
+            <name>
+              <surname>Tavani</surname>
+              <given-names>H.T.</given-names>
+            </name>
+          </person-group>
+          <publisher-name>John Wiley and Sons</publisher-name>
+          <publisher-loc>Hoboken, NJ, USA</publisher-loc>
+          <year>2008</year>
+          <fpage>3</fpage>
+          <lpage>23</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B40-information-09-00073">
+        <label>40.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Tavani</surname>
+              <given-names>H.T.</given-names>
+            </name>
+            <name>
+              <surname>Buechner</surname>
+              <given-names>J.</given-names>
+            </name>
+          </person-group>
+          <article-title>Autonomy and Trust in the Context of Artificial Agents</article-title>
+          <source>Evolutionary Robotics, Organic Computing and Adaptive Ambience</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Decker</surname>
+              <given-names>M.</given-names>
+            </name>
+            <name>
+              <surname>Gutmann</surname>
+              <given-names>M.</given-names>
+            </name>
+            <name>
+              <surname>Knifka</surname>
+              <given-names>J.</given-names>
+            </name>
+          </person-group>
+          <publisher-name>LIT Verlag</publisher-name>
+          <publisher-loc>Berlin, Germany</publisher-loc>
+          <year>2015</year>
+          <fpage>39</fpage>
+          <lpage>62</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B41-information-09-00073">
+        <label>41.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Floridi</surname>
+              <given-names>L.</given-names>
+            </name>
+          </person-group>
+          <source>The Ethics of Information</source>
+          <publisher-name>Oxford University Press</publisher-name>
+          <publisher-loc>Oxford, UK</publisher-loc>
+          <year>2013</year>
+        </element-citation>
+      </ref>
+      <ref id="B42-information-09-00073">
+        <label>42.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Johnson</surname>
+              <given-names>D.G.</given-names>
+            </name>
+          </person-group>
+          <article-title>Computer Systems: Moral Entities but Not Moral Agents</article-title>
+          <source>Ethics Inf. Technol.</source>
+          <year>2006</year>
+          <volume>8</volume>
+          <fpage>195</fpage>
+          <lpage>204</lpage>
+          <pub-id pub-id-type="doi">10.1007/s10676-006-9111-5</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B43-information-09-00073">
+        <label>43.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Himma</surname>
+              <given-names>K.E.</given-names>
+            </name>
+          </person-group>
+          <article-title>Artificial Agency, Consciousness, and the Criteria for Moral Agency: What Properties Must an Artificial Agent Have to be a Moral Agent?</article-title>
+          <source>Ethics Inf. Technol.</source>
+          <year>2009</year>
+          <volume>11</volume>
+          <fpage>19</fpage>
+          <lpage>29</lpage>
+          <pub-id pub-id-type="doi">10.1007/s10676-008-9167-5</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B44-information-09-00073">
+        <label>44.</label>
+        <element-citation publication-type="web">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Behdadi</surname>
+              <given-names>D.</given-names>
+            </name>
+            <name>
+              <surname>Munthe</surname>
+              <given-names>C.</given-names>
+            </name>
+          </person-group>
+          <article-title>Artificial Moral Agency: Philosophical Assumptions, Methodological Challenges, and Normative Solutions. (Manuscript under Consideration for Publication)</article-title>
+          <year>2018</year>
+          <comment>Available online: <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.researchgate.net/publication/311196481_Artificial_Moral_Agency_Philosophical_Assumptions_Methodological_Challenges_and_Normative_Solutions" ext-link-type="uri">https://www.researchgate.net/publication/311196481_Artificial_Moral_Agency_Philosophical_Assumptions_Methodological_Challenges_and_Normative_Solutions</ext-link></comment>
+          <date-in-citation content-type="access-date" iso-8601-date="2018-02-15">(accessed on 15 February 2018)</date-in-citation>
+        </element-citation>
+      </ref>
+      <ref id="B45-information-09-00073">
+        <label>45.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Tavani</surname>
+              <given-names>H.T.</given-names>
+            </name>
+          </person-group>
+          <article-title>Can We Develop Artificial Agents Capable of Making Good Moral Decisions?</article-title>
+          <source>Minds Mach.</source>
+          <year>2011</year>
+          <volume>21</volume>
+          <fpage>465</fpage>
+          <lpage>474</lpage>
+          <pub-id pub-id-type="doi">10.1007/s11023-011-9249-8</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B46-information-09-00073">
+        <label>46.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Moor</surname>
+              <given-names>J.H.</given-names>
+            </name>
+          </person-group>
+          <article-title>The Nature, Difficulty, and Importance of Machine Ethics</article-title>
+          <source>IEEE Intell. Syst.</source>
+          <year>2006</year>
+          <volume>21</volume>
+          <fpage>18</fpage>
+          <lpage>21</lpage>
+          <pub-id pub-id-type="doi">10.1109/MIS.2006.80</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B47-information-09-00073">
+        <label>47.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Moor</surname>
+              <given-names>J.H.</given-names>
+            </name>
+          </person-group>
+          <article-title>Four Kinds of Ethical Robots</article-title>
+          <source>Philos. Now</source>
+          <year>2009</year>
+          <volume>72</volume>
+          <fpage>12</fpage>
+          <lpage>14</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B48-information-09-00073">
+        <label>48.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Hogan</surname>
+              <given-names>K.</given-names>
+            </name>
+          </person-group>
+          <article-title>Is the Machine Question the Same as the Animal Question?</article-title>
+          <source>Ethics Inf. Technol.</source>
+          <year>2017</year>
+          <volume>19</volume>
+          <fpage>29</fpage>
+          <lpage>38</lpage>
+          <pub-id pub-id-type="doi">10.1007/s10676-017-9418-4</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B49-information-09-00073">
+        <label>49.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Tavani</surname>
+              <given-names>H.T.</given-names>
+            </name>
+          </person-group>
+          <source>Ethics and Technology: Controversies, Questions, and Strategies for Ethical Computing</source>
+          <edition>5th ed.</edition>
+          <publisher-name>John Wiley and Sons</publisher-name>
+          <publisher-loc>Hoboken, NJ, USA</publisher-loc>
+          <year>2016</year>
+        </element-citation>
+      </ref>
+      <ref id="B50-information-09-00073">
+        <label>50.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Power</surname>
+              <given-names>T.</given-names>
+            </name>
+          </person-group>
+          <article-title>On the Moral Agency of Computers</article-title>
+          <source>Topoi</source>
+          <year>2003</year>
+          <volume>32</volume>
+          <fpage>227</fpage>
+          <lpage>236</lpage>
+          <pub-id pub-id-type="doi">10.1007/s11245-012-9149-4</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B51-information-09-00073">
+        <label>51.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Jonas</surname>
+              <given-names>H.</given-names>
+            </name>
+          </person-group>
+          <source>Memoirs</source>
+          <publisher-name>Brandeis University Press</publisher-name>
+          <publisher-loc>Waltham, MA, USA</publisher-loc>
+          <year>2008</year>
+        </element-citation>
+      </ref>
+      <ref id="B52-information-09-00073">
+        <label>52.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Kant</surname>
+              <given-names>I.</given-names>
+            </name>
+          </person-group>
+          <source>The Metaphysics of Morals</source>
+          <publisher-name>Cambridge University Press</publisher-name>
+          <publisher-loc>Cambridge, UK</publisher-loc>
+          <year>1991</year>
+        </element-citation>
+      </ref>
+      <ref id="B53-information-09-00073">
+        <label>53.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gunkel</surname>
+              <given-names>D.J.</given-names>
+            </name>
+          </person-group>
+          <source>Thinking Otherwise</source>
+          <publisher-name>Purdue University Press</publisher-name>
+          <publisher-loc>West Lafayette, IN, USA</publisher-loc>
+          <year>2007</year>
+        </element-citation>
+      </ref>
+      <ref id="B54-information-09-00073">
+        <label>54.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Levinas</surname>
+              <given-names>E.</given-names>
+            </name>
+          </person-group>
+          <source>Totality and Infinity: An Essay on Exteriority</source>
+          <person-group person-group-type="translator">
+            <name>
+              <surname>Lingis</surname>
+              <given-names>A.</given-names>
+            </name>
+          </person-group>
+          <publisher-name>Duquesne University Press</publisher-name>
+          <publisher-loc>Pittsburgh, PA, USA</publisher-loc>
+          <year>1969</year>
+        </element-citation>
+      </ref>
+      <ref id="B55-information-09-00073">
+        <label>55.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gunkel</surname>
+              <given-names>D.J.</given-names>
+            </name>
+          </person-group>
+          <source>The Machine Question&#x2014;Critical Perspectives on AI, Robots, and Ethics</source>
+          <publisher-name>MIT Press</publisher-name>
+          <publisher-loc>Cambridge, MA, USA</publisher-loc>
+          <year>2012</year>
+        </element-citation>
+      </ref>
+      <ref id="B56-information-09-00073">
+        <label>56.</label>
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Tavani</surname>
+              <given-names>H.T.</given-names>
+            </name>
+          </person-group>
+		  <article-title>The Impact of the Internet on Our Moral Condition: Do We Need a New Framework of Ethics?</article-title>
+          <source>The Impact of the Internet on Our Moral Lives</source>
+          <person-group person-group-type="editor">
+            <name>
+              <surname>Cavalier</surname>
+              <given-names>R.</given-names>
+            </name>
+          </person-group>
+          <publisher-name>State University of New York Press</publisher-name>
+          <publisher-loc>Albany, NY, USA</publisher-loc>
+          <year>2005</year>
+          <fpage>215</fpage>
+          <lpage>237</lpage>
+        </element-citation>
+      </ref>
+      <ref id="B57-information-09-00073">
+        <label>57.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Michelfelder</surname>
+              <given-names>D.</given-names>
+            </name>
+          </person-group>
+          <article-title>Our Moral Condition in Cyberspace</article-title>
+          <source>Ethics Inf. Technol.</source>
+          <year>2000</year>
+          <volume>2</volume>
+          <fpage>147</fpage>
+          <lpage>152</lpage>
+          <pub-id pub-id-type="doi">10.1023/A:1010049320893</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B58-information-09-00073">
+        <label>58.</label>
+        <element-citation publication-type="web">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Carr</surname>
+              <given-names>L.</given-names>
+            </name>
+          </person-group>
+          <article-title>On What Grounds Might We Have Moral Obligations to Robots?</article-title>
+          <year>2018</year>
+          <comment>Available online: <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www2.rivier.edu/faculty/lcarr/OUR%20MORAL%20OBLIGATION%20TO%20ROBOTS.pdf" ext-link-type="uri">https://www2.rivier.edu/faculty/lcarr/OUR%20MORAL%20OBLIGATION%20TO%20ROBOTS.pdf</ext-link></comment>
+          <date-in-citation content-type="access-date" iso-8601-date="2018-03-26">(accessed on 26 March 2018)</date-in-citation>
+        </element-citation>
+      </ref>
+      <ref id="B59-information-09-00073">
+        <label>59.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Floridi</surname>
+              <given-names>L.</given-names>
+            </name>
+          </person-group>
+          <article-title>Information Ethics: On the Philosophical Foundation of Computer Ethics</article-title>
+          <source>Ethics Inf. Technol.</source>
+          <year>1999</year>
+          <volume>1</volume>
+          <fpage>37</fpage>
+          <lpage>56</lpage>
+          <pub-id pub-id-type="doi">10.1023/A:1010018611096</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B60-information-09-00073">
+        <label>60.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Floridi</surname>
+              <given-names>L.</given-names>
+            </name>
+          </person-group>
+          <article-title>On the Intrinsic Value of Information Objects in the Infosphere</article-title>
+          <source>Ethics Inf. Technol.</source>
+          <year>2002</year>
+          <volume>4</volume>
+          <fpage>287</fpage>
+          <lpage>304</lpage>
+          <pub-id pub-id-type="doi">10.1023/A:1021342422699</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="B61-information-09-00073">
+        <label>61.</label>
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>De Laat</surname>
+              <given-names>P.B.</given-names>
+            </name>
+          </person-group>
+          <article-title>Trusting the (Ro)botic Other: By Assumption?</article-title>
+          <source>ACM SIGCAS Comput. Soc.</source>
+          <year>2016</year>
+          <volume>45</volume>
+          <fpage>255</fpage>
+          <lpage>260</lpage>
+          <pub-id pub-id-type="doi">10.1145/2874239.2874275</pub-id>
+        </element-citation>
+      </ref>
+    </ref-list>
+  </back>
+</article>

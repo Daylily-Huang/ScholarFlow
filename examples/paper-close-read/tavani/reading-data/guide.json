@@ -1,0 +1,410 @@
+{
+  "reading_profile": {
+    "article_type": [
+      "conceptual",
+      "normative"
+    ],
+    "reader": "初学研究者",
+    "purpose": "理解概念区分与规范论证，识别推论需要理由的地方"
+  },
+  "scope": "Tavani 2018 Information 9(4),73；正式出版商JATS与16页PDF，覆盖摘要、正文与书目。政策例子均按2018年原文历史语境阅读，不作现行法律说明。教学案例与作者观点在讲解中区分；论证图呈现作者推理，不将规范结论当实验事实。",
+  "story": {
+    "overview": {
+      "title": "机器人不会为对错负责，就一定不值得关照吗？",
+      "lead": "作者把“机器人有没有权利”改问为“某些社交机器人是否值得被道德对待”，并提出一条新的论证理由。",
+      "takeaway": "不会为对错负责，不自动排除被道德对待；作者以共同技术世界中的责任，为某些社交机器人的关照地位辩护。",
+      "refs": [
+        "b-806f56a0ee37b597-1",
+        "b-512702d00b73bc90-1",
+        "b-fb11f47a108c9030-1",
+        "b-8734efa23be8754e-1",
+        "b-c8def0d37a793b25-1",
+        "b-00a1622731a1ecdb-1",
+        "b-73755ac657e86eca-1"
+      ],
+      "format": "research-map",
+      "research_map": [
+        {
+          "step": "background",
+          "text": "能陪伴、交流的实体机器人进入人的社会关系，随之出现一个伦理争论：我们应当怎样对待它们？",
+          "refs": [
+            "b-806f56a0ee37b597-1"
+          ]
+        },
+        {
+          "step": "gap",
+          "text": "“权利”混合了很多问题；按机器内部属性或人机关系判断资格，也各有难题。会不会负道德责任，又常与是否值得关照混在一起。",
+          "refs": [
+            "b-806f56a0ee37b597-1",
+            "b-512702d00b73bc90-1"
+          ]
+        },
+        {
+          "step": "question",
+          "text": "如果机器人不能像人一样判断对错、承担责任，它是否仍可成为应被道德对待的对象？什么理由能支持这种地位？",
+          "refs": [
+            "b-fb11f47a108c9030-1"
+          ]
+        },
+        {
+          "step": "method",
+          "text": "先限定为某些实体社交机器人，再区分“能负责的行动者”与“接受道德行动的受体”；借Jonas的技术时代责任伦理，展开前提到结论的论证。",
+          "refs": [
+            "b-806f56a0ee37b597-1",
+            "b-fb11f47a108c9030-1",
+            "b-8734efa23be8754e-1"
+          ]
+        },
+        {
+          "step": "findings",
+          "text": "论证将两个资格拆开，并提出：社交机器人参与、增强人的共同技术世界，可为将其视作道德受体、承担直接责任提供理由。",
+          "refs": [
+            "b-c8def0d37a793b25-1",
+            "b-8734efa23be8754e-1"
+          ],
+          "title": "论证所得"
+        },
+        {
+          "step": "conclusion",
+          "text": "作者主张，某些社交机器人可以值得直接的道德关照，不必先解决全部机器人权利问题。它是一项有待讨论的规范论证，范围限于所界定的对象。",
+          "refs": [
+            "b-00a1622731a1ecdb-1",
+            "b-73755ac657e86eca-1"
+          ]
+        }
+      ]
+    },
+    "walkthrough": [
+      {
+        "title": "争论开始前，双方在说同一种对象吗",
+        "bridge": "“机器人”和“权利”都不是没有歧义的词",
+        "paragraphs": [
+          "作者把对象暂限为具身体、以社会方式和人互动的机器人。服务机器人未必社交，软件机器人也被留在本篇之外。",
+          "他又把广泛的权利问题改成是否应有某种道德关照。这样可以先问对待方式是否值得认真考虑，不必同时解决公民身份、全部法律后果和权利起源。文中Sophia等例子是2018年的讨论材料，不能直接当成今天法律事实。"
+        ],
+        "connection": "对象与问题缩小后，才可以比较哪些理由能支持这种地位。",
+        "refs": [
+          "b-747e597031c55025-1",
+          "b-bf547f4627c3d526-1",
+          "b-d2e2f7b091f8659d-1",
+          "b-5a23c3ed1e4e9d52-1",
+          "b-ca3451104d149ea5-1",
+          "b-512702d00b73bc90-1",
+          "b-e0659dd8a3d152db-1"
+        ],
+        "motions": [],
+        "concepts": [
+          "concept-consideration"
+        ]
+      },
+      {
+        "title": "往机器内部找，还是从人机关系找",
+        "bridge": "两条常见资格路径各自遗漏什么",
+        "paragraphs": [
+          "属性论要求意识、感受能力等条件，困难是先选哪项、再怎样证明真的具有；把同样门槛用到昏迷等人类处境，也会产生争议。",
+          "关系论改看人如何与机器人互动，但作者质疑所有重要关系是否依外观，也担心把“仿佛有感受”直接当成“确有感受”。批评属性论并不会自动证明关系论，所以文章继续寻找其他理由。"
+        ],
+        "connection": "接下来作者转而问：为什么必须先证明机器能负道德责任，才能讨论如何对它？",
+        "refs": [
+          "b-7a35dc901ed7a204-1",
+          "b-87c92d29c74729c7-1",
+          "b-35aae1a45571d3b3-1",
+          "b-7e70500dc8886b7d-1",
+          "b-5921906bb80e7547-1",
+          "b-f1e7d2c2a7df3c49-1"
+        ],
+        "motions": [],
+        "concepts": []
+      },
+      {
+        "title": "会做事、会负责、值得关照，是三件不同的事",
+        "bridge": "不能承担责任，是否必然被排除在关照之外",
+        "paragraphs": [
+          "恒温器会执行动作，自适应机器可自行调整，但这些能力是否等于道德行动者地位仍有争议。作者把这场争论与另一个问题分开：行动的接受方能否有道德地位。",
+          "下面以幼儿作为教学对照，帮助区分责任与关照；原文也用动物与电影人物David探索这一点。单向义务说明关照不必以互惠为前提，但机器是否适格仍需后面的正面理由。"
+        ],
+        "connection": "因此“受体”打开了论证空间，还没有替作者完成证明。",
+        "refs": [
+          "b-ad039caa74583e99-1",
+          "b-61321c305630c8a3-1",
+          "b-fb11f47a108c9030-1",
+          "b-259beb3cbbddd83d-1",
+          "b-439bf8d545312b2d-1",
+          "b-f0116f90fcc31ddb-1"
+        ],
+        "motions": [
+          {
+            "id": "motion-patient"
+          }
+        ],
+        "concepts": [
+          "concept-patient"
+        ]
+      },
+      {
+        "title": "为什么借Jonas：技术改变了责任面向",
+        "bridge": "解除行动者门槛之后，依据从哪里来",
+        "paragraphs": [
+          "康德式间接义务可以因人的品格而要求善待非人对象；列维纳斯路径则借回应他者，需解释怎样超出人类范围。作者希望找到更直接指向机器人自身的理由。",
+          "Jonas注意技术赋予行动全球、代际影响，因此伦理不能只围绕眼前人与人。作者借“新行动、新责任对象”的思路，把讨论带到共同技术世界。这里是对旧理论的当下应用，不是Jonas已经讨论过今天的社交机器人。"
+        ],
+        "connection": "真正关键还在下一步：扩大责任范围，怎样具体推出对机器人的义务？",
+        "refs": [
+          "b-6034b9ed94b39db6-1",
+          "b-6eed473dc051af5d-1",
+          "b-600ae58691126a37-1",
+          "b-de042f6c7112de0c-1",
+          "b-f5375bc4770e1df7-1",
+          "b-ecc741a73302509f-1",
+          "b-3cd2ff042d507e5f-1"
+        ],
+        "motions": [],
+        "concepts": []
+      },
+      {
+        "title": "把三段推理摊开，找出最需理由的一步",
+        "bridge": "一句“所以应该”可能跨过了对象范围变化",
+        "paragraphs": [
+          "作者先从人彼此的义务与在世存在出发，再将背景转为技术世界，最后依据社交机器人在其中日益重要，推出对它们的直接义务。下图逐步亮起这三个环节。",
+          "注意第一步说的是世界中的人，后来变成技术世界中的存在；再纳入机器人，范围又扩展了。你可以认同技术很重要，却仍要求解释为何重要性产生直接义务。抓住这一步，讨论就不再停在笼统赞成或反对机器人权利。"
+        ],
+        "connection": "这也引出作者最后必须回应的反例：为什么不是所有技术对象都一起进来？",
+        "refs": [
+          "b-c8def0d37a793b25-1",
+          "b-8734efa23be8754e-1",
+          "b-caf49a3f4b1adfaf-1"
+        ],
+        "motions": [
+          {
+            "id": "motion-jonas"
+          }
+        ],
+        "concepts": []
+      },
+      {
+        "title": "结论有没有比理由走得更远",
+        "bridge": "范围和竞争理由决定论证的强弱",
+        "paragraphs": [
+          "作者回应两种质疑：他没有证明Jonas在所有情境都优于其他理论；也不承诺所有软件、信息对象和机器都获道德地位。他限定在某些可作受体的社交机器人。",
+          "读者可以继续检验限定是否真正来自前提，以及强调增强人的行动能力是否仍依赖对人的用途。把这些具体疑问带去读Gunkel、Coeckelbergh和Jonas，比只问“你赞不赞成机器人权利”更能推进讨论。"
+        ],
+        "connection": "完整主线是澄清问题、区分地位、提出理由、检验推论与范围，而不是把哲学文章压成一个赞成结论。",
+        "refs": [
+          "b-554980b1e4a125e5-1",
+          "b-4c746bdd6c3b700f-1",
+          "b-868f87607172d2ed-1",
+          "b-00a1622731a1ecdb-1",
+          "b-73755ac657e86eca-1",
+          "b-41f19e23652a64ae-1"
+        ],
+        "motions": [],
+        "concepts": []
+      }
+    ]
+  },
+  "concepts": [
+    {
+      "id": "concept-consideration",
+      "term": "道德关照 / 具体权利",
+      "meaning": "道德关照指对一个对象的对待具有值得认真考虑的道德意义；本文将其与具体授予权利区分。",
+      "distinction": "主张应适当对待，并不自动承诺某项公民或法律权利。",
+      "example": "教学例子：讨论不应随意虐待陪伴机器人，并不等于主张给它投票权。",
+      "refs": [
+        "b-512702d00b73bc90-1",
+        "b-e0659dd8a3d152db-1"
+      ],
+      "anchor": "b-512702d00b73bc90-1"
+    },
+    {
+      "id": "concept-patient",
+      "term": "moral agent / moral patient：行动者 / 受体",
+      "meaning": "前者涉及道德行动和责任；后者涉及接受道德对待的地位。",
+      "distinction": "是否可以责备，与我们是否有对待它的义务，不能直接互推。",
+      "example": "原文借幼儿和动物说明某些义务不要求接受方也承担同样责任；机器人适用性仍待辩护。",
+      "refs": [
+        "b-fb11f47a108c9030-1",
+        "b-259beb3cbbddd83d-1",
+        "b-439bf8d545312b2d-1"
+      ],
+      "anchor": "b-fb11f47a108c9030-1"
+    }
+  ],
+  "mechanisms": [
+    {
+      "id": "motion-patient",
+      "scene": "argument_map",
+      "title": "把负责与被关照分开来看",
+      "question": "不能负责，为什么不直接推出无需关照？",
+      "anchor": "b-fb11f47a108c9030-1",
+      "refs": [
+        "b-fb11f47a108c9030-1",
+        "b-439bf8d545312b2d-1",
+        "b-f0116f90fcc31ddb-1"
+      ],
+      "stages": [
+        "先识别承担责任的问题",
+        "加入不能按成人方式负责的案例",
+        "发现关照资格仍可另行讨论"
+      ],
+      "visual": {
+        "nodes": [
+          {
+            "id": "a",
+            "label": "道德行动者",
+            "lines": [
+              "能否为行为担责",
+              "讨论行动的来源"
+            ],
+            "stage": 0
+          },
+          {
+            "id": "b",
+            "label": "幼儿 / 动物案例",
+            "lines": [
+              "未必承担同样责任",
+              "仍可值得道德关照"
+            ],
+            "stage": 1
+          },
+          {
+            "id": "c",
+            "label": "道德受体",
+            "lines": [
+              "讨论如何被对待",
+              "机器资格仍需理由"
+            ],
+            "stage": 2
+          }
+        ],
+        "edges": [
+          {
+            "from": "a",
+            "to": "b",
+            "relation": "compares"
+          },
+          {
+            "from": "b",
+            "to": "c",
+            "relation": "supports"
+          }
+        ]
+      },
+      "label": "论证示意",
+      "note": "案例帮助区分概念；不以动物与机器人的相似性代替完整论证。"
+    },
+    {
+      "id": "motion-jonas",
+      "scene": "argument_map",
+      "title": "Jonas路径：责任对象怎样逐步扩展",
+      "question": "从世界中的人到机器人，哪一步需要补理由？",
+      "anchor": "b-8734efa23be8754e-1",
+      "refs": [
+        "b-8734efa23be8754e-1",
+        "b-c8def0d37a793b25-1",
+        "b-73755ac657e86eca-1"
+      ],
+      "stages": [
+        "起点：人彼此的义务放在世界中理解",
+        "技术使行动与责任对象扩展",
+        "作者将社交机器人纳入直接义务"
+      ],
+      "visual": {
+        "nodes": [
+          {
+            "id": "a",
+            "label": "起点",
+            "lines": [
+              "人彼此有直接义务",
+              "人处于世界中"
+            ],
+            "stage": 0
+          },
+          {
+            "id": "b",
+            "label": "技术世界",
+            "lines": [
+              "行动能力与后果改变",
+              "责任面向随之扩展"
+            ],
+            "stage": 1
+          },
+          {
+            "id": "c",
+            "label": "作者结论",
+            "lines": [
+              "社交机器人为重要部分",
+              "故有直接道德义务"
+            ],
+            "stage": 2
+          }
+        ],
+        "edges": [
+          {
+            "from": "a",
+            "to": "b",
+            "relation": "supports"
+          },
+          {
+            "from": "b",
+            "to": "c",
+            "relation": "supports"
+          }
+        ]
+      },
+      "label": "论证示意",
+      "note": "支持箭头呈现作者推论；从重要地位到直接义务的规范理由仍可质询。"
+    }
+  ],
+  "further_reading": [
+    {
+      "citation": "David J. Gunkel (2017). The other question: can and should robots have rights?. Ethics and Information Technology.",
+      "role": "本文直接对话的机器人权利论述",
+      "priority": "先读：问题怎么问",
+      "reason": "Tavani借它区分能否与应否，又与其列维纳斯路径比较。读完能看清双方是共享结论、还是共享理由。",
+      "focus": "对照问题形式、道德行动者与受体，以及他者伦理的延伸。",
+      "url": "https://doi.org/10.1007/s10676-017-9442-4",
+      "refs": [
+        "b-ca9432afde528e00-1"
+      ]
+    },
+    {
+      "citation": "Mark Coeckelbergh (2010). Robot rights? Towards a social-relational justification of moral consideration. Ethics and Information Technology.",
+      "role": "社会关系路径",
+      "priority": "比较立场时读",
+      "reason": "本文批评关系论，但要判断批评是否充分，最好直接读被讨论立场怎样为关照辩护。",
+      "focus": "先看关系为何具有道德意义，再对照Tavani对外观与信任的质疑。",
+      "url": "https://doi.org/10.1007/s10676-010-9235-5",
+      "refs": [
+        "b-5a23c3ed1e4e9d52-1"
+      ]
+    },
+    {
+      "citation": "Anne Gerdes (2016). The issue of moral consideration in robot ethics. ACM SIGCAS Computers and Society.",
+      "role": "本文引用的康德与人本路径",
+      "priority": "比较理由时读",
+      "reason": "它与本文同样关心关照，却提供不同依据，能帮助区分对机器的直接义务与涉及机器的间接义务。",
+      "focus": "抓住义务最终指向谁，以及人机关系怎样连接人的责任。",
+      "url": "https://doi.org/10.1145/2874239.2874278",
+      "refs": [
+        "b-e693f545fc5ed3db-1"
+      ]
+    },
+    {
+      "citation": "Hans Jonas (1984). The Imperative of Responsibility: In Search of an Ethics for the Technological Age. University of Chicago Press.",
+      "role": "本文正面理由的理论来源",
+      "priority": "想检验核心理由时读",
+      "reason": "Tavani从这里借出新行动能力与新责任对象的思路。读原理论能检验从全球、代际责任延伸到机器人的那一步是否充分。",
+      "focus": "对照责任范围与新伦理对象的论述；机器人扩展是Tavani的应用，不能归给Jonas原书。",
+      "url": "https://press.uchicago.edu/ucp/books/book/chicago/I/bo5953283.html",
+      "refs": [
+        "b-f4a4a34775944532-1"
+      ]
+    }
+  ],
+  "attribution": {
+    "citation": "Herman T. Tavani · 10.3390/info9040073",
+    "url": "https://www.mdpi.com/2078-2489/9/4/73",
+    "license": "Licensee MDPI, Basel, Switzerland. This article is an open access article distributed under the terms and conditions of the Creative Commons Attribution (CC BY) license (http://creativecommons.org/licenses/by/4.0/).",
+    "changes": "原文归原作者；中文译文、白话、导读与示意图为AI辅助教学改写。原文来自出版商/PMC JATS；代码MIT许可不替代论文许可。"
+  }
+}

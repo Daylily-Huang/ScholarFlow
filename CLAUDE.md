@@ -13,6 +13,12 @@ ScholarFlow 是面向严谨科研的智能体文献全生命周期工作流套�
 
 核心设计：**防幻觉**（结论锚定带页码的原文引句）、**零强制第三方依赖**（全部运行时逻辑基于 Python 3.9+ 标准库，可选 `pip install "scholarflow[pdf]"` / `.[dev]`）。
 
+## 独立单篇阅读
+
+新增 `skills/paper-close-read`，独立于上述四项研究流程及shared引擎。用户提供单篇全文即可按其SKILL.md开始，不继承检索/裁定流程的执行深度提问。内容由宿主模型撰写；确定性代码仅保证结构/覆盖/交互。新能力状态见CAPABILITY_STATUS的独立阅读节；变更设计见RFC-018。通用版不改写黑麂项目原技能。
+
+相关验证：`python -m unittest discover -s tests -p test_paper_reader.py -v`；`python skills/paper-close-read/scripts/selftest.py --work-dir <临时目录>`；`python scripts/rebuild_readers.py <阅读目录>`。真实文献结果在examples/paper-close-read；浏览器报告绑定HTML摘要。独立技能通过仓库分发；对外发布仍以用户授权为准。
+
 ## 测试与质检命令
 
 ```bash

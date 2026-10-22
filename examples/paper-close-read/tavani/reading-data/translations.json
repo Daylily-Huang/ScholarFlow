@@ -1,0 +1,1157 @@
+[
+  {
+    "id": "b-f91b723f517e54d2-1",
+    "role": "metadata",
+    "zh": "作者：Herman T. Tavani",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-10fb082489ddbac2-1",
+    "role": "body",
+    "zh": "机器人是否应获权利，是机器人伦理中的争议问题，但并不清楚：支持者未总说明哪些机器人适格、应授何种公民或法律或道德权利；关于所需属性及是否必须有道德能动性也有分歧。本文一方面澄清这些概念和假设，主要目标则是把问题改问为：某些社交机器人能否作为道德受体获得道德关照？作者借Hans Jonas的思想为肯定答案辩护。",
+    "note": "“机器人应不应该有权利”听着是一个问题，实际混着好几个：扫地机和陪伴机器人算不算同一种对象？不许虐待是否就等于给投票权？作者先拆这些混淆，最后要论证的是较具体的“某些社交机器人值得被认真对待”。",
+    "keys": [
+      "先指出对象、权利种类和资格条件的混淆，再缩小所要捍卫的主张。",
+      "Jonas提供的是支持这一规范主张的理由，需要沿后文推论来评价。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-dfff1d4af3d3a8ff-1",
+    "role": "body",
+    "zh": "机器人伦理又称robo-ethics[1,2]或machine ethics[3,4]，其争论是是否授予机器人权利。问题至少含五处含糊：哪种机器人、哪种权利、依据何种资格标准、是否须有道德能动性，以及用何种理由捍卫道德关照。",
+    "note": "想让争论继续，得先保证双方在谈同一件事。一个人想到有意识的仿生人，另一个想到现在的陪伴玩具，直接争“有无权利”很容易各说各话；这五问就是作者先清理桌面的办法。",
+    "keys": [
+      "总问题拆成五个可区分的子问题，使后面的赞成或反对有明确对象。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-f52fa15c62c7fac3-1",
+    "role": "body",
+    "zh": "支持者未必说清只包括具身体、社会智能和自主性的机器人，还是也包括软件机器人；也常混淆法律、道德、公民权利及“应当”与“能够”[5]。资格标准中，有人诉诸意识、人格、理性、自主或感受能力，有人强调人与机器人的社会关系[6]。是否必须先成为道德行动者，以及何种伦理理论足以辩护，也仍有分歧。",
+    "note": "这段把五问落实成真实分歧：有人往机器内部找意识，有人看人机相处；有人讨论法律能否安排身份，有人讨论道德上值不值得。它们相关，却不能靠同一个“权利”一词跳过去。",
+    "keys": [
+      "逐项展示混淆怎样出现在现有立场中，从而说明澄清概念确有必要。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-4338a36c653dbadd-1",
+    "role": "body",
+    "zh": "下文依次讨论机器人问题、权利问题、标准问题、能动性问题和理由问题。",
+    "note": "这是后文路线图。前四步把问题收窄，最后一步才提出作者自己的伦理理由。",
+    "keys": [
+      "概念整理先行，随后才能提出并检验规范论证。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-806f56a0ee37b597-1",
+    "role": "body",
+    "zh": "首先，将对象暂限为具身体、社会智能、以类似人际方式互动的社交机器人。其次，用道德关照替代权利措辞，避免不必在此解决的权利争论。第三，属性论无法说明何种属性应优先，关系论也留下问题，二者都不足。第四，机器人不必先为道德行动者，一些可作为道德受体获关照，未来是否也能成为完整行动者仍开放。第五，Gerdes借康德、Gunkel借列维纳斯，而作者将用Jonas《责任原理》[8]提出不同理由；受体资格见第5节。",
+    "note": "可以把这段当成一份论证承诺：作者不打算证明所有机器像人一样，而是要说明即使不能承担道德责任，也可能值得道德对待。能不能履行这份承诺，就要看最后“为什么”那一步是否站得住。",
+    "keys": [
+      "先限定对象和所求地位，再放下两条有困难的资格路径。",
+      "区分行动者与受体后，论证任务转为解释为何这种受体值得关照。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-747e597031c55025-1",
+    "role": "body",
+    "zh": "机器人没有普遍公认定义。Bekey称之为处于世界、感知、思考、行动的机器[9]，但这可能过窄，也需解释人工实体的感知、思考和行动。Capurro与Nagenborg认为定义或依赖设备所嵌入的社会文化认知[10]。“机器人”有时含软件机器人，Wallach与Allen写作(ro)bot涵盖二者[4]；本文排除软件机器人，聚焦某类实体机器人。",
+    "note": "作者不是要先赢得“机器人到底是什么”的所有争论，而是划清这一篇的讨论对象。这样做之后，后文的结论就不会自动落到聊天软件或所有自动程序身上。",
+    "keys": [
+      "普遍定义有争议，因此采取明确的工作范围，将软件机器人留在本文之外。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-bf547f4627c3d526-1",
+    "role": "body",
+    "zh": "Sullins区分遥控与自主机器人，前者主要是工具，后者依自身程序作部分主要决定[11]。也有人分服务与工业机器人；服务机器人数量已更大[12,13]，但并非都具社交性。Darling定义社交机器人为具身体、自主、能在人际层面沟通互动的行动体，需区别于工业及非社交服务机器人[14]；例子有Pleo、Aibo、Paro以及Cog、Kismet。",
+    "note": "“能自己工作”与“被设计来和人相处”不是同一个条件。自动清扫能是服务，但作者此处关心的是会让人以陪伴、交流方式回应的那类机器。",
+    "keys": [
+      "先区分控制方式与用途，再以社交互动条件圈定本文对象。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-09cb187b694a04f1-1",
+    "role": "body",
+    "zh": "怎样区分社交机器人与高级服务机器人或家电？Darling承认Paro与烤面包机起初都像执行功能的实体设备，但后者只为烤面包，前者被设计成人的伙伴[14]。一些还帮助老人，关键地增强生活。Breazeal强调其能交流、互动，甚至以类似人的方式建立关系[15]。",
+    "note": "两台机器都“有功能”，还不足以说明它们在生活里有什么不同。作者把区别放在设计出的相处方式：你会不会把它当陪伴、向它表达情绪，以及这种相处是否改变你的生活。",
+    "keys": [
+      "共同的工具属性不足以区分，陪伴与社会互动功能成为进一步界定的依据。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-4514e4f89ac0aea2-1",
+    "role": "body",
+    "zh": "另一差别是人倾向对社交机器人形成情感依附[16,17]。它们特为涉及感受的个人互动设计[12]，展示情绪线索，自主行为显得有生命，诱发情感投射[14]。Lin质疑这种拟人化设计是否构成欺骗[18]，但该问题不在本文范围内。",
+    "note": "机器会不会真正难过，与人会不会对它心疼，是两个问题。作者此处先描述后者，并提到有人担心这种设计在诱导感情，却没有在本文解决欺骗争议。",
+    "keys": [
+      "情感投射进一步说明社交对象的特殊性，同时留下其设计伦理的旁支问题。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-d2e2f7b091f8659d-1",
+    "role": "body",
+    "zh": "Darling指出人对社交机器人的行为不同于对烤面包机；从像家电那样对待转向像宠物那样对待，会引出伦理问题[14]。本文主要问这些机器人能否获得某种权利；按前述定义限缩对象，可暂不处理软件机器人及不满足社交条件的高级服务机器人。",
+    "note": "定义这一步收束了：讨论的是会进入社会相处的实体机器。接下来即使还说“机器人”，也应把这个范围带着读，而不要又扩成一切人工智能。",
+    "keys": [
+      "由相处方式的变化引出伦理问题，并固定后续论证的对象边界。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-5a23c3ed1e4e9d52-1",
+    "role": "body",
+    "zh": "权利语言本身多义，包含人权、自然、道德、法律、公民、宪法、雇员、动物权利等。Gunkel区分“能否拥有”与“是否应该”[5]：前者问能力，后者问规范地位。不能从能直接推出应当，也不能从不能直接推出不应当；逻辑上还可主张能但不应，或不能却应。本文主要关注规范问题，即机器人是否应有或值得权利。",
+    "note": "把法律写成某种样子“做不做得到”，与道德上“值不值得这么做”，需要不同理由。作者要讨论的是后一个问题；单说机器能被赋予身份，并没有回答为什么应当这样。",
+    "keys": [
+      "先分开事实或能力问题与规范问题，阻止未经理由的跳跃，再选定本文焦点。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-bdc5ce9b58f1b096-1",
+    "role": "body",
+    "zh": "本节还需问争论涉及何种权利。自阿奎那以来，不少哲学家认为人有自然权利，有人将其视为源自自然法、独立于一国法律的人权或道德权利。主张人人有这些权利与给出无懈可击论证不同，边沁就称自然权利为“踩高跷的胡话”；因此很多研究转向法律赋予的实定权利。",
+    "note": "“人有权利”在日常交流中很顺口，追问根据却会进入长期哲学争论。作者借这段说明，若机器人讨论也背上整套权利起源问题，很容易还没谈到机器人就卡住。",
+    "keys": [
+      "自然权利的依据存在争议，转向法律权利虽更具体，却改变了所问问题。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-ca3451104d149ea5-1",
+    "role": "body",
+    "zh": "按本文写作时的叙述，欧盟正考虑给予某种机器人法律权利，类似公司等人工实体，但细节未定[19]。2017年10月沙特给Sophia公民身份[20]，作者推测可能意味着投票等法律权利，并提到与当地女性权利的争议。本文不进一步审查该决定，只取其与法律权利问题的联系。",
+    "note": "这是2018年论文引用的政策事件，不是这份带读在介绍现行法律。更关键的是，宣布某种身份与具体享有哪些可执行权利之间还隔着细节；作者自己也没有在此逐项核实这些法律后果。",
+    "keys": [
+      "政策例子说明法律身份议题已被提出，但其中推测不能替代本文要给出的道德理由。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-3e1118f863ac68c7-1",
+    "role": "body",
+    "zh": "Laukyte与Darling建议法律权利可作为机器人保护的模型[21,14,22]。Laukyte以公司这种由人组成的群体行动者为例，考虑全由人工实体构成的群体是否也可获法律或社会保护。其思路预设机器人能成为某种行动者，因此留到第5节讨论能动性时再分析。",
+    "note": "公司有法律身份，给机器设计法律身份似乎就有可比的例子。但这只能开启讨论：公司与机器人在何处相似、为什么保护它们，仍需要补理由。",
+    "keys": [
+      "法律类比提出可行思路，其行动者预设又引出后续资格问题。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-be872747aba9c8cf-1",
+    "role": "body",
+    "zh": "Darling将拟保护对象限定为具身体、有一定自主行为、特为社会互动设计且对虐待作类生命反应的机器人[14]。她又认为保护最终根据或许较少来自法律结构或社会效果，而更多来自人对机器人的感受[14,22]。因此即使无法制定保护法，也可先思考某种道德关照。",
+    "note": "尚未有明确保护法，并不妨碍先问“这样对它合不合适”。这一步把讨论从立法方案移向道德评价，给作者接下来改问法搭了桥。",
+    "keys": [
+      "保护条件限定对象，人类情感反应则提供从法律保护转向道德关照的入口。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-512702d00b73bc90-1",
+    "role": "body",
+    "zh": "作者认为聚焦道德关照可以避开明确赋权争论中的泥潭，不必直接回答所有非人实体是否应获法律、道德等权利，也暂不处理权利究竟是什么、源自何处两项难题。",
+    "note": "先问“是否有理由在意如何对待它”，比马上问“给它整套什么权利”更容易进入具体讨论。作者不是已经解决权利问题，而是选择一个较窄、能继续论证的任务。",
+    "keys": [
+      "改问法降低需要同时解决的理论负担，使关注点回到适当对待。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-e0659dd8a3d152db-1",
+    "role": "body",
+    "zh": "这种转向可能看似拖延问题，但有实用优势。授予某项具体权利是给或不给，道德关照可有程度差别；谈权利时常检查对象是否具有适格特征，而谈道德关照时可更关注人如何看待对象的地位，如动物。",
+    "note": "你可以先认为不应随意虐待一种陪伴机器人，却还没有主张它享有与人完全相同的待遇。作者用可分程度的关照，给“全给或全不给”之外留下讨论空间。",
+    "keys": [
+      "从具体权利的授予转向可分程度的关照，扩大可讨论的中间位置。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-8ab647114d66143e-1",
+    "role": "body",
+    "zh": "权利一词也常引发反对者的情绪：一些保守立法者担忧它意味着应享待遇，主张限制对非人及人的新增权利；他们仍可能接受对动物、机器人作道德关照而非完整赋权。因此作者认为有理由调整讨论焦点。",
+    "note": "除了理论负担，措辞还影响人愿不愿继续谈。有人听见“机器人权利”马上想到与人争待遇，换成具体关照就可能讨论得更细；这是作者提出的沟通与实践理由。",
+    "keys": [
+      "语言引发的反应为改问法补充实践理由，与前段的概念理由汇合。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-7a35dc901ed7a204-1",
+    "role": "body",
+    "zh": "属性论认为机器人若能显示意识、意向性、理性、人格、自主或感受能力等本质属性，就可获权利或某种道德关照[6,23,24]。无论实际具有与否，人倾向赋予社交机器人意图、心理状态与感受[14]。",
+    "note": "这条路像设置入场条件：“先证明你有某种能力，再讨论怎么对你。”难点马上出现：到底设意识、能感痛，还是理性？以及看起来像有，怎样才能算真的有？",
+    "keys": [
+      "属性资格路径提出门槛，同时引出标准选择与真实性证明两个问题。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-87c92d29c74729c7-1",
+    "role": "body",
+    "zh": "关系论建议绕过争议属性，不检查机器内部是否真有a、b、c，只看互动中是否表现得仿佛有这些属性[5,24]。Coeckelbergh重视呈现的道德意义及机器人如何向人显现[25]；其关系本体论认为关系先于关系项[24]。这种转向被称为机器人权利讨论中的关系转向。",
+    "note": "另一条路说，不必先拆开机器找意识，而先看我们实际上怎样与它相处。这把焦点从“它里面有什么”移到“互动中形成了什么关系”，但后面仍需问关系为什么足够带来关照。",
+    "keys": [
+      "从内部属性转向互动关系，改变了论证的起点，而未自动完成规范结论。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-35aae1a45571d3b3-1",
+    "role": "body",
+    "zh": "属性论难以约定哪种属性必要：意识[26]、人格[27]或感受能力各有支持者；即使同意，也难证明机器真有它，人类的他心问题已体现困难。若人的道德权利依精神属性，昏迷或严重脑损伤后能力丧失者会否失去权利，也成争议。",
+    "note": "作者从两个方向测试这道门槛：机器能否证明过关，以及把同一道门槛用在人身上会产生什么后果。第二问尤其重要，因为标准不能只在想排除机器时使用。",
+    "keys": [
+      "标准选择未定，真实性证明又困难；将标准一致用于人时，还暴露权利保留的反例压力。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-7e70500dc8886b7d-1",
+    "role": "body",
+    "zh": "属性论既难用于机器人，也可能不利于维护部分人的权利。但Gerdes提醒，属性论有问题并不说明关系论充分；若有其他可能路径，把二者当唯一选择会犯虚假两难。下一步也需检验关系论。",
+    "note": "“这条路不好走，所以另一条就对”中间缺了一步。作者明确把关系论也送去接受检验，这才给后来提出第三种理由留下空间。",
+    "keys": [
+      "否定一个候选不构成另一个候选的证明，因此继续独立审查关系论。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-5921906bb80e7547-1",
+    "role": "body",
+    "zh": "关系论看似有希望，但是否所有重要人机关系都依机器人外观？Coeckelbergh认为人会信任看起来可信的机器人[28]；作者反问，人也能信任无实体、分布式人工行动体或人机网络，而不依其物理外观[29,30]，其他信任框架亦支持[31–34]。若如此，关系论应说明哪些关系依外观，哪些不依。",
+    "note": "信任导航软件，不一定因为它长得像可靠的人。作者用这种关系提醒：把人机关系都解释成外观带来的回应，可能覆盖得太宽；关系论需要更细地说明自己的适用部分。",
+    "keys": [
+      "用不依身体外观的信任关系测试一般主张，再要求区分不同关系的条件。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-f1e7d2c2a7df3c49-1",
+    "role": "body",
+    "zh": "Gerdes另担心关系论长期模糊人际关系与生活世界，借Turkle担忧人会优先选择机器人关系[16]。她批评“仿佛具有”属性的类比可能变成“真的具有”，使人忽略人际关系的重要性，并主张以人为中心框架[7]。作者稍后再谈其伦理理由，本节结论是属性论与关系论都不足以完整说明社交机器人为何适格或不适格。",
+    "note": "这里有两类质疑：关系会不会改变人的相处，以及我们会不会把“像有感受”悄悄当成“确实有感受”。作者借它们说明关系论也没有免检，然后将问题转向另一条区分。",
+    "keys": [
+      "对关系后果与类比方式提出质疑后，作者总结两种路径均有缺口，为后续受体思路铺路。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-ae445cdd0e0ac962-1",
+    "role": "body",
+    "zh": "另一思路问：是否必须先成为某种行动者，才能有道德地位？Gunkel称此为以行动者为中心的问题框架[5]。它带出机器人能否为人工行动者AA，以及需理性、自主、道德等哪些资格。下文简述这些要求。",
+    "note": "能做事、能选办法、能为善恶负责，听起来都叫“行动者”，其实门槛不同。先分开它们，才能看出“不够资格负责”是否真的会导致“不值得保护”。",
+    "keys": [
+      "澄清行动者资格层次，以便检验其是否是获得道德地位的必要条件。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-ad039caa74583e99-1",
+    "role": "body",
+    "zh": "许多人把能行动或代人行动的实体看作AA，Dennett甚至将恒温器也纳入[35]。理性AA能在环境中合理行动[21]；作者认为需可决定是否行动及在多个方案间选择[36]。理性不必然自主，也不必然是道德行动者AMA[4]；通常认为成为道德行动者至少需某种决策自主性。",
+    "note": "恒温器会调温，不代表会为调温承担道德责任。作者一步步抬高条件，是为了避免把“能完成任务”当成“能理解并承担对错”的证据。",
+    "keys": [
+      "最宽的行动能力不足以推出理性；理性又不足以推出自主或道德责任，资格不能混用。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-303f2e21f63c2859-1",
+    "role": "body",
+    "zh": "Floridi与Sanders区分自主AA与他律AA：自主者能控制状态和行动、感知环境，并无需他者直接介入而互动[37]；进一步列出互动、动态改变状态及从经验适应[38]，适应带来一定独立性[39]。作者质疑其是否完整自主，主张可有功能意义的自主FAAAs[30,40]。即使真正自主，也仍须问是否就是道德行动者。",
+    "note": "机器会学习、会自己调整操作，说明它在功能上少依赖实时指挥。作者仍追问：这是否足以承担道德责任？自动化程度高与伦理资格之间不能省掉理由。",
+    "keys": [
+      "功能自主的条件先被具体化，再与完整自主及道德能动性分开。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-61321c305630c8a3-1",
+    "role": "body",
+    "zh": "Floridi认为部分AA是道德行动的来源，可造成道德上的善恶，故有道德效力[41]。Johnson同意效力却认为缺少自由，只算道德实体而非行动者[42]；Himma则强调意识和意向性缺失[43]。因此AA能否成为AMA仍有分歧，必要充分条件是什么并未解决[44]。",
+    "note": "一套系统能造成严重后果，大家可能都同意；“所以系统本身应当被责备”却是另一主张。作者借不同立场说明争论卡在后果与责任主体之间。",
+    "keys": [
+      "共同承认后果，不代表同意道德行动资格；分歧显示行动者路线仍难定论。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-6b426c4ac58f1b26-1",
+    "role": "body",
+    "zh": "Wallach与Allen用自主性与伦理敏感度阈值描述功能道德[4]；作者认为他们主要关心机器能否作出好的道德决定，而没有回答能否是真正道德行动者[45]。他们甚至认为后一理论问题会分散对如何设计机器在道德情境中适当行动的关注[4，第202页]。",
+    "note": "“把机器设计得做对事”和“机器是否真能为对错负责”可以分别研究。作者认为本文讨论地位时，不能只拿工程表现代替后一个哲学问题。",
+    "keys": [
+      "功能设计与道德资格的任务不同，指出差异后继续寻找不依资格争论的路径。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-15207192cad0a2be-1",
+    "role": "body",
+    "zh": "另一些人认为真正道德行动者问题值得研究。Moor把人工行动体分为从伦理影响行动者到完整伦理行动者的不同层次[46,47]；目前没有完整者，也可能永远没有。其贡献是依据四种自主水平，给出四种伦理影响程度的明确标准。",
+    "note": "就算最终到不了完整道德责任，机器也并非只能分成“完全无关伦理”和“像成人一样负责”两类。这种分层让讨论更细，却仍未解决它值不值得被对待的问题。",
+    "keys": [
+      "伦理影响可以分层描述，完整行动者是否出现仍开放；因此下一步转向关照的接受方。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-fb11f47a108c9030-1",
+    "role": "body",
+    "zh": "无论机器人能否成为完整道德行动者，至少一些社交机器人可为道德受体。Floridi区分：受体是道德行动的接受者而非来源[41]，不承担道德罪责；它们也可能是活跃的非道德行动体，并能以非道德意义造成伤害。但与道德行动者一样，受体也可获道德关照和地位。",
+    "note": "问“它做错了能不能怪它”，是在问行动者；问“我们这样对它是否合适”，是在问受体。婴儿也不能像成人那样负责，但这并不妨碍我们认真考虑如何对待他。这个教学例子帮助看清作者要拆开的两件事。",
+    "keys": [
+      "先把承担责任与接受道德对待分开，说明前者并非后者的必经门槛。",
+      "接下来仍需给出机器人为何可成为受体的正面理由。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-259beb3cbbddd83d-1",
+    "role": "body",
+    "zh": "一些作者比较动物与机器人作为道德受体[14,7,5]。动物虽未必承担道德责任，却因能感痛、情感受苦而获关照；动物权利支持者沿边沁思路，强调痛苦而非理性。若将类比扩到社交机器人，若其也具有某种感受能力，就可能适格。",
+    "note": "动物例子先说明：不会负责，并不排除值得关照。但要把这条理由移给机器，还得证明与“会受苦”有关的相似性；只说都不会负责还不够。",
+    "keys": [
+      "动物案例打破行动者门槛，再把感受能力作为类比需要检验的条件。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-439bf8d545312b2d-1",
+    "role": "body",
+    "zh": "Hogan等质疑动物机器类比，尤其感受能力[48]。作者仍问，表现出包括人工感受的机器人能否成受体？电影《人工智能》中David符合前述社交机器人定义，表现痛苦情绪，至少值得思考。即使人对它有义务，也不表示它有对人的互惠义务；幼儿及某些动物已有单向义务的例子。本段及前两段扩展作者旧文[49]。",
+    "note": "David是思想案例，不是真实机器人实验。它让你想：即使一个对象不能回报我们的道德要求，我们是否仍可能有理由善待它？动物和幼儿说明义务可以单向，但机器是否也适用仍需论证。",
+    "keys": [
+      "先回应感受类比的质疑，再以思想案例探索受体可能性。",
+      "单向义务的例子排除了必须互惠的要求，却不自动证明所有机器人适格。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-f0116f90fcc31ddb-1",
+    "role": "body",
+    "zh": "一般认为道德行动者也为受体，反向不成立；Power提出某些机器人也许是行动者而非受体[50]。本文不追究，重点是社交机器人可独立于行动者问题而有受体地位，未来能否成为人工道德行动者仍开放。接着用Jonas框架捍卫这一立场[8,51]。",
+    "note": "现在只完成了“不能负责并不自动出局”。作者还欠我们“为什么值得关照”的理由，下一节正是补这一步，而不是把受体这个名称本身当作答案。",
+    "keys": [
+      "解除行动者门槛后，论证转入受体地位的正面伦理依据。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-6034b9ed94b39db6-1",
+    "role": "body",
+    "zh": "作者并非首位主张社交机器人可作受体。Gerdes从康德关于对非人动物间接义务的论述出发[7,52]，区分对他人的义务与涉及非人的义务，后者基于对自身的直接义务；她与Darling一样，以从工具到生命的连续体说明可与人形成社会关系的机器人能够获关照。",
+    "note": "这里的理由可以理解为：我们怎样对待机器，会关系到自己应成为什么样的人。因此可能有理由善待它，但义务的最终根据仍落在人身上。作者想提出更直接指向机器对象的理由。",
+    "keys": [
+      "前人的受体结论并非本文独有，康德式理由的间接性成为后文对照点。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-6eed473dc051af5d-1",
+    "role": "body",
+    "zh": "Gunkel借列维纳斯的他者伦理，主张“换一种思考”[5,53]，将道德考虑扩到非人。他承认列维纳斯通常指向他人并优先人的面孔[54]，但认为框架可重释为包括机器人；机器也可呈现面孔[55]，因而能看见社交机器人的面孔或面板，即使通常读法仍以人为主。",
+    "note": "这条路从“面对一个他者时如何回应”出发。困难在于原理论通常说的是人与人；把机器人放进来，需要说明这次延伸为什么成立，不能只因为它也有一张脸。",
+    "keys": [
+      "他者伦理提供不同理由，其原有人类范围又使推广需要进一步辩护。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-76d695720e704093-1",
+    "role": "body",
+    "zh": "作者认为Gerdes与Gunkel有启发，但均不充分；详细批评超出本文。他转用Jonas为现代技术世界提出新伦理的思想，认为这是更令人满意的新理由[8]。",
+    "note": "作者在这里作出选择，但也承认没有完整论证其他路线为什么失败。读者可先跟着看Jonas路径，再判断它是否真的比前两种更有说服力。",
+    "keys": [
+      "评价前人后提出替代框架，后续论证需承担其充分性的证明任务。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-600ae58691126a37-1",
+    "role": "body",
+    "zh": "Jonas在机器人时代之前提出观点，但作者认为可用于当下。即使ICT未像Jonas要求的那样彻底改变道德处境、未必需要全新伦理（Michelfelder持此看法）[57]，其关于新伦理对象的思路仍有助理解挑战[56]，特别是人机互动。接下来先简述思想背景。",
+    "note": "作者借用的不是Jonas当年对今天机器人作过的判断，而是一个问法：技术给了人新行动能力，也带来哪些需要负责的新对象？先说清这种借用，才能评价跨时代应用是否合理。",
+    "keys": [
+      "区分原理论与当下应用，再提取“新行动与新对象”作为连接点。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-de042f6c7112de0c-1",
+    "role": "body",
+    "zh": "Jonas受导师海德格尔“在世存在”影响：人不是与世界分离的实体，也不能脱离自然来理解。Jonas进一步说我们存在于技术世界、处于与非人对象互动的技术网络[58]。技术赋予前所未有的力量，如核技术、污染和资源过耗可使地球不宜居[51]，因此他主张以责任原理为中心的新伦理。",
+    "note": "这段不是只说“技术很先进”，而是说人做事的范围变了：一个决定能影响远方、未来乃至整个生存环境。若责任仍只按眼前的人际接触来想，就可能漏掉这些影响。",
+    "keys": [
+      "在世界中的相互关联经技术放大为新行动能力，由此提出扩展责任的要求。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-f5375bc4770e1df7-1",
+    "role": "body",
+    "zh": "Jonas认为传统伦理把人类处境视为由人的本性和事物本性决定、固定给定，康德与亚里士多德框架隐含此观[8，第1页]。现代技术增加行动对象并打开新的伦理维度，人的行动已根本改变；伦理既关行动，也须改变。新行动能力需要新规则，或新伦理[8，第23页]。",
+    "note": "推理连接在这里：伦理关心行动；行动的对象和后果变了；因此既有规则是否够用要重新检查。读者可以接受前两步，再继续追问改变到什么程度才需要全新伦理。",
+    "keys": [
+      "由行动变化连到伦理适配，而“需要怎样改变”仍是可讨论的推论。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-ecc741a73302509f-1",
+    "role": "body",
+    "zh": "技术使行动具全球影响，如操作者可用军用无人机打击远方，也能显著影响未来世代。Jonas因此认为道德处境已变，伦理意义不能只限此时此地的人对人直接交往，传统邻人伦理不足[8，第8页]。",
+    "note": "隔着很远、还未出生的人，也可能承受今天行动的后果。作者用空间与时间的扩大，解释为什么“眼前谁跟谁相处”不再覆盖全部责任对象。",
+    "keys": [
+      "全球与代际影响具体化新行动范围，从而支持责任范围不能只限当前邻人。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-3cd2ff042d507e5f-1",
+    "role": "body",
+    "zh": "传统伦理常认为只有人值得道德关照；现在需扩及其他对象，包括未来世代等抽象对象及自然整体。行动性质改变暴露了旧伦理未准备好的责任问题，因此Jonas要求新的责任维度[8，序言及第6页]。本段及前两段扩展作者旧文[56]。",
+    "note": "前面扩的是影响范围，这里开始扩“要为谁或什么负责”。这一转向十分关键：能影响某物，是否足以让它成为道德对象？接下来机器人论证将依赖对这个连接的接受。",
+    "keys": [
+      "由新后果推进到新责任对象，确立后续延伸所需的规范桥梁。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-3658410d7e208693-1",
+    "role": "body",
+    "zh": "Jonas将关照扩及非人对象，影响环境主义者把树木、土地、生态系统视为伦理对象。Floridi进一步主张超出生态圈生命，纳入信息圈对象[59,60]；Floridi与Sanders认为两圈存在有伦理意义的类比[38]。本文要问的是能否进一步包括社交机器人。",
+    "note": "树木到信息对象再到机器人，展示的是扩展思路，不是一串自动成立的等号。每跨一步都要说明为什么相关；作者现在把任务落回自己要捍卫的那类机器人。",
+    "keys": [
+      "此前扩展提供思路，机器人是否可纳入仍需专门论证。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-c8def0d37a793b25-1",
+    "role": "body",
+    "zh": "应用Jonas时，作者认为人对作为受体的社交机器人有直接责任，而非康德式间接责任。其理由是：人之间的直接义务关联技术世界中的存在；社交机器人已在其中发挥重要作用，并增强人性和行动能力，未来可能更甚；人机互动也许是该网络最重要部分之一[58]。若此解释成立，似可推出人对社交机器人的直接道德义务。",
+    "note": "作者最关键的一跳出现了：机器人不仅是给人带来好处的工具，还被看作共同技术世界的重要参与部分，因此他主张直接向它承担责任。读者要盯住“重要参与”为什么能够推出“直接义务”，这才是评价本文的着力处。",
+    "keys": [
+      "先提出直接而非间接责任的目标。",
+      "再以共同世界与新行动能力说明机器人地位。",
+      "从这种地位推到直接义务，构成需要审查的核心规范连接。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-8734efa23be8754e-1",
+    "role": "body",
+    "zh": "作者借Jonas与海德格尔，将推理概括成三链：一，人彼此有直接道德义务，人的存在是在世存在，故人对在世界中的人有直接义务；二，在世存在现为在技术世界中存在，故人对技术世界中的存在有直接义务；三，社交机器人日益成为技术世界的重要部分，故人对它们有直接义务[58]。该论证取自更详研究，并获Carr同意使用。",
+    "note": "把句子摊开看，前一步的结论成为后一步的前提。但从“对世界中的人”走到“对技术世界中的存在”，对象范围扩大了；再到机器人，又依赖“重要部分足以获得直接义务”的理由。动图会逐步亮起这些连接，帮助你看见该质询的位置。",
+    "keys": [
+      "第一链将人的义务放进在世存在，第二链将背景移到技术世界。",
+      "第三链借机器人在其中的重要性推出义务；范围扩展本身仍需理由支撑。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-caf49a3f4b1adfaf-1",
+    "role": "body",
+    "zh": "若上述论证成立，作者认为Jonas比康德或列维纳斯更有力：它可说明对机器人的义务直接性，并明确容纳非人伦理对象，不必依赖对列维纳斯他者的宽松解读。作者回应匿名评审对低估Gunkel的疑虑，但仍坚持Jonas论证更强、更简洁。",
+    "note": "这里是在比较几套理由怎样服务同一个结论，不是在宣布伦理学已经评出冠军。作者给出的比较标准是直接性与明确容纳非人；是否足够，还取决于你对前段推理的判断。",
+    "keys": [
+      "核心论证若成立，直接义务与非人对象的容纳性成为其相对优势。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-554980b1e4a125e5-1",
+    "role": "body",
+    "zh": "本文未详细处理功利主义与德性伦理。前者可因善待机器人带来整体人类好处而支持，后者可因改善人的品格而支持；但作者认为两者最终依社会收益或个人品格赋予机器人价值，而非关注机器人自身为何值得对待。",
+    "note": "两种说法都可能建议善待机器，但答案不同：“这样对人有好处”与“它本身是我们应在意的对象”。作者借此澄清自己要的是后一种理由。",
+    "keys": [
+      "相同实践建议可以有不同依据，工具性收益与对象自身地位因此被区分。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-4c746bdd6c3b700f-1",
+    "role": "body",
+    "zh": "Jonas路径的优点据称在于不依机器人能为人做什么，而依人与它们在技术世界共同存在。它们可为人机团队中的共同活动者[61]。虽评审提醒关系论者也谈共存，作者认为差别在强调机器人增强人的行动能力，并可深刻影响人类未来。",
+    "note": "作者一面要摆脱“有用才善待”，一面又强调机器人增强人的能力。这里值得细读：增强能力在论证中是对象地位的依据，还是仍偷偷回到对人的用途？这是可讨论的张力，不宜替作者直接消掉。",
+    "keys": [
+      "共同存在被提出为非工具性根据，行动能力的强调使其与关系论和用途理由的边界成为审读点。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-868f87607172d2ed-1",
+    "role": "body",
+    "zh": "机器人可促进人的繁荣，但作者认为关键在它们赋予技术世界中新的行动能力，而非仅作为更好结果的手段。善待它们也可能改善品格，但不是它们适格的主要原因。因此作者认为功利、德性、康德与列维纳斯框架均不如Jonas充分。",
+    "note": "这一段继续维护前面的区别：即便同样谈人的生活改善，作者希望把机器人理解为共同塑造行动的存在，而不只是算收益的工具。是否成功，就看这层区别是否有独立的规范力量。",
+    "keys": [
+      "承认其他理论能解释附带好处，再坚持主要根据在共同世界中的地位。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-00a1622731a1ecdb-1",
+    "role": "body",
+    "zh": "最后回应两项评审疑虑：Jonas是否在所有方面都优于其他理论；所有技术世界实体是否都适格。针对第一项，作者只主张其适合机器人问题，因其明确关注技术引入的新伦理对象；不主张取代所有传统理论，义务论、功利与德性伦理在其他情境仍有用。Jonas也可能有隐藏问题，本文只应用而非彻底批判它。",
+    "note": "“这把钥匙适合这把锁”不等于“所有锁都应换成这把钥匙”。作者把优越性的主张收回本篇问题，也承认没有全面审查Jonas体系。",
+    "keys": [
+      "评审质疑促使作者限定比较主张的范围，避免由局部应用扩为全面胜出。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-73755ac657e86eca-1",
+    "role": "body",
+    "zh": "第二项疑虑是理由过宽，可能把所有技术世界乃至信息圈对象都赋予地位。作者认为当前论证只限其中能作为道德受体的社交机器人；未来其他实体或可依据不同条件适格，但本文不承诺软件机器人等也在内，只为某些社交机器人提供受体关照理由。",
+    "note": "如果“同处技术世界”就足够，手机、程序甚至每个文件似乎也能进来。作者用“社交机器人且能为受体”收窄结论；读者还可继续追问：这个限制由前提推出，还是最后加上的限定？",
+    "keys": [
+      "过宽反例挑战论证范围，作者重申适用对象；范围与理由是否充分吻合仍可检验。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-41f19e23652a64ae-1",
+    "role": "body",
+    "zh": "本文三项目标是说明机器人权利争论在五个问题上不清晰、不一致；把总问题改成社交机器人能否作为受体获道德关照；以及用Jonas框架捍卫肯定答案。作者并非首位支持受体关照者，但自认首次以Jonas体系为其提供理由。",
+    "note": "读完可以把全文复述成三步：先让问题问得清楚，再拆开负责与被关照，最后尝试用共同技术世界推出直接义务。评价重点是最后那条理由是否足以支撑作者已收窄的结论。",
+    "keys": [
+      "概念澄清使问题可讨论，受体区分解除一项门槛，Jonas路径承担结论的正面辩护。"
+    ],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-69e4d7685351ff37-1",
+    "role": "metadata",
+    "zh": "In addition to three anonymous reviewers provided by the journal, I would like to thank the following colleagues for their very helpful comments and suggestions on earlier drafts of this paper: Maria Bottis, George Bouchagiar, Lloyd Carr, Anne Gerdes, Frances Grodzinsky, and Lundy Lewis. I am especially grateful to Lloyd Carr—a former student in Hans Jonas’s graduate courses at The New School for Social Research (NYC) in the late 1960s/early 1970s, a time when Jonas was developing many of his views that would eventually comprise The Imperative of Responsibility: In Search of an Ethics for the Technological Age—for his extraordinary help while I was composing Section 6 where I describe and apply Jonas’s ethical framework. I am deeply indebted to Lloyd Carr for sharing with me his first-hand knowledge about the development of Jonas’s ethical system, as well as for his insightful comments on several earlier versions of this paper.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-3280522a8953e95d-1",
+    "role": "metadata",
+    "zh": "The author declares no conflicts of interest.",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-02172e563c5fcd93-1",
+    "role": "reference",
+    "zh": "1. Decker M. Gutmann M. Robo- and Information-Ethics: Some Introducing Remarks Robo- and Information-Ethics: Some Fundamentals Decker M. Gutmann M. LIT Verlag Berlin, Germany 2012 3 6",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-e5ba5859e7755ee2-1",
+    "role": "reference",
+    "zh": "2. Verrugio G. Abney K. Roboethics: The Applied Ethics for a New Science Robot Ethics: The Ethical and Social Implications of Robotics Lin P. Abney K. Bekey G. MIT Press Cambridge, MA, USA 2012 347 363",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-b451304c022733f6-1",
+    "role": "reference",
+    "zh": "3. Anderson M. Anderson S.L. General Introduction Machine Ethics Anderson M. Anderson S.L. Cambridge University Press Cambridge, MA, USA 2011 1 4",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-38949e794766336a-1",
+    "role": "reference",
+    "zh": "4. Wallach W. Allen C. Moral Machines: Teaching Robots Right from Wrong Oxford University Press New York, NY, USA 2009",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-ca9432afde528e00-1",
+    "role": "reference",
+    "zh": "5. Gunkel D.J. The Other Question: Can and Should Robots Have Rights? Ethics Inf. Technol. 2017 1 13 10.1007/s10676-017-9442-4",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-892f3de6bb2681c6-1",
+    "role": "reference",
+    "zh": "6. Coeckelbergh M. Robot Rights? Towards a Social-Relational Justification of Moral Consideration Ethics Inf. Technol. 2010 12 209 221 10.1007/s10676-010-9235-5",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-e693f545fc5ed3db-1",
+    "role": "reference",
+    "zh": "7. Gerdes A. The Issue of Moral Consideration in Robot Ethics ACM SIGCAS Comput. Soc. 2015 45 274 279 10.1145/2874239.2874278",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-f4a4a34775944532-1",
+    "role": "reference",
+    "zh": "8. Jonas H. The Imperative of Responsibility: In Search of an Ethics for the Technological Age University of Chicago Press Chicago, IL, USA 1984",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-61e05c4fec7857a6-1",
+    "role": "reference",
+    "zh": "9. Bekey G. Current Trends in Robotics: Technology and Ethics Robot Ethics: The Ethical and Social Implications of Robotics Lin P. Abney K. Bekey G. MIT Press Cambridge, MA, USA 2012 17 34",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-e3bb118b58bb3bc8-1",
+    "role": "reference",
+    "zh": "10. Capurro R. Nagenborg M. Introduction Ethics and Robotics Capurro R. Nagenborg M. AKA Press Heidelberg, Germany 2009 v ix",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-4efbac928c6739e2-1",
+    "role": "reference",
+    "zh": "11. Sullins J.P. When Is a Robot a Moral Agent? Machine Ethics Anderson M. Anderson S.L. Cambridge University Press Cambridge, MA, USA 2011 151 161",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-af7062a5a6d793bc-1",
+    "role": "reference",
+    "zh": "12. Scheutz M. The Inherent Dangers of Unidirectional Emotional Bonds between Humans and Social Robots Robot Ethics: The Ethical and Social Implications of Robotics Lin P. Abney K. Bekey G. MIT Press Cambridge, MA, USA 2012 205 221",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-7f253a0a9bd8f5a4-1",
+    "role": "reference",
+    "zh": "13. LaGrandeur K. Emotion, Artificial Intelligence, and Ethics Beyond Artificial Intelligence: The Disappearing Human–Machine Divide Romportl J. Zackova E. Kelemen J. Springer Berlin, Germany 2015 97 109",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-54187daef7519fd7-1",
+    "role": "reference",
+    "zh": "14. Darling K. Extending Legal Protection to Social Robots: The Effects of Anthropomorphism, Empathy, and Violent Behavior towards Robotic Objects Robot Law Calor R. Froomkin A.M. Keri I. Edgar Elgar Publishing Cheltenham, UK 2016 213 231",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-b186d3d6b7b4ec32-1",
+    "role": "reference",
+    "zh": "15. Breazeal C.L. Designing Sociable Robots MIT Press Cambridge, MA, USA 2002",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-542d1cb0f18af000-1",
+    "role": "reference",
+    "zh": "16. Turkle S. Alone Together: Why We Expect More from Technology and Less from Each Other Basic Books New York, NY, USA 2011",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-aa2eded978989df7-1",
+    "role": "reference",
+    "zh": "17. Turkle S. Authenticity in the Age of Digital Companions Machine Ethics Anderson M. Anderson M.L. Cambridge University Press Cambridge, MA, USA 2011 62 78",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-e495a0aa372bffee-1",
+    "role": "reference",
+    "zh": "18. Lin P. Introduction to Robot Ethics Robot Ethics: The Ethical and Social Implications of Robotics Lin P. Abney K. Bekey G. MIT Press Cambridge, MA, USA 2012 3 15",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-2ec5823724dee6af-1",
+    "role": "reference",
+    "zh": "19. Committee on Legal Affairs Draft Report with Recommendations to the Commission on Civil Law Rules on Robotics. European Parliament 2016 Available online: http://www.europarl.europa.eu/sides/getDoc.do?type=COMPARL&reference=PE-582.443&format=PDF&language=EN&secondRef=01 (accessed on 18 January 2018)",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-ed35e3b651e97862-1",
+    "role": "reference",
+    "zh": "20. Wootson C.R. Saudi Arabia, Which Denies Women Equal Rights, Makes a Robot a Citizen The Washington Post 29 October 2017 Available online: https://www.washingtonpost.com/news/innovations/wp/2017/10/29/saudi-arabia-which-denies-women-equal-rights-makes-a-robot-a-citizen/?utm_term=.e59cdc8cd981 (accessed on 26 February 2018)",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-016f52eded43f6be-1",
+    "role": "reference",
+    "zh": "21. Laukyte M. Artificial Agents Among Us: Should We Recognize Them as Agents Proper? Ethics Inf. Technol. 2017 19 1 17 10.1007/s10676-016-9411-3",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-0bb47d08f34233e3-1",
+    "role": "reference",
+    "zh": "22. Darling K. Extending Legal Protection to Social Robots 2012 Available online: https://spectrum.ieee.org/automaton/robotics/artificial-intelligence/extending-legal-protection-to-social-robots (accessed on 27 November 2017)",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-e014a21b05213af7-1",
+    "role": "reference",
+    "zh": "23. Coeckelbergh M. Moral Appearances: Emotions, Robots, and Human Morality Ethics Inf. Technol. 2010 12 235 241 10.1007/s10676-010-9221-y",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-8bf326615a0459f0-1",
+    "role": "reference",
+    "zh": "24. Coeckelbergh M. Growing Moral Relations: Critique of Moral Status Ascription Palgrave Macmillan New York, NY, USA 2012",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-3fcd19e2e0989e4b-1",
+    "role": "reference",
+    "zh": "25. Coeckelbergh M. Virtual Moral Agency, Virtual Moral Responsibility: On the Moral Significance of Appearance, Perception, and Performance of Artificial Agents AI Soc. 2009 24 181 189 10.1007/s00146-009-0208-3",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-5f123eac045dcc41-1",
+    "role": "reference",
+    "zh": "26. Levy D. The Ethical Treatment of Artificially Conscious Robots Int. J. Soc. Robot. 2009 1 209 216 10.1007/s12369-009-0022-6",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-8bd7d5889b91e875-1",
+    "role": "reference",
+    "zh": "27. Sparrow R. Can Machines Be People? Reflections on the Turing Triage Test Machine Ethics Anderson M. Anderson S.L. Cambridge University Press Cambridge, MA, USA 2011 301 315",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-a26388605a077a79-1",
+    "role": "reference",
+    "zh": "28. Coeckelbergh M. Can We Trust Robots? Ethics Inf. Technol. 2012 14 53 60 10.1007/s10676-011-9279-1",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-fae409ab74a2c0da-1",
+    "role": "reference",
+    "zh": "29. Buechner J. Tavani H.T. Trust and Multi-Agent Systems: Applying the ‘Diffuse, Default Model’ of Trust to Experiments Involving Artificial Agents Ethics Inf. Technol. 2011 13 39 51 10.1007/s10676-010-9249-z",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-95f408f79df28d38-1",
+    "role": "reference",
+    "zh": "30. Tavani H.T. Levels of Trust in the Context of Machine Ethics Philos. Technol. 2015 28 75 90 10.1007/s13347-014-0165-8",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-044f3ab078947422-1",
+    "role": "reference",
+    "zh": "31. Taddeo M. Defining Trust and E-Trust: Old Theories and New Problems Int. J. Technol. Hum. Interact. 2009 5 23 35 10.4018/jthi.2009040102",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-cdc11cd284d151a8-1",
+    "role": "reference",
+    "zh": "32. Taddeo M. Modeling Trust in Artificial Agents: A First Step in the Analysis of E-Trust Minds Mach. 2010 20 243 257 10.1007/s11023-010-9201-3",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-03f3fa61471d8b75-1",
+    "role": "reference",
+    "zh": "33. Grodzinsky F.S. Miller K.W. Wolf M.J. Developing Artificial Agents Worthy of Trust: Would You Buy a Used Car from this Artificial Agent? Ethics Inf. Technol. 2011 13 17 27 10.1007/s10676-010-9255-1",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-442c8c357134e3b5-1",
+    "role": "reference",
+    "zh": "34. Grodzinsky F.S. Miller K.W. Wolf M.J. Trust in Artificial Agents Routledge Handbook on Trust and Philosophy Simon J. Routledge New York, NY, USA 2018 In press",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-e4ed81bd91720a98-1",
+    "role": "reference",
+    "zh": "35. Dennett D. The Intentional Stance MIT Press Cambridge, MA, USA 1987",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-d90cf6fa18e96093-1",
+    "role": "reference",
+    "zh": "36. Tavani H.T. Ethical Aspects of Autonomous Systems Robo- and Information-Ethics: Some Fundamentals Decker M. Gutmann M. LIT Verlag Berlin, Germany 2012 89 122",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-a11b5c014d8dc333-1",
+    "role": "reference",
+    "zh": "37. Floridi L. Sanders J.W. Artificial Evil and the Foundation of Computer Ethics Ethics Inf. Technol. 2001 3 55 66 10.1023/A:1011440125207",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-241b15837a683b57-1",
+    "role": "reference",
+    "zh": "38. Floridi L. Sanders J.W. On the Morality of Artificial Agents Minds Mach. 2004 14 349 379 10.1023/B:MIND.0000035461.63578.9d",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-97dbf2226ecfff8c-1",
+    "role": "reference",
+    "zh": "39. Floridi L. Foundations of Information Ethics The Handbook of Information and Computer Ethics Himma K.E. Tavani H.T. John Wiley and Sons Hoboken, NJ, USA 2008 3 23",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-a45c703afdacfee3-1",
+    "role": "reference",
+    "zh": "40. Tavani H.T. Buechner J. Autonomy and Trust in the Context of Artificial Agents Evolutionary Robotics, Organic Computing and Adaptive Ambience Decker M. Gutmann M. Knifka J. LIT Verlag Berlin, Germany 2015 39 62",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-b9b835d047d119ec-1",
+    "role": "reference",
+    "zh": "41. Floridi L. The Ethics of Information Oxford University Press Oxford, UK 2013",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-1e6ea3b9ec3cc0cf-1",
+    "role": "reference",
+    "zh": "42. Johnson D.G. Computer Systems: Moral Entities but Not Moral Agents Ethics Inf. Technol. 2006 8 195 204 10.1007/s10676-006-9111-5",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-85f0a89ef04d1da4-1",
+    "role": "reference",
+    "zh": "43. Himma K.E. Artificial Agency, Consciousness, and the Criteria for Moral Agency: What Properties Must an Artificial Agent Have to be a Moral Agent? Ethics Inf. Technol. 2009 11 19 29 10.1007/s10676-008-9167-5",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-bb22218bdfee3f0b-1",
+    "role": "reference",
+    "zh": "44. Behdadi D. Munthe C. Artificial Moral Agency: Philosophical Assumptions, Methodological Challenges, and Normative Solutions. (Manuscript under Consideration for Publication) 2018 Available online: https://www.researchgate.net/publication/311196481_Artificial_Moral_Agency_Philosophical_Assumptions_Methodological_Challenges_and_Normative_Solutions (accessed on 15 February 2018)",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-0aabd735c6656ca8-1",
+    "role": "reference",
+    "zh": "45. Tavani H.T. Can We Develop Artificial Agents Capable of Making Good Moral Decisions? Minds Mach. 2011 21 465 474 10.1007/s11023-011-9249-8",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-fe45741325c36e29-1",
+    "role": "reference",
+    "zh": "46. Moor J.H. The Nature, Difficulty, and Importance of Machine Ethics IEEE Intell. Syst. 2006 21 18 21 10.1109/MIS.2006.80",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-ebfb3e8d13b6f2af-1",
+    "role": "reference",
+    "zh": "47. Moor J.H. Four Kinds of Ethical Robots Philos. Now 2009 72 12 14",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-7730c31f7c5c5504-1",
+    "role": "reference",
+    "zh": "48. Hogan K. Is the Machine Question the Same as the Animal Question? Ethics Inf. Technol. 2017 19 29 38 10.1007/s10676-017-9418-4",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-36541d36ad4c4131-1",
+    "role": "reference",
+    "zh": "49. Tavani H.T. Ethics and Technology: Controversies, Questions, and Strategies for Ethical Computing 5th ed. John Wiley and Sons Hoboken, NJ, USA 2016",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-3f0fc2afe1df2633-1",
+    "role": "reference",
+    "zh": "50. Power T. On the Moral Agency of Computers Topoi 2003 32 227 236 10.1007/s11245-012-9149-4",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-d62d15e1f59819eb-1",
+    "role": "reference",
+    "zh": "51. Jonas H. Memoirs Brandeis University Press Waltham, MA, USA 2008",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-7cd6db285f49b092-1",
+    "role": "reference",
+    "zh": "52. Kant I. The Metaphysics of Morals Cambridge University Press Cambridge, UK 1991",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-aa771bcda52a512a-1",
+    "role": "reference",
+    "zh": "53. Gunkel D.J. Thinking Otherwise Purdue University Press West Lafayette, IN, USA 2007",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-3cb9105323dcf1cf-1",
+    "role": "reference",
+    "zh": "54. Levinas E. Totality and Infinity: An Essay on Exteriority Lingis A. Duquesne University Press Pittsburgh, PA, USA 1969",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-cf3ab9c06e42d038-1",
+    "role": "reference",
+    "zh": "55. Gunkel D.J. The Machine Question—Critical Perspectives on AI, Robots, and Ethics MIT Press Cambridge, MA, USA 2012",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-c6edd66879621a59-1",
+    "role": "reference",
+    "zh": "56. Tavani H.T. The Impact of the Internet on Our Moral Condition: Do We Need a New Framework of Ethics? The Impact of the Internet on Our Moral Lives Cavalier R. State University of New York Press Albany, NY, USA 2005 215 237",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-febd9f9e440481e4-1",
+    "role": "reference",
+    "zh": "57. Michelfelder D. Our Moral Condition in Cyberspace Ethics Inf. Technol. 2000 2 147 152 10.1023/A:1010049320893",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-f0d5e3d732f99d62-1",
+    "role": "reference",
+    "zh": "58. Carr L. On What Grounds Might We Have Moral Obligations to Robots? 2018 Available online: https://www2.rivier.edu/faculty/lcarr/OUR%20MORAL%20OBLIGATION%20TO%20ROBOTS.pdf (accessed on 26 March 2018)",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-e9df5420d5dfa898-1",
+    "role": "reference",
+    "zh": "59. Floridi L. Information Ethics: On the Philosophical Foundation of Computer Ethics Ethics Inf. Technol. 1999 1 37 56 10.1023/A:1010018611096",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-19bf1c5dd6bf90dd-1",
+    "role": "reference",
+    "zh": "60. Floridi L. On the Intrinsic Value of Information Objects in the Infosphere Ethics Inf. Technol. 2002 4 287 304 10.1023/A:1021342422699",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  },
+  {
+    "id": "b-0344c3f02ab7b814-1",
+    "role": "reference",
+    "zh": "61. De Laat P.B. Trusting the (Ro)botic Other: By Assumption? ACM SIGCAS Comput. Soc. 2016 45 255 260 10.1145/2874239.2874275",
+    "note": "",
+    "keys": [],
+    "trap": "",
+    "terms": []
+  }
+]
