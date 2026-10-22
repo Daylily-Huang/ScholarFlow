@@ -130,7 +130,7 @@ def render_full(data, trans, asset_root=".", mechanisms=None):
                 rec = trans.get(pid, {})
                 if not rec.get("zh"):
                     missing.append(pid)
-                original = f'<div class="orig en" data-ann-id="{esc(pid)}-en">{original_html(display_raw,item.get('source',{}))}</div>'
+                original = f'<div class="orig en" data-ann-id="{esc(pid)}-en">{original_html(display_raw,item.get("source",{}))}</div>'
                 translated = f'<div class="zh" data-ann-id="{esc(pid)}-zh">{inline(rec.get("zh", "译文待补"))}</div>'
                 note = f'<div class="note" data-ann-id="{esc(pid)}-note">{esc(rec.get("note", "白话待补"))}</div>'
                 keys = ''.join('<li>' + esc(x) + '</li>' for x in rec.get("keys", []))

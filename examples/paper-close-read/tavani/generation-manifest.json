@@ -1,6 +1,6 @@
 {
   "phase": "three-minute-research-map",
-  "skill_tree_sha256": "fe7f5b97794b870ccbdd4d20a531fc059b0668f062eafa036898c273962f69af",
+  "skill_tree_sha256": "9d2218bede4984f5d276d9f361aca619152ece5cfc8d4334e086bc28420393f7",
   "skill_files": {
     "skills/paper-close-read/assets/editorial.css": "4e96308320697a9ebc77e3a6449b898130586843038d6c7071fbadaeaf34f168",
     "skills/paper-close-read/assets/editorial.js": "52f04902816d53eb8009374f3c5c36584f61bc285f7218fd9a4cd58749597686",
@@ -23,7 +23,7 @@
     "skills/paper-close-read/scripts/import_jats.py": "01ef18a512c9ccc818180d156791e5512909600e36d48b88c5d1a981da5c4348",
     "skills/paper-close-read/scripts/parse_mineru.py": "3bc9940e6ff0f981ac04957523a2f443749ddd13c702c91837f40cf4d22be61c",
     "skills/paper-close-read/scripts/render_concepts.py": "b5e0e37b9ad0dbc475a2f81c51e7131991161c6409a229d2a40e16b1919cc2d3",
-    "skills/paper-close-read/scripts/render_full.py": "d0884fbb7a003479ffa06140f2cf97b1999e7307ff22cc38aee61ebc05402164",
+    "skills/paper-close-read/scripts/render_full.py": "936d67efba0a8be177780a511fbde7f51d4264674dc33d661424ad9cb29186ac",
     "skills/paper-close-read/scripts/render_further.py": "63bfb9af9c2fd661230675e60cadf35a9fe6a7c038388bd680a39973cbad2e22",
     "skills/paper-close-read/scripts/render_mechanisms.py": "f880ddcaf35637c493021f80dd96adeefcd8cf49dcbe3ea0fc1e5030b35439c0",
     "skills/paper-close-read/scripts/render_story.py": "bae0c60364d26014687313ab6d8d65778810422a505fb5b04d928bd1db6db8ee",
