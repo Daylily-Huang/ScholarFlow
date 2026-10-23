@@ -26,6 +26,8 @@ jobs:
           python -m pip install latex2mathml==3.77.0
           python scripts/rebuild_readers.py examples/paper-close-read/thomsen examples/paper-close-read/wilcox examples/paper-close-read/mariana examples/paper-close-read/kross examples/paper-close-read/mckenna examples/paper-close-read/tavani examples/paper-close-read/menis examples/paper-close-read/austen examples/paper-close-read/hardy1908 examples/paper-close-read/carroll1895
           git diff --exit-code -- examples/paper-close-read/*/reader.html
+      - name: Verify standalone release packaging and installation
+        run: python scripts/package_reader.py --output "${{ runner.temp }}/reader-release" --verify
 
   unittest:
     runs-on: ubuntu-latest

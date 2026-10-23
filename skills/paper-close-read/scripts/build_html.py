@@ -12,7 +12,7 @@ from validate_content import validate
 from render_further import render_further
 
 ROOT = Path(__file__).resolve().parent.parent
-GENERATOR_VERSION = '1.1.0-dev'
+GENERATOR_VERSION = '1.1.0'
 
 
 def refs_html(refs):
