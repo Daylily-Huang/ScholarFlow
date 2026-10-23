@@ -14,7 +14,29 @@
       "错配的位置与数量改变干扰，因而灵敏度和特异性必须一起设计。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "quantitative PCR",
+        "zh": "定量 PCR；根据扩增过程的信号进行定量"
+      },
+      {
+        "en": "qPCR",
+        "zh": "定量 PCR 的缩写"
+      },
+      {
+        "en": "specificity",
+        "zh": "特异性；能否把目标与非目标区分开"
+      },
+      {
+        "en": "primers",
+        "zh": "引物；启动特定 DNA 区域扩增的短序列"
+      },
+      {
+        "en": "probe",
+        "zh": "探针；与目标序列结合并产生检测信号"
+      }
+    ]
   },
   {
     "id": "b-a57b71ee96ab68e3-1",
@@ -25,7 +47,25 @@
       "检测稀有物种因此要求从复杂背景中筛出微弱目标。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "environmental DNA",
+        "zh": "环境 DNA"
+      },
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "analysis",
+        "zh": "分析"
+      },
+      {
+        "en": "sample",
+        "zh": "用于研究的样本"
+      }
+    ]
   },
   {
     "id": "b-d8864ba0bdf2a745-1",
@@ -36,7 +76,29 @@
       "常规调查成本高，使eDNA的灵敏性具有实际管理价值。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "environmental DNA",
+        "zh": "环境 DNA"
+      },
+      {
+        "en": "consequently",
+        "zh": "所以；引出所造成的结果"
+      },
+      {
+        "en": "approach",
+        "zh": "处理问题的方法或路径"
+      },
+      {
+        "en": "conventional",
+        "zh": "通常采用的、传统的"
+      },
+      {
+        "en": "methods",
+        "zh": "采用的方法（复数）"
+      }
+    ]
   },
   {
     "id": "b-206ddc39404ee527-1",
@@ -47,7 +109,29 @@
       "目标相对占比仍低，选择性必须由后续检测体系承担。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "non-target",
+        "zh": "非目标的"
+      },
+      {
+        "en": "target species",
+        "zh": "要检测的目标物种"
+      },
+      {
+        "en": "amplification",
+        "zh": "DNA 扩增"
+      },
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "limitations",
+        "zh": "研究本身的限制"
+      }
+    ]
   },
   {
     "id": "b-34aae0add67b482d-1",
@@ -58,7 +142,29 @@
       "近缘种共存再加入比例与竞争问题，因此需要混样测试。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "non-target",
+        "zh": "非目标的"
+      },
+      {
+        "en": "target species",
+        "zh": "要检测的目标物种"
+      },
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "analyses",
+        "zh": "分析（复数）"
+      },
+      {
+        "en": "reliability",
+        "zh": "结果或测量的可靠性"
+      }
+    ]
   },
   {
     "id": "b-85bf88a3dd1cf6d8-1",
@@ -70,7 +176,29 @@
       "通过已知标准比较Ct，才可把越线时间换成初始拷贝数估计。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "quantitative PCR",
+        "zh": "定量 PCR；根据扩增过程的信号进行定量"
+      },
+      {
+        "en": "qPCR",
+        "zh": "定量 PCR 的缩写"
+      },
+      {
+        "en": "primers",
+        "zh": "引物；启动特定 DNA 区域扩增的短序列"
+      },
+      {
+        "en": "probe",
+        "zh": "探针；与目标序列结合并产生检测信号"
+      },
+      {
+        "en": "probes",
+        "zh": "探针（复数）"
+      }
+    ]
   },
   {
     "id": "b-1cd41ab4916b20f4-1",
@@ -81,7 +209,29 @@
       "背景量大时微弱交叉反应也有影响，因而需同时检查引物与探针。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "specificity",
+        "zh": "特异性；能否把目标与非目标区分开"
+      },
+      {
+        "en": "primer",
+        "zh": "引物"
+      },
+      {
+        "en": "probe",
+        "zh": "探针；与目标序列结合并产生检测信号"
+      },
+      {
+        "en": "probes",
+        "zh": "探针（复数）"
+      },
+      {
+        "en": "target species",
+        "zh": "要检测的目标物种"
+      }
+    ]
   },
   {
     "id": "b-1435f0b0a2887b7b-1",
@@ -92,7 +242,29 @@
       "它们共存且一方可很稀少，正好形成近缘混合背景的检验案例。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "brook trout",
+        "zh": "溪红点鲑"
+      },
+      {
+        "en": "bull trout",
+        "zh": "公牛鳟"
+      },
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "sampling",
+        "zh": "选取或收集样本"
+      },
+      {
+        "en": "approach",
+        "zh": "处理问题的方法或路径"
+      }
+    ]
   },
   {
     "id": "b-780b74853f49c9e8-1",
@@ -102,7 +274,17 @@
       "纯样与混样的对照把灵敏性和背景干扰分开检验。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "brook trout",
+        "zh": "溪红点鲑"
+      },
+      {
+        "en": "reliability",
+        "zh": "结果或测量的可靠性"
+      }
+    ]
   },
   {
     "id": "b-dcbec0fe601a5903-1",
@@ -113,7 +295,17 @@
       "种间差异提供辨认依据，把灵敏目标与特异目标落实到同一区段。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "brook trout",
+        "zh": "溪红点鲑"
+      },
+      {
+        "en": "bull trout",
+        "zh": "公牛鳟"
+      }
+    ]
   },
   {
     "id": "b-6f65147314490a60-1",
@@ -124,7 +316,29 @@
       "两种策略对背景DNA的处理不同，因此要在大量近亲存在时比较。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "primers",
+        "zh": "引物；启动特定 DNA 区域扩增的短序列"
+      },
+      {
+        "en": "probe",
+        "zh": "探针；与目标序列结合并产生检测信号"
+      },
+      {
+        "en": "non-target",
+        "zh": "非目标的"
+      },
+      {
+        "en": "brook trout",
+        "zh": "溪红点鲑"
+      },
+      {
+        "en": "bull trout",
+        "zh": "公牛鳟"
+      }
+    ]
   },
   {
     "id": "b-2725e63681b6af23-1",
@@ -139,7 +353,25 @@
       "错配配置与标准化信号并列，供后文检验设计差异是否对应检测表现。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "primer",
+        "zh": "引物"
+      },
+      {
+        "en": "probe",
+        "zh": "探针；与目标序列结合并产生检测信号"
+      },
+      {
+        "en": "non-target",
+        "zh": "非目标的"
+      },
+      {
+        "en": "mismatches",
+        "zh": "序列之间不能互补配对的位置"
+      }
+    ]
   },
   {
     "id": "b-91449e62228ea7d2-1",
@@ -150,7 +382,25 @@
       "组织测序补齐目标与近缘参照，再据此选择检测位点。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "primers",
+        "zh": "引物；启动特定 DNA 区域扩增的短序列"
+      },
+      {
+        "en": "brook trout",
+        "zh": "溪红点鲑"
+      },
+      {
+        "en": "bull trout",
+        "zh": "公牛鳟"
+      },
+      {
+        "en": "respectively",
+        "zh": "按前面顺序分别对应"
+      }
+    ]
   },
   {
     "id": "b-9d6a61301040fcd7-1",
@@ -161,7 +411,29 @@
       "目标种内部变异也可能影响结合，因此须检查灵敏度是否受损。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "primers",
+        "zh": "引物；启动特定 DNA 区域扩增的短序列"
+      },
+      {
+        "en": "probe",
+        "zh": "探针；与目标序列结合并产生检测信号"
+      },
+      {
+        "en": "brook trout",
+        "zh": "溪红点鲑"
+      },
+      {
+        "en": "bull trout",
+        "zh": "公牛鳟"
+      },
+      {
+        "en": "mismatches",
+        "zh": "序列之间不能互补配对的位置"
+      }
+    ]
   },
   {
     "id": "b-befbeb49ffecef01-1",
@@ -172,7 +444,25 @@
       "低模板灵敏检测与污染控制必须在同一流程中考虑。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "primers",
+        "zh": "引物；启动特定 DNA 区域扩增的短序列"
+      },
+      {
+        "en": "probe",
+        "zh": "探针；与目标序列结合并产生检测信号"
+      },
+      {
+        "en": "experiments",
+        "zh": "实验（复数）"
+      },
+      {
+        "en": "therefore",
+        "zh": "因此；引出前面理由所得的判断"
+      }
+    ]
   },
   {
     "id": "b-9eb36e694c9903fd-1",
@@ -183,7 +473,29 @@
       "现场过滤浓集并保冷，使后续测试保留真实水样特征。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "non-target",
+        "zh": "非目标的"
+      },
+      {
+        "en": "brook trout",
+        "zh": "溪红点鲑"
+      },
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "samples",
+        "zh": "用于研究的样本（复数）"
+      },
+      {
+        "en": "previous",
+        "zh": "此前的"
+      }
+    ]
   },
   {
     "id": "b-ae82a43e7bdce53e-1",
@@ -194,7 +506,29 @@
       "逐级稀释保持各自背景结构，用重复扩增估计低浓度表现。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "brook trout",
+        "zh": "溪红点鲑"
+      },
+      {
+        "en": "bull trout",
+        "zh": "公牛鳟"
+      },
+      {
+        "en": "amplification",
+        "zh": "DNA 扩增"
+      },
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "in addition",
+        "zh": "此外；增加另一项理由或信息"
+      }
+    ]
   },
   {
     "id": "b-9d5859afb2b947cb-1",
@@ -205,7 +539,29 @@
       "未知储备液先定量，再配成可对比的目标浓度；这组灵敏度结果专属BRK2。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "qPCR",
+        "zh": "定量 PCR 的缩写"
+      },
+      {
+        "en": "primers",
+        "zh": "引物；启动特定 DNA 区域扩增的短序列"
+      },
+      {
+        "en": "probe",
+        "zh": "探针；与目标序列结合并产生检测信号"
+      },
+      {
+        "en": "brook trout",
+        "zh": "溪红点鲑"
+      },
+      {
+        "en": "estimate",
+        "zh": "估计、估计值"
+      }
+    ]
   },
   {
     "id": "b-acbdd2614f2cd462-1",
@@ -220,7 +576,21 @@
       "校准性能决定未知样本拷贝数估计的可信尺度。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "estimated",
+        "zh": "估计得到的"
+      },
+      {
+        "en": "samples",
+        "zh": "用于研究的样本（复数）"
+      },
+      {
+        "en": "methods",
+        "zh": "采用的方法（复数）"
+      }
+    ]
   },
   {
     "id": "b-a628f765d9c1134d-1",
@@ -231,7 +601,29 @@
       "统一45轮及荧光阈值后，各浓度才能比较。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "brook trout",
+        "zh": "溪红点鲑"
+      },
+      {
+        "en": "bull trout",
+        "zh": "公牛鳟"
+      },
+      {
+        "en": "amplification",
+        "zh": "DNA 扩增"
+      },
+      {
+        "en": "sample",
+        "zh": "用于研究的样本"
+      },
+      {
+        "en": "proportion",
+        "zh": "所占比例"
+      }
+    ]
   },
   {
     "id": "b-cdd5b16d723495ce-1",
@@ -242,7 +634,29 @@
       "阳性标准化使体系间可比较，混合后的竞争则留到下一实验。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "specificity",
+        "zh": "特异性；能否把目标与非目标区分开"
+      },
+      {
+        "en": "non-target",
+        "zh": "非目标的"
+      },
+      {
+        "en": "target species",
+        "zh": "要检测的目标物种"
+      },
+      {
+        "en": "brook trout",
+        "zh": "溪红点鲑"
+      },
+      {
+        "en": "bull trout",
+        "zh": "公牛鳟"
+      }
+    ]
   },
   {
     "id": "b-c3677ad6580a5314-1",
@@ -253,7 +667,25 @@
       "提高近亲背景后比较目标曲线，才能检验模板竞争。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "specificity",
+        "zh": "特异性；能否把目标与非目标区分开"
+      },
+      {
+        "en": "non-target",
+        "zh": "非目标的"
+      },
+      {
+        "en": "brook trout",
+        "zh": "溪红点鲑"
+      },
+      {
+        "en": "bull trout",
+        "zh": "公牛鳟"
+      }
+    ]
   },
   {
     "id": "b-34edb841ba0aeee1-1",
@@ -264,7 +696,29 @@
       "三重复提高至少一次检出的机会；该增益针对检测重复，不能替代现场取样覆盖。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "brook trout",
+        "zh": "溪红点鲑"
+      },
+      {
+        "en": "bull trout",
+        "zh": "公牛鳟"
+      },
+      {
+        "en": "amplification",
+        "zh": "DNA 扩增"
+      },
+      {
+        "en": "estimated",
+        "zh": "估计得到的"
+      },
+      {
+        "en": "samples",
+        "zh": "用于研究的样本（复数）"
+      }
+    ]
   },
   {
     "id": "b-a33efb5fb0290d80-1",
@@ -279,7 +733,29 @@
       "浓度、来源与重复分母共同定义检出概率。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "brook trout",
+        "zh": "溪红点鲑"
+      },
+      {
+        "en": "bull trout",
+        "zh": "公牛鳟"
+      },
+      {
+        "en": "amplification",
+        "zh": "DNA 扩增"
+      },
+      {
+        "en": "estimated",
+        "zh": "估计得到的"
+      },
+      {
+        "en": "experiments",
+        "zh": "实验（复数）"
+      }
+    ]
   },
   {
     "id": "b-a04f5af8edc6caca-1",
@@ -291,7 +767,29 @@
       "Ct提前可造成数量高估，曲线形状变化也会影响有无判读。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "quantitative PCR",
+        "zh": "定量 PCR；根据扩增过程的信号进行定量"
+      },
+      {
+        "en": "specificity",
+        "zh": "特异性；能否把目标与非目标区分开"
+      },
+      {
+        "en": "primers",
+        "zh": "引物；启动特定 DNA 区域扩增的短序列"
+      },
+      {
+        "en": "probe",
+        "zh": "探针；与目标序列结合并产生检测信号"
+      },
+      {
+        "en": "brook trout",
+        "zh": "溪红点鲑"
+      }
+    ]
   },
   {
     "id": "b-49e75bf1066c4dab-1",
@@ -302,7 +800,29 @@
       "引物端差异较大的体系在相应混样中更稳，支持先减少非目标扩增的设计方向。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "specificity",
+        "zh": "特异性；能否把目标与非目标区分开"
+      },
+      {
+        "en": "primers",
+        "zh": "引物；启动特定 DNA 区域扩增的短序列"
+      },
+      {
+        "en": "probe",
+        "zh": "探针；与目标序列结合并产生检测信号"
+      },
+      {
+        "en": "non-target",
+        "zh": "非目标的"
+      },
+      {
+        "en": "target species",
+        "zh": "要检测的目标物种"
+      }
+    ]
   },
   {
     "id": "b-ebe28d76110ee286-1",
@@ -313,7 +833,29 @@
       "把错配放回引物位置后，3′末端对扩增启动的影响提供具体解释。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "specificity",
+        "zh": "特异性；能否把目标与非目标区分开"
+      },
+      {
+        "en": "primers",
+        "zh": "引物；启动特定 DNA 区域扩增的短序列"
+      },
+      {
+        "en": "probe",
+        "zh": "探针；与目标序列结合并产生检测信号"
+      },
+      {
+        "en": "probes",
+        "zh": "探针（复数）"
+      },
+      {
+        "en": "non-target",
+        "zh": "非目标的"
+      }
+    ]
   },
   {
     "id": "b-69d6a6a63249669d-1",
@@ -324,7 +866,29 @@
       "本次水样信号充足，为低浓度系列提供材料，但不是稀有种现场检出率的直接验证。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "brook trout",
+        "zh": "溪红点鲑"
+      },
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "consequently",
+        "zh": "所以；引出所造成的结果"
+      },
+      {
+        "en": "sample",
+        "zh": "用于研究的样本"
+      },
+      {
+        "en": "samples",
+        "zh": "用于研究的样本（复数）"
+      }
+    ]
   },
   {
     "id": "b-c0d18d2c6541427c-1",
@@ -336,7 +900,29 @@
       "序列设计与纯样/混样实测合起来，才构成本文建议的检测验证。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "qPCR",
+        "zh": "定量 PCR 的缩写"
+      },
+      {
+        "en": "specificity",
+        "zh": "特异性；能否把目标与非目标区分开"
+      },
+      {
+        "en": "primers",
+        "zh": "引物；启动特定 DNA 区域扩增的短序列"
+      },
+      {
+        "en": "probes",
+        "zh": "探针（复数）"
+      },
+      {
+        "en": "non-target",
+        "zh": "非目标的"
+      }
+    ]
   },
   {
     "id": "b-8db09dba251a33a7-1",
@@ -347,7 +933,29 @@
       "回交和渐渗程度决定这种解释问题有多大。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "target species",
+        "zh": "要检测的目标物种"
+      },
+      {
+        "en": "brook trout",
+        "zh": "溪红点鲑"
+      },
+      {
+        "en": "bull trout",
+        "zh": "公牛鳟"
+      },
+      {
+        "en": "estimate",
+        "zh": "估计、估计值"
+      },
+      {
+        "en": "distribution",
+        "zh": "某个量或类别的分布"
+      }
+    ]
   },
   {
     "id": "b-edf7a28ba90afbb9-1",
@@ -358,7 +966,29 @@
       "因此体系特异性解决分子辨认，生态来源证据再支持物种现场出现的解释。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "target species",
+        "zh": "要检测的目标物种"
+      },
+      {
+        "en": "amplification",
+        "zh": "DNA 扩增"
+      },
+      {
+        "en": "environmental DNA",
+        "zh": "环境 DNA"
+      },
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "indicate",
+        "zh": "表明、指向"
+      }
+    ]
   },
   {
     "id": "b-166b69a84452f144-1",

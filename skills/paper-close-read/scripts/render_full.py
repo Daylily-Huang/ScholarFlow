@@ -140,6 +140,9 @@ def render_full(data, trans, asset_root=".", mechanisms=None):
                     body.append(f'<article class="source-block compact-info" id="{esc(pid)}">{label}{original}{translated}</article>')
                 else:
                     glossary = f'<p class="terms">{terms}</p>' if terms else ''
+                    vocabulary = ''.join('<div class="vocab-item"><dt lang="en">' + esc(v['en']) + '</dt><dd>' + esc(v['zh']) + '</dd></div>' for v in rec.get('vocabulary', []))
+                    if vocabulary:
+                        glossary += '<section class="paragraph-vocabulary" aria-label="本段重点词汇"><h4>本段重点词汇 <span>Words in context</span></h4><dl>' + vocabulary + '</dl></section>'
                     body.append(f'<article class="pcard {"quoted-source" if src.get("context")=="quote" else ""}" id="{esc(pid)}">{label}'
                                 f'<details class="bilingual" open><summary>原文与译文</summary><div class="pgrid">{original}{translated}</div></details>'
                                 f'<h4 class="plain-title">白话解释</h4>{note}'

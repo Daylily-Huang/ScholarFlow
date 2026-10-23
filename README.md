@@ -25,7 +25,10 @@
 
 这是 ScholarFlow 自带的 **[paper-close-read](skills/paper-close-read/SKILL.md)**，可单独安装使用。按文章的论证方式组织讲解，支持自然科学与人文社科；首页主展示为 **3 篇自然科学 + 2 篇人文社科**：海水 eDNA、引物特异性、心血管机制综述，以及历史与文学细读。
 
-[下载独立安装包 v1.1.0](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.1.0/paper-close-read-v1.1.0.zip) · [中文更新说明](docs/releases/paper-close-read-v1.1.0/CHANGELOG.zh-CN.md)
+> **[⬇ 下载文献阅读 skill 独立安装包 v1.2.0](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.2.0/paper-close-read-v1.2.0.zip)**
+>
+> 无需克隆仓库。解压后复制整个 `paper-close-read` 文件夹即可安装；新增逐段英文词汇和中英双语 PDF 导出。
+> [Release 下载页与校验文件](https://github.com/Daylily-Huang/ScholarFlow/releases/tag/paper-close-read-v1.2.0) · [中文更新说明](docs/releases/paper-close-read-v1.2.0/CHANGELOG.zh-CN.md)
 
 [三步安装，开始读第一篇](#reader-install) · [先看真实效果](#reader-preview) · [五篇完整示例](examples/paper-close-read/README.md)
 
@@ -65,25 +68,25 @@ GitHub 中的 HTML 文件页显示源码。点击文件页的 **Download raw fil
 
 ### 安装并读第一篇
 
-需要 **Python 3.9+**，以及能读取本地文件的 AI 助手，例如 Codex 或 Claude Code。
+**1. [下载 Release 独立安装包 ZIP](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.2.0/paper-close-read-v1.2.0.zip)，解压并安装。** 无需 Git，也不必下载整个仓库。
 
-**1. 下载仓库，只安装文献阅读 skill。** 以下以 Codex 为例：
+将里面整个 `paper-close-read` 文件夹复制到助手实际读取的 skills 目录：Codex 通常是 `~/.codex/skills`，Claude Code 通常是 `~/.claude/skills`。保留 `scripts`、`assets`、`references`，不能只复制 `SKILL.md`。
+
+也可在解压目录运行包内安装器（需要 Python 3.9+）：
 
 ```bash
-git clone https://github.com/Daylily-Huang/ScholarFlow.git
-cd ScholarFlow
-python scripts/install_reader.py --target ~/.codex/skills
+python install.py --target ~/.codex/skills
 ```
 
-Claude Code 用户把最后一行的目标改为 `~/.claude/skills`；其他助手填写各自的 skills 目录。安装器只复制 `paper-close-read`。目标已有不同版本时会停止，检查后可加 `--replace` 更新。
-
-不用命令行也可以：[下载仓库 ZIP](https://github.com/Daylily-Huang/ScholarFlow/archive/refs/heads/main.zip)，把 `skills/paper-close-read` **整个文件夹**复制到助手的 skills 目录。
+安装器只复制这个 skill；已有不同版本时停止，备份自己修改的技能后可用 `--replace` 更新。直接复制安装不需要 Python；生成阅读页的构建工具需要 Python 3.9+ 和可读取本地材料的 AI 助手。阅读 HTML 不需要 Python。贡献者需要源码时再 [克隆仓库](https://github.com/Daylily-Huang/ScholarFlow)。
 
 **2. 重新打开助手会话，提供论文 PDF，直接说：**
 
 > 用 paper-close-read 带我读这篇 PDF。我是这个主题的初学者，请生成可以离线打开的中文带读 HTML。
 
-**3. 用浏览器打开生成的 HTML，选择入门、讲解或逐段精读。**
+**3. 用浏览器打开生成的 HTML，选择入门、讲解或逐段精读。** 每段可查看英文重点词汇及中文释义；点击“导出双语 PDF”，在打印窗口选“另存为 PDF”。也可让助手直接生成排好版的 PDF，保留原文、译文、公式、原图表和词汇。
+
+[下载 Hardy 双语 PDF 示例](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.2.0/Hardy1908-bilingual.pdf) · [下载 Carroll 双语 PDF 示例](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.2.0/Carroll1895-bilingual.pdf)
 
 [完整使用说明与可选依赖](docs/PAPER_CLOSE_READ.md) · [技能入口](skills/paper-close-read/SKILL.md) · [示例来源与许可](examples/paper-close-read/LICENSE.md)
 

@@ -1,0 +1,58 @@
+[
+  {
+    "file": "Hardy1908.pdf",
+    "sha256": "a9465977607ffb427cd7c5006cebf7c72cbcd89819cff41f1f43af6af6d27cf3",
+    "reader_sha256": "30ad74ffa39d97bf3f42496c10ca6311bef3c42583621235e34cdf1d940cafeb",
+    "pages": 9,
+    "page_size_pt": [
+      841.9199829101562,
+      594.9599609375
+    ],
+    "image_instances": 0,
+    "chinese_selectable": true,
+    "vocabulary_present": true,
+    "render_inspection": "first, middle and last pages; source figure and table pages inspected separately"
+  },
+  {
+    "file": "Carroll1895.pdf",
+    "sha256": "b26052073392c013214f781613d34790f2cc7fbb547b313341ba4c55be928b3a",
+    "reader_sha256": "5df75eac84d62e6f11391f2c3c567bee6ceccd9e2f9a90ede4933fe0afc5fe01",
+    "pages": 25,
+    "page_size_pt": [
+      841.9199829101562,
+      594.9599609375
+    ],
+    "image_instances": 0,
+    "chinese_selectable": true,
+    "vocabulary_present": true,
+    "render_inspection": "first, middle and last pages; source figure and table pages inspected separately"
+  },
+  {
+    "file": "Mariana2020.pdf",
+    "sha256": "19fd3bab2ba7a4ee287234f2b7ec5f27ba1a762f696051bdcc64dd9e3a2f3630",
+    "reader_sha256": "1410d27d7e268b115c63755eb7a51a1eb3ff372483e67dff73f1dcda4d161685",
+    "pages": 51,
+    "page_size_pt": [
+      841.9199829101562,
+      594.9599609375
+    ],
+    "image_instances": 1,
+    "chinese_selectable": true,
+    "vocabulary_present": true,
+    "render_inspection": "first, middle and last pages; source figure and table pages inspected separately"
+  },
+  {
+    "file": "Thomsen2012.pdf",
+    "sha256": "5d4813c7f39295f957f3931fe769f38156f97ed2313529ca23c982bd3655bff6",
+    "reader_sha256": "cb13f6a29914c17ee251549f2ac6f9853ce60e44a42f20f27ffcb3ff6f751936",
+    "pages": 41,
+    "page_size_pt": [
+      841.9199829101562,
+      594.9599609375
+    ],
+    "image_instances": 5,
+    "chinese_selectable": true,
+    "vocabulary_present": true,
+    "render_inspection": "first, middle and last pages; source figure and table pages inspected separately"
+  }
+]

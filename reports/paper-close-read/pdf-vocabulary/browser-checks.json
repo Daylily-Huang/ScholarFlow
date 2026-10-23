@@ -1,0 +1,42 @@
+[
+  {
+    "paper": "hardy1908",
+    "sha256": "30ad74ffa39d97bf3f42496c10ca6311bef3c42583621235e34cdf1d940cafeb",
+    "paragraphs": 10,
+    "pdf_fulltext_despite_search": true,
+    "print_options_and_restore": true,
+    "motion_changed": true,
+    "mobile_390px": true,
+    "page_errors": []
+  },
+  {
+    "paper": "carroll1895",
+    "sha256": "5df75eac84d62e6f11391f2c3c567bee6ceccd9e2f9a90ede4933fe0afc5fe01",
+    "paragraphs": 41,
+    "pdf_fulltext_despite_search": true,
+    "print_options_and_restore": true,
+    "motion_changed": true,
+    "mobile_390px": true,
+    "page_errors": []
+  },
+  {
+    "paper": "mariana",
+    "sha256": "1410d27d7e268b115c63755eb7a51a1eb3ff372483e67dff73f1dcda4d161685",
+    "paragraphs": 50,
+    "pdf_fulltext_despite_search": true,
+    "print_options_and_restore": true,
+    "motion_changed": true,
+    "mobile_390px": true,
+    "page_errors": []
+  },
+  {
+    "paper": "thomsen",
+    "sha256": "cb13f6a29914c17ee251549f2ac6f9853ce60e44a42f20f27ffcb3ff6f751936",
+    "paragraphs": 40,
+    "pdf_fulltext_despite_search": true,
+    "print_options_and_restore": true,
+    "motion_changed": true,
+    "mobile_390px": true,
+    "page_errors": []
+  }
+]

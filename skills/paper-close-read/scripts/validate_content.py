@@ -58,7 +58,13 @@ def validate(data, records, guide, source_text=None, allow_incomplete=False):
     missing = expected - set(tids)
     if missing:
         (warnings if allow_incomplete else errors).append(f"Missing translations: {len(missing)}")
+    from vocabulary import vocabulary_errors
+    originals = {i['id']: i for i in items}
     for r in records:
+        original = originals.get(r['id'], {}).get('raw', '')
+        for correction in originals.get(r['id'], {}).get('source', {}).get('corrections', []):
+            original = original.replace(correction['old'], correction['new'], 1)
+        errors.extend(vocabulary_errors(r, original))
         role = r.get("role", "body")
         if role not in {"body", "metadata", "reference", "supporting", "label"}:
             errors.append("Unknown paragraph role: " + r["id"])

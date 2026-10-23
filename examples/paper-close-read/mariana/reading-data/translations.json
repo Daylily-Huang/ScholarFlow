@@ -58,7 +58,29 @@
     ],
     "terms": [],
     "trap": "",
-    "role": "body"
+    "role": "body",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "cardiovascular",
+        "zh": "心血管的"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "atherosclerosis",
+        "zh": "动脉粥样硬化"
+      },
+      {
+        "en": "association",
+        "zh": "变量之间的关联"
+      }
+    ]
   },
   {
     "id": "b-e8d3f91177df6cf9-1",
@@ -78,7 +100,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "cardiovascular",
+        "zh": "心血管的"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "however",
+        "zh": "然而；转入与前面不同的情况"
+      },
+      {
+        "en": "influence",
+        "zh": "影响"
+      }
+    ]
   },
   {
     "id": "b-e1edb970a462a461-1",
@@ -92,7 +136,29 @@
     ],
     "terms": [],
     "trap": "",
-    "role": "body"
+    "role": "body",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "cardiovascular",
+        "zh": "心血管的"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "atherosclerosis",
+        "zh": "动脉粥样硬化"
+      },
+      {
+        "en": "metabolites",
+        "zh": "代谢产物"
+      }
+    ]
   },
   {
     "id": "b-4e02ba0254d6ccf3-1",
@@ -104,7 +170,29 @@
     ],
     "terms": [],
     "trap": "",
-    "role": "body"
+    "role": "body",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "cardiovascular",
+        "zh": "心血管的"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "blood pressure",
+        "zh": "血压"
+      },
+      {
+        "en": "atherosclerosis",
+        "zh": "动脉粥样硬化"
+      }
+    ]
   },
   {
     "id": "b-29547470dfb78649-1",
@@ -116,7 +204,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "blood pressure",
+        "zh": "血压"
+      },
+      {
+        "en": "diastolic",
+        "zh": "舒张期的"
+      },
+      {
+        "en": "systolic",
+        "zh": "收缩期的"
+      }
+    ]
   },
   {
     "id": "b-dfc6411d88aeba46-1",
@@ -129,7 +239,29 @@
     ],
     "terms": [],
     "trap": "综述原文的“1 µg/4 mg/mL”剂量写法不清楚，译文照录；如需复现实验，要查对应原始研究[31]。",
-    "role": "body"
+    "role": "body",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "cardiovascular",
+        "zh": "心血管的"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "blood pressure",
+        "zh": "血压"
+      },
+      {
+        "en": "oxidative stress",
+        "zh": "氧化应激"
+      }
+    ]
   },
   {
     "id": "b-4b03547ec66a0c1c-1",
@@ -142,7 +274,29 @@
     ],
     "terms": [],
     "trap": "",
-    "role": "body"
+    "role": "body",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "blood pressure",
+        "zh": "血压"
+      },
+      {
+        "en": "diastolic",
+        "zh": "舒张期的"
+      },
+      {
+        "en": "systolic",
+        "zh": "收缩期的"
+      }
+    ]
   },
   {
     "id": "b-af759e7dee3853dc-1",
@@ -155,7 +309,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "blood pressure",
+        "zh": "血压"
+      },
+      {
+        "en": "results",
+        "zh": "研究得到的结果"
+      },
+      {
+        "en": "study",
+        "zh": "研究"
+      }
+    ]
   },
   {
     "id": "b-246cd414e5ba8f9e-1",
@@ -168,7 +344,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "blood pressure",
+        "zh": "血压"
+      },
+      {
+        "en": "hypotheses",
+        "zh": "待检验的假说（复数）"
+      },
+      {
+        "en": "mechanisms",
+        "zh": "使现象发生的作用机制（复数）"
+      }
+    ]
   },
   {
     "id": "b-2ce4248d35c583a9-1",
@@ -181,7 +379,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalate",
+        "zh": "邻苯二甲酸酯"
+      },
+      {
+        "en": "cardiovascular",
+        "zh": "心血管的"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "blood pressure",
+        "zh": "血压"
+      },
+      {
+        "en": "smooth muscle",
+        "zh": "平滑肌"
+      }
+    ]
   },
   {
     "id": "b-278511ce5fbb252f-1",
@@ -194,7 +414,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "atherosclerosis",
+        "zh": "动脉粥样硬化"
+      },
+      {
+        "en": "cholesterol",
+        "zh": "胆固醇"
+      },
+      {
+        "en": "oxidative stress",
+        "zh": "氧化应激"
+      },
+      {
+        "en": "evaluate",
+        "zh": "评价、检验"
+      }
+    ]
   },
   {
     "id": "b-b357243d9a90cf7e-1",
@@ -206,7 +448,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "atherosclerosis",
+        "zh": "动脉粥样硬化"
+      },
+      {
+        "en": "smooth muscle",
+        "zh": "平滑肌"
+      },
+      {
+        "en": "experimental",
+        "zh": "实验的"
+      },
+      {
+        "en": "significantly",
+        "zh": "显著地；统计分析中须结合显著性检验理解"
+      }
+    ]
   },
   {
     "id": "b-b0a5ae23f5517eef-1",
@@ -219,7 +483,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "atherosclerosis",
+        "zh": "动脉粥样硬化"
+      },
+      {
+        "en": "cholesterol",
+        "zh": "胆固醇"
+      },
+      {
+        "en": "association",
+        "zh": "变量之间的关联"
+      },
+      {
+        "en": "however",
+        "zh": "然而；转入与前面不同的情况"
+      }
+    ]
   },
   {
     "id": "b-30139a4314ee7c0c-1",
@@ -231,7 +517,29 @@
     ],
     "terms": [],
     "trap": "本段原文写rats，但前一段所述ApoE缺失实验使用的是mice（小鼠）。",
-    "role": "body"
+    "role": "body",
+    "vocabulary": [
+      {
+        "en": "atherosclerosis",
+        "zh": "动脉粥样硬化"
+      },
+      {
+        "en": "mechanisms",
+        "zh": "使现象发生的作用机制（复数）"
+      },
+      {
+        "en": "nevertheless",
+        "zh": "即便如此；承接让步后的判断"
+      },
+      {
+        "en": "demonstrate",
+        "zh": "展示、论证"
+      },
+      {
+        "en": "relevant",
+        "zh": "与当前问题相关的"
+      }
+    ]
   },
   {
     "id": "b-1547fab241a4502b-1",
@@ -244,7 +552,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "cardiovascular",
+        "zh": "心血管的"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "atherosclerosis",
+        "zh": "动脉粥样硬化"
+      },
+      {
+        "en": "oxidative stress",
+        "zh": "氧化应激"
+      }
+    ]
   },
   {
     "id": "b-97ba1dbf52aaf063-1",
@@ -256,7 +586,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "metabolites",
+        "zh": "代谢产物"
+      },
+      {
+        "en": "in vivo",
+        "zh": "在活体实验条件下"
+      },
+      {
+        "en": "analyses",
+        "zh": "分析（复数）"
+      }
+    ]
   },
   {
     "id": "b-52c3a60e252705d1-1",
@@ -268,7 +620,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "significantly",
+        "zh": "显著地；统计分析中须结合显著性检验理解"
+      },
+      {
+        "en": "previous",
+        "zh": "此前的"
+      },
+      {
+        "en": "results",
+        "zh": "研究得到的结果"
+      }
+    ]
   },
   {
     "id": "b-2d389a4111b22644-1",
@@ -281,7 +655,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalate",
+        "zh": "邻苯二甲酸酯"
+      },
+      {
+        "en": "calcium",
+        "zh": "钙；此处与细胞收缩信号有关"
+      },
+      {
+        "en": "experiments",
+        "zh": "实验（复数）"
+      },
+      {
+        "en": "demonstrated",
+        "zh": "已展示或论证"
+      },
+      {
+        "en": "significantly",
+        "zh": "显著地；统计分析中须结合显著性检验理解"
+      }
+    ]
   },
   {
     "id": "b-88417802c384986a-1",
@@ -293,7 +689,25 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "mechanisms",
+        "zh": "使现象发生的作用机制（复数）"
+      },
+      {
+        "en": "demonstrate",
+        "zh": "展示、论证"
+      },
+      {
+        "en": "studies",
+        "zh": "多项研究"
+      }
+    ]
   },
   {
     "id": "b-766b7551a5eaa25d-1",
@@ -305,7 +719,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "cardiovascular",
+        "zh": "心血管的"
+      },
+      {
+        "en": "blood pressure",
+        "zh": "血压"
+      },
+      {
+        "en": "diastolic",
+        "zh": "舒张期的"
+      },
+      {
+        "en": "systolic",
+        "zh": "收缩期的"
+      }
+    ]
   },
   {
     "id": "b-3f5e9be74912e815-1",
@@ -317,7 +753,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "vascular",
+        "zh": "血管的"
+      },
+      {
+        "en": "findings",
+        "zh": "研究中得到的发现"
+      },
+      {
+        "en": "hypothesis",
+        "zh": "待检验的假说"
+      }
+    ]
   },
   {
     "id": "b-1151b0457d8f3089-1",
@@ -330,7 +788,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "blood pressure",
+        "zh": "血压"
+      },
+      {
+        "en": "metabolites",
+        "zh": "代谢产物"
+      },
+      {
+        "en": "diastolic",
+        "zh": "舒张期的"
+      },
+      {
+        "en": "evidence",
+        "zh": "支持判断的证据"
+      }
+    ]
   },
   {
     "id": "b-a25779ebcd7ccadd-1",
@@ -342,7 +822,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalate",
+        "zh": "邻苯二甲酸酯"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "metabolites",
+        "zh": "代谢产物"
+      },
+      {
+        "en": "diastolic",
+        "zh": "舒张期的"
+      },
+      {
+        "en": "systolic",
+        "zh": "收缩期的"
+      }
+    ]
   },
   {
     "id": "b-b3e6701bc5a26852-1",
@@ -354,7 +856,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "blood pressure",
+        "zh": "血压"
+      },
+      {
+        "en": "association",
+        "zh": "变量之间的关联"
+      },
+      {
+        "en": "analyses",
+        "zh": "分析（复数）"
+      }
+    ]
   },
   {
     "id": "b-1f0befe5a7aebb34-1",
@@ -366,7 +890,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "oxidative stress",
+        "zh": "氧化应激"
+      },
+      {
+        "en": "hypotheses",
+        "zh": "待检验的假说（复数）"
+      },
+      {
+        "en": "mechanism",
+        "zh": "使现象发生的作用机制"
+      }
+    ]
   },
   {
     "id": "b-6ba03ef520953fec-1",
@@ -379,7 +925,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "blood pressure",
+        "zh": "血压"
+      },
+      {
+        "en": "association",
+        "zh": "变量之间的关联"
+      },
+      {
+        "en": "experimental",
+        "zh": "实验的"
+      }
+    ]
   },
   {
     "id": "b-122549d5157ce4ce-1",
@@ -391,7 +959,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "blood pressure",
+        "zh": "血压"
+      },
+      {
+        "en": "metabolites",
+        "zh": "代谢产物"
+      },
+      {
+        "en": "systolic",
+        "zh": "收缩期的"
+      }
+    ]
   },
   {
     "id": "b-a2529e3a6b2ed0e3-1",
@@ -404,7 +994,29 @@
     ],
     "terms": [],
     "trap": "",
-    "role": "body"
+    "role": "body",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "blood pressure",
+        "zh": "血压"
+      },
+      {
+        "en": "metabolites",
+        "zh": "代谢产物"
+      },
+      {
+        "en": "diastolic",
+        "zh": "舒张期的"
+      }
+    ]
   },
   {
     "id": "b-8afb80abf651d6a5-1",
@@ -416,7 +1028,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "systolic",
+        "zh": "收缩期的"
+      },
+      {
+        "en": "however",
+        "zh": "然而；转入与前面不同的情况"
+      },
+      {
+        "en": "relationship",
+        "zh": "事物之间的关系"
+      }
+    ]
   },
   {
     "id": "b-607d4d486e53304a-1",
@@ -429,7 +1063,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "cardiovascular",
+        "zh": "心血管的"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "atherosclerosis",
+        "zh": "动脉粥样硬化"
+      },
+      {
+        "en": "metabolites",
+        "zh": "代谢产物"
+      }
+    ]
   },
   {
     "id": "b-bbed00e8d73f54bd-1",
@@ -442,7 +1098,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "atherosclerosis",
+        "zh": "动脉粥样硬化"
+      },
+      {
+        "en": "cholesterol",
+        "zh": "胆固醇"
+      },
+      {
+        "en": "efflux",
+        "zh": "向细胞外转运、外排"
+      },
+      {
+        "en": "endothelial",
+        "zh": "血管内皮的"
+      }
+    ]
   },
   {
     "id": "b-e9660464fac329b1-1",
@@ -454,7 +1132,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "cardiovascular",
+        "zh": "心血管的"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "atherosclerosis",
+        "zh": "动脉粥样硬化"
+      },
+      {
+        "en": "mechanism",
+        "zh": "使现象发生的作用机制"
+      }
+    ]
   },
   {
     "id": "b-d0fa571a2e5be9dc-1",
@@ -466,7 +1166,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "atherosclerosis",
+        "zh": "动脉粥样硬化"
+      },
+      {
+        "en": "metabolic syndrome",
+        "zh": "代谢综合征"
+      },
+      {
+        "en": "metabolites",
+        "zh": "代谢产物"
+      },
+      {
+        "en": "association",
+        "zh": "变量之间的关联"
+      }
+    ]
   },
   {
     "id": "b-a7b195d90ba078e2-1",
@@ -478,7 +1200,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "cardiovascular",
+        "zh": "心血管的"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "blood pressure",
+        "zh": "血压"
+      },
+      {
+        "en": "oxidative stress",
+        "zh": "氧化应激"
+      }
+    ]
   },
   {
     "id": "b-76ed511a2405de2b-1",
@@ -490,7 +1234,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "cholesterol",
+        "zh": "胆固醇"
+      },
+      {
+        "en": "metabolites",
+        "zh": "代谢产物"
+      },
+      {
+        "en": "demonstrated",
+        "zh": "已展示或论证"
+      }
+    ]
   },
   {
     "id": "b-6da4f72b027e5355-1",
@@ -502,7 +1268,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "oxidative stress",
+        "zh": "氧化应激"
+      },
+      {
+        "en": "metabolites",
+        "zh": "代谢产物"
+      },
+      {
+        "en": "association",
+        "zh": "变量之间的关联"
+      }
+    ]
   },
   {
     "id": "b-d2c1c3567dc2b48a-1",
@@ -514,7 +1302,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalate",
+        "zh": "邻苯二甲酸酯"
+      },
+      {
+        "en": "cholesterol",
+        "zh": "胆固醇"
+      },
+      {
+        "en": "metabolic syndrome",
+        "zh": "代谢综合征"
+      },
+      {
+        "en": "metabolites",
+        "zh": "代谢产物"
+      },
+      {
+        "en": "association",
+        "zh": "变量之间的关联"
+      }
+    ]
   },
   {
     "id": "b-85691dfc74788a72-1",
@@ -526,7 +1336,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "metabolic syndrome",
+        "zh": "代谢综合征"
+      },
+      {
+        "en": "limitations",
+        "zh": "研究本身的限制"
+      },
+      {
+        "en": "analysis",
+        "zh": "分析"
+      }
+    ]
   },
   {
     "id": "b-c0b93855ada6238e-1",
@@ -538,7 +1370,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "oxidative stress",
+        "zh": "氧化应激"
+      },
+      {
+        "en": "metabolic syndrome",
+        "zh": "代谢综合征"
+      },
+      {
+        "en": "findings",
+        "zh": "研究中得到的发现"
+      },
+      {
+        "en": "mechanism",
+        "zh": "使现象发生的作用机制"
+      }
+    ]
   },
   {
     "id": "b-68c408e16920784d-1",
@@ -551,7 +1405,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "cardiovascular",
+        "zh": "心血管的"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "oxidative stress",
+        "zh": "氧化应激"
+      },
+      {
+        "en": "endothelial",
+        "zh": "血管内皮的"
+      },
+      {
+        "en": "evidence",
+        "zh": "支持判断的证据"
+      }
+    ]
   },
   {
     "id": "b-c3b911dc5ca75cbb-1",
@@ -564,7 +1440,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "oxidative stress",
+        "zh": "氧化应激"
+      },
+      {
+        "en": "mechanism",
+        "zh": "使现象发生的作用机制"
+      },
+      {
+        "en": "mechanisms",
+        "zh": "使现象发生的作用机制（复数）"
+      },
+      {
+        "en": "in addition",
+        "zh": "此外；增加另一项理由或信息"
+      },
+      {
+        "en": "potential",
+        "zh": "可能存在或发生的"
+      }
+    ]
   },
   {
     "id": "b-b111d7ed68a9180b-1",
@@ -576,7 +1474,21 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "calcium",
+        "zh": "钙；此处与细胞收缩信号有关"
+      },
+      {
+        "en": "study",
+        "zh": "研究"
+      }
+    ]
   },
   {
     "id": "b-4de077890a01a68c-1",
@@ -588,7 +1500,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "cardiovascular",
+        "zh": "心血管的"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "mechanism",
+        "zh": "使现象发生的作用机制"
+      },
+      {
+        "en": "experimental",
+        "zh": "实验的"
+      }
+    ]
   },
   {
     "id": "b-777e0e9f3df91204-1",
@@ -600,7 +1534,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "cardiovascular",
+        "zh": "心血管的"
+      },
+      {
+        "en": "blood pressure",
+        "zh": "血压"
+      },
+      {
+        "en": "atherosclerosis",
+        "zh": "动脉粥样硬化"
+      },
+      {
+        "en": "concepts",
+        "zh": "概念（复数）"
+      }
+    ]
   },
   {
     "id": "b-7951532d1bd3e34b-1",
@@ -613,7 +1569,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "blood pressure",
+        "zh": "血压"
+      },
+      {
+        "en": "oxidative stress",
+        "zh": "氧化应激"
+      },
+      {
+        "en": "hypotheses",
+        "zh": "待检验的假说（复数）"
+      },
+      {
+        "en": "mechanism",
+        "zh": "使现象发生的作用机制"
+      }
+    ]
   },
   {
     "id": "b-f799a3312234b490-1",
@@ -625,7 +1603,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": "结论此处写rats；正文对应的母体DEHP实验描述为mice（小鼠）。"
+    "trap": "结论此处写rats；正文对应的母体DEHP实验描述为mice（小鼠）。",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "in vivo",
+        "zh": "在活体实验条件下"
+      },
+      {
+        "en": "demonstrated",
+        "zh": "已展示或论证"
+      },
+      {
+        "en": "results",
+        "zh": "研究得到的结果"
+      },
+      {
+        "en": "studies",
+        "zh": "多项研究"
+      }
+    ]
   },
   {
     "id": "b-02c8e7ab6d09368f-1",
@@ -637,7 +1637,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "atherosclerosis",
+        "zh": "动脉粥样硬化"
+      },
+      {
+        "en": "cholesterol",
+        "zh": "胆固醇"
+      },
+      {
+        "en": "oxidative stress",
+        "zh": "氧化应激"
+      }
+    ]
   },
   {
     "id": "b-d82f078469217e8b-1",
@@ -649,7 +1671,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "oxidative stress",
+        "zh": "氧化应激"
+      },
+      {
+        "en": "endothelial",
+        "zh": "血管内皮的"
+      },
+      {
+        "en": "calcium",
+        "zh": "钙；此处与细胞收缩信号有关"
+      }
+    ]
   },
   {
     "id": "b-46e1262b43d981aa-1",
@@ -662,7 +1706,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "cardiovascular",
+        "zh": "心血管的"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "in vitro",
+        "zh": "在体外实验条件下"
+      },
+      {
+        "en": "mechanisms",
+        "zh": "使现象发生的作用机制（复数）"
+      }
+    ]
   },
   {
     "id": "b-2811db1cada85335-1",
@@ -674,7 +1740,29 @@
     ],
     "terms": [],
     "role": "body",
-    "trap": ""
+    "trap": "",
+    "vocabulary": [
+      {
+        "en": "phthalates",
+        "zh": "邻苯二甲酸酯类；本文讨论的一类增塑剂"
+      },
+      {
+        "en": "cardiovascular",
+        "zh": "心血管的"
+      },
+      {
+        "en": "exposure",
+        "zh": "接触某种化学物的暴露"
+      },
+      {
+        "en": "atherosclerosis",
+        "zh": "动脉粥样硬化"
+      },
+      {
+        "en": "evidence",
+        "zh": "支持判断的证据"
+      }
+    ]
   },
   {
     "id": "b-9016851cfb3727eb-1",
