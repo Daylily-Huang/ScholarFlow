@@ -101,11 +101,13 @@
     {
       "path": "examples/academic.pptx",
       "before_sha256": "cf3aa00deecaa631e0c4097c3e21e3cbf7f69a7bd610ad01ce702581ff1c0147",
-      "after_sha256": "5b766cbe4a09052253fabec04bfcaf1f95c816a7825c0573fba6a43078214a1f",
+      "after_sha256": "528c01569f381088fecaeaf3108f25b218dff7684b295a9c57c2b1c0edf06873",
       "modified_parts": [
         "docProps/core.xml"
       ],
-      "removed_parts": []
+      "removed_parts": [],
+      "metadata_cleaned_archive_sha256": "5b766cbe4a09052253fabec04bfcaf1f95c816a7825c0573fba6a43078214a1f",
+      "archive_rebuilt_after_cleanup": true
     },
     {
       "path": "examples/adaptive-light.pptx",
@@ -128,11 +130,13 @@
     {
       "path": "examples/all-layouts.pptx",
       "before_sha256": "a5d977a90a974f376adeb854887509792447d26d5e300deb9441f1885285c6a6",
-      "after_sha256": "bb676cc0c61c31999ef519ea9053f0a8b13193677f322cf284baddaabbc5ee2c",
+      "after_sha256": "df89f0b495f78b77455b70867cc5feb885192767f83d1e21d33be6944001252a",
       "modified_parts": [
         "docProps/core.xml"
       ],
-      "removed_parts": []
+      "removed_parts": [],
+      "metadata_cleaned_archive_sha256": "bb676cc0c61c31999ef519ea9053f0a8b13193677f322cf284baddaabbc5ee2c",
+      "archive_rebuilt_after_cleanup": true
     },
     {
       "path": "examples/assets/ecology-showcase-base.pptx",
@@ -157,7 +161,7 @@
     {
       "path": "examples/assets/ecology-showcase.pptx",
       "before_sha256": "af16d5c6256d365929b5e4cada15c105e653fb431c69fec1b4c9768376c2f4a7",
-      "after_sha256": "f18413b642f5f2eb09050dbcf5c39f30bcf800a4d9d220b1129b4923e8105e53",
+      "after_sha256": "276138a41023f343ae9750cd39fe6b71d931fd9344c4792bc814c03cf4d87b6e",
       "modified_parts": [
         "_rels/.rels",
         "ppt/slides/slide1.xml",
@@ -172,7 +176,9 @@
       ],
       "removed_parts": [
         "docProps/thumbnail.jpeg"
-      ]
+      ],
+      "metadata_cleaned_archive_sha256": "f18413b642f5f2eb09050dbcf5c39f30bcf800a4d9d220b1129b4923e8105e53",
+      "archive_rebuilt_after_cleanup": true
     },
     {
       "path": "examples/assets/native-bank-base.pptx",
@@ -246,11 +252,13 @@
     {
       "path": "examples/coursework.pptx",
       "before_sha256": "7e05e7f314f40cfe9875975ce05682074f11dff9eea39d650b82fb5fb2cb8227",
-      "after_sha256": "e17183f45841fb1d91ea6eb61463751ff922f76db5bf26625016ea4c6a20cc24",
+      "after_sha256": "99c86221482d35a56214b1f10d440dcf25753033cd9e33e444500845d52242e3",
       "modified_parts": [
         "docProps/core.xml"
       ],
-      "removed_parts": []
+      "removed_parts": [],
+      "metadata_cleaned_archive_sha256": "e17183f45841fb1d91ea6eb61463751ff922f76db5bf26625016ea4c6a20cc24",
+      "archive_rebuilt_after_cleanup": true
     },
     {
       "path": "examples/evidence-layouts.pptx",
@@ -324,20 +332,24 @@
     {
       "path": "examples/palettes.pptx",
       "before_sha256": "661a01388226b089310bd4235eb64c61c12c01582c75bd6dcf3f66ed45be67fa",
-      "after_sha256": "16cdce7c7183ddaefd19dfda51ba284dbf20dd2a5986d5ebf8aff36d60be26ab",
+      "after_sha256": "1615f9f08119f3487ad8bb2997159b44a0ac755aa40be9b135c8be46997d8145",
       "modified_parts": [
         "docProps/core.xml"
       ],
-      "removed_parts": []
+      "removed_parts": [],
+      "metadata_cleaned_archive_sha256": "16cdce7c7183ddaefd19dfda51ba284dbf20dd2a5986d5ebf8aff36d60be26ab",
+      "archive_rebuilt_after_cleanup": true
     },
     {
       "path": "examples/progress.pptx",
       "before_sha256": "d3796520bbf1d836196fbf2106192797c04b0a8e05873dfbdc213ea083e71d5a",
-      "after_sha256": "a9ab80c00d728ecf83556f42273783cea84ff8831ed71ed521a42fe35ad4d9a5",
+      "after_sha256": "f344c270401711107ca22f4ae9c71d4b737b61714e5697f100581ce29dfeeea5",
       "modified_parts": [
         "docProps/core.xml"
       ],
-      "removed_parts": []
+      "removed_parts": [],
+      "metadata_cleaned_archive_sha256": "a9ab80c00d728ecf83556f42273783cea84ff8831ed71ed521a42fe35ad4d9a5",
+      "archive_rebuilt_after_cleanup": true
     },
     {
       "path": "examples/promo/showcase.pptx",

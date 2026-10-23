@@ -3,4 +3,8 @@
 /examples/paper-close-read/** -text
 
 # Preserve the PPT package bytes used by its integrity manifests.
-/skills/editable-research-ppt/** -text
+/skills/editable-research-ppt/** -text whitespace=cr-at-eol
+
+# Preserve third-party source/license whitespace exactly as downloaded.
+/skills/editable-research-ppt/assets/media-library/svg/** -whitespace
+/skills/editable-research-ppt/assets/media-library/licenses/** -whitespace
