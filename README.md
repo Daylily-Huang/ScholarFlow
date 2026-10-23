@@ -25,6 +25,8 @@
 
 这是 ScholarFlow 自带的 **[paper-close-read](skills/paper-close-read/SKILL.md)**，可单独安装使用。按文章的论证方式组织讲解，支持自然科学与人文社科；首页主展示为 **3 篇自然科学 + 2 篇人文社科**：海水 eDNA、引物特异性、心血管机制综述，以及历史与文学细读。
 
+[下载独立安装包 v1.1.0](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.1.0/paper-close-read-v1.1.0.zip) · [中文更新说明](docs/releases/paper-close-read-v1.1.0/CHANGELOG.zh-CN.md)
+
 [三步安装，开始读第一篇](#reader-install) · [先看真实效果](#reader-preview) · [五篇完整示例](examples/paper-close-read/README.md)
 
 | 阅读方式 | 你会看到什么 |

@@ -1,7 +1,7 @@
 {
   "phase": "local-reader-quality",
   "paper_id": "10.1371/journal.pone.0041732",
-  "skill_tree_sha256": "c5be016a1c39c9cb340f2bcd96146f4413234e14048402b1a2c2073e174be5ad",
+  "skill_tree_sha256": "8d2428e84ff518b9160a47fb4e25b554e57cb17367813a939bd122b3db2ae617",
   "skill_files": {
     "assets/editorial.css": "4e96308320697a9ebc77e3a6449b898130586843038d6c7071fbadaeaf34f168",
     "assets/editorial.js": "52f04902816d53eb8009374f3c5c36584f61bc285f7218fd9a4cd58749597686",
@@ -19,13 +19,13 @@
     "references/humanities-social-sciences.md": "891486cabe1179070f758a70112b43b1979cd46a06edd255c41b8c8e0d96bbf3",
     "references/mechanism-design.md": "77c34ffd5c98bea4853af32d2d2df6254e6d1f24002f63cf9755b4f4c49a937f",
     "references/plain-language.md": "9f6f4d727bb04c2ccc8a5ce4daae122cb6832b116a3534204bdcd33547941ba5",
-    "references/portability.md": "f485f826e50568cdb9d0be192b694ea582b402e4be8d61ecad12526d6a3efd60",
+    "references/portability.md": "e64bd819a225f4754743d4fde746945954eb8bd5d7f1732f51033a258df0d3f6",
     "references/production-workflow.md": "5c51f7b9c7c806c50b81514608f8d9252246da400452d0fee487a7661e826bda",
     "references/reader-operations.md": "8a78965ce34fd071adaab2f791c3a018134a95a3676b3b679cc12c9570abf6d9",
     "references/reading-design.md": "3a2846fb0ad80f4a39dc084883c7bb92cbaf266bd21b028311fcee98a0acdf75",
     "references/translation-spec.md": "dd6e366cb7172b82cb72ea594a368e6522abf6cf1ae05ec22eaee4503abcb3a2",
     "scripts/annotate.js": "56671f7ba8a63702565744cfde5a64edaac8f56ef2122b756d1faded20f114a3",
-    "scripts/build_html.py": "96a0f3dde169f87b276558391bb2aab4ac1e1746ef1d0249c9f73ced290e0f35",
+    "scripts/build_html.py": "45404a8d7752b5cc36c8cb829a61b1c1bb29c9a7e69d7739484592e07659dba1",
     "scripts/import_jats.py": "4c1f8796a84523ec19c81780f25c80fbb9daa52a849361ffbb1bfc4297fca589",
     "scripts/input_shapes.py": "3b8ff93c3a518af9b44810ceadcc6992ec3a1683802db4f20f3ee0d51fc12bda",
     "scripts/parse_mineru.py": "3bc9940e6ff0f981ac04957523a2f443749ddd13c702c91837f40cf4d22be61c",
@@ -55,7 +55,7 @@
     "source.md": "260fe7a87b57bdf802236fadaf5a8eef603215fd4ab9d343cc764698c2941268",
     "translations.json": "6435be0ac5927ee52ee849144e54b485785f608d3fd388597e8529527537a623"
   },
-  "html_sha256": "da123e9a69ba3962bfbfc20fdfc44ea1e02595556633392805f7d18a5736204e",
+  "html_sha256": "4f007840f0f1b10adff1d1a3e62e2cee2c4b5cde84fe5194a1a047e9e9fb0173",
   "rebuild_script_sha256": "f0d0f98bd2afe42fa28b8154a531225c972ed826a7ab555801792cfe29645fc0",
   "source_blocks": 112,
   "paragraphs": 105,
