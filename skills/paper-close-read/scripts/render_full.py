@@ -130,9 +130,9 @@ def render_full(data, trans, asset_root=".", mechanisms=None):
                 rec = trans.get(pid, {})
                 if not rec.get("zh"):
                     missing.append(pid)
-                original = f'<div class="orig en" data-ann-id="{esc(pid)}-en">{original_html(display_raw,item.get("source",{}))}</div>'
-                translated = f'<div class="zh" data-ann-id="{esc(pid)}-zh">{inline(rec.get("zh", "译文待补"))}</div>'
-                note = f'<div class="note" data-ann-id="{esc(pid)}-note">{esc(rec.get("note", "白话待补"))}</div>'
+                original = f'<div class="orig en" id="{esc(pid)}-en" data-ann-id="{esc(pid)}-en">{original_html(display_raw,item.get("source",{}))}</div>'
+                translated = f'<div class="zh" id="{esc(pid)}-zh" data-ann-id="{esc(pid)}-zh">{inline(rec.get("zh", "译文待补"))}</div>'
+                note = f'<div class="note" id="{esc(pid)}-note" data-ann-id="{esc(pid)}-note">{esc(rec.get("note", "白话待补"))}</div>'
                 keys = ''.join('<li>' + esc(x) + '</li>' for x in rec.get("keys", []))
                 trap = '<p class="trap">易错点：' + esc(rec["trap"]) + '</p>' if rec.get("trap") else ''
                 terms = ' · '.join(esc(t.get("en", "")) + '：' + esc(t.get("zh", "")) for t in rec.get("terms", []))

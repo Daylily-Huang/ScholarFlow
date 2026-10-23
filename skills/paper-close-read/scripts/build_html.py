@@ -2,6 +2,8 @@
 import argparse
 import hashlib
 import json
+import os
+import tempfile
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -10,6 +12,7 @@ from validate_content import validate
 from render_further import render_further
 
 ROOT = Path(__file__).resolve().parent.parent
+GENERATOR_VERSION = '1.1.0-dev'
 
 
 def refs_html(refs):
@@ -17,9 +20,15 @@ def refs_html(refs):
 
 
 def render_guide(guide, asset_root):
+    checks = []
+    for n, check in enumerate(guide.get("checks", [])):
+        checks.append(f'<article class="check"><h3>{esc(check.get("question", ""))}</h3>'
+                      f'<label>先用自己的话想一想（不用提交）<textarea data-recall="{n}" rows="2"></textarea></label>'
+                      f'<details open><summary>对照解释与证据</summary><p>{esc(check.get("answer", ""))}</p>{refs_html(check.get("refs", []))}</details></article>')
     if guide.get('story'):
         from render_story import render_story
-        return render_story(guide['story'], guide.get('mechanisms', []), guide.get('concepts', []))
+        extra='<section class="story-practice"><h2>试着讲给别人听</h2>'+''.join(checks)+'</section>' if checks else ''
+        return render_story(guide['story'], guide.get('mechanisms', []), guide.get('concepts', []),extra)
     motion_links = ''.join(f'<p><a class="evidence" href="#{esc(m["id"])}">{esc(m["title"])}</a></p>' for m in guide.get('mechanisms', []))
     motion_links = '<section class="motion-guide-links"><h3>用动图跨过这些难点</h3>' + motion_links + '</section>' if motion_links else ''
     claims = []
@@ -27,11 +36,6 @@ def render_guide(guide, asset_root):
         claims.append(f'<article class="claim" id="g-{n}"><span class="eyebrow">证据路线 {n + 1} · {esc(claim.get("kind", "作者论述"))}</span>'
                       f'<h3>{esc(claim.get("title", ""))}</h3><p data-ann-id="g-{n}-text">{esc(claim.get("text", ""))}</p>'
                       f'{refs_html(claim.get("refs", []))}</article>')
-    checks = []
-    for n, check in enumerate(guide.get("checks", [])):
-        checks.append(f'<article class="check"><h3>{esc(check.get("question", ""))}</h3>'
-                      f'<label>先用自己的话想一想（不用提交）<textarea data-recall="{n}" rows="2"></textarea></label>'
-                      f'<details open><summary>对照解释与证据</summary><p>{esc(check.get("answer", ""))}</p>{refs_html(check.get("refs", []))}</details></article>')
     glossary = ''.join(f'<details open><summary>{esc(t.get("term", ""))}</summary><p>{esc(t.get("meaning", ""))}</p></details>' for t in guide.get("glossary", []))
     limits = ''.join('<li>' + esc(s) + '</li>' for s in guide.get("limits", []))
     transfer = ''.join('<li>' + esc(s) + '</li>' for s in guide.get("transfer", []))
@@ -92,11 +96,17 @@ def build(data, records, guide, asset_root, source_text=None, allow_incomplete=F
     title = data["front"]["title"]
     config = {"paperId": data["paper_id"], "title": title,
               "revision": hashlib.sha256(json.dumps([data, records, guide], ensure_ascii=False, sort_keys=True).encode()).hexdigest()[:20]}
+    config['generatorVersion']=GENERATOR_VERSION
+    config['citation']=data['front'].get('citation','')
+    config['blocks']={i['id']:{'page':i.get('source',{}).get('pdf_page'),'verified':i.get('source',{}).get('status')=='verified','section':s.get('display_name',s['name'])} for s in data['sections'] for i in s['items']}
     config_json = json.dumps(config, ensure_ascii=False).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
     warnings = ''.join('<li>' + esc(w) + '</li>' for w in report["warnings"])
     verified = sum(item.get("source", {}).get("status") == "verified" for section in data["sections"] for item in section["items"])
     scope = esc(guide.get("scope", "导读为精选；全文模式覆盖本次提供的 Markdown，不代表已核对 PDF 全文完整性。"))
     css = (ROOT / 'assets/reader.css').read_text(encoding='utf-8-sig') + '\n' + (ROOT / 'assets/editorial.css').read_text(encoding='utf-8-sig')
+    persistence = (ROOT / 'assets/persistence.js').read_text(encoding='utf-8-sig')
+    workspace = (ROOT / 'assets/workspace.js').read_text(encoding='utf-8-sig')
+    navigation_js = (ROOT / 'assets/navigation.js').read_text(encoding='utf-8-sig')
     reader = (ROOT / 'assets/reader.js').read_text(encoding='utf-8-sig')
     annotation = (ROOT / 'scripts/annotate.js').read_text(encoding='utf-8-sig')
     enhancements = (ROOT / 'assets/editorial.js').read_text(encoding='utf-8-sig') + '\n' + (ROOT / 'assets/mechanisms.js').read_text(encoding='utf-8-sig')
@@ -108,10 +118,27 @@ def build(data, records, guide, asset_root, source_text=None, allow_incomplete=F
     result = f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)} · 精读</title><style>{css}</style></head>
 <body class="{'source-zh' if data['front'].get('language') == 'zh' else 'source-en'}"><a class="skip" href="#main">跳至正文</a><header><span class="eyebrow">文献慢读 · 从问题走到证据</span><h1>{esc(title)}</h1><p>{esc(data['front'].get('citation', ''))}</p>{draft}<a href="#source-notes">来源说明</a></header>
 <div class="toolbar"><div class="seg" aria-label="阅读路线"><button data-route="full" aria-pressed="true">逐段精读</button><button data-route="quick" aria-pressed="false">3 分钟入门</button><button data-route="deep" aria-pressed="false">10 分钟读懂</button></div><label class="font-label" for="font-size">字号 <select id="font-size"><option value="16">16px</option><option value="18" selected>18px · 默认</option><option value="20">20px</option></select></label><button id="resume">继续上次</button><button id="export-reading">导出阅读笔记</button><span id="progress" aria-live="polite"></span></div>
-<div class="layout"><aside><label for="search">检索原文与讲解</label><input id="search" type="search" placeholder="输入术语、数值或问题"><p id="search-count" aria-live="polite"></p><nav aria-label="全文目录">{navigation}</nav></aside><main id="main"><div id="mode-guide" hidden>{render_guide(guide, asset_root)}</div><div id="mode-full">{full}</div><section id="source-notes"><h2>来源说明</h2><p>{scope}</p><p>{report['source_blocks']} 个来源块 · {report['paragraphs']} 段 · {report['translations']} 条译文；原页文字核对 {verified} 块。逐块状态见来源标签提示。</p><ul>{warnings}</ul><p>译文与讲解由 AI 辅助整理。</p>{attribution}</section></main></div>
+<div class="layout"><aside><label for="search">检索原文与逐段讲解</label><input id="search" type="search" placeholder="输入术语、数值或问题"><p id="search-count" aria-live="polite"></p><nav aria-label="全文目录">{navigation}</nav></aside><main id="main"><div id="mode-guide" hidden>{render_guide(guide, asset_root)}</div><div id="mode-full">{full}</div><section id="source-notes"><h2>来源说明</h2><p>{scope}</p><p>{report['source_blocks']} 个来源块 · {report['paragraphs']} 段 · {report['translations']} 条译文；原页文字核对 {verified} 块。逐块状态见来源标签提示。</p><ul>{warnings}</ul><p>译文与讲解由 AI 辅助整理。</p>{attribution}</section></main></div>
 <p id="storage-status" role="status"></p><noscript>交互需要浏览器启用 JavaScript；原文如下。</noscript><style>noscript+style{{display:none}}</style><noscript><style>#mode-full[hidden]{{display:block!important}}</style></noscript>
-<script id="reader-config" type="application/json">{config_json}</script><script>{reader}</script><script>{annotation}</script><script>{enhancements}</script></body></html>'''
+<script id="reader-config" type="application/json">{config_json}</script><script>{persistence}</script><script>{reader}</script><script>{annotation}</script><script>{workspace}</script><script>{navigation_js}</script><script>{enhancements}</script></body></html>'''
     return result, report
+
+
+def atomic_write(path, text):
+    """Keep a previous valid reader intact if a new output cannot be completed."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(prefix='.reader-', suffix='.tmp', dir=str(path.parent), delete=False) as stream:
+            temporary = Path(stream.name)
+            stream.write(text.encode('utf-8'))
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(str(temporary), str(path))
+    finally:
+        if temporary is not None and temporary.exists():
+            temporary.unlink()
 
 
 def main():
@@ -122,14 +149,23 @@ def main():
     ap.add_argument('--source', type=Path)
     ap.add_argument('--allow-incomplete', action='store_true')
     args = ap.parse_args()
-    values = [json.loads(p.read_text(encoding='utf-8-sig')) for p in (args.data, args.translations, args.guide)]
-    source = None
-    if args.source:
-        with args.source.open(encoding='utf-8-sig', newline='') as f:
-            source = f.read()
-    result, report = build(*values, args.asset_root, source, args.allow_incomplete)
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(result, encoding='utf-8')
+    try:
+        values = []
+        for file in (args.data, args.translations, args.guide):
+            try:
+                values.append(json.loads(file.read_text(encoding='utf-8-sig')))
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"{file.name}: JSON第{exc.lineno}行第{exc.colno}列有误：{exc.msg}") from exc
+        source = None
+        if args.source:
+            with args.source.open(encoding='utf-8-sig', newline='') as stream:
+                source = stream.read()
+        result, report = build(*values, args.asset_root, source, args.allow_incomplete)
+        atomic_write(args.output, result)
+    except (OSError, UnicodeError, ValueError) as exc:
+        print('构建未完成：' + str(exc), file=sys.stderr)
+        print('请修正输入或输出路径后重试；原有HTML未被替换。', file=sys.stderr)
+        raise SystemExit(2)
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
 

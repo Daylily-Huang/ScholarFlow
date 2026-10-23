@@ -50,7 +50,9 @@ def run(folders,work,output,executable=None,headless=False):
     m.locator('[data-reset]').click();ok(float(m.get_attribute('data-progress'))==0,f'演示{i+1}重置')
    guides.first.locator('[data-scrub]').fill('600');ok(page.locator('#mode-full [data-mechanism]').first.get_attribute('data-progress')=='0.0000','导读与全文实例状态独立')
    guides.first.scroll_into_view_if_needed();guides.first.locator('[data-play]').click();page.locator('[data-route=full]').click();ok(guides.first.get_attribute('data-playing')=='false','切路线停止隐藏播放器')
-   page.locator('[data-route=deep]').click();first=page.locator('#mode-guide .concept-card').first;first.scroll_into_view_if_needed();ok(first.is_visible(),'概念卡在对应讲解原地展开')
+   page.locator('[data-route=deep]').click()
+   if guide.get('concepts'):
+    first=page.locator('#mode-guide .concept-card').first;first.scroll_into_view_if_needed();ok(first.is_visible(),'概念卡在对应讲解原地展开')
    page.locator('#mode-guide .story-refs a').first.click();ok(page.locator('#mode-full').is_visible(),'导读证据跳回原段')
    def select():
     page.evaluate('''()=>{const el=[...document.querySelectorAll('.pcard .orig')].find(e=>e.getBoundingClientRect().height>0);el.scrollIntoView({block:'center'});const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode())if(n.length>30){let r=document.createRange();r.setStart(n,0);r.setEnd(n,25);getSelection().removeAllRanges();getSelection().addRange(r);el.dispatchEvent(new MouseEvent('mouseup',{bubbles:true}));break;}}''');page.wait_for_timeout(80)
@@ -75,6 +77,7 @@ def run(folders,work,output,executable=None,headless=False):
    context=pw.chromium.launch_persistent_context(str(work/(folder.name+'-profile')),executable_path=executable,headless=headless,viewport={'width':1500,'height':1050},offline=True)
    page=context.pages[0];page.goto(html.as_uri());ok(page.locator('#annbtn').get_attribute('data-count')=='2','重开浏览器进程后批注恢复');ok(page.locator('mark[data-ann]').count()>0,'重开后高亮覆盖真实文字');context.close()
    reports.append({'browser':'Chromium/Chrome headed' if not headless else 'Chromium headless','folder':folder.name,'html_sha256':hashlib.sha256(html.read_bytes()).hexdigest(),'passed':len(checks),'checks':checks,'errors':errors,'external_requests':network})
+   (output/'browser-results.json').write_text(json.dumps(reports,ensure_ascii=False,indent=2),encoding='utf-8')
    print(folder.name,len(checks),'checks passed',flush=True)
  (output/'browser-results.json').write_text(json.dumps(reports,ensure_ascii=False,indent=2),encoding='utf-8')
  return reports

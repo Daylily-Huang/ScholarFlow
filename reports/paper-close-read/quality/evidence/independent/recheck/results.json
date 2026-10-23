@@ -1,0 +1,129 @@
+{
+  "expected_skill_tree": "c5be016a1c39c9cb340f2bcd96146f4413234e14048402b1a2c2073e174be5ad",
+  "build": [
+    {
+      "name": "austen",
+      "exit": 0,
+      "byte_identical": true,
+      "skill_manifest_match": true,
+      "skill_tree_matches": true,
+      "html_manifest_match": true,
+      "inputs_manifest_match": true
+    },
+    {
+      "name": "kross",
+      "exit": 0,
+      "byte_identical": true,
+      "skill_manifest_match": true,
+      "skill_tree_matches": true,
+      "html_manifest_match": true,
+      "inputs_manifest_match": true
+    },
+    {
+      "name": "mariana",
+      "exit": 0,
+      "byte_identical": true,
+      "skill_manifest_match": true,
+      "skill_tree_matches": true,
+      "html_manifest_match": true,
+      "inputs_manifest_match": true
+    },
+    {
+      "name": "mckenna",
+      "exit": 0,
+      "byte_identical": true,
+      "skill_manifest_match": true,
+      "skill_tree_matches": true,
+      "html_manifest_match": true,
+      "inputs_manifest_match": true
+    },
+    {
+      "name": "menis",
+      "exit": 0,
+      "byte_identical": true,
+      "skill_manifest_match": true,
+      "skill_tree_matches": true,
+      "html_manifest_match": true,
+      "inputs_manifest_match": true
+    },
+    {
+      "name": "tavani",
+      "exit": 0,
+      "byte_identical": true,
+      "skill_manifest_match": true,
+      "skill_tree_matches": true,
+      "html_manifest_match": true,
+      "inputs_manifest_match": true
+    },
+    {
+      "name": "thomsen",
+      "exit": 0,
+      "byte_identical": true,
+      "skill_manifest_match": true,
+      "skill_tree_matches": true,
+      "html_manifest_match": true,
+      "inputs_manifest_match": true
+    },
+    {
+      "name": "wilcox",
+      "exit": 0,
+      "byte_identical": true,
+      "skill_manifest_match": true,
+      "skill_tree_matches": true,
+      "html_manifest_match": true,
+      "inputs_manifest_match": true
+    },
+    {
+      "name": "carroll1895",
+      "exit": 0,
+      "byte_identical": true,
+      "skill_manifest_match": true,
+      "skill_tree_matches": true,
+      "html_manifest_match": true,
+      "inputs_manifest_match": true
+    },
+    {
+      "name": "hardy1908",
+      "exit": 0,
+      "byte_identical": true,
+      "skill_manifest_match": true,
+      "skill_tree_matches": true,
+      "html_manifest_match": true,
+      "inputs_manifest_match": true
+    }
+  ],
+  "zip": {
+    "files": 35,
+    "same_as_skill": true,
+    "zip_sha256": "565c813a4dc54bbca8eee2d784af379eafc5713d6e290cd3751e57003cf15226",
+    "members_sample": [
+      "paper-close-read/assets/editorial.css",
+      "paper-close-read/assets/editorial.js",
+      "paper-close-read/assets/mechanisms.js",
+      "paper-close-read/assets/navigation.js"
+    ]
+  },
+  "browser": {
+    "quota_then_remote": [
+      "original",
+      "ONLY IN WINDOW A",
+      "WINDOW B"
+    ],
+    "complete_backup": [
+      "original",
+      "ONLY IN WINDOW A",
+      "WINDOW B"
+    ],
+    "restored_after_retry_reload": [
+      "original",
+      "ONLY IN WINDOW A",
+      "WINDOW B"
+    ],
+    "headed": true,
+    "offline": true
+  },
+  "persistence_tests": {
+    "exit": 0,
+    "log": "----------------------------------------------------------------------\nRan 9 tests in 0.531s\n\nOK\n"
+  }
+}

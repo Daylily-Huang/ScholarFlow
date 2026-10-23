@@ -1,0 +1,641 @@
+{
+  "schema_version": 2,
+  "paper_id": "carroll-mind-1895-4-14-278",
+  "front": {
+    "title": "What the Tortoise Said to Achilles",
+    "citation": "Lewis Carroll · Mind 4(14):278–280 · 1895 · 本次采用2页教学重排本",
+    "language": "en"
+  },
+  "source": {
+    "file": "source.md",
+    "sha256": "e80d2a625faa93742599374f2ffe76a59a47a03845ddc1ac634ec54145c3bf1e",
+    "locator_basis": "Markdown lines; PDF page mapping requires verification"
+  },
+  "sections": [
+    {
+      "name": "What the Tortoise Said to Achilles",
+      "level": 1,
+      "kind": "body",
+      "items": [
+        {
+          "t": "p",
+          "id": "b-ab708b2b63b81615-1",
+          "raw": "Achilles had overtaken the Tortoise, and had seated himself comfortably on its back.\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 3,
+            "line_end": 3,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "Achilles had overtaken the Tortoise, and had seated himself comfortably on its back."
+        },
+        {
+          "t": "p",
+          "id": "b-123ec4e3a73c793f-1",
+          "raw": "“So you’ve got to the end of our race-course?” said the Tortoise. “Even though it DOES consist of an infinite series of distances? I thought some wiseacre or other had proved that the thing couldn’t be done?”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 5,
+            "line_end": 5,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“So you’ve got to the end of our race-course?” said the Tortoise. “Even though it DOES consist of an infinite series of distances? I thought some wiseacre or other had proved that the thing couldn’t be done?”"
+        },
+        {
+          "t": "p",
+          "id": "b-1dd6314ca4ef2330-1",
+          "raw": "“It CAN be done,” said Achilles. “It HAS been done! Solvitur ambulando. You see the distances were constantly DIMINISHING; and so –”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 7,
+            "line_end": 7,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“It CAN be done,” said Achilles. “It HAS been done! Solvitur ambulando. You see the distances were constantly DIMINISHING; and so –”"
+        },
+        {
+          "t": "p",
+          "id": "b-c60ffc09ebcf08d4-1",
+          "raw": "“But if they had been constantly INCREASING?” the Tortoise interrupted. “How then?”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 9,
+            "line_end": 9,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“But if they had been constantly INCREASING?” the Tortoise interrupted. “How then?”"
+        },
+        {
+          "t": "p",
+          "id": "b-46523dfb19c7c0bb-1",
+          "raw": "“Then I shouldn’t be here,” Achilles modestly replied; “and YOU would have got several times round the world, by this time!”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 11,
+            "line_end": 11,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“Then I shouldn’t be here,” Achilles modestly replied; “and YOU would have got several times round the world, by this time!”"
+        },
+        {
+          "t": "p",
+          "id": "b-fb96bddb23dfe88d-1",
+          "raw": "“You flatter me – FLATTEN, I mean,” said the Tortoise; “for you ARE a heavy weight, and NO mistake! Well now, would you like to hear of a race-course, that most people fancy they can get to the end of in two or three steps, while it REALLY consists of an infinite number of distances, each one longer than the previous one?”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 13,
+            "line_end": 13,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“You flatter me – FLATTEN, I mean,” said the Tortoise; “for you ARE a heavy weight, and NO mistake! Well now, would you like to hear of a race-course, that most people fancy they can get to the end of in two or three steps, while it REALLY consists of an infinite number of distances, each one longer than the previous one?”"
+        },
+        {
+          "t": "p",
+          "id": "b-a2b0fca158b58d16-1",
+          "raw": "“Very much indeed!” said the Grecian warrior, as he drew from his helmet (few Grecian warriors possessed POCKETS in those days) an enormous note-book and pencil. “Proceed!  And speak SLOWLY, please! SHORTHAND isn’t invented yet!”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 15,
+            "line_end": 15,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“Very much indeed!” said the Grecian warrior, as he drew from his helmet (few Grecian warriors possessed POCKETS in those days) an enormous note-book and pencil. “Proceed!  And speak SLOWLY, please! SHORTHAND isn’t invented yet!”"
+        },
+        {
+          "t": "p",
+          "id": "b-b41a339f8a9f5c31-1",
+          "raw": "“That beautiful First Proposition by Euclid!” the Tortoise murmured dreamily. “You admire Euclid?”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 17,
+            "line_end": 17,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“That beautiful First Proposition by Euclid!” the Tortoise murmured dreamily. “You admire Euclid?”"
+        },
+        {
+          "t": "p",
+          "id": "b-3f3daad0a2051269-1",
+          "raw": "“Passionately! So far, at least, as one CAN admire a treatise that won’t be published for some centuries to come!”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 19,
+            "line_end": 19,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“Passionately! So far, at least, as one CAN admire a treatise that won’t be published for some centuries to come!”"
+        },
+        {
+          "t": "p",
+          "id": "b-95a18955c3a35ce4-1",
+          "raw": "“Well, now, let’s take a little bit of the argument in that First Proposition – just TWO steps, and the conclusion drawn from them. Kindly enter them in your note-book. And in order to refer to them conveniently, let’s call them A, B, and Z: – (A) Things that are equal to the same are equal to each other. (B) The two sides of this Triangle are things that are equal to the same. (Z) The two sides of this Triangle are equal to each other. Readers of Euclid will grant, I suppose, that Z follows logically from A and B, so that any one who accepts A and B as true, MUST accept Z as true?”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 21,
+            "line_end": 21,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“Well, now, let’s take a little bit of the argument in that First Proposition – just TWO steps, and the conclusion drawn from them. Kindly enter them in your note-book. And in order to refer to them conveniently, let’s call them A, B, and Z: – (A) Things that are equal to the same are equal to each other. (B) The two sides of this Triangle are things that are equal to the same. (Z) The two sides of this Triangle are equal to each other. Readers of Euclid will grant, I suppose, that Z follows logically from A and B, so that any one who accepts A and B as true, MUST accept Z as true?”"
+        },
+        {
+          "t": "p",
+          "id": "b-4d1c6b3cae03b4d8-1",
+          "raw": "“Undoubtedly! The youngest child in a High School – as soon as High Schools are invented, which will not be till some two thousand years later – will grant THAT.”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 23,
+            "line_end": 23,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“Undoubtedly! The youngest child in a High School – as soon as High Schools are invented, which will not be till some two thousand years later – will grant THAT.”"
+        },
+        {
+          "t": "p",
+          "id": "b-56e0a3feaf620c01-1",
+          "raw": "“And if some reader had NOT yet accepted A and B as true, he might still accept the SEQUENCE as a VALID one, I suppose?”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 25,
+            "line_end": 25,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“And if some reader had NOT yet accepted A and B as true, he might still accept the SEQUENCE as a VALID one, I suppose?”"
+        },
+        {
+          "t": "p",
+          "id": "b-4d944d178266515b-1",
+          "raw": "“No doubt such a reader might exist. He might say, ‘I accept as true the Hypothetical Proposition that, if A and B be true, Z must be true; but I DON’T accept A and B as true.’ Such a reader would do wisely in abandoning Euclid, and taking to football.”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 27,
+            "line_end": 27,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“No doubt such a reader might exist. He might say, ‘I accept as true the Hypothetical Proposition that, if A and B be true, Z must be true; but I DON’T accept A and B as true.’ Such a reader would do wisely in abandoning Euclid, and taking to football.”"
+        },
+        {
+          "t": "p",
+          "id": "b-acff5a7b2da5f257-1",
+          "raw": "“And might there not ALSO be some reader who would say ‘I accept A and B as true, but I DON’T accept the Hypothetical’?”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 29,
+            "line_end": 29,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“And might there not ALSO be some reader who would say ‘I accept A and B as true, but I DON’T accept the Hypothetical’?”"
+        },
+        {
+          "t": "p",
+          "id": "b-ec9aa910672c99fc-1",
+          "raw": "“Certainly there might. HE, also, had better take to football.”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 31,
+            "line_end": 31,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“Certainly there might. HE, also, had better take to football.”"
+        },
+        {
+          "t": "p",
+          "id": "b-c304b5910c9805a4-1",
+          "raw": "“And NEITHER of these readers,” the Tortoise continued, “is AS YET under any logical necessity to accept Z as true?”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 33,
+            "line_end": 33,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“And NEITHER of these readers,” the Tortoise continued, “is AS YET under any logical necessity to accept Z as true?”"
+        },
+        {
+          "t": "p",
+          "id": "b-0a399454cdd1efa6-1",
+          "raw": "“Quite so,” Achilles assented.\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 35,
+            "line_end": 35,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“Quite so,” Achilles assented."
+        },
+        {
+          "t": "p",
+          "id": "b-5de93ed33f2ad636-1",
+          "raw": "“Well, now, I want you to consider ME as a reader of the SECOND kind, and to force me, logically, to accept Z as true.”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 37,
+            "line_end": 37,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“Well, now, I want you to consider ME as a reader of the SECOND kind, and to force me, logically, to accept Z as true.”"
+        },
+        {
+          "t": "p",
+          "id": "b-05bd7ca9aedbbdd6-1",
+          "raw": "“A tortoise playing football would be –” Achilles was beginning.\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 39,
+            "line_end": 39,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“A tortoise playing football would be –” Achilles was beginning."
+        },
+        {
+          "t": "p",
+          "id": "b-0d4598f5446b32db-1",
+          "raw": "“– an anomaly, of course,” the Tortoise hastily interrupted. “Don’t wander from the point. Let’s have Z first, and football afterwards!”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 41,
+            "line_end": 41,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“– an anomaly, of course,” the Tortoise hastily interrupted. “Don’t wander from the point. Let’s have Z first, and football afterwards!”"
+        },
+        {
+          "t": "p",
+          "id": "b-a9f96ba2627ed2cd-1",
+          "raw": "“I’m to force you to accept Z, am I?” Achilles said musingly. “And your present position is that you accept A and B, but you DON’T accept the Hypothetical –”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 43,
+            "line_end": 43,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“I’m to force you to accept Z, am I?” Achilles said musingly. “And your present position is that you accept A and B, but you DON’T accept the Hypothetical –”"
+        },
+        {
+          "t": "p",
+          "id": "b-c3bf6fbadcca0bc3-1",
+          "raw": "“Let’s call it C,” said the Tortoise.\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 45,
+            "line_end": 45,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“Let’s call it C,” said the Tortoise."
+        },
+        {
+          "t": "p",
+          "id": "b-6ffb35f7bfa89794-1",
+          "raw": "“– but you DON’T accept (C) If A and B are true, Z must be true.”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 47,
+            "line_end": 47,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“– but you DON’T accept (C) If A and B are true, Z must be true.”"
+        },
+        {
+          "t": "p",
+          "id": "b-b001c674d7876a5f-1",
+          "raw": "“That is my present position,” said the Tortoise.\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 49,
+            "line_end": 49,
+            "pdf_page": 1,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“That is my present position,” said the Tortoise."
+        },
+        {
+          "t": "p",
+          "id": "b-94e506f0a60f762d-1",
+          "raw": "“Then I must ask you to accept C.”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 51,
+            "line_end": 51,
+            "pdf_page": 2,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“Then I must ask you to accept C.”"
+        },
+        {
+          "t": "p",
+          "id": "b-c74d2dc0077c51ce-1",
+          "raw": "“I’ll do so,” said the Tortoise, “as soon as you’ve entered it in that notebook of yours. What else have you got in it?”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 53,
+            "line_end": 53,
+            "pdf_page": 2,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“I’ll do so,” said the Tortoise, “as soon as you’ve entered it in that notebook of yours. What else have you got in it?”"
+        },
+        {
+          "t": "p",
+          "id": "b-b2cc0d41d4be538f-1",
+          "raw": "“Only a few memoranda,” said Achilles, nervously fluttering the leaves: “a few memoranda of – of the battles in which I have distinguished myself!”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 55,
+            "line_end": 55,
+            "pdf_page": 2,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“Only a few memoranda,” said Achilles, nervously fluttering the leaves: “a few memoranda of – of the battles in which I have distinguished myself!”"
+        },
+        {
+          "t": "p",
+          "id": "b-3cf9a0a8d7757c6a-1",
+          "raw": "“Plenty of blank leaves, I see!” the Tortoise cheerily remarked. “We shall need them ALL!” (Achilles shuddered.) “Now write as I dictate: – (A) Things that are equal to the same are equal to each other. (B) The two sides of this Triangle are things that are equal to the same. (C) If A and B are true, Z must be true. (Z) The two sides of this Triangle are equal to each other.\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 57,
+            "line_end": 57,
+            "pdf_page": 2,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“Plenty of blank leaves, I see!” the Tortoise cheerily remarked. “We shall need them ALL!” (Achilles shuddered.) “Now write as I dictate: – (A) Things that are equal to the same are equal to each other. (B) The two sides of this Triangle are things that are equal to the same. (C) If A and B are true, Z must be true. (Z) The two sides of this Triangle are equal to each other."
+        },
+        {
+          "t": "p",
+          "id": "b-c973fd6075b31237-1",
+          "raw": "“You should call it D, not Z,” said Achilles. “It comes NEXT to the other three. If you accept A and B and C, you MUST accept Z.”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 59,
+            "line_end": 59,
+            "pdf_page": 2,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“You should call it D, not Z,” said Achilles. “It comes NEXT to the other three. If you accept A and B and C, you MUST accept Z.”"
+        },
+        {
+          "t": "p",
+          "id": "b-8e88d58a85764f5c-1",
+          "raw": "“And why must I?”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 61,
+            "line_end": 61,
+            "pdf_page": 2,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“And why must I?”"
+        },
+        {
+          "t": "p",
+          "id": "b-d3729bbc61d2e80a-1",
+          "raw": "“Because it follows LOGICALLY from them. If A and B and C are true, Z MUST be true.  You can’t dispute THAT, I imagine?”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 63,
+            "line_end": 63,
+            "pdf_page": 2,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“Because it follows LOGICALLY from them. If A and B and C are true, Z MUST be true.  You can’t dispute THAT, I imagine?”"
+        },
+        {
+          "t": "p",
+          "id": "b-313badb762796f0b-1",
+          "raw": "“If A and B and C are true, Z MUST be true,” the Tortoise thoughtfully repeated. “That’s ANOTHER Hypothetical, isn’t it? And, if I failed to see its truth, I might accept A and B and C, and STILL not accept Z, mightn’t I?”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 65,
+            "line_end": 65,
+            "pdf_page": 2,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“If A and B and C are true, Z MUST be true,” the Tortoise thoughtfully repeated. “That’s ANOTHER Hypothetical, isn’t it? And, if I failed to see its truth, I might accept A and B and C, and STILL not accept Z, mightn’t I?”"
+        },
+        {
+          "t": "p",
+          "id": "b-16be7a2db7eb64b7-1",
+          "raw": "“You might,” the candid hero admitted; “though such obtuseness would certainly be phenomenal. Still, the event is POSSIBLE. So I must ask you to grant ONE more Hypothetical.”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 67,
+            "line_end": 67,
+            "pdf_page": 2,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“You might,” the candid hero admitted; “though such obtuseness would certainly be phenomenal. Still, the event is POSSIBLE. So I must ask you to grant ONE more Hypothetical.”"
+        },
+        {
+          "t": "p",
+          "id": "b-99ba569a69016f40-1",
+          "raw": "“Very good, I’m quite willing to grant it, as soon as you’ve written it down. We will call it (D) If A and B and C are true, Z must be true. Have you entered that in your note-book?”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 69,
+            "line_end": 69,
+            "pdf_page": 2,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“Very good, I’m quite willing to grant it, as soon as you’ve written it down. We will call it (D) If A and B and C are true, Z must be true. Have you entered that in your note-book?”"
+        },
+        {
+          "t": "p",
+          "id": "b-05fc7def05c6e3d7-1",
+          "raw": "“I HAVE!” Achilles joyfully exclaimed, as he ran the pencil into its sheath. “And at last we’ve got to the end of this ideal race-course! Now that you accept A and B and C and D, OF COURSE you accept Z.”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 71,
+            "line_end": 71,
+            "pdf_page": 2,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“I HAVE!” Achilles joyfully exclaimed, as he ran the pencil into its sheath. “And at last we’ve got to the end of this ideal race-course! Now that you accept A and B and C and D, OF COURSE you accept Z.”"
+        },
+        {
+          "t": "p",
+          "id": "b-13cdd8f3cfe55512-1",
+          "raw": "“Do I?” said the Tortoise innocently. “Let’s make that quite clear. I accept A and B and C and D. Suppose I STILL refused to accept Z?“\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 73,
+            "line_end": 73,
+            "pdf_page": 2,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“Do I?” said the Tortoise innocently. “Let’s make that quite clear. I accept A and B and C and D. Suppose I STILL refused to accept Z?“"
+        },
+        {
+          "t": "p",
+          "id": "b-37033da2953b8d11-1",
+          "raw": "“Then Logic would take you by the throat, and FORCE you to do it!” Achilles triumphantly replied. “Logic would tell you, ‘You can’t help yourself. Now that you’ve accepted A and B and C and D, you MUST accept Z.’ So you’ve no choice, you see.”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 75,
+            "line_end": 75,
+            "pdf_page": 2,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“Then Logic would take you by the throat, and FORCE you to do it!” Achilles triumphantly replied. “Logic would tell you, ‘You can’t help yourself. Now that you’ve accepted A and B and C and D, you MUST accept Z.’ So you’ve no choice, you see.”"
+        },
+        {
+          "t": "p",
+          "id": "b-25e83c3595a5994c-1",
+          "raw": "“Whatever LOGIC is good enough to tell me is worth WRITING DOWN,” said the Tortoise. “So enter it in your book, please. We will call it (E) If A and B and C and D are true, Z must be true. Until I’ve granted THAT, of course I needn’t grant Z.  So it’s quite a NECESSARY step, you see?”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 77,
+            "line_end": 77,
+            "pdf_page": 2,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“Whatever LOGIC is good enough to tell me is worth WRITING DOWN,” said the Tortoise. “So enter it in your book, please. We will call it (E) If A and B and C and D are true, Z must be true. Until I’ve granted THAT, of course I needn’t grant Z.  So it’s quite a NECESSARY step, you see?”"
+        },
+        {
+          "t": "p",
+          "id": "b-ddc26a56ed5916d8-1",
+          "raw": "“I see,” said Achilles; and there was a touch of sadness in his tone.\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 79,
+            "line_end": 79,
+            "pdf_page": 2,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“I see,” said Achilles; and there was a touch of sadness in his tone."
+        },
+        {
+          "t": "p",
+          "id": "b-a3eab2c0f690ed1a-1",
+          "raw": "Here the narrator, having pressing business at the Bank, was obliged to leave the happy pair, and did not again pass the spot until some months afterwards. When he did so, Achilles was still seated on the back of the much-enduring Tortoise, and was writing in his notebook, which appeared to be nearly full. The Tortoise was saying, “Have you got that last step written down? Unless I've lost count, that makes a thousand and one. There are several millions more to come. And WOULD you mind, as a personal favour, considering what a lot of instruction this colloquy of ours will provide for the Logicians of the Nineteenth Century – WOULD you mind adopting a pun that my cousin the Mock-Turtle will then make, and allowing yourself to be renamed TAUGHT-US?”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 81,
+            "line_end": 81,
+            "pdf_page": 2,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "Here the narrator, having pressing business at the Bank, was obliged to leave the happy pair, and did not again pass the spot until some months afterwards. When he did so, Achilles was still seated on the back of the much-enduring Tortoise, and was writing in his notebook, which appeared to be nearly full. The Tortoise was saying, “Have you got that last step written down? Unless I've lost count, that makes a thousand and one. There are several millions more to come. And WOULD you mind, as a personal favour, considering what a lot of instruction this colloquy of ours will provide for the Logicians of the Nineteenth Century – WOULD you mind adopting a pun that my cousin the Mock-Turtle will then make, and allowing yourself to be renamed TAUGHT-US?”"
+        },
+        {
+          "t": "p",
+          "id": "b-9940d78e21ae7f5c-1",
+          "raw": "“As you please,” replied the weary warrior, in the hollow tones of despair, as he buried his face in his hands. “Provided that YOU, for YOUR part, will adopt a pun the Mock-Turtle never made, and allow yourself to be re-named A KILL-EASE!”\n",
+          "source": {
+            "file": "source.md",
+            "line_start": 83,
+            "line_end": 83,
+            "pdf_page": 2,
+            "printed_page": null,
+            "status": "verified",
+            "verification_note": "逐段对照Cal State LA托管的两页教学重排本，保留其大写强调与措辞；非原刊页码。"
+          },
+          "en": "“As you please,” replied the weary warrior, in the hollow tones of despair, as he buried his face in his hands. “Provided that YOU, for YOUR part, will adopt a pun the Mock-Turtle never made, and allow yourself to be re-named A KILL-EASE!”"
+        }
+      ],
+      "display_name": "乌龟怎样让推理永远差最后一步——完整对话"
+    }
+  ],
+  "fixes": [],
+  "warnings": []
+}

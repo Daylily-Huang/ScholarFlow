@@ -209,7 +209,32 @@ document.querySelectorAll('[data-mechanism]').forEach(el=>{
   text('原理示意：实际效果还受错配位置、种类和反应条件影响',450,430,16,P.muted,'center');
  }
 
- const scenes={edna_capture,edna_decay,qpcr_probe,primer_specificity,source_timeline,communication,text_focus,argument_map,evidence_coding,repeated_measures,spatial,hazard,augmentation,boundary,vessel,cholesterol,oxidative,molecular_sampling,pcr_slippage,replicate_consensus};
+ function gene_pool(){
+  const initial=cfg.visual.initial,total=initial.reduce((a,b)=>a+b,0),f=(initial[0]+initial[1]/2)/total;
+  const next=[f*f,2*f*(1-f),(1-f)*(1-f)],start=initial.map(n=>n/total),q=phase(.25,.5);
+  title('看见显性性状，不代表 A 在基因库里变多');
+  function bars(xs,x,label){text(label,x+120,91,19,P.ink,'center',true);['AA','Aa','aa'].forEach((s,i)=>{const y=151+i*66,color=[P.blue,P.green,P.gold][i];text(s,x,y,18,color);rect(x+43,y-12,170,25,'#ece8df');rect(x+43,y-12,170*xs[i],25,color);text((xs[i]*100).toFixed(1)+'%',x+224,y,17,P.ink);});}
+  bars(start,40,'起始一代');bars(progress<.5?[0,0,0]:next,580,progress<.5?'下一代：等待结合':'随机交配后的期望比例');
+  rect(350,109,174,225,'#f4f3eb',P.line);text('配子池',437,133,19,P.ink,'center',true);
+  const count=20;for(let i=0;i<count;i++){const x=378+(i%4)*37,y=175+Math.floor(i/4)*27,t=phase(0,.35);circle(mix(i<count*f?110:230,x,t),mix(i<count*f?153:285,y,t),7,i<count*f?P.blue:P.gold);}
+  text('A：'+(f*100).toFixed(1)+'%',437,326,17,P.blue,'center');text('a：'+((1-f)*100).toFixed(1)+'%',437,353,17,P.gold,'center');
+  if(q>0){for(let i=0;i<6;i++){const t=(q+i/6)%1;circle(mix(523,607,t),mix(197,151+(i%3)*66,t),6,i%2?P.gold:P.blue);}arrow(525,235,574,235,P.green,2);}
+  const phenotype=progress<.5?start[0]+start[1]:next[0]+next[1];text('显性表型占比：'+(phenotype*100).toFixed(1)+'%',450,395,20,P.green,'center',true);
+  text(progress<.75?'配子中的A频率由 AA 与 Aa 一起决定':'再随机交配：配子比例相同，下一代期望仍为 '+next.map(n=>(n*100).toFixed(0)+'%').join(' : '),450,426,16,P.muted,'center');
+ }
+ function inference_regress(){
+  title('把通行规则抄下来，与按规则走过去，是两种动作');
+  rect(35,69,390,325,'#f5f1e9',P.line);rect(475,69,390,325,'#eef4ed',P.line);
+  text('阿喀琉斯的办法：继续加前提',230,97,18,P.rose,'center',true);text('教学对照：实际使用推断规则',670,97,18,P.green,'center',true);
+  const step=Math.min(3,Math.floor(progress*4)),ys=[155,205,255,305],labels=['A、B 已接受','C：若 A、B 则 Z','D：若 A、B、C 则 Z','E：若 A、B、C、D 则 Z'];
+  labels.forEach((label,i)=>{if(i<=step){const t=i===step?Math.min(1,(progress*4-step)*3):1;rect(mix(84,61,t),ys[i]-18,330,35,i===step?'#f4dfdc':'#fffdfa',P.line);text(label,mix(97,74,t),ys[i],16,i===step?P.rose:P.ink);}});
+  arrow(401,335,401,142,P.rose,2);text('还可再写一个条件',230,367,17,P.rose,'center');
+  const t=phase(.1,.82);line(520,230,810,230,P.green,3);rect(621,185,77,91,'#fffdf6',P.green);text('使用',659,212,17,P.green,'center');text('规则',659,245,17,P.green,'center');
+  for(let i=0;i<2;i++){const x=mix(520,756,Math.min(1,t*1.45-i*.15));circle(x,230+(i?21:-21),17,i?P.gold:P.blue);text(i?'B':'A',x,230+(i?21:-21),16,'white','center',true);}
+  circle(811,230,24,t>.85?P.green:'#dce8d8');text('Z',811,230,22,t>.85?'white':P.green,'center',true);
+  text(t>.85?'完成从前提到结论的这一步':'规则作为行动：不再要求先抄一句',670,338,16,P.green,'center');text('对照帮助分清命题与推断动作，不替原文给出最终解答',450,424,16,P.muted,'center');
+ }
+ const scenes={inference_regress,gene_pool,edna_capture,edna_decay,qpcr_probe,primer_specificity,source_timeline,communication,text_focus,argument_map,evidence_coding,repeated_measures,spatial,hazard,augmentation,boundary,vessel,cholesterol,oxidative,molecular_sampling,pcr_slippage,replicate_consensus};
  function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle=P.bg;ctx.fillRect(0,0,W,H);(scenes[cfg.scene]||(()=>text('演示场景未定义',40,80)))();const step=Math.min(cfg.stages.length-1,Math.floor(progress*cfg.stages.length));caption.textContent=cfg.stages[step];counter.textContent=(step+1)+' / '+cfg.stages.length;slider.value=Math.round(progress*1000);el.dataset.progress=progress.toFixed(4);el.dataset.stage=step;}
  function pause(){running=false;cancelAnimationFrame(raf);play.textContent='播放演示';play.setAttribute('aria-pressed','false');el.dataset.playing='false';}
  function tick(now){if(!running)return;if(last)progress=Math.min(1,progress+(now-last)/duration*Number(speed.value));last=now;draw();if(progress>=1)pause();else raf=requestAnimationFrame(tick);}
@@ -220,7 +245,7 @@ document.querySelectorAll('[data-mechanism]').forEach(el=>{
  el.querySelector('[data-reset]').onclick=()=>{pause();progress=0;draw();};
  const player={el,pause,seek:n=>{pause();progress=Math.max(0,Math.min(1,n));draw();}};players.push(player);draw();
  function resizeCanvas(){const width=Math.max(W,Math.round(canvas.getBoundingClientRect().width*Math.min(devicePixelRatio||1,2)));const height=Math.round(width*H/W);if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;ctx.setTransform(width/W,0,0,height/H,0,0);draw();}}
- if('ResizeObserver'in window)new ResizeObserver(resizeCanvas).observe(canvas);resizeCanvas();
+ let resizeRaf=0;if('ResizeObserver'in window)new ResizeObserver(()=>{cancelAnimationFrame(resizeRaf);resizeRaf=requestAnimationFrame(resizeCanvas);}).observe(canvas);resizeCanvas();
  if('IntersectionObserver'in window)new IntersectionObserver(entries=>{if(!entries[0].isIntersecting)pause();},{threshold:0}).observe(el);
 });
 document.addEventListener('visibilitychange',()=>{if(document.hidden)players.forEach(p=>p.pause());});

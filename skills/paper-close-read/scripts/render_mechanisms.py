@@ -2,12 +2,16 @@
 import html
 import json
 
-SCENES = {'edna_capture', 'edna_decay', 'qpcr_probe', 'primer_specificity', 'spatial', 'hazard', 'augmentation', 'boundary', 'vessel', 'cholesterol', 'oxidative', 'molecular_sampling', 'pcr_slippage', 'replicate_consensus', 'argument_map', 'evidence_coding', 'repeated_measures', 'source_timeline', 'communication', 'text_focus'}
+SCENES = {'inference_regress', 'gene_pool', 'edna_capture', 'edna_decay', 'qpcr_probe', 'primer_specificity', 'spatial', 'hazard', 'augmentation', 'boundary', 'vessel', 'cholesterol', 'oxidative', 'molecular_sampling', 'pcr_slippage', 'replicate_consensus', 'argument_map', 'evidence_coding', 'repeated_measures', 'source_timeline', 'communication', 'text_focus'}
 
 def validate_scene_data(m):
     d=m.get('visual',{});errors=[]
     if not isinstance(d,dict):return ['Scene visual must be an object']
-    if m['scene']=='edna_decay':
+    if m['scene']=='gene_pool':
+        import math
+        values=d.get('initial')
+        if not isinstance(values,list) or len(values)!=3 or any(type(x) not in (int,float) or not math.isfinite(x) or x<0 for x in values) or not math.isfinite(sum(values)) or sum(values)<=0:errors.append('Gene pool needs three finite nonnegative initial AA/Aa/aa weights with positive total')
+    elif m['scene']=='edna_decay':
         import math
         def positive(x):return isinstance(x,(int,float)) and not isinstance(x,bool) and math.isfinite(x) and x>0
         if any(not positive(d.get(k)) for k in ['maximum','days','threshold']):errors.append('Decay needs positive finite maximum/days/threshold')
@@ -21,7 +25,7 @@ def validate_scene_data(m):
     elif m['scene']=='communication':
         nodes=d.get('nodes',[]);names=[n.get('id') for n in nodes];steps=d.get('steps',[])
         if len(nodes)!=3 or len(set(names))!=3 or any(not n.get('label') or len(n['label'])>12 for n in nodes):errors.append('Communication scene needs three named participants')
-        if len(steps)!=len(m['stages']):errors.append('Communication steps must match captions')
+        if len(steps)!=len(m.get('stages',[])):errors.append('Communication steps must match captions')
         for step in steps:
             if not isinstance(step.get('labels',{}),dict) or any(k not in names or not isinstance(v,str) or not v.strip() or len(v)>12 for k,v in step.get('labels',{}).items()):errors.append('Communication labels must name existing participants')
             if not step.get('message') or len(step['message'])>35 or not step.get('interpretation') or len(step['interpretation'])>35:errors.append('Communication step needs short message and interpretation')
@@ -29,7 +33,7 @@ def validate_scene_data(m):
     elif m['scene']=='text_focus':
         if not d.get('quote') or len(d['quote'])>160 or not d.get('attribution'):errors.append('Text focus needs short exact quote and attribution')
         focuses=d.get('focuses',[])
-        if len(focuses)!=len(m['stages']) or any(not f.get('text') or f['text'] not in d.get('quote','') or not f.get('meaning') or len(f['meaning'])>45 for f in focuses):errors.append('Text focus needs one exact focus and short meaning per stage')
+        if len(focuses)!=len(m.get('stages',[])) or any(not f.get('text') or f['text'] not in d.get('quote','') or not f.get('meaning') or len(f['meaning'])>45 for f in focuses):errors.append('Text focus needs one exact focus and short meaning per stage')
     elif m['scene']=='repeated_measures':
         if any(not isinstance(d.get(k),str) or not d[k].strip() for k in ['before','interval','after','meaning']):errors.append('Repeated measures needs before/interval/after/meaning')
     else:
@@ -38,7 +42,7 @@ def validate_scene_data(m):
             if len(nodes)!=3:errors.append('Coding scene needs exactly 3 nodes')
             elif [(x.get('from'),x.get('to'),x.get('relation')) for x in edges]!=[(names[0],names[1],'interprets'),(names[1],names[2],'interprets')]:errors.append('Coding edges must explicitly interpret material into focus and theme')
         if any(nodes[j].get('stage',0)>nodes[j+1].get('stage',0) for j in range(len(nodes)-1)):errors.append('Node stages must follow reading order')
-        if len(nodes)<2 or len(nodes)>6 or len(names)!=len(set(names)):errors.append('Diagram needs 2–6 unique nodes')
+        if len(nodes)<2 or len(nodes)>6 or len(names)!=len(set(names)) or any(not isinstance(x,str) or not x for x in names):errors.append('Diagram needs 2–6 unique named nodes')
         for n in nodes:
             if not n.get('label') or not isinstance(n.get('lines'),list) or not 1<=len(n['lines'])<=3 or any(not isinstance(x,str) or len(x)>20 for x in n.get('lines',[])):errors.append('Diagram needs readable label and 1–3 short text lines')
             if type(n.get('stage')) is not int or not 0<=n['stage']<len(m.get('stages',[])):errors.append('Node stage outside explanatory stages')

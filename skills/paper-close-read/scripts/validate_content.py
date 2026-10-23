@@ -9,6 +9,37 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 def validate(data, records, guide, source_text=None, allow_incomplete=False):
     errors, warnings = [], []
+    # Reject broken envelopes before traversing them, with paths useful to the author.
+    if not isinstance(data, dict):errors.append('fulltext.json must be an object')
+    if not isinstance(records, list):errors.append('translations.json must be an array')
+    if not isinstance(guide, dict):errors.append('guide.json must be an object')
+    if not errors:
+        if not isinstance(data.get('front'), dict) or not isinstance(data['front'].get('title'), str):errors.append('fulltext.front.title must be text')
+        if not isinstance(data.get('source'), dict):errors.append('fulltext.source must be an object')
+        if not isinstance(data.get('sections'), list):errors.append('fulltext.sections must be an array')
+        else:
+            for sn, section in enumerate(data['sections']):
+                where=f'fulltext.sections[{sn}]'
+                if not isinstance(section, dict) or not isinstance(section.get('name'), str) or not isinstance(section.get('items'), list):errors.append(where+' needs name and items');continue
+                for bn, item in enumerate(section['items']):
+                    at=where+f'.items[{bn}]'
+                    if not isinstance(item, dict) or not isinstance(item.get('id'), str) or not isinstance(item.get('raw'), str) or item.get('t') not in {'p','eq','table','figure'} or not isinstance(item.get('source'),dict):errors.append(at+' needs id/type/raw/source');continue
+                    if source_text is not None and any(type(item['source'].get(k)) is not int or item['source'][k]<1 for k in ['line_start','line_end']):errors.append(at+'.source needs positive line_start/line_end')
+        for n, record in enumerate(records):
+            if not isinstance(record, dict) or not isinstance(record.get('id'), str):errors.append(f'translations[{n}] needs a text id')
+        for field in ['claims','checks','mechanisms','concepts','further_reading']:
+            if field in guide and (not isinstance(guide[field],list) or any(not isinstance(x,dict) for x in guide[field])):errors.append('guide.'+field+' must be an array of objects')
+        story=guide.get('story')
+        if story is not None:
+            if not isinstance(story,dict) or not isinstance(story.get('overview'),dict) or not isinstance(story.get('walkthrough'),list) or any(not isinstance(x,dict) for x in story.get('walkthrough',[])):errors.append('guide.story needs overview object and walkthrough array')
+        for owner, blocks in [('mechanisms',guide.get('mechanisms',[])),('concepts',guide.get('concepts',[])),('further_reading',guide.get('further_reading',[]))]:
+            if isinstance(blocks,list):
+                for n, block in enumerate(blocks):
+                    if isinstance(block,dict) and (not isinstance(block.get('refs'),list) or any(not isinstance(x,str) for x in block['refs'])):errors.append(f'guide.{owner}[{n}].refs must be an array of ids')
+    if not errors:
+        from input_shapes import shape_errors
+        errors.extend(shape_errors(data, records, guide))
+    if errors:return {'errors':errors,'warnings':warnings,'source_blocks':0,'paragraphs':0,'translations':len(records) if isinstance(records,list) else 0,'missing':[]}
     if data.get("schema_version") != 2 or not data.get("paper_id"):
         errors.append("Expected schema_version 2 and a nonempty paper_id; reparse legacy JSON")
     items = [i for s in data.get("sections", []) for i in s["items"]]
@@ -116,7 +147,7 @@ def validate(data, records, guide, source_text=None, allow_incomplete=False):
             errors.append('Mechanism needs valid source refs')
         if not mechanism.get('title') or not mechanism.get('question'):
             errors.append('Mechanism needs title and reader question')
-        if mechanism.get('scene') in {'edna_decay', 'argument_map', 'evidence_coding', 'repeated_measures', 'source_timeline', 'communication', 'text_focus'}:
+        if mechanism.get('scene') in {'gene_pool', 'edna_decay', 'argument_map', 'evidence_coding', 'repeated_measures', 'source_timeline', 'communication', 'text_focus'}:
             from render_mechanisms import validate_scene_data
             errors.extend(validate_scene_data(mechanism))
         if mechanism.get('scene')=='text_focus':
@@ -195,11 +226,17 @@ def main():
     ap.add_argument("--source", type=Path)
     ap.add_argument("--allow-incomplete", action="store_true")
     args = ap.parse_args()
-    values = [json.loads(p.read_text(encoding="utf-8-sig")) for p in (args.data, args.translations, args.guide)]
-    source = None
-    if args.source:
-        with args.source.open(encoding="utf-8-sig", newline="") as f:
-            source = f.read()
+    try:
+        values=[]
+        for path in (args.data,args.translations,args.guide):
+            try:values.append(json.loads(path.read_text(encoding='utf-8-sig')))
+            except json.JSONDecodeError as exc:raise ValueError(f'{path.name}: JSON line {exc.lineno}, column {exc.colno}: {exc.msg}') from exc
+        source = None
+        if args.source:
+            with args.source.open(encoding="utf-8-sig", newline="") as f:source = f.read()
+    except (OSError,UnicodeError,ValueError) as exc:
+        print(json.dumps({'errors':[str(exc)],'warnings':[]},ensure_ascii=False,indent=2))
+        raise SystemExit(2)
     report = validate(*values, source, args.allow_incomplete)
     print(json.dumps(report, ensure_ascii=False, indent=2))
     raise SystemExit(bool(report["errors"]))
