@@ -17,6 +17,8 @@
 
 PyMuPDF有自己的AGPL/商业许可选项，见[官方许可](https://pymupdf.readthedocs.io/en/latest/about.html#license-and-copyright)；它不是核心构建依赖。拟分发或部署第三方组件时分别核对所选版本许可，不能用本技能MIT许可替代。代码与场景采用本仓库许可；论文、第三方图像、字体和宿主服务仍遵循各自来源条件。默认系统字体不打包字体文件。
 
-构建器嵌入generatorVersion（正式版1.1.0），备份schema2/3保持兼容，不自动清空旧笔记。依赖升级后重建应重新验收公式、图像与笔记定位。在仓库可用`python scripts/freeze_readers.py <阅读目录>`核对最终HTML可按字节重建，并生成输入、技能树和HTML摘要；该记录不替代语义审读。
+构建器嵌入generatorVersion（正式版1.2.0），备份schema2/3保持兼容，不自动清空旧笔记。依赖升级后重建应重新验收公式、图像与笔记定位。在仓库可用`python scripts/freeze_readers.py <阅读目录>`核对最终HTML可按字节重建，并生成输入、技能树和HTML摘要；该记录不替代语义审读。
 
 读者数据格式、隐私、冲突与故障恢复见[阅读记录与维护](reader-operations.md)。生成文件需保留的来源声明与核验范围由实际取得材料决定。不要把未经目标读者测试的“无痛”“三分钟学会”写成产品效果保证。
+
+Release 优先安装：从 [独立安装包](https://github.com/Daylily-Huang/ScholarFlow/releases/tag/paper-close-read-v1.2.0) 下载 ZIP，解压复制整个 paper-close-read，无需克隆仓库。双语 PDF 的标准库导出器需要本地 Chrome/Chromium/Edge；词汇与静态排版见 [专用说明](bilingual-pdf-vocabulary.md)。

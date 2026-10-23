@@ -14,7 +14,29 @@
       "海流可能搬运DNA，所以还要测信号能留多久，才能讨论它来自哪里。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "environmental DNA",
+        "zh": "环境 DNA；从水等环境样品中获取的遗传物质"
+      },
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "seawater",
+        "zh": "海水"
+      },
+      {
+        "en": "marine",
+        "zh": "海洋的"
+      },
+      {
+        "en": "biodiversity",
+        "zh": "生物多样性"
+      }
+    ]
   },
   {
     "id": "b-294ef9e649f3e39b-1",
@@ -24,7 +46,29 @@
       "本地成功建立可行性，跨环境验证决定它能否成为常规监测工具。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "marine",
+        "zh": "海洋的"
+      },
+      {
+        "en": "biodiversity",
+        "zh": "生物多样性"
+      },
+      {
+        "en": "findings",
+        "zh": "研究中得到的发现"
+      },
+      {
+        "en": "although",
+        "zh": "尽管；先承认一个条件再转折"
+      }
+    ]
   },
   {
     "id": "b-234fd2edad58d6f2-1",
@@ -35,7 +79,29 @@
       "作业地形、捕获选择性和物种误认共同使现有名单不完整，因而引出替代方法。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "marine",
+        "zh": "海洋的"
+      },
+      {
+        "en": "biodiversity",
+        "zh": "生物多样性"
+      },
+      {
+        "en": "species",
+        "zh": "物种"
+      },
+      {
+        "en": "fish",
+        "zh": "鱼类"
+      },
+      {
+        "en": "nevertheless",
+        "zh": "即便如此；承接让步后的判断"
+      }
+    ]
   },
   {
     "id": "b-1dbcd53c75654eb5-1",
@@ -47,7 +113,29 @@
       "因此本文把验证场景推进到海水中的鱼类。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "environmental DNA",
+        "zh": "环境 DNA；从水等环境样品中获取的遗传物质"
+      },
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "marine",
+        "zh": "海洋的"
+      },
+      {
+        "en": "species",
+        "zh": "物种"
+      },
+      {
+        "en": "fish",
+        "zh": "鱼类"
+      }
+    ]
   },
   {
     "id": "b-5b36f0d3fe6632ae-1",
@@ -57,7 +145,29 @@
       "研究目标是海水鱼类多样性检测的可行性。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "seawater",
+        "zh": "海水"
+      },
+      {
+        "en": "marine",
+        "zh": "海洋的"
+      },
+      {
+        "en": "biodiversity",
+        "zh": "生物多样性"
+      },
+      {
+        "en": "fish",
+        "zh": "鱼类"
+      }
+    ]
   },
   {
     "id": "b-e3dceb1b4e8a735b-1",
@@ -69,7 +179,29 @@
       "采点差异留下新问题：是真实空间差异，还是检测过程的波动？"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "seawater",
+        "zh": "海水"
+      },
+      {
+        "en": "marine",
+        "zh": "海洋的"
+      },
+      {
+        "en": "species",
+        "zh": "物种"
+      },
+      {
+        "en": "fish",
+        "zh": "鱼类"
+      }
+    ]
   },
   {
     "id": "b-d68417e63a38185e-1",
@@ -85,7 +217,25 @@
       "再用全长、唯一、完全匹配的标准把序列落实到物种。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "species",
+        "zh": "物种"
+      },
+      {
+        "en": "sequencing",
+        "zh": "测定 DNA 序列"
+      },
+      {
+        "en": "subsequent",
+        "zh": "随后发生的"
+      },
+      {
+        "en": "identified",
+        "zh": "已辨认或确定"
+      }
+    ]
   },
   {
     "id": "b-7b2b8c1192044484-1",
@@ -96,7 +246,29 @@
       "eDNA的15种与最佳常规方法接近，但合计数与每次均值的口径不同，比较强度应据此理解。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "metabarcoding",
+        "zh": "宏条形码；批量鉴定混合样品中的类群"
+      },
+      {
+        "en": "species",
+        "zh": "物种"
+      },
+      {
+        "en": "fish",
+        "zh": "鱼类"
+      },
+      {
+        "en": "however",
+        "zh": "然而；转入与前面不同的情况"
+      }
+    ]
   },
   {
     "id": "b-8f74cd72cf964cb0-1",
@@ -108,7 +280,29 @@
       "0.9–6.7天是这些起始浓度与实验条件下的过线时间。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "seawater",
+        "zh": "海水"
+      },
+      {
+        "en": "species",
+        "zh": "物种"
+      },
+      {
+        "en": "taxa",
+        "zh": "分类单元（taxon 的复数）"
+      },
+      {
+        "en": "sequencing",
+        "zh": "测定 DNA 序列"
+      }
+    ]
   },
   {
     "id": "b-c719deedcd5bedb3-1",
@@ -118,7 +312,13 @@
       "提取和扩增两段的空白均阴性，为水样信号的来源提供检查。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "experiment",
+        "zh": "实验"
+      }
+    ]
   },
   {
     "id": "b-a7d1e6d3bdf67ab8-1",
@@ -130,7 +330,29 @@
       "滤孔尺度与检出结果一起支持部分DNA随细胞或颗粒被截留的解释。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "seawater",
+        "zh": "海水"
+      },
+      {
+        "en": "biodiversity",
+        "zh": "生物多样性"
+      },
+      {
+        "en": "fish",
+        "zh": "鱼类"
+      },
+      {
+        "en": "sequencing",
+        "zh": "测定 DNA 序列"
+      }
+    ]
   },
   {
     "id": "b-9c48f928ff0bf969-1",
@@ -141,7 +363,29 @@
       "小水样仍成功说明有可检出信号，采点差异的来源则尚未被分开验证。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "marine",
+        "zh": "海洋的"
+      },
+      {
+        "en": "species",
+        "zh": "物种"
+      },
+      {
+        "en": "fish",
+        "zh": "鱼类"
+      },
+      {
+        "en": "taxa",
+        "zh": "分类单元（taxon 的复数）"
+      }
+    ]
   },
   {
     "id": "b-17b7a91209b18d24-1",
@@ -153,7 +397,29 @@
       "因此采样方便与物种鉴定可靠要分别评价。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "marine",
+        "zh": "海洋的"
+      },
+      {
+        "en": "biodiversity",
+        "zh": "生物多样性"
+      },
+      {
+        "en": "species",
+        "zh": "物种"
+      },
+      {
+        "en": "fish",
+        "zh": "鱼类"
+      }
+    ]
   },
   {
     "id": "b-b6bf1a28db676f18-1",
@@ -164,7 +430,29 @@
       "降解会缩短信号存续时间，作者据此约束远处来源的可能性。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "seawater",
+        "zh": "海水"
+      },
+      {
+        "en": "marine",
+        "zh": "海洋的"
+      },
+      {
+        "en": "species",
+        "zh": "物种"
+      },
+      {
+        "en": "fish",
+        "zh": "鱼类"
+      }
+    ]
   },
   {
     "id": "b-f2692f9e5ab050cc-1",
@@ -175,7 +463,29 @@
       "40–600 km说明降解时间本身不足以给采点划一个很小的来源圈。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "seawater",
+        "zh": "海水"
+      },
+      {
+        "en": "marine",
+        "zh": "海洋的"
+      },
+      {
+        "en": "degradation",
+        "zh": "DNA 逐渐降解"
+      },
+      {
+        "en": "findings",
+        "zh": "研究中得到的发现"
+      }
+    ]
   },
   {
     "id": "b-e442df94dd4d8785-1",
@@ -186,7 +496,29 @@
       "两批水中三刺鱼相差较大，提醒读者将过线时间放回具体批次。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "seawater",
+        "zh": "海水"
+      },
+      {
+        "en": "species",
+        "zh": "物种"
+      },
+      {
+        "en": "sequencing",
+        "zh": "测定 DNA 序列"
+      },
+      {
+        "en": "degradation",
+        "zh": "DNA 逐渐降解"
+      }
+    ]
   },
   {
     "id": "b-c7879ea7059fdcff-1",
@@ -198,7 +530,29 @@
       "多条线索汇合后，作者倾向于当地来源；其空间范围仍需专门研究。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "marine",
+        "zh": "海洋的"
+      },
+      {
+        "en": "species",
+        "zh": "物种"
+      },
+      {
+        "en": "fish",
+        "zh": "鱼类"
+      },
+      {
+        "en": "taxa",
+        "zh": "分类单元（taxon 的复数）"
+      }
+    ]
   },
   {
     "id": "b-c2edaad6df865b01-1",
@@ -208,7 +562,29 @@
       "检测量同时受生物释放和环境输送保存影响，因此可靠监测需要分别了解这些过程。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "marine",
+        "zh": "海洋的"
+      },
+      {
+        "en": "biodiversity",
+        "zh": "生物多样性"
+      },
+      {
+        "en": "species",
+        "zh": "物种"
+      },
+      {
+        "en": "findings",
+        "zh": "研究中得到的发现"
+      }
+    ]
   },
   {
     "id": "b-32b4260d2c9e3d23-1",
@@ -218,7 +594,25 @@
       "物种存在的证据不能直接给出资源量，数量监测是下一层研究问题。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "marine",
+        "zh": "海洋的"
+      },
+      {
+        "en": "biodiversity",
+        "zh": "生物多样性"
+      },
+      {
+        "en": "species",
+        "zh": "物种"
+      }
+    ]
   },
   {
     "id": "b-fd8f9e7141eb4700-1",
@@ -229,7 +623,29 @@
       "低丰度加弱扩增共同增加漏检，因而须改进引物及检测流程。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "species",
+        "zh": "物种"
+      },
+      {
+        "en": "sequencing",
+        "zh": "测定 DNA 序列"
+      },
+      {
+        "en": "however",
+        "zh": "然而；转入与前面不同的情况"
+      },
+      {
+        "en": "therefore",
+        "zh": "因此；引出前面理由所得的判断"
+      }
+    ]
   },
   {
     "id": "b-cd9cf88657e51512-1",
@@ -240,7 +656,29 @@
       "两者支持发展海洋监测工具，但空间定位和数量估计仍需额外验证。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "seawater",
+        "zh": "海水"
+      },
+      {
+        "en": "marine",
+        "zh": "海洋的"
+      },
+      {
+        "en": "biodiversity",
+        "zh": "生物多样性"
+      },
+      {
+        "en": "fish",
+        "zh": "鱼类"
+      }
+    ]
   },
   {
     "id": "b-746737cd153f2ee2-1",
@@ -250,7 +688,13 @@
       "共同研究海域使几类证据能够对照。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "study",
+        "zh": "研究"
+      }
+    ]
   },
   {
     "id": "b-998d0d6448f6cc9a-1",
@@ -261,7 +705,29 @@
       "不同工具和时长也限定了与eDNA比较时的工作量口径。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "species",
+        "zh": "物种"
+      },
+      {
+        "en": "fish",
+        "zh": "鱼类"
+      },
+      {
+        "en": "experiments",
+        "zh": "实验（复数）"
+      },
+      {
+        "en": "methods",
+        "zh": "采用的方法（复数）"
+      },
+      {
+        "en": "study",
+        "zh": "研究"
+      }
+    ]
   },
   {
     "id": "b-039c028f83a6a6d0-1",
@@ -277,7 +743,21 @@
       "现场空间重复与实验室PCR重复承担不同任务。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "seawater",
+        "zh": "海水"
+      },
+      {
+        "en": "sample",
+        "zh": "用于研究的样本"
+      },
+      {
+        "en": "samples",
+        "zh": "用于研究的样本（复数）"
+      }
+    ]
   },
   {
     "id": "b-8d1e650ab00aa9c3-1",
@@ -288,7 +768,29 @@
       "控制水箱条件使时间可比较，也决定了实验适用的环境范围。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "seawater",
+        "zh": "海水"
+      },
+      {
+        "en": "sequencing",
+        "zh": "测定 DNA 序列"
+      },
+      {
+        "en": "degradation",
+        "zh": "DNA 逐渐降解"
+      },
+      {
+        "en": "aquarium",
+        "zh": "水族箱"
+      }
+    ]
   },
   {
     "id": "b-655e5945de268feb-1",
@@ -299,7 +801,21 @@
       "随后柱纯化和小体积洗脱，把环境样本变成可扩增的提取液。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "seawater",
+        "zh": "海水"
+      },
+      {
+        "en": "sample",
+        "zh": "用于研究的样本"
+      },
+      {
+        "en": "samples",
+        "zh": "用于研究的样本（复数）"
+      }
+    ]
   },
   {
     "id": "b-521adb27c3ceee51-1",
@@ -309,7 +825,29 @@
       "相同提取流程为各时间点的衰减比较提供一致处理。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "seawater",
+        "zh": "海水"
+      },
+      {
+        "en": "degradation",
+        "zh": "DNA 逐渐降解"
+      },
+      {
+        "en": "experiment",
+        "zh": "实验"
+      },
+      {
+        "en": "samples",
+        "zh": "用于研究的样本（复数）"
+      }
+    ]
   },
   {
     "id": "b-52577fa5232ef3d7-1",
@@ -321,7 +859,29 @@
       "分区操作和两类空白检查与这条扩增链同时进行。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "mitochondrial",
+        "zh": "线粒体的"
+      },
+      {
+        "en": "species",
+        "zh": "物种"
+      },
+      {
+        "en": "fish",
+        "zh": "鱼类"
+      },
+      {
+        "en": "approach",
+        "zh": "处理问题的方法或路径"
+      },
+      {
+        "en": "previous",
+        "zh": "此前的"
+      }
+    ]
   },
   {
     "id": "b-507d949d344be367-1",
@@ -336,7 +896,17 @@
       "先统一片段长度口径，再区分常规PCR与定量体系的条件。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "including",
+        "zh": "包括；列举范围中的实例"
+      },
+      {
+        "en": "study",
+        "zh": "研究"
+      }
+    ]
   },
   {
     "id": "b-555054e638a27f49-1",
@@ -347,7 +917,21 @@
       "MID与引物标记把混合得到的读段重新分回来源。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "sequencing",
+        "zh": "测定 DNA 序列"
+      },
+      {
+        "en": "sample",
+        "zh": "用于研究的样本"
+      },
+      {
+        "en": "samples",
+        "zh": "用于研究的样本（复数）"
+      }
+    ]
   },
   {
     "id": "b-1e2576feabfc35d3-1",
@@ -362,7 +946,13 @@
       "补查产物另经克隆与Sanger路线确认序列身份。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "species",
+        "zh": "物种"
+      }
+    ]
   },
   {
     "id": "b-589f69b32ca9644e-1",
@@ -372,7 +962,13 @@
       "去除引物后比对参考库，再按设定阈值进行分类归属。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "compared with",
+        "zh": "与……相比"
+      }
+    ]
   },
   {
     "id": "b-6fae2e7925fbebf6-1",
@@ -382,7 +978,13 @@
       "唯一且完全匹配才进入物种级名录。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "species",
+        "zh": "物种"
+      }
+    ]
   },
   {
     "id": "b-bd0ef84046759033-1",
@@ -392,7 +994,21 @@
       "实验问题改变，读数从物种身份转为同一靶标的时间变化。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "degradation",
+        "zh": "DNA 逐渐降解"
+      },
+      {
+        "en": "experiment",
+        "zh": "实验"
+      }
+    ]
   },
   {
     "id": "b-8257f9f709a710f5-1",
@@ -402,7 +1018,25 @@
       "固定物种、片段与反应条件后，连续时间点的定量才有共同尺度。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "mitochondrial",
+        "zh": "线粒体的"
+      },
+      {
+        "en": "species",
+        "zh": "物种"
+      },
+      {
+        "en": "qPCR",
+        "zh": "定量 PCR；根据扩增信号估计模板量"
+      },
+      {
+        "en": "respectively",
+        "zh": "按前面顺序分别对应"
+      }
+    ]
   },
   {
     "id": "b-e6378c6798213437-1",
@@ -413,7 +1047,29 @@
       "标准品把荧光信号转换为可比较的浓度估计。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "species",
+        "zh": "物种"
+      },
+      {
+        "en": "fish",
+        "zh": "鱼类"
+      },
+      {
+        "en": "taxa",
+        "zh": "分类单元（taxon 的复数）"
+      },
+      {
+        "en": "degradation",
+        "zh": "DNA 逐渐降解"
+      }
+    ]
   },
   {
     "id": "b-e2cca792934e198b-1",
@@ -423,7 +1079,29 @@
       "技术重复应对低模板检测波动，阳性反应再进入作者的浓度换算流程。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "seawater",
+        "zh": "海水"
+      },
+      {
+        "en": "concentrations",
+        "zh": "浓度（复数）"
+      },
+      {
+        "en": "qPCR",
+        "zh": "定量 PCR；根据扩增信号估计模板量"
+      },
+      {
+        "en": "sample",
+        "zh": "用于研究的样本"
+      },
+      {
+        "en": "independent",
+        "zh": "相互独立的"
+      }
+    ]
   },
   {
     "id": "b-77a08001e4be0aa5-1",
@@ -433,7 +1111,21 @@
       "标准曲线效率是定量流程的性能检查。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "qPCR",
+        "zh": "定量 PCR；根据扩增信号估计模板量"
+      },
+      {
+        "en": "standard curves",
+        "zh": "标准曲线；用已知量与检测信号建立对应关系"
+      },
+      {
+        "en": "efficiency",
+        "zh": "扩增效率；此处是定量 PCR 的性能指标"
+      }
+    ]
   },
   {
     "id": "b-9f9b1f76fffe8423-1",
@@ -443,7 +1135,17 @@
       "以比例损失描述衰减，再由起始量和速率推算何时低于检测线。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "qPCR",
+        "zh": "定量 PCR；根据扩增信号估计模板量"
+      },
+      {
+        "en": "relationship",
+        "zh": "事物之间的关系"
+      }
+    ]
   },
   {
     "id": "b-641a10bddc9504f3-1",
@@ -469,7 +1171,29 @@
       "两者一起决定达到25分子/400 ml的时间，因此过线时间依赖本次条件。"
     ],
     "trap": "",
-    "terms": []
+    "terms": [],
+    "vocabulary": [
+      {
+        "en": "eDNA",
+        "zh": "环境 DNA 的缩写"
+      },
+      {
+        "en": "degrade",
+        "zh": "降解"
+      },
+      {
+        "en": "concentrations",
+        "zh": "浓度（复数）"
+      },
+      {
+        "en": "estimated",
+        "zh": "估计得到的"
+      },
+      {
+        "en": "observed",
+        "zh": "实际观察到的"
+      }
+    ]
   },
   {
     "id": "b-17a654760623d5bd-1",

@@ -1,0 +1,48 @@
+.paragraph-vocabulary{margin:20px 0 16px;padding:16px 20px;background:#f7f4ed;border:1px solid #e9e1d3;border-radius:12px}
+.paragraph-vocabulary h4{margin:0 0 10px;font-size:.86em;color:#756445;letter-spacing:.02em}
+.paragraph-vocabulary h4 span{font-size:.85em;font-weight:400;margin-left:10px;color:#9b8a71}
+.paragraph-vocabulary dl{display:flex;flex-wrap:wrap;gap:10px 26px;margin:0}
+.vocab-item{display:flex;align-items:baseline;gap:10px;max-width:100%;line-height:1.6}
+.vocab-item dt{font-family:Georgia,'Times New Roman',serif;font-weight:600;color:#355d64;overflow-wrap:anywhere}
+.vocab-item dd{margin:0;color:#655c50;font-size:.9em}
+.pdf-dialog{max-width:560px;width:calc(100% - 36px);padding:28px;border:1px solid #e5ded3;border-radius:18px;box-shadow:0 24px 90px #312c2433;color:#35322d;background:#fffdf9}
+.pdf-dialog::backdrop{background:#25221d55}
+.pdf-dialog h2{margin-top:0}.pdf-dialog label{display:block;margin:14px 0}.pdf-dialog input{width:auto}
+.pdf-dialog-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:24px}
+.pdf-dialog-actions button:last-child{background:#336960;color:white;border-color:#336960}
+#reader-pdf-document{display:none}
+@media print{
+ body.reader-pdf-export{background:white!important;margin:0!important;font-size:11pt!important;color:#242424!important}
+ body.reader-pdf-export > *:not(#reader-pdf-document){display:none!important}
+ body.reader-pdf-export > #reader-pdf-document{display:block!important;max-width:none!important;width:auto!important;margin:0!important;padding:0!important;font:11pt/1.6 'Microsoft YaHei','Noto Sans CJK SC',Arial,sans-serif}
+ #reader-pdf-document *{box-sizing:border-box;animation:none!important;transition:none!important}
+ #reader-pdf-document h1{font-size:22pt;line-height:1.3;margin:2mm 0 3mm;overflow-wrap:anywhere}
+ #reader-pdf-document h2{font-size:15pt;margin:7mm 0 3mm;border-bottom:1.2pt solid #3d6665;padding-bottom:2mm;break-after:avoid}
+ #reader-pdf-document h3{font-size:10pt;color:#805a3d;margin:3mm 0 1mm;break-after:avoid}
+ #reader-pdf-document .pdf-kicker{font-size:9pt;letter-spacing:1.2pt;color:#527171;margin:0}
+ #reader-pdf-document .pdf-citation,#reader-pdf-document .pdf-intro,#reader-pdf-document .pdf-locator{font-size:9pt;color:#67645d;margin:2mm 0}
+ #reader-pdf-document article,#reader-pdf-document section{break-inside:auto!important;border-radius:0;box-shadow:none}
+ #reader-pdf-document .pdf-paragraph{padding:0 0 4mm;margin:0 0 4mm;border-bottom:.5pt solid #dcd6cb}
+ #reader-pdf-document .pdf-locator{break-after:avoid}
+ #reader-pdf-document table.pdf-pair{table-layout:fixed;width:100%;border-collapse:collapse;margin:0;break-inside:auto}
+ #reader-pdf-document .pdf-pair thead{display:table-header-group}
+ #reader-pdf-document .pdf-pair th{font:9pt/1.5 Arial,'Microsoft YaHei',sans-serif;text-align:left;background:#f2f3f0;padding:2mm 3mm;color:#526966;border:.5pt solid #d8dcd6;width:50%}
+ #reader-pdf-document .pdf-pair td{width:50%;vertical-align:top;padding:3mm;border:.5pt solid #dfdfd8;overflow-wrap:anywhere;line-height:1.7;break-inside:auto}
+ #reader-pdf-document .orig,#reader-pdf-document .zh{padding:0;border:0;margin:0;font-size:11pt;line-height:1.7;max-width:none}
+ #reader-pdf-document .orig{font-family:Georgia,'Times New Roman','Microsoft YaHei',serif;font-style:normal}
+ #reader-pdf-document .note{padding:0;border:0;background:none;font-size:10.5pt;line-height:1.65;margin:0}
+ #reader-pdf-document ul{padding-left:5mm;margin:1mm 0;font-size:10pt}
+ #reader-pdf-document .trap{font-size:9pt;padding:2mm;margin:2mm 0;border:.5pt solid #e5d5d2;background:#fcf7f6}
+ #reader-pdf-document .paragraph-vocabulary{padding:2mm 3mm;margin:3mm 0 0;border:.5pt solid #e9e1d3;border-radius:0;break-inside:auto}
+ #reader-pdf-document .paragraph-vocabulary h4{font-size:9pt;margin:0 0 1mm;break-after:avoid}
+ #reader-pdf-document .vocab-item{font-size:9.5pt;break-inside:avoid}
+ #reader-pdf-document .paragraph-vocabulary dl{gap:1mm 7mm}
+ #reader-pdf-document img,#reader-pdf-document svg{max-width:100%!important;max-height:165mm;object-fit:contain}
+ #reader-pdf-document .source-block{padding:2mm 0;border:0;margin:0}
+ #reader-pdf-document .table-scroll{overflow:visible}
+ #reader-pdf-document .source-block table{font-size:9pt;width:100%;table-layout:fixed;overflow-wrap:anywhere}
+ #reader-pdf-document pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:9pt}
+ #reader-pdf-document math{font-size:11pt;max-width:100%;overflow:visible}
+ #reader-pdf-document a{color:inherit;text-decoration:none;overflow-wrap:anywhere}
+ #reader-pdf-document .pdf-attribution{font-size:9pt;overflow-wrap:anywhere}
+}

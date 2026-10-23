@@ -53,5 +53,6 @@ def shape_errors(data, records, guide):
     obj(data,'fulltext',{'paper_id':text,'sections':array(mapping({'level':integer,'kind':text,
         'items':array(mapping({'latex':text,'src':text,'caption':text,'source':source}))}))})
     array(mapping({'id':text,'role':text,'zh':text,'note':text,'keys':texts,'trap':text,
-        'terms':array(mapping({'en':text,'zh':text}))}))(records,'translations')
+        'terms':array(mapping({'en':text,'zh':text})),
+        'vocabulary':array(mapping({'en':text,'zh':text}))}))(records,'translations')
     return errors

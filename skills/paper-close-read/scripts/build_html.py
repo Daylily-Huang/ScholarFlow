@@ -12,7 +12,7 @@ from validate_content import validate
 from render_further import render_further
 
 ROOT = Path(__file__).resolve().parent.parent
-GENERATOR_VERSION = '1.1.0'
+GENERATOR_VERSION = '1.2.0'
 
 
 def refs_html(refs):
@@ -98,12 +98,15 @@ def build(data, records, guide, asset_root, source_text=None, allow_incomplete=F
               "revision": hashlib.sha256(json.dumps([data, records, guide], ensure_ascii=False, sort_keys=True).encode()).hexdigest()[:20]}
     config['generatorVersion']=GENERATOR_VERSION
     config['citation']=data['front'].get('citation','')
+    config['sourceLanguage']=data['front'].get('language','en')
     config['blocks']={i['id']:{'page':i.get('source',{}).get('pdf_page'),'verified':i.get('source',{}).get('status')=='verified','section':s.get('display_name',s['name'])} for s in data['sections'] for i in s['items']}
     config_json = json.dumps(config, ensure_ascii=False).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
     warnings = ''.join('<li>' + esc(w) + '</li>' for w in report["warnings"])
     verified = sum(item.get("source", {}).get("status") == "verified" for section in data["sections"] for item in section["items"])
     scope = esc(guide.get("scope", "导读为精选；全文模式覆盖本次提供的 Markdown，不代表已核对 PDF 全文完整性。"))
     css = (ROOT / 'assets/reader.css').read_text(encoding='utf-8-sig') + '\n' + (ROOT / 'assets/editorial.css').read_text(encoding='utf-8-sig')
+    css += '\n' + (ROOT / 'assets/pdf.css').read_text(encoding='utf-8-sig')
+    pdf_export = (ROOT / 'assets/pdf-export.js').read_text(encoding='utf-8-sig')
     persistence = (ROOT / 'assets/persistence.js').read_text(encoding='utf-8-sig')
     workspace = (ROOT / 'assets/workspace.js').read_text(encoding='utf-8-sig')
     navigation_js = (ROOT / 'assets/navigation.js').read_text(encoding='utf-8-sig')
@@ -117,10 +120,10 @@ def build(data, records, guide, asset_root, source_text=None, allow_incomplete=F
     draft = '<p class="warning">待补稿：讲解或翻译不完整。</p>' if allow_incomplete else ''
     result = f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)} · 精读</title><style>{css}</style></head>
 <body class="{'source-zh' if data['front'].get('language') == 'zh' else 'source-en'}"><a class="skip" href="#main">跳至正文</a><header><span class="eyebrow">文献慢读 · 从问题走到证据</span><h1>{esc(title)}</h1><p>{esc(data['front'].get('citation', ''))}</p>{draft}<a href="#source-notes">来源说明</a></header>
-<div class="toolbar"><div class="seg" aria-label="阅读路线"><button data-route="full" aria-pressed="true">逐段精读</button><button data-route="quick" aria-pressed="false">3 分钟入门</button><button data-route="deep" aria-pressed="false">10 分钟读懂</button></div><label class="font-label" for="font-size">字号 <select id="font-size"><option value="16">16px</option><option value="18" selected>18px · 默认</option><option value="20">20px</option></select></label><button id="resume">继续上次</button><button id="export-reading">导出阅读笔记</button><span id="progress" aria-live="polite"></span></div>
+<div class="toolbar"><div class="seg" aria-label="阅读路线"><button data-route="full" aria-pressed="true">逐段精读</button><button data-route="quick" aria-pressed="false">3 分钟入门</button><button data-route="deep" aria-pressed="false">10 分钟读懂</button></div><label class="font-label" for="font-size">字号 <select id="font-size"><option value="16">16px</option><option value="18" selected>18px · 默认</option><option value="20">20px</option></select></label><button id="resume">继续上次</button><button id="export-reading">导出阅读笔记</button><button id="export-pdf">导出双语 PDF</button><span id="progress" aria-live="polite"></span></div>
 <div class="layout"><aside><label for="search">检索原文与逐段讲解</label><input id="search" type="search" placeholder="输入术语、数值或问题"><p id="search-count" aria-live="polite"></p><nav aria-label="全文目录">{navigation}</nav></aside><main id="main"><div id="mode-guide" hidden>{render_guide(guide, asset_root)}</div><div id="mode-full">{full}</div><section id="source-notes"><h2>来源说明</h2><p>{scope}</p><p>{report['source_blocks']} 个来源块 · {report['paragraphs']} 段 · {report['translations']} 条译文；原页文字核对 {verified} 块。逐块状态见来源标签提示。</p><ul>{warnings}</ul><p>译文与讲解由 AI 辅助整理。</p>{attribution}</section></main></div>
 <p id="storage-status" role="status"></p><noscript>交互需要浏览器启用 JavaScript；原文如下。</noscript><style>noscript+style{{display:none}}</style><noscript><style>#mode-full[hidden]{{display:block!important}}</style></noscript>
-<script id="reader-config" type="application/json">{config_json}</script><script>{persistence}</script><script>{reader}</script><script>{annotation}</script><script>{workspace}</script><script>{navigation_js}</script><script>{enhancements}</script></body></html>'''
+<script id="reader-config" type="application/json">{config_json}</script><script>{persistence}</script><script>{reader}</script><script>{annotation}</script><script>{workspace}</script><script>{navigation_js}</script><script>{enhancements}</script><script>{pdf_export}</script></body></html>'''
     return result, report
 
 
