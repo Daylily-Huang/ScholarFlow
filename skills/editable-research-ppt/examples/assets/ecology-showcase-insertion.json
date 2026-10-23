@@ -1,0 +1,233 @@
+{
+  "ok": true,
+  "source_sha256": "76add0a0e49b0344f23ea5e427c2a792c5f9ddb936bf9c50f05cea9660612d91",
+  "output_sha256": "276138a41023f343ae9750cd39fe6b71d931fd9344c4792bc814c03cf4d87b6e",
+  "placements": [
+    {
+      "slide": 1,
+      "asset": "noto/emoji_u1f333",
+      "name": "asset-1-noto-emoji_u1f333",
+      "native_parts": 5,
+      "source_sha256": "9e1a171b2d64100143265e7df251f4f74d598d84f904e807a7f02f1bb837ef8b",
+      "cache_sha256": "1c8e44b13d2caaacbbf7d614742b6b7409769748d74a2b663d8cb9ebd193958e",
+      "edit_probe": "passed",
+      "box": [
+        133.50001853674695,
+        254.0,
+        185.0,
+        185.0
+      ]
+    },
+    {
+      "slide": 1,
+      "asset": "noto/emoji_u1f9ec",
+      "name": "asset-2-noto-emoji_u1f9ec",
+      "native_parts": 24,
+      "source_sha256": "214e5563efc74723d698d276b114129ca848fe65171dd9d54189244197d3bcde",
+      "cache_sha256": "0e345a7f0295a050ee25d455578fb63dfc26d4e0e230be8b5aea615137899300",
+      "edit_probe": "passed",
+      "box": [
+        547.5000524934427,
+        254.0,
+        185.0,
+        185.0
+      ]
+    },
+    {
+      "slide": 1,
+      "asset": "lucide/network",
+      "name": "asset-3-lucide-network",
+      "native_parts": 5,
+      "source_sha256": "626be730feea1e5ea7539fbf78b4a3fcb927ce5d7dc43364f2216908672ac792",
+      "cache_sha256": "195a0acf8fbdcebb29a9ffbdb8695323b457a3bce0c9c513e52b4f03b5f29f55",
+      "edit_probe": "passed",
+      "box": [
+        961.5000864501384,
+        254.0,
+        185.0,
+        185.0
+      ]
+    },
+    {
+      "slide": 2,
+      "asset": "lucide/scan-barcode",
+      "name": "asset-4-lucide-scan-barcode",
+      "native_parts": 7,
+      "source_sha256": "1d9ed9ea0da73c30d1b02738c774262ec1123cd95274aae28c774b5e83de35e6",
+      "cache_sha256": "e3ca0544784b59992873ad3df52b82cd4fc5209845ddfc075fafbf6e90a42f60",
+      "edit_probe": "passed",
+      "box": [
+        111.00001443569673,
+        270.0,
+        130.0,
+        130.0
+      ]
+    },
+    {
+      "slide": 2,
+      "asset": "lucide/thermometer-snowflake",
+      "name": "asset-5-lucide-thermometer-snowflake",
+      "native_parts": 8,
+      "source_sha256": "ae1fa14b3a2ed8058cd0369f6761ae8200c2ebcfe2aa61b6a9ff73c9162b89eb",
+      "cache_sha256": "75f26f6023f34ae4f81e64d72003da30c9a7de5d4c6a3408af2e9952db0f924e",
+      "edit_probe": "passed",
+      "box": [
+        420.0000397801871,
+        270.0,
+        130.0,
+        130.0
+      ]
+    },
+    {
+      "slide": 2,
+      "asset": "noto/emoji_u1f9ec",
+      "name": "asset-6-noto-emoji_u1f9ec",
+      "native_parts": 24,
+      "source_sha256": "214e5563efc74723d698d276b114129ca848fe65171dd9d54189244197d3bcde",
+      "cache_sha256": "0e345a7f0295a050ee25d455578fb63dfc26d4e0e230be8b5aea615137899300",
+      "edit_probe": "passed",
+      "box": [
+        729.0000651246773,
+        270.0,
+        130.0,
+        130.0
+      ]
+    },
+    {
+      "slide": 2,
+      "asset": "lucide/clipboard-check",
+      "name": "asset-7-lucide-clipboard-check",
+      "native_parts": 3,
+      "source_sha256": "e2bac86a6b24caa0d7d0dcc2719ec6b7870ec5eef2d21afae498d8cb5eefda96",
+      "cache_sha256": "d1dc91c956fefc2760eb298cd326fc25875b6db584f233146bd9b2ae3327a854",
+      "edit_probe": "passed",
+      "box": [
+        1038.0000904691676,
+        270.0,
+        130.0,
+        130.0
+      ]
+    },
+    {
+      "slide": 3,
+      "asset": "noto/emoji_u1f4f7",
+      "name": "asset-8-noto-emoji_u1f4f7",
+      "native_parts": 28,
+      "source_sha256": "7e0572c943b5a8d2b1e11ecebda3521f40dd37ae10578a9d9d59a8e5945a6895",
+      "cache_sha256": "9cd807087d8ff4f48105ea9400e4ba86f3005c058e6d77f2402973f0f610704b",
+      "edit_probe": "passed",
+      "box": [
+        142.500019274936,
+        262.0,
+        185.0,
+        185.0
+      ]
+    },
+    {
+      "slide": 3,
+      "asset": "lucide/map-pin-check-inside",
+      "name": "asset-9-lucide-map-pin-check-inside",
+      "native_parts": 2,
+      "source_sha256": "dc4e9b15aec3035806fef726cd17ed1622e18e13e91068a9227732293da8d707",
+      "cache_sha256": "81360e180e84e19832b5701ee5f98a0b27637bb7415b314045225053cc22b0fa",
+      "edit_probe": "passed",
+      "box": [
+        537.0000474901614,
+        206.0,
+        84.0,
+        84.0
+      ]
+    },
+    {
+      "slide": 3,
+      "asset": "lucide/scan-eye",
+      "name": "asset-10-lucide-scan-eye",
+      "native_parts": 6,
+      "source_sha256": "343741486dfe4188a80628e3b8ae7a71f6ac63e0de5fbf474674b053c8f80721",
+      "cache_sha256": "d91e630af967236c261b64bb4df8889e6a8b33d425423403acd961e0372266cb",
+      "edit_probe": "passed",
+      "box": [
+        537.0000474901614,
+        357.0,
+        84.0,
+        84.0
+      ]
+    },
+    {
+      "slide": 3,
+      "asset": "lucide/chart-scatter",
+      "name": "asset-11-lucide-chart-scatter",
+      "native_parts": 6,
+      "source_sha256": "17dbdf3da5309c6090ce60037a8ad2125bdfecfbe853c0019034294c0a8f3ce1",
+      "cache_sha256": "45e7d880e75b0f2f8f45d1600da20f940a250cbc6f58eb3e820df012df067691",
+      "edit_probe": "passed",
+      "box": [
+        537.0000474901614,
+        508.0,
+        84.0,
+        84.0
+      ]
+    },
+    {
+      "slide": 4,
+      "asset": "lucide/database",
+      "name": "asset-12-lucide-database",
+      "native_parts": 3,
+      "source_sha256": "471eb14bc8d144896a82dfc4aa9daf350f769f0896f4bef33e50aabdbb51130d",
+      "cache_sha256": "d87c9bcc0d2fe9f3142ae14a137496fff5b7560599b9f272247ba5cc93e34ad8",
+      "edit_probe": "passed",
+      "box": [
+        60.00000803805841,
+        275.0,
+        76.0,
+        76.0
+      ]
+    },
+    {
+      "slide": 4,
+      "asset": "lucide/scan-search",
+      "name": "asset-13-lucide-scan-search",
+      "native_parts": 6,
+      "source_sha256": "a2919e740bb122bb737542119c1d3c1042bcd62c79d702804553cc95ac768e1e",
+      "cache_sha256": "605c2ca3dbfb562c312f233237d49498fef892fefbcc268b0614ad5a1209b2b3",
+      "edit_probe": "passed",
+      "box": [
+        60.00000803805841,
+        384.0,
+        76.0,
+        76.0
+      ]
+    },
+    {
+      "slide": 4,
+      "asset": "lucide/shield-check",
+      "name": "asset-14-lucide-shield-check",
+      "native_parts": 2,
+      "source_sha256": "8d4fcdbde5bba4abb1a2f6fe53e37ceb6343a1d5449a9d88f6f97c1971d26c4e",
+      "cache_sha256": "ae48acd36347b82c4abbe02c573e1dad77a55b5a0a5302998f9122264f806ba5",
+      "edit_probe": "passed",
+      "box": [
+        60.00000803805841,
+        493.0,
+        76.0,
+        76.0
+      ]
+    },
+    {
+      "slide": 4,
+      "asset": "lucide/network",
+      "name": "asset-15-lucide-network",
+      "native_parts": 5,
+      "source_sha256": "626be730feea1e5ea7539fbf78b4a3fcb927ce5d7dc43364f2216908672ac792",
+      "cache_sha256": "195a0acf8fbdcebb29a9ffbdb8695323b457a3bce0c9c513e52b4f03b5f29f55",
+      "edit_probe": "passed",
+      "box": [
+        943.5000850557814,
+        285.0,
+        187.0,
+        187.0
+      ]
+    }
+  ],
+  "scope": "Native cached geometry. Actual rendering/editing depends on target software; source deck is unchanged."
+}

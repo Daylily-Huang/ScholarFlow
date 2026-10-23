@@ -1,5 +1,5 @@
 {
-  "version": "1.4.0",
+  "version": "1.7.1",
   "approved_date": "2026-10-19",
   "canvas": {
     "width": 1280,
@@ -86,6 +86,46 @@
       "paper": "#FFFFFF",
       "tint": "#EFF8FB",
       "description": "清爽湖蓝主色，珊瑚红作少量语义强调"
+    },
+    "P7": {
+      "primary": "#A84B22",
+      "secondary": "#D5884D",
+      "accent": "#245C6D",
+      "paper": "#FFFCF7",
+      "tint": "#FFF0DF",
+      "ink": "#292C30",
+      "name": "赭橙米白",
+      "description": "温暖而清晰的科研编辑风，赭橙只承担标题、实底小标题与核心曲线，画布接近白色的暖白，正文深墨色，少量深青蓝比较色。"
+    },
+    "P8": {
+      "primary": "#15385C",
+      "secondary": "#426B91",
+      "accent": "#AE7A25",
+      "paper": "#FFFFFF",
+      "tint": "#EDF3F9",
+      "ink": "#202C3A",
+      "name": "深蓝香槟金",
+      "description": "精致的深海军蓝学术汇报，深蓝实底块配白字，香槟金只点亮小标签和重点数据，白底通透，不用金色铺满正文，不做金属质感。"
+    },
+    "P9": {
+      "primary": "#006A6C",
+      "secondary": "#168E92",
+      "accent": "#6854A4",
+      "paper": "#FFFFFF",
+      "tint": "#E8F6F4",
+      "ink": "#16393C",
+      "name": "孔雀青白",
+      "description": "清晰鲜明的孔雀青与纯白学术图表风，清爽而厚实，少量柔紫作为比较系列，正文深墨色，图表占比大、分组层级明确，避免灰绿和灰蒙蒙。"
+    },
+    "P10": {
+      "primary": "#22252A",
+      "secondary": "#616974",
+      "accent": "#BE3038",
+      "paper": "#FFFFFF",
+      "tint": "#F3F4F5",
+      "ink": "#22252A",
+      "name": "黑白朱红",
+      "description": "高质量学术期刊编辑风，近黑标题、纯白底、朱红仅用于一个关键系列或关键词，衬线大标题配现代无衬线正文，粗细线与留白形成层级，完全无花纹。"
     }
   },
   "scenarios": {
@@ -310,6 +350,39 @@
         "default",
         "table_full"
       ]
+    },
+    "L21": {
+      "name": "大图与解释型",
+      "category": "紧凑原生版式",
+      "purpose": "大图与解释型",
+      "renderer": "scripts/compact_layouts.py",
+      "variants": [
+        "default",
+        "sidebar",
+        "journal"
+      ]
+    },
+    "L22": {
+      "name": "标准化比较型",
+      "category": "紧凑原生版式",
+      "purpose": "标准化比较型",
+      "renderer": "scripts/compact_layouts.py",
+      "variants": [
+        "default",
+        "fraction",
+        "metrics",
+        "pipeline"
+      ]
+    },
+    "L23": {
+      "name": "阶段任务与计划型",
+      "category": "紧凑原生版式",
+      "purpose": "阶段任务与计划型",
+      "renderer": "scripts/compact_layouts.py",
+      "variants": [
+        "default",
+        "lanes"
+      ]
     }
   },
   "rules": {
@@ -390,6 +463,46 @@
       "paper": "#FFFFFF",
       "tint": "#EFFBFF",
       "description": "厚实实底版：提高色彩纯度，白底，较强主次对比"
+    },
+    "P7": {
+      "primary": "#A84B22",
+      "secondary": "#D5884D",
+      "accent": "#245C6D",
+      "paper": "#FFFCF7",
+      "tint": "#FFF0DF",
+      "ink": "#292C30",
+      "name": "赭橙米白",
+      "description": "温暖而清晰的科研编辑风，赭橙只承担标题、实底小标题与核心曲线，画布接近白色的暖白，正文深墨色，少量深青蓝比较色。"
+    },
+    "P8": {
+      "primary": "#15385C",
+      "secondary": "#426B91",
+      "accent": "#AE7A25",
+      "paper": "#FFFFFF",
+      "tint": "#EDF3F9",
+      "ink": "#202C3A",
+      "name": "深蓝香槟金",
+      "description": "精致的深海军蓝学术汇报，深蓝实底块配白字，香槟金只点亮小标签和重点数据，白底通透，不用金色铺满正文，不做金属质感。"
+    },
+    "P9": {
+      "primary": "#006A6C",
+      "secondary": "#168E92",
+      "accent": "#6854A4",
+      "paper": "#FFFFFF",
+      "tint": "#E8F6F4",
+      "ink": "#16393C",
+      "name": "孔雀青白",
+      "description": "清晰鲜明的孔雀青与纯白学术图表风，清爽而厚实，少量柔紫作为比较系列，正文深墨色，图表占比大、分组层级明确，避免灰绿和灰蒙蒙。"
+    },
+    "P10": {
+      "primary": "#22252A",
+      "secondary": "#616974",
+      "accent": "#BE3038",
+      "paper": "#FFFFFF",
+      "tint": "#F3F4F5",
+      "ink": "#22252A",
+      "name": "黑白朱红",
+      "description": "高质量学术期刊编辑风，近黑标题、纯白底、朱红仅用于一个关键系列或关键词，衬线大标题配现代无衬线正文，粗细线与留白形成层级，完全无花纹。"
     }
   },
   "solid_typography": {
@@ -490,5 +603,35 @@
     "zoom_frame",
     "number",
     "navigation"
-  ]
+  ],
+  "compact_typography": {
+    "title": 36,
+    "body": [
+      20,
+      21
+    ],
+    "section": 23,
+    "chart_min": 17,
+    "footnote": 14,
+    "content_side_margin": 32,
+    "scope": "L21-L23 only; existing approved layouts retain their typography"
+  },
+  "approved_compact": {
+    "date": "2026-10-23",
+    "reference_pages": [
+      2,
+      4,
+      5,
+      8,
+      9,
+      10
+    ],
+    "palette_ids": [
+      "P7",
+      "P8",
+      "P9",
+      "P10"
+    ],
+    "bindings": "assets/templates/compact-bindings.json"
+  }
 }

@@ -1,0 +1,30 @@
+{
+  "version": "1.5.0-dev",
+  "note": "Local development candidate; final acceptance incomplete.",
+  "sha256": {
+    "SKILL.md": "2a2dd7445d919ea5fe9a6600001f434b7b3ed1b7c2b79563cae477806d0e2c2d",
+    "assets/template-system.json": "c7865208307dd6f1896de7db870564b39b8a7b91c38e2b9feb35ad1848fe197e",
+    "scripts/generate.py": "b3b2c153304f964e5913693dff8df8e1463a79b24dc2ab26400892df7c44b9d7",
+    "scripts/preflight.py": "fb443a28e8772f7fd6948b5df8731e5bf0c04e5d6aaf899ae50459766cbd4a9e",
+    "tests/test_authoring.py": "6dd46dd894e2f0abc62e7f31e28eaef87bc26830502adf933ad2ca3297b4e4aa",
+    "references/approved-standard.json": "7f8ef7e2c0dc9fbd9d2aad31593e73755272756019ca99ad19a5a52fb5a7db3f",
+    "references/authoring-and-handoff.md": "4a06b0e402cf9a669154a32b6e81f71d042ee1564a3e5996f7980e3c057731ad",
+    "scripts/fill_styles.py": "a842b42742f6543ac9fd69d537643c734829feab52ee841dc432e17156bbf87f",
+    "scripts/inspect_deck.py": "c7953851425e37e94acef96c48e1f0ee30a9abb3e9c2acee5ef8e96f87b80f86",
+    "scripts/prepare_handoff.py": "fab0b8d485e30ddbab45c7143f778a272348a7112b1327de69fa70324c7838d9",
+    "scripts/render_powerpoint.ps1": "a2f871a777be5db16fa5be78bfce35bcfe4b4a4f0c4714badeb62044c54d45ac",
+    "tests/test_inspection.py": "1849b263dee4987861b40c750262480dd99e35a2dae539328c8c93b2bf2eb394",
+    "tests/test_semantic_icons.py": "809e2890736722a15ee1d16d20bdb7c6babf296717187ce3cd4b4bd4831f956d",
+    "scripts/check_environment.py": "96e25f2471b426a57dc4349f5bd51e9662c5225466181e4f59af93147ac9da91",
+    "tests/test_bilingual.py": "c23ff3461796f9cf1ce848a89ace43413f503474d691aae96d51ab71bd9784de",
+    "scripts/export_project.py": "2a6ecbf04bd8b3440a84ecd628f67fa2f9cc885d95bfb9486baf78988a48d6fd",
+    "scripts/evidence_layouts.py": "a91619e81901db20e0c6e71849f6293c7da083c558776521406e8c09940de60c",
+    "scripts/install_local.py": "1eb8c8b1b6b8de56e49c6886753d682907fcf6701cacddad5acee16339f8e0fb",
+    "tests/test_project.py": "73a230a830d29c197020b6d711b76883cbd6bea862b59013ccdcae47aecbb891",
+    "tests/test_install_local.py": "55616996a999a1106eebfc634ea5422766a3fb7e70c935dc503b4c33ccd45fa4",
+    "references/native-composition.md": "b68f0cdd297b86cc5b7efe974e5824685649a77c42c715fe33cb7c2f730aeb6b",
+    "references/source-project.md": "ab0131e3a0ec3bbaaeff7a507b907d0fa5e795e6e98b4c4bb1db7431283e6903",
+    "references/local-installation.md": "deec04e5ae3a4a202dd40b94f1f0bd87ac6737f4b5874ff6f713ead326473cac",
+    "assets/examples/native-composition.json": "de834fd7f9eb61766d7782a2d0caf4dcf5dffb540597171177860e102f798a8b"
+  }
+}

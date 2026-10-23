@@ -1,3 +1,6 @@
 # Preserve verified source and artifact bytes across Windows/Linux checkouts.
 /skills/paper-close-read/** -text
 /examples/paper-close-read/** -text
+
+# Preserve the PPT package bytes used by its integrity manifests.
+/skills/editable-research-ppt/** -text

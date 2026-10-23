@@ -1,9 +1,9 @@
 name: editable-research-ppt
 on:
   push:
-    paths: ['skills/editable-research-ppt/**', '.github/workflows/research-ppt.yml']
+    paths: ['skills/editable-research-ppt/**', '.github/workflows/research-ppt.yml', '.gitattributes']
   pull_request:
-    paths: ['skills/editable-research-ppt/**', '.github/workflows/research-ppt.yml']
+    paths: ['skills/editable-research-ppt/**', '.github/workflows/research-ppt.yml', '.gitattributes']
   workflow_dispatch:
 permissions:
   contents: read
@@ -26,3 +26,4 @@ jobs:
       - run: python -I -S -B scripts/check_environment.py
       - run: python -I -S -B -m unittest discover -s tests -v
       - run: python -I -S -B scripts/verify_release.py
+      - run: python -I -S -B scripts/verify_publication.py

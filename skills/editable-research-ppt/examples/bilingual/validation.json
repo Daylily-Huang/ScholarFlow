@@ -1,0 +1,43 @@
+{
+  "academic": {
+    "source": "academic.pptx",
+    "source_sha256": "3a053c2e1bddce3172108d988e30b011d788a843f329924b6ae3c3e8d7ae946f",
+    "quality_ok": true,
+    "source_unchanged": true,
+    "text_persisted": true,
+    "move_persisted": true,
+    "chart_probe_applicable": true,
+    "workbook_value_persisted": true,
+    "previews": {
+      "academic-01.png": "37fa409865f04e0d7a618e8375eda6a993159f703b50637948c2e3013ebbdbbd",
+      "academic-02.png": "306668df3a147a27f16dc117afcdb23227713a4b48273896093465f0fe405c1d"
+    }
+  },
+  "coursework": {
+    "source": "coursework.pptx",
+    "source_sha256": "71e90fa5d756ca5d8e1f2509738937d8977c81b826a4cb383fa3b1d14899fdf2",
+    "quality_ok": true,
+    "source_unchanged": true,
+    "text_persisted": true,
+    "move_persisted": true,
+    "chart_probe_applicable": true,
+    "workbook_value_persisted": true,
+    "previews": {
+      "coursework-01.png": "150b9eb33c57454e6d9b2177c0ca2546593855b996f61c83d440dc57026a4b29",
+      "coursework-02.png": "381a748e3569fef099b3480daeffcb276e946cb9bba898bea5d5e9817b31604b"
+    }
+  },
+  "progress": {
+    "source": "progress.pptx",
+    "source_sha256": "e712165a00a3f5ffff07752a1f17ed5284c761ae918be507e179a0fa9bf7cc35",
+    "quality_ok": true,
+    "source_unchanged": true,
+    "text_persisted": true,
+    "move_persisted": true,
+    "chart_probe_applicable": false,
+    "previews": {
+      "progress-01.png": "f43e32960f67cb8786c0425b919cbfa7a9ecf7456bfbcdb6b234a7291d758ab0",
+      "progress-02.png": "de5779fea2c71193e44fb56480307355f90ffe8bdf6221d0cf4468f63401d2b0"
+    }
+  }
+}

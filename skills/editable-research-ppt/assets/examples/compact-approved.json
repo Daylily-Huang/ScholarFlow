@@ -1,0 +1,394 @@
+{
+  "scenario": "academic",
+  "palette": "P7",
+  "palette_showcase": true,
+  "fill_style": "solid",
+  "visual_mode": "adaptive",
+  "demo": true,
+  "slides": [
+    {
+      "layout": "L22",
+      "variant": "fraction",
+      "palette": "P7",
+      "title": "让不同调查努力下的记录可以比较",
+      "texts": {
+        "formula_name": "记录率",
+        "numerator": "独立记录数",
+        "denominator": "有效相机日",
+        "raw_title": "原始记录数（独立记录）",
+        "normalized_title": "标准化记录率",
+        "site1_input": "点位甲：独立记录24，有效相机日120",
+        "site1_calculation": "记录率 = 24 ÷ 120 × 100 = 20",
+        "site2_input": "点位乙：独立记录36，有效相机日240",
+        "site2_calculation": "记录率 = 36 ÷ 240 × 100 = 15",
+        "unit": "单位：次/100相机日",
+        "explanation": "记录率用于描述，不直接等同于种群密度。"
+      },
+      "sources": [
+        "合成演示数据，用于已批准版式的可编辑性验证。"
+      ],
+      "charts": [
+        {
+          "type": "bar",
+          "categories": [
+            "点位甲",
+            "点位乙"
+          ],
+          "series": [
+            {
+              "name": "合成示例",
+              "values": [
+                24.0,
+                36.0
+              ]
+            }
+          ],
+          "source": "合成演示数据，不代表真实研究结果。",
+          "yMin": 0.0,
+          "yMax": 50.0
+        },
+        {
+          "type": "bar",
+          "categories": [
+            "点位甲",
+            "点位乙"
+          ],
+          "series": [
+            {
+              "name": "合成示例",
+              "values": [
+                20.0,
+                15.0
+              ]
+            }
+          ],
+          "source": "合成演示数据，不代表真实研究结果。",
+          "yMin": 0.0,
+          "yMax": 25.0
+        }
+      ]
+    },
+    {
+      "layout": "L21",
+      "variant": "sidebar",
+      "palette": "P8",
+      "title": "群落变化需要结合时间与生境一起解释",
+      "texts": {
+        "metric_title": "六月记录率",
+        "metric_unit": "次/100相机日",
+        "metric1_label": "连续林",
+        "metric1_value": "32",
+        "metric2_label": "破碎林",
+        "metric2_value": "20",
+        "chart_title": "记录率（次/100相机日）",
+        "legend1": "连续林",
+        "legend2": "破碎林",
+        "point1_title": "同期比较",
+        "point1_body": "在相同时间窗内\n比较生境差异。",
+        "point2_title": "重复观测",
+        "point2_body": "保留逐月变化，\n不以单次记录\n概括全年。",
+        "chart_note": "六月：连续林32 / 破碎林20"
+      },
+      "sources": [
+        "合成演示数据，用于已批准版式的可编辑性验证。"
+      ],
+      "charts": [
+        {
+          "type": "line",
+          "categories": [
+            "1月",
+            "2月",
+            "3月",
+            "4月",
+            "5月",
+            "6月"
+          ],
+          "series": [
+            {
+              "name": "连续林",
+              "values": [
+                18.0,
+                20.0,
+                24.0,
+                28.0,
+                30.0,
+                32.0
+              ]
+            },
+            {
+              "name": "破碎林",
+              "values": [
+                16.0,
+                17.0,
+                18.0,
+                19.0,
+                19.0,
+                20.0
+              ]
+            }
+          ],
+          "source": "合成演示数据，不代表真实研究结果。",
+          "yMin": 0.0,
+          "yMax": 40.0
+        }
+      ]
+    },
+    {
+      "layout": "L22",
+      "variant": "metrics",
+      "palette": "P8",
+      "title": "让不同调查努力下的记录可以比较",
+      "texts": {
+        "formula_name": "记录率",
+        "numerator": "独立记录数",
+        "denominator": "有效相机日",
+        "site1_label": "点位甲",
+        "count_label1": "独立记录数",
+        "count1": "24",
+        "effort_label1": "有效相机日",
+        "effort1": "120",
+        "rate_label1": "记录率",
+        "rate1": "20",
+        "site2_label": "点位乙",
+        "count_label2": "独立记录数",
+        "count2": "36",
+        "effort_label2": "有效相机日",
+        "effort2": "240",
+        "rate_label2": "记录率",
+        "rate2": "15",
+        "raw_title": "原始记录数",
+        "normalized_title": "标准化记录率",
+        "unit": "单位：次/100相机日",
+        "explanation": "记录率用于描述，不直接等同于种群密度。"
+      },
+      "sources": [
+        "合成演示数据，用于已批准版式的可编辑性验证。"
+      ],
+      "charts": [
+        {
+          "type": "bar",
+          "categories": [
+            "点位甲",
+            "点位乙"
+          ],
+          "series": [
+            {
+              "name": "合成示例",
+              "values": [
+                24.0,
+                36.0
+              ]
+            }
+          ],
+          "source": "合成演示数据，不代表真实研究结果。",
+          "yMin": 0.0,
+          "yMax": 50.0
+        },
+        {
+          "type": "bar",
+          "categories": [
+            "点位甲",
+            "点位乙"
+          ],
+          "series": [
+            {
+              "name": "合成示例",
+              "values": [
+                20.0,
+                15.0
+              ]
+            }
+          ],
+          "source": "合成演示数据，不代表真实研究结果。",
+          "yMin": 0.0,
+          "yMax": 30.0
+        }
+      ]
+    },
+    {
+      "layout": "L22",
+      "variant": "pipeline",
+      "palette": "P9",
+      "title": "让不同调查努力下的记录可以比较",
+      "texts": {
+        "step1_title": "独立记录",
+        "step1_body": "统一规则识别\n独立事件数。",
+        "step2_title": "有效努力量",
+        "step2_body": "逐台累加\n有效相机日。",
+        "step3_title": "标准化记录率",
+        "step3_body": "按有效努力量\n换算记录率。",
+        "formula_name": "记录率",
+        "numerator": "独立记录数",
+        "denominator": "有效相机日",
+        "site1_label": "点位甲",
+        "site1_calculation": "24 ÷ 120 × 100 = 20",
+        "site2_label": "点位乙",
+        "site2_calculation": "36 ÷ 240 × 100 = 15",
+        "raw_title": "原始记录数（次）",
+        "normalized_title": "标准化记录率",
+        "unit": "单位：次/100相机日",
+        "explanation": "记录率用于描述，不直接等同于种群密度。"
+      },
+      "sources": [
+        "合成演示数据，用于已批准版式的可编辑性验证。"
+      ],
+      "charts": [
+        {
+          "type": "bar",
+          "categories": [
+            "点位甲",
+            "点位乙"
+          ],
+          "series": [
+            {
+              "name": "合成示例",
+              "values": [
+                24.0,
+                36.0
+              ]
+            }
+          ],
+          "source": "合成演示数据，不代表真实研究结果。",
+          "yMin": 0.0,
+          "yMax": 50.0
+        },
+        {
+          "type": "bar",
+          "categories": [
+            "点位甲",
+            "点位乙"
+          ],
+          "series": [
+            {
+              "name": "合成示例",
+              "values": [
+                20.0,
+                15.0
+              ]
+            }
+          ],
+          "source": "合成演示数据，不代表真实研究结果。",
+          "yMin": 0.0,
+          "yMax": 30.0
+        }
+      ]
+    },
+    {
+      "layout": "L23",
+      "variant": "lanes",
+      "palette": "P9",
+      "title": "先补齐验证，再推进下一轮实验",
+      "texts": {
+        "stage1_title": "引物初筛",
+        "stage2_title": "条件优化",
+        "stage3_title": "重复验证",
+        "task_column": "核心\n任务",
+        "time_column": "时间\n安排",
+        "status_column": "状态",
+        "task1": "设计与初步扩增\n核对特异性",
+        "time1": "第1周",
+        "status1": "已完成",
+        "task2": "比较温度与浓度\n记录反应条件",
+        "time2": "第2周",
+        "status2": "进行中",
+        "task3": "独立重复实验\n评估结果稳定性",
+        "time3": "第3周",
+        "status3": "待开展",
+        "table_title": "实验计划与进度",
+        "priority_label": "当前优先",
+        "priority_body": "完成条件优化\n与重复性核查",
+        "quantity_note": "数量为计划规模，\n不表示实际结果。"
+      },
+      "sources": [
+        "合成演示数据，用于已批准版式的可编辑性验证。"
+      ],
+      "table": [
+        [
+          "阶段",
+          "计划规模",
+          "状态"
+        ],
+        [
+          "引物初筛",
+          "16 组合",
+          "已完成"
+        ],
+        [
+          "条件优化",
+          "8 组合",
+          "进行中"
+        ],
+        [
+          "重复验证",
+          "4 组合",
+          "待开展"
+        ]
+      ]
+    },
+    {
+      "layout": "L21",
+      "variant": "journal",
+      "palette": "P10",
+      "title": "群落变化需要结合时间与生境一起解释",
+      "texts": {
+        "legend1": "连续林",
+        "legend2": "破碎林",
+        "metric_title": "六月记录率",
+        "metric1_value": "32",
+        "metric2_value": "20",
+        "metric1_label": "连续林",
+        "metric2_label": "破碎林",
+        "metric_unit": "单位：次/100相机日",
+        "point1_title": "同期比较",
+        "point1_body": "在相同时间窗内\n比较生境差异。",
+        "point2_title": "重复观测",
+        "point2_body": "保留逐月变化，\n不以单次记录概括全年。",
+        "caption": "图1  不同生境下记录率的逐月变化",
+        "unit": "单位：次/100相机日"
+      },
+      "sources": [
+        "合成演示数据，用于已批准版式的可编辑性验证。"
+      ],
+      "charts": [
+        {
+          "type": "line",
+          "categories": [
+            "1月",
+            "2月",
+            "3月",
+            "4月",
+            "5月",
+            "6月"
+          ],
+          "series": [
+            {
+              "name": "连续林",
+              "values": [
+                18.0,
+                20.0,
+                24.0,
+                28.0,
+                30.0,
+                32.0
+              ]
+            },
+            {
+              "name": "破碎林",
+              "values": [
+                16.0,
+                17.0,
+                18.0,
+                19.0,
+                19.0,
+                20.0
+              ]
+            }
+          ],
+          "source": "合成演示数据，不代表真实研究结果。",
+          "yMin": 0.0,
+          "yMax": 40.0
+        }
+      ]
+    }
+  ]
+}

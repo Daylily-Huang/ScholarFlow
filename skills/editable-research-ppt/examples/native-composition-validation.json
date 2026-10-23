@@ -1,0 +1,30 @@
+{
+  "source": "native-composition.pptx",
+  "application": "PowerPoint",
+  "opened": true,
+  "slides": [
+    {
+      "slide": 1,
+      "text": 8,
+      "charts": 0,
+      "pictures": 1,
+      "tables": 0,
+      "shapes": 11,
+      "preview_file": "slide-01.png",
+      "preview_sha256": "83af0ad524a54ae57d0870a3c27be7c3e36eace5d07a554d67cf71448b9453ab"
+    }
+  ],
+  "overflows": [],
+  "table_issues": [],
+  "font_issues": [],
+  "edit_probe": true,
+  "source_sha256": "52401df0f5a054e57740ff73259ade7f38f09abd8b9f7f9391f11fad32e57247",
+  "version": "16.0",
+  "slide_count": 1,
+  "chart_probe_applicable": false,
+  "text_persisted": true,
+  "move_persisted": true,
+  "source_unchanged": true,
+  "render_ok": true,
+  "quality_ok": true
+}

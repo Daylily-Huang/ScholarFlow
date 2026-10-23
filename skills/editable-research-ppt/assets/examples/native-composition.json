@@ -1,0 +1,182 @@
+{
+  "scenario": "academic",
+  "palette": "P1",
+  "fill_style": "solid",
+  "visual_mode": "adaptive",
+  "demo": false,
+  "slides": [
+    {
+      "sources": [
+        "随包合成测试资料；不代表真实论文或科研结果。"
+      ],
+      "layout": "L16",
+      "palette": "P1",
+      "title": "保留完整证据，解释紧邻研究问题",
+      "figures": [
+        {
+          "kind": "paper_crop",
+          "path": "figures/figure-1.png",
+          "caption": "图 1  合成测试资料",
+          "source": "来源：随包 synthetic-study.pdf（示意）",
+          "provenance": {
+            "paper_id": "demo-study",
+            "figure": "Fig 1",
+            "page": 1,
+            "crop_bbox": [
+              0,
+              0,
+              864,
+              432
+            ],
+            "pdf_sha256": "625db2361c9caf1bdcce114b8d9b1788a039408b20d61d6bb0d4be8cff0ae1ad",
+            "png_sha256": "215df2377325f02f475b95f937e15755a201d52ace54af6ed1e582d3c2d525e4",
+            "render_method": "pdf_clip",
+            "dpi": 180,
+            "verified_complete": true
+          }
+        }
+      ],
+      "variant": "full_width",
+      "notes": "全部内容为合成排版测试资料。图来自随包测试PDF，不能作为真实生态研究结果引用。",
+      "composition": [
+        {
+          "kind": "text",
+          "name": "title",
+          "text": "保留完整证据，解释紧邻研究问题",
+          "box": [
+            32,
+            20,
+            1216,
+            58
+          ],
+          "size": 42,
+          "bold": true,
+          "color": "primary"
+        },
+        {
+          "kind": "shape",
+          "name": "header-rule",
+          "box": [
+            32,
+            86,
+            1216,
+            2
+          ],
+          "fill": "primary"
+        },
+        {
+          "kind": "image",
+          "figure_index": 0,
+          "slot": "complete-original",
+          "box": [
+            32,
+            128,
+            880,
+            440
+          ]
+        },
+        {
+          "kind": "text",
+          "name": "caption",
+          "text": "图 1  合成测试资料",
+          "box": [
+            32,
+            584,
+            880,
+            30
+          ],
+          "size": 20,
+          "bold": true
+        },
+        {
+          "kind": "text",
+          "name": "source",
+          "text": "来源：随包 synthetic-study.pdf（示意）",
+          "box": [
+            32,
+            622,
+            880,
+            26
+          ],
+          "size": 17,
+          "color": "secondary"
+        },
+        {
+          "kind": "text",
+          "name": "question-title",
+          "text": "研究问题",
+          "box": [
+            952,
+            142,
+            296,
+            36
+          ],
+          "size": 26,
+          "bold": true,
+          "color": "primary"
+        },
+        {
+          "kind": "text",
+          "name": "question-body",
+          "text": "生境差异是否伴随\n监测记录的变化？",
+          "box": [
+            952,
+            196,
+            296,
+            84
+          ],
+          "size": 23
+        },
+        {
+          "kind": "text",
+          "name": "interpretation-title",
+          "text": "讲解顺序",
+          "box": [
+            952,
+            330,
+            296,
+            36
+          ],
+          "size": 26,
+          "bold": true,
+          "color": "primary"
+        },
+        {
+          "kind": "text",
+          "name": "interpretation-body",
+          "text": "先读坐标与图例，\n再比较组间差异，\n最后核对设计条件。",
+          "box": [
+            952,
+            386,
+            296,
+            126
+          ],
+          "size": 23
+        },
+        {
+          "kind": "text",
+          "name": "synthetic-status",
+          "text": "合成测试资料 · 非真实研究结果",
+          "box": [
+            32,
+            680,
+            1216,
+            24
+          ],
+          "size": 14,
+          "color": "secondary"
+        }
+      ]
+    }
+  ],
+  "materials": {
+    "papers": [
+      {
+        "id": "demo-study",
+        "path": "figures/synthetic-study.pdf",
+        "figure_status": "relevant"
+      }
+    ]
+  },
+  "footer": "合成测试资料 · 非真实研究结果"
+}

@@ -3,6 +3,7 @@ from pathlib import Path
 import hashlib
 import json
 import math
+import re
 import xml.etree.ElementTree as E
 
 NEW = {'L15', 'L16', 'L17', 'L18', 'L19', 'L20'}
@@ -262,8 +263,58 @@ class Canvas:
         return actual
 
 
+def build_composition(c,page,base_dir,palette):
+    """Native content-driven variation, with the same complete-figure evidence gate."""
+    nodes=page['composition']
+    check(isinstance(nodes,list) and 1<=len(nodes)<=500,'composition needs 1 to 500 native objects')
+    check(page['layout'] in {'L15','L16','L17','L18'},'composition uses a figure-capable L15-L18 layout')
+    texts=[];used=set();figures=page.get('figures',[])
+    theme={k:palette[k].lstrip('#') for k in ['primary','secondary','accent','paper','tint']}
+    color=lambda value:theme.get(value,value)
+    check(isinstance(figures,list),'figures must be an array')
+    for i,node in enumerate(nodes):
+        check(isinstance(node,dict),f'composition[{i}] must be an object')
+        kind=node.get('kind');box=node.get('box')
+        check(isinstance(box,list) and len(box)==4 and all(type(v) in (int,float) and math.isfinite(v) for v in box),f'composition[{i}].box needs four finite numbers')
+        x,y,w,h=box
+        check(x>=0 and y>=0 and w>0 and h>0 and x+w<=1280 and y+h<=720,f'composition[{i}] is outside the slide')
+        common={'kind','name','box'}
+        allowed=common|({'text','size','color','bold','align'} if kind=='text' else {'fill','stroke','prst'} if kind=='shape' else {'figure_index','slot'} if kind=='image' else set())
+        check(kind in {'text','shape','image'} and not set(node)-allowed,f'composition[{i}] has unknown kind/fields')
+        name=node.get('name',f'object-{i+1}')
+        check(isinstance(name,str) and name.strip(),f'composition[{i}] needs a name')
+        for key in ['fill','stroke','color']:
+            value=node.get(key)
+            check(value is None or isinstance(value,str) and (value in theme or re.fullmatch('[0-9A-Fa-f]{6}',value)),f'composition[{i}].{key} needs a six-digit RGB color, palette token or null')
+        if kind=='text':
+            size=node.get('size',22)
+            check(type(size) in (int,float) and math.isfinite(size) and 13<=size<=80,'composition text size must be 13 to 80px; preserve approved hierarchy')
+            check(isinstance(node.get('text'),str) and type(node.get('bold',False)) is bool and node.get('align','l') in {'l','ctr','r'},'Invalid composition text/bold/alignment')
+            texts.append(node['text'])
+            c.text(name,node['text'],*box,size=size,color=color(node.get('color')),bold=node.get('bold',False),align=node.get('align','l'))
+        elif kind=='shape':
+            prst=node.get('prst','rect')
+            check(prst in {'rect','roundRect','ellipse','rightArrow','downArrow','upArrow','chevron','triangle','diamond','hexagon','parallelogram'},'Unsupported native shape preset')
+            c.rect(name,*box,fill=color(node.get('fill')),stroke=color(node.get('stroke')),prst=prst)
+        else:
+            ix=node.get('figure_index')
+            check(type(ix) is int and 0<=ix<len(figures),'composition image refers to missing figure index')
+            fig=figures[ix]
+            check(isinstance(fig,dict) and all(isinstance(fig.get(k),str) and fig[k].strip() for k in ['path','caption','source']),'Image requires path/caption/source')
+            slot=node.get('slot',f'figure-{ix+1}')
+            check(isinstance(slot,str) and slot.strip() and not slot.startswith('zoom-'),'composition uses complete original figures, not a crop substitute')
+            c.image(fig,box,base_dir,slot);used.add(ix)
+    check(page['title'] in texts,'composition must visibly include the page title as native text')
+    check(used==set(range(len(figures))),'Every declared figure must actually appear in composition')
+    for fig in figures:
+        check(fig['caption'] in texts and fig['source'] in texts,'composition must include separate visible native caption and source for every image')
+
+
 def build(root, rels, parts, counters, page, document, palette, g, styler, base_dir, index):
     c = Canvas(root,rels,parts,counters,palette,g,styler)
+    if 'composition' in page:
+        build_composition(c,page,base_dir,palette)
+        return c
     layout, variant = page['layout'], page.get('variant','default')
     check(variant in VARIANTS[layout], f'{layout}: unknown variant')
     c.text('title',page['title'],32,20,1216,58,42,bold=True)

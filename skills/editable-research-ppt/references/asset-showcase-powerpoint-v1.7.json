@@ -1,0 +1,60 @@
+{
+  "source": "examples/assets/ecology-showcase.pptx",
+  "application": "PowerPoint",
+  "opened": true,
+  "slides": [
+    {
+      "slide": 1,
+      "text": 10,
+      "charts": 0,
+      "pictures": 0,
+      "tables": 0,
+      "shapes": 21,
+      "preview_file": "slide-01.png",
+      "preview_sha256": "4ae2d5c6244a720818bb1a0d7547ebb9740aba004c18e06c333c21f27319c868"
+    },
+    {
+      "slide": 2,
+      "text": 15,
+      "charts": 0,
+      "pictures": 0,
+      "tables": 0,
+      "shapes": 30,
+      "preview_file": "slide-02.png",
+      "preview_sha256": "d3774124ca53fd878c093a4a6041a7b1284b6754f1a42ad0aeb9ffd6daf343e3"
+    },
+    {
+      "slide": 3,
+      "text": 11,
+      "charts": 0,
+      "pictures": 0,
+      "tables": 0,
+      "shapes": 21,
+      "preview_file": "slide-03.png",
+      "preview_sha256": "cd887b91136ed8ca10398374ed789dbe6a826cf6efc0f2db5fead2eb0ebb50f3"
+    },
+    {
+      "slide": 4,
+      "text": 12,
+      "charts": 0,
+      "pictures": 0,
+      "tables": 0,
+      "shapes": 20,
+      "preview_file": "slide-04.png",
+      "preview_sha256": "a13269bde206c728234a70ade166acd73987939945b707633fd4f4327bcc814d"
+    }
+  ],
+  "overflows": [],
+  "table_issues": [],
+  "font_issues": [],
+  "edit_probe": true,
+  "source_sha256": "af16d5c6256d365929b5e4cada15c105e653fb431c69fec1b4c9768376c2f4a7",
+  "version": "16.0",
+  "slide_count": 4,
+  "chart_probe_applicable": false,
+  "text_persisted": true,
+  "move_persisted": true,
+  "source_unchanged": true,
+  "render_ok": true,
+  "quality_ok": true
+}

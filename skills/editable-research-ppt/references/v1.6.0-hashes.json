@@ -1,0 +1,26 @@
+{
+  "version": "1.6.0",
+  "date": "2026-10-23",
+  "note": "User-approved six compact compositions and four added palettes; historical snapshots preserved. Acceptance recorded separately.",
+  "sha256": {
+    "SKILL.md": "88657d586e6a1279cc1c16f7594decef3f24974462abbae46e23e2996193dbe1",
+    "README.md": "54e1f42c590892fc663a2728635f1220aa3347ea510d87cb837ec210c6b3b7c8",
+    "THIRD_PARTY_NOTICES.md": "dc71985fade65e2f52ab9f0227b07fe9104f45df1eb2b4ce66ffa8e707d1ff3b",
+    "scripts/generate.py": "1ee0b9ba7fcc3c9406ff846cdb2a475850a9060f58d4473612f0a9627789c6a4",
+    "scripts/compact_layouts.py": "b60a7330f323ea47c53bdc1356a14b3dfb31796c0fd89499822ac2712631b422",
+    "scripts/preflight.py": "14f8010ec417c67912e92f2bd10748b95152596c8f657641576bc8300a72f7c1",
+    "scripts/export_project.py": "f152a45c74ddb05f8434fac99d3a33d44feef8f9486e9e618ec24a2a46e34ddb",
+    "tests/test_compact.py": "77704821f5cc370936cea38b86f9d7f7b646bb41c4af29db9c42d51ad6962a38",
+    "assets/template-system.json": "aac6742f027cfdcc40f0c7e75dd8f42cb5d3ad29930feab1201373f807dfa4cc",
+    "assets/templates/compact-library.pptx": "b95b24a1129c719ed012337f40bebff2534ae68d9e528ffdb6a0c497476d3993",
+    "assets/templates/compact-bindings.json": "6bb5df4cae055303caad6f89f1ae225c5681afb60ec17ce6813842aa51995b18",
+    "assets/examples/compact-approved.json": "19e9a62ae99f4df270a2a89b1d9a21f08846b24267173b262a6b4a72c1753b2e",
+    "assets/examples/compact-light.json": "c0f8bd157f6a5d29c66e227c4d47eb13599c26f29eceb162c47dca3206b5bc1f",
+    "references/input-and-templates.md": "f8c05aabcbdcf0ab1fc3d60e562bcec05804069fbc6a2d4e4f52899270cd43f3",
+    "references/compact-layouts.md": "78fe48b5bf80ca0f019724bd21f339fa680d93100c984b7d2c78aec095ee0a87",
+    "references/approved-standard.json": "cce1ca05b0a809ca198c7621c6576252258134e1ce98551a9ab1a882b444213c",
+    "examples/compact-approved.pptx": "29d7227baf6fad678226210dbef60af6b9422c01d6722a9033abe79c8a718cc5",
+    "examples/compact-light.pptx": "321f074485e95e7029947b96a05a0b1f4e5430de638fe5aba322e773552fec47",
+    "examples/compact-index.html": "f9026d6cac28dccce127a2bbca4a6b864911658285a2d21c3175baa1fb8c89d5"
+  }
+}

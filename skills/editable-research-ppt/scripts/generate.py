@@ -7,7 +7,7 @@ which removes stiff duplicate icons/stock illustrations, adapts icons and native
 to the user's materials, normalizes table typography, and supports per-slide figures.
 """
 from __future__ import annotations
-import argparse, copy, hashlib, importlib.util, io, json, math, posixpath, re, zipfile
+import argparse, copy, hashlib, importlib.util, io, json, math, os, posixpath, re, tempfile, zipfile
 from pathlib import Path
 import xml.etree.ElementTree as E
 
@@ -338,12 +338,13 @@ def fit_pic_aspect(pic, data):
             blipFill.remove(sr)
 
 def generate(document,output,*,force=False,font_profile='portable',base_dir=None):
+    require(isinstance(document,dict),'Input must be a JSON object')
     system=load(ROOT/'assets/template-system.json');bindings=load(ROOT/'assets/templates/bindings.json')
     require(document.get('scenario') in system['scenarios'],'Choose scenario: academic/coursework/progress')
-    require(document.get('palette') in system['palettes'],'Choose palette P1 through P6')
+    require(document.get('palette') in system['palettes'],'Choose palette P1 through P10')
     require(document.get('fill_style','light') in ['light','solid'],'Choose fill_style light or solid')
     require(type(document.get('demo')) is bool,'demo must be explicitly true or false')
-    require(document.get('slides') and len(document['slides'])<=150,'Provide 1 to 150 slides')
+    require(isinstance(document.get('slides'),list) and 1<=len(document['slides'])<=150 and all(isinstance(p,dict) for p in document['slides']),'Provide 1 to 150 slide objects')
     output=Path(output).resolve();require(output.suffix.lower()=='.pptx','Output must end in .pptx')
     require(force or not output.exists(),'Output exists; choose another file or pass --force')
     base_dir=Path(base_dir).resolve() if base_dir else Path.cwd()
@@ -354,7 +355,7 @@ def generate(document,output,*,force=False,font_profile='portable',base_dir=None
         extension.validate(document,base_dir)
     original=readzip(ROOT/'assets/templates/library.pptx');parts=dict(original)
     types=E.fromstring(original['[Content_Types].xml']);overrides={n.get('PartName').lstrip('/'):n.get('ContentType') for n in types if n.tag.endswith('Override')}
-    counters={'chart':0,'workbook':0,'image':0};newslides=[];styler=None
+    counters={'chart':0,'workbook':0,'image':0};newslides=[];styler=None;compact=None
     def get_styler():
         nonlocal styler
         if styler is None:
@@ -363,6 +364,14 @@ def generate(document,output,*,force=False,font_profile='portable',base_dir=None
         return styler
 
     for index,page in enumerate(document['slides'],1):
+        if page.get('layout') in {'L21','L22','L23'}:
+            if compact is None:
+                spec_compact=importlib.util.spec_from_file_location('research_ppt_compact',ROOT/'scripts/compact_layouts.py')
+                compact=importlib.util.module_from_spec(spec_compact);spec_compact.loader.exec_module(compact)
+            import types as types_api
+            newslides.append(compact.append(page,document,index,parts,overrides,counters,system,types_api.SimpleNamespace(**globals())))
+            continue
+        require('experiment_scene' not in page,'Unsupported experiment_scene; migrate explicitly to composition to avoid silently discarding custom content')
         layout=page.get('layout');is_new=extension is not None and (layout in extension.NEW or page.get('variant')=='original_figure')
         if page.get('variant')=='original_figure':require(layout in extension.VARIANTS and 'original_figure' in extension.VARIANTS[layout], 'Unsupported original_figure variant')
         require(layout in bindings or is_new,f'Unknown layout on page {index}')
@@ -391,7 +400,14 @@ def generate(document,output,*,force=False,font_profile='portable',base_dir=None
         palette=system['solid_palettes' if fill_style=='solid' else 'palettes'][palette_id];sources=page.get('sources')
         require(isinstance(sources,list) and sources and all(isinstance(v,str) and v.strip() for v in sources),'Every page needs non-empty sources')
         require(len(page.get('emphasis',[]))<=4,'At most four emphasis terms per slide')
-        require(len(page.get('title',''))<=38,'Title exceeds 38 characters')
+        require(isinstance(page.get('title'),str),'Title must be text')
+        require('composition' not in page or is_adaptive,'composition requires adaptive visual_mode')
+        require('composition' not in page or layout in {'L15','L16','L17','L18'},'composition requires a figure-capable L15-L18 layout')
+        flexible_header=is_adaptive and layout not in {'L5','L7','L14'} and 'composition' not in page
+        require(len(page['title'])<=(240 if flexible_header or 'composition' in page else 38),'Title exceeds capacity; split the slide')
+        if 'title_translation' in page:
+            require(flexible_header,'title_translation is for adaptive content pages; use subtitle or lines on cover/section/closing pages')
+            require(isinstance(page['title_translation'],str) and page['title_translation'].strip() and '\n' not in page['title_translation'] and '\r' not in page['title_translation'],'title_translation must be a non-empty single line')
         if 'edges' in base:
             require(page.get('edges')==base['edges'],'This template has fixed edges; edit the native PPT or use another template')
         if 'active' in base:
@@ -461,7 +477,7 @@ def generate(document,output,*,force=False,font_profile='portable',base_dir=None
                 expected=text_content(body)
                 if is_adaptive:
                     limit=max(64,int(visual_len(expected)*2.5)+24)
-                    require(visual_len(value)<=limit,f'{layout}.{field["path"]} is too long for this template ({visual_len(value)/2:.1f}>{limit/2:.0f}); shorten or split the slide')
+                    require((flexible_header and field['path']=='title') or visual_len(value)<=limit,f'{layout}.{field["path"]} is too long for this template ({visual_len(value)/2:.1f}>{limit/2:.0f}); shorten or split the slide')
                 else:
                     limit=max(12,int(len(expected)*1.3)+3)
                     require(len(value)<=limit,f'{layout}.{field["path"]} is too long for this template ({len(value)}>{limit}); shorten or split the slide')
@@ -550,6 +566,11 @@ def generate(document,output,*,force=False,font_profile='portable',base_dir=None
         if page.get('components'):
             import types as types_api
             extension.components(root,page,palette,types_api.SimpleNamespace(NS=NS),get_styler())
+        if flexible_header:
+            title_field=next((f for f in binding['fields'] if f.get('path')=='title'),None)
+            title_shape=(shapes.get(title_field['shape']) if title_field else next((sp for sp in root.findall('.//p:sp',NS) if sp.find('p:nvSpPr/p:cNvPr',NS).get('name','').startswith('title-')),None))
+            require(title_shape is not None,'Content page title object is missing')
+            fit_content_header(root,title_shape,page,palette,get_styler())
         parts[owner]=xml(root)
         relations={r.get('Id'):resolve(owner,r.get('Target')) for r in E.fromstring(parts[relpart(owner)])}
         chart_sources=[]
@@ -611,11 +632,58 @@ def generate(document,output,*,force=False,font_profile='portable',base_dir=None
         data=img_p.read_bytes()
         require(data.startswith(b'\x89PNG\r\n\x1a\n'),'Replacement illustrations must be PNG')
         if target in parts:parts[target]=data
-    output.parent.mkdir(parents=True,exist_ok=True);payload=zipbytes(parts)
-    # Exclusive creation protects user files; --force explicitly permits replacement.
-    mode='wb' if force else 'xb'
-    with output.open(mode) as f:f.write(payload)
+    payload=zipbytes(parts)
+    atomic_write(output,payload,force=force)
     return {'slides':len(newslides),'charts':counters['chart'],'sha256':hashlib.sha256(payload).hexdigest(),'font_profile':font_profile,'output':str(output)}
+
+def fit_content_header(root,title_shape,page,palette,styler):
+    """One full-size title line plus optional native bilingual kicker, no body squeeze."""
+    bounds=styler.box(title_shape)
+    props=title_shape.findall('.//a:rPr',NS)
+    size=max((int(r.get('sz'))/75 for r in props if r.get('sz')),default=42)
+    title=page['title']
+    width=sum(size*(1.03 if ord(ch)>127 else .58) for ch in title)
+    require('\n' not in title and '\r' not in title and width<=bounds[2]+6,
+            'title exceeds its actual region at the approved font size; shorten the title, put detail in body/notes, or split the page')
+    if 'title_translation' not in page:return
+    require(bounds[0]>=24 and bounds[2]>=1000,'Bilingual header needs a full-width content title region')
+    translation=page['title_translation'];small=17
+    require(sum(small*(1.03 if ord(ch)>127 else .58) for ch in translation)<=bounds[2]+6,
+            'title_translation exceeds one header line; shorten or explain in body/notes')
+    xf=title_shape.find('p:spPr/a:xfrm',NS)
+    xf.find('a:off',NS).set('y',str(round(26*EMU)))
+    xf.find('a:ext',NS).set('cy',str(round(58*EMU)))
+    tree=root.find('p:cSld/p:spTree',NS)
+    # Older content templates put the rule at y=74; bilingual titles end at y=84.
+    for sp in tree.findall('p:sp',NS):
+        b=styler.box(sp)
+        if b and b[2]>=1000 and 60<=b[1]<=90 and b[3]<=4:
+            sp.find('p:spPr/a:xfrm/a:off',NS).set('y',str(86*EMU))
+    ids=[int(n.get('id')) for n in root.findall('.//p:cNvPr',NS) if n.get('id','').isdigit()]
+    tree.append(styler.make_text_shape(max(ids,default=0)+1,'title-translation',bounds[0],2,bounds[2],23,translation,sz_px=small,color=palette['primary'][1:]))
+
+
+def atomic_write(output,payload,*,force=False):
+    """Publish complete bytes only; failed replacement leaves the old file intact."""
+    output=Path(output)
+    output.parent.mkdir(parents=True,exist_ok=True)
+    staged=None
+    try:
+        # Same-directory staging keeps rename atomic, including mounted volumes.
+        with tempfile.NamedTemporaryFile(prefix='.'+output.name+'.',suffix='.tmp',dir=output.parent,delete=False) as f:
+            staged=Path(f.name)
+            f.write(payload)
+            f.flush()
+            os.fsync(f.fileno())
+        if force:
+            os.replace(staged,output)
+        else:
+            # A link is exclusive: a file created after validation is never clobbered.
+            os.link(staged,output)
+    finally:
+        if staged is not None:
+            staged.unlink(missing_ok=True)
+
 
 def main():
     import sys
@@ -627,5 +695,5 @@ def main():
         document=load(in_path)
         document['illustrations']={role:str((in_path.parent/filename).resolve()) for role,filename in document.get('illustrations',{}).items()}
         print(json.dumps(generate(document,args.output,force=args.force,font_profile=args.font_profile,base_dir=in_path.parent),ensure_ascii=False))
-    except (ValueError,KeyError,IndexError,TypeError,FileNotFoundError) as error:parser.exit(2,'Input/environment error: '+str(error)+'\n')
+    except (ValueError,KeyError,IndexError,TypeError,OSError) as error:parser.exit(2,'Input/environment error: '+str(error)+'\n')
 if __name__=='__main__':main()

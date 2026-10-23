@@ -1,0 +1,42 @@
+[
+  {
+    "id": "bioicons/Illumina_sequencing_reads",
+    "attributes_removed": [
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename",
+      "inkscape:export-filename"
+    ],
+    "upstream_original_sha256": "a88d19f1e94d83b8fb402055b888a6e926a7cc7a955368ef6d32b20dea76ab45",
+    "distributed_sha256": "bb9804f6ffdb560a9ec0be74a600251c7d9bca1191525333d0fdb034f9df54fb"
+  },
+  {
+    "id": "bioicons/mitochondria",
+    "attributes_removed": [
+      "inkscape:export-filename"
+    ],
+    "upstream_original_sha256": "b6c2b31a6db8baa3952c0ebf9efce6cee0dc78e887064f227fa2bf3ee7d5cc0f",
+    "distributed_sha256": "094432e00a52a0dec874a7466937d85fa05a48842004280de99776052f894af8"
+  }
+]

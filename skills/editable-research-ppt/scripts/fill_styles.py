@@ -253,33 +253,36 @@ def infer_semantic_icon(requested, text_hint='', used_icons=None):
         'table', 'matrix', 'ledger', 'chart', 'bar', 'stats', 'scatter', 'trend',
         'filter', 'screen', 'check', 'verified', 'warning', 'alert', 'workflow',
         'process', 'layers', 'stack', 'comparison', 'location', 'site', 'document',
+        'camera', 'tree', 'leaf', 'calendar', 'database', 'compass', 'search',
     }
     if req in explicit_domain:
         if used_icons is not None:
             used_icons.add(req)
         return req
     # Real-time material adaptation: match specific functional facets before broad domain words,
-    # and deduplicate across peer cards on the same slide when `used_icons` is provided.
-    txt = str(text_hint)
+    # Prefer another relevant match when available; never change meaning just to deduplicate.
+    txt = str(text_hint).casefold()
     candidates = []
     rules = [
+        ('camera', ['相机', '红外监测', '影像', 'camera', 'photograph']),
+        ('tree', ['植被', '森林结构', '乔木', 'vegetation', 'canopy']),
+        ('leaf', ['叶片', '叶绿素', '光合作用', 'photosynthesis']),
+        ('calendar', ['时间窗', '同期', '轮次', 'calendar']),
+        ('database', ['数据库', '数据归档', 'database']),
         ('warning', ['问题', '冲突', '矛盾', '异常', '偏离', '缺失', '错误', '雷同', '不一致', '注意', '失衡', '淘汰', '失败']),
         ('filter', ['初筛', '筛选', '筛查', '过滤', '剔除', '排除', '入选']),
         ('pcr', ['PCR', '扩增', '退火', '体系', '上机', '电泳', '提取', '试剂', '粪便', '分池', '单管', '多重', '探针', '毛细管']),
         ('table', ['表 ', '表1', '表2', '台账', '矩阵', '分组', '清单', '汇总', '计数', '编号', '对照', 'Kit']),
         ('chart', ['均值', '分布', '完整率', '剖面', '相关', '统计', '效能', '功效', 'PID', '曲线', '散点', '趋势', 'HE', 'HO']),
         ('check', ['核对', '检验', '验证', '复核', '复算', '平衡', '判读', '定稿', '完成', '一致', 'HWE', '合规', '确认']),
-        ('location', ['地点', '猎场', '阿尔卑斯', '保护区', '生境', '空间', '野外', '样地', '采样', '来源', '个体']),
-        ('workflow', ['流程', '步骤', '阶段', '路径', '路线', '顺序', '闭环', '衔接', '决策']),
+        ('location', ['地点', '猎场', '阿尔卑斯', '保护区', '生境', '空间', '野外', '样地', '采样']),
+        ('workflow', ['流程', '步骤', '阶段', '路径', '路线', '顺序', '闭环', '衔接', '决策', '模型']),
         ('dna', ['引物', '微卫星', '位点', '等位', '基因', '序列', '多态', '单态', '连锁', '杂合', 'DNA', 'SSR', 'SNP']),
     ]
     for icon_name, kw_list in rules:
-        if any(k in txt for k in kw_list) and icon_name not in candidates:
+        if any(k.casefold() in txt for k in kw_list) and icon_name not in candidates:
             candidates.append(icon_name)
     mapping = {
-        'camera': 'location',
-        'tree': 'layers',
-        'leaf': 'dna',
         'map': 'location',
         'grid': 'table',
         'clipboard': 'document',
@@ -290,12 +293,10 @@ def infer_semantic_icon(requested, text_hint='', used_icons=None):
         'chart': 'chart',
         'check': 'check',
     }
-    mapped = mapping.get(req, 'check')
-    if mapped not in candidates:
-        candidates.append(mapped)
-    for fallback in ['document', 'layers', 'compass', 'search', 'workflow', 'check']:
-        if fallback not in candidates:
-            candidates.append(fallback)
+    mapped = mapping.get(req, 'document')
+    if not candidates or req in mapping:
+        if mapped not in candidates:
+            candidates.append(mapped)
     if used_icons is not None:
         for cand in candidates:
             if cand not in used_icons:
@@ -318,7 +319,36 @@ def build_vector_icon(nextid, icon_type, b, fg_color):
     if icon_type == 'none':
         return shapes, nextid
 
-    if icon_type in {'dna', 'primer', 'gene', 'locus'}:
+    if icon_type == 'camera':
+        paths=[{'pts':[(200,160),(800,160),(800,880),(200,880)],'close':True},
+               {'pts':[(320,80),(680,80),(680,160),(320,160)],'close':False}]
+        shapes.append(make_custom_path_shape(nextid,'icon-camera-body',x0,y0,s,s,paths,stroke_clr=fg_color,stroke_w=sw));nextid+=1
+        for yy,diameter in [(300,.36),(680,.16)]:
+            shapes.append(make_shape(nextid,'icon-camera-lens',cx-s*diameter/2,y0+s*yy/1000,s*diameter,s*diameter,prst='ellipse',stroke_clr=fg_color,stroke_w=sw));nextid+=1
+    elif icon_type == 'tree':
+        paths=[{'pts':[(500,80),(220,410),(350,410),(130,680),(440,680),(440,920),(560,920),(560,680),(870,680),(650,410),(780,410)],'close':True}]
+        shapes.append(make_custom_path_shape(nextid,'icon-tree',x0,y0,s,s,paths,stroke_clr=fg_color,stroke_w=sw));nextid+=1
+    elif icon_type == 'leaf':
+        paths=[{'pts':[(200,760),(180,500),(280,280),(500,150),(850,100),(840,430),(700,650),(470,780),(200,760)],'close':True},
+               {'pts':[(130,900),(730,250)],'close':False},
+               {'pts':[(420,580),(390,340)],'close':False},
+               {'pts':[(420,580),(650,570)],'close':False}]
+        shapes.append(make_custom_path_shape(nextid,'icon-leaf',x0,y0,s,s,paths,stroke_clr=fg_color,stroke_w=sw));nextid+=1
+    elif icon_type == 'calendar':
+        paths=[{'pts':[(140,180),(860,180),(860,860),(140,860)],'close':True},
+               {'pts':[(140,380),(860,380)],'close':False},
+               {'pts':[(320,80),(320,280)],'close':False},
+               {'pts':[(680,80),(680,280)],'close':False}]
+        shapes.append(make_custom_path_shape(nextid,'icon-calendar',x0,y0,s,s,paths,stroke_clr=fg_color,stroke_w=sw));nextid+=1
+        for xx in [.28,.48,.68]:
+            for yy in [.49,.69]:
+                shapes.append(make_shape(nextid,'icon-calendar-day',x0+s*xx,y0+s*yy,s*.08,s*.08,stroke_clr=fg_color,stroke_w=sw));nextid+=1
+    elif icon_type == 'database':
+        for yy in [.12,.38,.64]:
+            shapes.append(make_shape(nextid,'icon-database-ring',x0+s*.16,y0+s*yy,s*.68,s*.22,prst='ellipse',stroke_clr=fg_color,stroke_w=sw));nextid+=1
+        paths=[{'pts':[(160,230),(160,750)],'close':False},{'pts':[(840,230),(840,750)],'close':False}]
+        shapes.append(make_custom_path_shape(nextid,'icon-database-sides',x0,y0,s,s,paths,stroke_clr=fg_color,stroke_w=sw));nextid+=1
+    elif icon_type in {'dna', 'primer', 'gene', 'locus'}:
         # Crisp double-helix waves + base-pair rungs
         strand1 = [(180, 120), (350, 180), (650, 420), (820, 500), (650, 580), (350, 820), (180, 880)]
         strand2 = [(820, 120), (650, 180), (350, 420), (180, 500), (350, 580), (650, 820), (820, 880)]
@@ -1330,7 +1360,7 @@ def apply(root, layout, palette, *, adaptive=False, page=None, document=None, po
                 continue
             nm = name(sp)
             if nm.startswith(('icon-', 'vector-')) and b[2] <= 110 and b[3] <= 110:
-                if any( nm.startswith(p) for p in ['icon-dna', 'icon-pcr', 'icon-table', 'icon-chart', 'icon-filter', 'icon-warning', 'icon-search', 'icon-location', 'icon-layers', 'icon-wf', 'icon-doc', 'icon-compass', 'icon-check']):
+                if any( nm.startswith(p) for p in ['icon-camera', 'icon-tree', 'icon-leaf', 'icon-calendar', 'icon-database', 'icon-dna', 'icon-pcr', 'icon-table', 'icon-chart', 'icon-filter', 'icon-warning', 'icon-search', 'icon-location', 'icon-layers', 'icon-wf', 'icon-doc', 'icon-compass', 'icon-check']):
                     continue
                 on_dark = dark_at(b)
                 fg = 'FFFFFF' if on_dark else primary

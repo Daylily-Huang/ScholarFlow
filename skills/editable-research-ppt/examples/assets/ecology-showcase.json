@@ -1,0 +1,94 @@
+{
+  "canvas": [
+    1280,
+    720
+  ],
+  "placements": [
+    {
+      "slide": 1,
+      "asset": "noto/emoji_u1f333",
+      "target": "hero-0"
+    },
+    {
+      "slide": 1,
+      "asset": "noto/emoji_u1f9ec",
+      "target": "hero-1"
+    },
+    {
+      "slide": 1,
+      "asset": "lucide/network",
+      "target": "hero-2",
+      "color": "173F35"
+    },
+    {
+      "slide": 2,
+      "asset": "lucide/scan-barcode",
+      "target": "lab-0",
+      "color": "173D67"
+    },
+    {
+      "slide": 2,
+      "asset": "lucide/thermometer-snowflake",
+      "target": "lab-1",
+      "color": "173D67"
+    },
+    {
+      "slide": 2,
+      "asset": "noto/emoji_u1f9ec",
+      "target": "lab-2"
+    },
+    {
+      "slide": 2,
+      "asset": "lucide/clipboard-check",
+      "target": "lab-3",
+      "color": "173D67"
+    },
+    {
+      "slide": 3,
+      "asset": "noto/emoji_u1f4f7",
+      "target": "camera-hero"
+    },
+    {
+      "slide": 3,
+      "asset": "lucide/map-pin-check-inside",
+      "target": "camera-step-0",
+      "color": "123D54"
+    },
+    {
+      "slide": 3,
+      "asset": "lucide/scan-eye",
+      "target": "camera-step-1",
+      "color": "123D54"
+    },
+    {
+      "slide": 3,
+      "asset": "lucide/chart-scatter",
+      "target": "camera-step-2",
+      "color": "123D54"
+    },
+    {
+      "slide": 4,
+      "asset": "lucide/database",
+      "target": "qc-0",
+      "color": "38314C"
+    },
+    {
+      "slide": 4,
+      "asset": "lucide/scan-search",
+      "target": "qc-1",
+      "color": "38314C"
+    },
+    {
+      "slide": 4,
+      "asset": "lucide/shield-check",
+      "target": "qc-2",
+      "color": "38314C"
+    },
+    {
+      "slide": 4,
+      "asset": "lucide/network",
+      "target": "identity-network",
+      "color": "38314C"
+    }
+  ]
+}

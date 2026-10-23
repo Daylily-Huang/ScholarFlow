@@ -1,0 +1,868 @@
+{
+  "version": 1,
+  "approved_reference_sha256": "a805374d88d8edf5dca68a6b7413bef725fcbf5f2f4e50cf9fbd7e1402eefdc5",
+  "approved_reference_pages": [
+    2,
+    4,
+    5,
+    8,
+    9,
+    10
+  ],
+  "defaults": {
+    "L21": "sidebar",
+    "L22": "fraction",
+    "L23": "lanes"
+  },
+  "templates": {
+    "L22:fraction": {
+      "name": "公式与上下比较",
+      "source_page": 2,
+      "slide": "ppt/slides/slide2.xml",
+      "seed_palette": {
+        "primary": "#A84B22",
+        "secondary": "#D5884D",
+        "accent": "#245C6D",
+        "paper": "#FFFCF7",
+        "tint": "#FFF0DF",
+        "ink": "#292C30",
+        "name": "赭橙米白",
+        "description": "温暖而清晰的科研编辑风，赭橙只承担标题、实底小标题与核心曲线，画布接近白色的暖白，正文深墨色，少量深青蓝比较色。"
+      },
+      "fields": [
+        {
+          "shape": "2",
+          "path": "title"
+        },
+        {
+          "shape": "8",
+          "path": "texts.formula_name"
+        },
+        {
+          "shape": "10",
+          "path": "texts.numerator"
+        },
+        {
+          "shape": "12",
+          "path": "texts.denominator"
+        },
+        {
+          "shape": "15",
+          "path": "texts.raw_title"
+        },
+        {
+          "shape": "18",
+          "path": "texts.normalized_title"
+        },
+        {
+          "shape": "21",
+          "path": "texts.site1_input"
+        },
+        {
+          "shape": "22",
+          "path": "texts.site1_calculation"
+        },
+        {
+          "shape": "24",
+          "path": "texts.site2_input"
+        },
+        {
+          "shape": "25",
+          "path": "texts.site2_calculation"
+        },
+        {
+          "shape": "26",
+          "path": "texts.unit"
+        },
+        {
+          "shape": "27",
+          "path": "texts.explanation"
+        }
+      ],
+      "special": [
+        {
+          "shape": "3",
+          "kind": "scenario"
+        },
+        {
+          "shape": "5",
+          "kind": "footer"
+        },
+        {
+          "shape": "6",
+          "kind": "page"
+        }
+      ],
+      "charts": [
+        {
+          "rid": "rId3",
+          "default": {
+            "type": "bar",
+            "categories": [
+              "点位甲",
+              "点位乙"
+            ],
+            "series": [
+              {
+                "name": "合成示例",
+                "values": [
+                  24.0,
+                  36.0
+                ]
+              }
+            ],
+            "source": "合成演示数据，不代表真实研究结果。",
+            "yMin": 0.0,
+            "yMax": 50.0
+          }
+        },
+        {
+          "rid": "rId4",
+          "default": {
+            "type": "bar",
+            "categories": [
+              "点位甲",
+              "点位乙"
+            ],
+            "series": [
+              {
+                "name": "合成示例",
+                "values": [
+                  20.0,
+                  15.0
+                ]
+              }
+            ],
+            "source": "合成演示数据，不代表真实研究结果。",
+            "yMin": 0.0,
+            "yMax": 25.0
+          }
+        }
+      ],
+      "table": null
+    },
+    "L21:sidebar": {
+      "name": "大图与深色解释侧栏",
+      "source_page": 4,
+      "slide": "ppt/slides/slide4.xml",
+      "seed_palette": {
+        "primary": "#15385C",
+        "secondary": "#426B91",
+        "accent": "#AE7A25",
+        "paper": "#FFFFFF",
+        "tint": "#EDF3F9",
+        "ink": "#202C3A",
+        "name": "深蓝香槟金",
+        "description": "精致的深海军蓝学术汇报，深蓝实底块配白字，香槟金只点亮小标签和重点数据，白底通透，不用金色铺满正文，不做金属质感。"
+      },
+      "fields": [
+        {
+          "shape": "2",
+          "path": "title"
+        },
+        {
+          "shape": "9",
+          "path": "texts.metric_title"
+        },
+        {
+          "shape": "10",
+          "path": "texts.metric_unit"
+        },
+        {
+          "shape": "12",
+          "path": "texts.metric1_label"
+        },
+        {
+          "shape": "13",
+          "path": "texts.metric1_value"
+        },
+        {
+          "shape": "15",
+          "path": "texts.metric2_label"
+        },
+        {
+          "shape": "16",
+          "path": "texts.metric2_value"
+        },
+        {
+          "shape": "17",
+          "path": "texts.chart_title"
+        },
+        {
+          "shape": "20",
+          "path": "texts.legend1"
+        },
+        {
+          "shape": "23",
+          "path": "texts.legend2"
+        },
+        {
+          "shape": "28",
+          "path": "texts.point1_title"
+        },
+        {
+          "shape": "29",
+          "path": "texts.point1_body"
+        },
+        {
+          "shape": "32",
+          "path": "texts.point2_title"
+        },
+        {
+          "shape": "33",
+          "path": "texts.point2_body"
+        },
+        {
+          "shape": "35",
+          "path": "texts.chart_note"
+        }
+      ],
+      "special": [
+        {
+          "shape": "3",
+          "kind": "scenario"
+        },
+        {
+          "shape": "6",
+          "kind": "footer"
+        },
+        {
+          "shape": "7",
+          "kind": "page"
+        }
+      ],
+      "charts": [
+        {
+          "rid": "rId3",
+          "default": {
+            "type": "line",
+            "categories": [
+              "1月",
+              "2月",
+              "3月",
+              "4月",
+              "5月",
+              "6月"
+            ],
+            "series": [
+              {
+                "name": "连续林",
+                "values": [
+                  18.0,
+                  20.0,
+                  24.0,
+                  28.0,
+                  30.0,
+                  32.0
+                ]
+              },
+              {
+                "name": "破碎林",
+                "values": [
+                  16.0,
+                  17.0,
+                  18.0,
+                  19.0,
+                  19.0,
+                  20.0
+                ]
+              }
+            ],
+            "source": "合成演示数据，不代表真实研究结果。",
+            "yMin": 0.0,
+            "yMax": 40.0
+          }
+        }
+      ],
+      "table": null
+    },
+    "L22:metrics": {
+      "name": "指标栏与双图并置",
+      "source_page": 5,
+      "slide": "ppt/slides/slide5.xml",
+      "seed_palette": {
+        "primary": "#15385C",
+        "secondary": "#426B91",
+        "accent": "#AE7A25",
+        "paper": "#FFFFFF",
+        "tint": "#EDF3F9",
+        "ink": "#202C3A",
+        "name": "深蓝香槟金",
+        "description": "精致的深海军蓝学术汇报，深蓝实底块配白字，香槟金只点亮小标签和重点数据，白底通透，不用金色铺满正文，不做金属质感。"
+      },
+      "fields": [
+        {
+          "shape": "3",
+          "path": "title"
+        },
+        {
+          "shape": "7",
+          "path": "texts.formula_name"
+        },
+        {
+          "shape": "9",
+          "path": "texts.numerator"
+        },
+        {
+          "shape": "11",
+          "path": "texts.denominator"
+        },
+        {
+          "shape": "17",
+          "path": "texts.site1_label"
+        },
+        {
+          "shape": "18",
+          "path": "texts.count_label1"
+        },
+        {
+          "shape": "19",
+          "path": "texts.count1"
+        },
+        {
+          "shape": "20",
+          "path": "texts.effort_label1"
+        },
+        {
+          "shape": "21",
+          "path": "texts.effort1"
+        },
+        {
+          "shape": "22",
+          "path": "texts.rate_label1"
+        },
+        {
+          "shape": "23",
+          "path": "texts.rate1"
+        },
+        {
+          "shape": "26",
+          "path": "texts.site2_label"
+        },
+        {
+          "shape": "27",
+          "path": "texts.count_label2"
+        },
+        {
+          "shape": "28",
+          "path": "texts.count2"
+        },
+        {
+          "shape": "29",
+          "path": "texts.effort_label2"
+        },
+        {
+          "shape": "30",
+          "path": "texts.effort2"
+        },
+        {
+          "shape": "31",
+          "path": "texts.rate_label2"
+        },
+        {
+          "shape": "32",
+          "path": "texts.rate2"
+        },
+        {
+          "shape": "33",
+          "path": "texts.raw_title"
+        },
+        {
+          "shape": "35",
+          "path": "texts.normalized_title"
+        },
+        {
+          "shape": "39",
+          "path": "texts.unit"
+        },
+        {
+          "shape": "40",
+          "path": "texts.explanation"
+        }
+      ],
+      "special": [
+        {
+          "shape": "4",
+          "kind": "scenario"
+        },
+        {
+          "shape": "13",
+          "kind": "footer"
+        },
+        {
+          "shape": "14",
+          "kind": "page"
+        }
+      ],
+      "charts": [
+        {
+          "rid": "rId3",
+          "default": {
+            "type": "bar",
+            "categories": [
+              "点位甲",
+              "点位乙"
+            ],
+            "series": [
+              {
+                "name": "合成示例",
+                "values": [
+                  24.0,
+                  36.0
+                ]
+              }
+            ],
+            "source": "合成演示数据，不代表真实研究结果。",
+            "yMin": 0.0,
+            "yMax": 50.0
+          }
+        },
+        {
+          "rid": "rId4",
+          "default": {
+            "type": "bar",
+            "categories": [
+              "点位甲",
+              "点位乙"
+            ],
+            "series": [
+              {
+                "name": "合成示例",
+                "values": [
+                  20.0,
+                  15.0
+                ]
+              }
+            ],
+            "source": "合成演示数据，不代表真实研究结果。",
+            "yMin": 0.0,
+            "yMax": 30.0
+          }
+        }
+      ],
+      "table": null
+    },
+    "L22:pipeline": {
+      "name": "流程与双图比较",
+      "source_page": 8,
+      "slide": "ppt/slides/slide8.xml",
+      "seed_palette": {
+        "primary": "#006A6C",
+        "secondary": "#168E92",
+        "accent": "#6854A4",
+        "paper": "#FFFFFF",
+        "tint": "#E8F6F4",
+        "ink": "#16393C",
+        "name": "孔雀青白",
+        "description": "清晰鲜明的孔雀青与纯白学术图表风，清爽而厚实，少量柔紫作为比较系列，正文深墨色，图表占比大、分组层级明确，避免灰绿和灰蒙蒙。"
+      },
+      "fields": [
+        {
+          "shape": "4",
+          "path": "title"
+        },
+        {
+          "shape": "11",
+          "path": "texts.step1_title"
+        },
+        {
+          "shape": "12",
+          "path": "texts.step1_body"
+        },
+        {
+          "shape": "25",
+          "path": "texts.step2_title"
+        },
+        {
+          "shape": "26",
+          "path": "texts.step2_body"
+        },
+        {
+          "shape": "32",
+          "path": "texts.step3_title"
+        },
+        {
+          "shape": "33",
+          "path": "texts.step3_body"
+        },
+        {
+          "shape": "35",
+          "path": "texts.formula_name"
+        },
+        {
+          "shape": "37",
+          "path": "texts.numerator"
+        },
+        {
+          "shape": "39",
+          "path": "texts.denominator"
+        },
+        {
+          "shape": "42",
+          "path": "texts.site1_label"
+        },
+        {
+          "shape": "43",
+          "path": "texts.site1_calculation"
+        },
+        {
+          "shape": "45",
+          "path": "texts.site2_label"
+        },
+        {
+          "shape": "46",
+          "path": "texts.site2_calculation"
+        },
+        {
+          "shape": "47",
+          "path": "texts.raw_title"
+        },
+        {
+          "shape": "49",
+          "path": "texts.normalized_title"
+        },
+        {
+          "shape": "52",
+          "path": "texts.unit"
+        },
+        {
+          "shape": "53",
+          "path": "texts.explanation"
+        }
+      ],
+      "special": [
+        {
+          "shape": "2",
+          "kind": "scenario"
+        },
+        {
+          "shape": "5",
+          "kind": "footer"
+        },
+        {
+          "shape": "6",
+          "kind": "page"
+        }
+      ],
+      "charts": [
+        {
+          "rid": "rId3",
+          "default": {
+            "type": "bar",
+            "categories": [
+              "点位甲",
+              "点位乙"
+            ],
+            "series": [
+              {
+                "name": "合成示例",
+                "values": [
+                  24.0,
+                  36.0
+                ]
+              }
+            ],
+            "source": "合成演示数据，不代表真实研究结果。",
+            "yMin": 0.0,
+            "yMax": 50.0
+          }
+        },
+        {
+          "rid": "rId4",
+          "default": {
+            "type": "bar",
+            "categories": [
+              "点位甲",
+              "点位乙"
+            ],
+            "series": [
+              {
+                "name": "合成示例",
+                "values": [
+                  20.0,
+                  15.0
+                ]
+              }
+            ],
+            "source": "合成演示数据，不代表真实研究结果。",
+            "yMin": 0.0,
+            "yMax": 30.0
+          }
+        }
+      ],
+      "table": null
+    },
+    "L23:lanes": {
+      "name": "三阶段任务与计划表",
+      "source_page": 9,
+      "slide": "ppt/slides/slide9.xml",
+      "seed_palette": {
+        "primary": "#006A6C",
+        "secondary": "#168E92",
+        "accent": "#6854A4",
+        "paper": "#FFFFFF",
+        "tint": "#E8F6F4",
+        "ink": "#16393C",
+        "name": "孔雀青白",
+        "description": "清晰鲜明的孔雀青与纯白学术图表风，清爽而厚实，少量柔紫作为比较系列，正文深墨色，图表占比大、分组层级明确，避免灰绿和灰蒙蒙。"
+      },
+      "fields": [
+        {
+          "shape": "4",
+          "path": "title"
+        },
+        {
+          "shape": "12",
+          "path": "texts.stage1_title"
+        },
+        {
+          "shape": "17",
+          "path": "texts.stage2_title"
+        },
+        {
+          "shape": "22",
+          "path": "texts.stage3_title"
+        },
+        {
+          "shape": "23",
+          "path": "texts.task_column"
+        },
+        {
+          "shape": "24",
+          "path": "texts.time_column"
+        },
+        {
+          "shape": "25",
+          "path": "texts.status_column"
+        },
+        {
+          "shape": "38",
+          "path": "texts.task1"
+        },
+        {
+          "shape": "40",
+          "path": "texts.time1"
+        },
+        {
+          "shape": "43",
+          "path": "texts.status1"
+        },
+        {
+          "shape": "48",
+          "path": "texts.task2"
+        },
+        {
+          "shape": "50",
+          "path": "texts.time2"
+        },
+        {
+          "shape": "53",
+          "path": "texts.status2"
+        },
+        {
+          "shape": "58",
+          "path": "texts.task3"
+        },
+        {
+          "shape": "60",
+          "path": "texts.time3"
+        },
+        {
+          "shape": "62",
+          "path": "texts.status3"
+        },
+        {
+          "shape": "66",
+          "path": "texts.table_title"
+        },
+        {
+          "shape": "70",
+          "path": "texts.priority_label"
+        },
+        {
+          "shape": "71",
+          "path": "texts.priority_body"
+        },
+        {
+          "shape": "72",
+          "path": "texts.quantity_note"
+        }
+      ],
+      "special": [
+        {
+          "shape": "2",
+          "kind": "scenario"
+        },
+        {
+          "shape": "5",
+          "kind": "footer"
+        },
+        {
+          "shape": "6",
+          "kind": "page"
+        }
+      ],
+      "charts": [],
+      "table": {
+        "shape": "67",
+        "default": [
+          [
+            "阶段",
+            "计划规模",
+            "状态"
+          ],
+          [
+            "引物初筛",
+            "16 组合",
+            "已完成"
+          ],
+          [
+            "条件优化",
+            "8 组合",
+            "进行中"
+          ],
+          [
+            "重复验证",
+            "4 组合",
+            "待开展"
+          ]
+        ]
+      }
+    },
+    "L21:journal": {
+      "name": "期刊式大图与编号解释",
+      "source_page": 10,
+      "slide": "ppt/slides/slide10.xml",
+      "seed_palette": {
+        "primary": "#22252A",
+        "secondary": "#616974",
+        "accent": "#BE3038",
+        "paper": "#FFFFFF",
+        "tint": "#F3F4F5",
+        "ink": "#22252A",
+        "name": "黑白朱红",
+        "description": "高质量学术期刊编辑风，近黑标题、纯白底、朱红仅用于一个关键系列或关键词，衬线大标题配现代无衬线正文，粗细线与留白形成层级，完全无花纹。"
+      },
+      "fields": [
+        {
+          "shape": "4",
+          "path": "title"
+        },
+        {
+          "shape": "9",
+          "path": "texts.legend1"
+        },
+        {
+          "shape": "12",
+          "path": "texts.legend2"
+        },
+        {
+          "shape": "15",
+          "path": "texts.metric_title"
+        },
+        {
+          "shape": "16",
+          "path": "texts.metric1_value"
+        },
+        {
+          "shape": "18",
+          "path": "texts.metric2_value"
+        },
+        {
+          "shape": "19",
+          "path": "texts.metric1_label"
+        },
+        {
+          "shape": "20",
+          "path": "texts.metric2_label"
+        },
+        {
+          "shape": "21",
+          "path": "texts.metric_unit"
+        },
+        {
+          "shape": "25",
+          "path": "texts.point1_title"
+        },
+        {
+          "shape": "26",
+          "path": "texts.point1_body"
+        },
+        {
+          "shape": "30",
+          "path": "texts.point2_title"
+        },
+        {
+          "shape": "31",
+          "path": "texts.point2_body"
+        },
+        {
+          "shape": "32",
+          "path": "texts.caption"
+        },
+        {
+          "shape": "33",
+          "path": "texts.unit"
+        }
+      ],
+      "special": [
+        {
+          "shape": "2",
+          "kind": "scenario"
+        },
+        {
+          "shape": "5",
+          "kind": "footer"
+        },
+        {
+          "shape": "6",
+          "kind": "page"
+        }
+      ],
+      "charts": [
+        {
+          "rid": "rId3",
+          "default": {
+            "type": "line",
+            "categories": [
+              "1月",
+              "2月",
+              "3月",
+              "4月",
+              "5月",
+              "6月"
+            ],
+            "series": [
+              {
+                "name": "连续林",
+                "values": [
+                  18.0,
+                  20.0,
+                  24.0,
+                  28.0,
+                  30.0,
+                  32.0
+                ]
+              },
+              {
+                "name": "破碎林",
+                "values": [
+                  16.0,
+                  17.0,
+                  18.0,
+                  19.0,
+                  19.0,
+                  20.0
+                ]
+              }
+            ],
+            "source": "合成演示数据，不代表真实研究结果。",
+            "yMin": 0.0,
+            "yMax": 40.0
+          }
+        }
+      ],
+      "table": null
+    }
+  }
+}

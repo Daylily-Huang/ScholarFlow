@@ -2,7 +2,7 @@
 
 ## 填充风格与自适应资料模式（v1.2）
 
-新建汇报按 **场景 → 配色 → 填充风格** 依次询问，收到上一步答案后再进入下一步；已明确的不重复问。输入顶层写 `fill_style: "light"` 或 `"solid"`。六套配色全部支持两种风格。
+新建汇报按 **场景 → 配色 → 填充风格** 依次询问，收到上一步答案后再进入下一步；已明确的不重复问。输入顶层写 `fill_style: "light"` 或 `"solid"`。十套配色全部支持两种风格。
 
 - `visual_mode`：
   - 当 `demo: false` 时，默认 `visual_mode: "adaptive"`（或 `"clean"`）：
@@ -16,11 +16,11 @@
 
 ## 从示例修改
 
-先按每页论点和证据规划；从 `assets/examples/academic.json`、`coursework.json` 或 `progress.json` 参考字段，不照搬整套页序。`all-layouts.json` 含全部十四种结构。
+先按每页论点和证据规划；从 `assets/examples/academic.json`、`coursework.json` 或 `progress.json` 参考字段，不照搬整套页序。`all-layouts.json` 保留历史十四种结构；`compact-approved.json` 提供 L21–L23 的六个已批准紧凑变体。
 
-顶层字段：`scenario` = `academic|coursework|progress`；`palette` = `P1`…`P6`；`demo` 为布尔值；`slides` 为 1–150 页列表。正式内容设 `demo: false`，并提供 `footer`。每页提供 `sources`，每张图提供 `source`，写入备注以供追溯。
+顶层字段：`scenario` = `academic|coursework|progress`；`palette` = `P1`…`P10`；`demo` 为布尔值；`slides` 为 1–150 页列表。正式内容设 `demo: false`，并提供 `footer`。每页提供 `sources`，每张图提供 `source`，写入备注以供追溯。
 
-每页 `layout` 选择 `L1`…`L20`。L15–L20、变体、`figures`、标注组件与正式输入必须提供的 `materials.papers` 详见 [原图与版式规则](evidence-and-composition.md)。可按材料逻辑自由组合、复制或重排页面，不必硬凑 14 页。
+每页 `layout` 选择 `L1`…`L23`。L15–L20、变体、`figures`、标注组件与正式输入必须提供的 `materials.papers` 详见 [原图与版式规则](evidence-and-composition.md)。可按材料逻辑自由组合、复制或重排页面，不必硬凑 14 页。
 
 ### 写作与表达规范（去除 AI 味与过度防御）
 
@@ -44,7 +44,7 @@
 - `icon` 字段在 `adaptive` 模式下支持任意学科图标名（`dna`, `pcr`, `table`, `chart`, `filter`, `warning`, `check`, `location`, `layers`, `workflow`, `document`, `compass`, `search`, `none`）；即使保留旧名，生成器也会结合卡片文本实时匹配最贴切的极简线框图标并避免同页重复。
 - 单页配图：仅 `L2/L5/L7/L8/L14` 可设置 `"image": "images/figure1.png"`（PNG，路径相对于输入 JSON），等价于 `"images": {"main": "images/figure1.png"}`。保留原图宽高比，是否加双色调由 `duotone` 控制。
 - `duotone`：页面级或文档级布尔值，控制插画是否套主题双色调。`adaptive` 模式默认 `false`（保留原图色彩），`legacy` 默认 `true`。
-- 字号来源：权威值在 `assets/template-system.json` 的 `solid_typography`（内容页标题 42px、正文 21–25px、辅助与图表标注 ≥17px、页脚 14px、左右边距 32px），由 `scripts/fill_styles.py` 实现。同文件的 `sizes` / `spacing` 为历史记录字段，脚本不读取。
+- 字号来源：权威值在 `assets/template-system.json` 的 `solid_typography`（内容页标题 42px、正文 21–25px、辅助与图表标注 ≥17px、页脚 14px、左右边距 32px），由 `scripts/fill_styles.py` 实现。L21–L23 使用单独的 `compact_typography`：标题36px、正文20–21px，几何与字号以批准原生模板为准，详见[紧凑版式](compact-layouts.md)。同文件的 `sizes` / `spacing` 为历史记录字段，脚本不读取。
 
 ### 配图插槽（v1.2.1）
 
@@ -56,7 +56,7 @@
 
 例如 L9 使用 `"images": {"left_before": "images/before.png", "left_after": "images/after.png"}`。每张图片只替换指定插槽；自适应模式移除本页未指定的默认位图。L9 不接受含义不明的单个 `image`，`image` 与 `images` 不能同时使用，未知插槽直接报错。图片内部内容属于位图，不能作为原生文字或数据编辑。
 
-文档级 `duotone` 会传递到自定义图片，页面级显式值可覆盖；所有六套配色均遵循同一规则。科研实测图片通常保持 `duotone: false`。
+文档级 `duotone` 会传递到自定义图片，页面级显式值可覆盖；所有十套配色均遵循同一规则。科研实测图片通常保持 `duotone: false`。
 
 ### 使用真实论文或实验原图
 

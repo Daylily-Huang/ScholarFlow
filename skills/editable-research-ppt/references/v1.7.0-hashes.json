@@ -1,0 +1,27 @@
+{
+  "version": "1.7.0",
+  "date": "2026-10-23",
+  "note": "Offline online-source assets, optional ecology topic, individually tested native shape cache. No private research data or GitHub publication.",
+  "sha256": {
+    "SKILL.md": "a6ee72bbd530d61fca91f4ff9e56cdcc76c1ae5da44b50cecdb5a5e520a4be28",
+    "README.md": "dc627e94cc2c406e5b68c032fb07c9f1f65ae9dc5713508da87eec1f4e7ea8a2",
+    "THIRD_PARTY_NOTICES.md": "c0b2b74a2644920345d1e232fb48d65db70d2b8f4d80c9fb39258ce4e107e5fb",
+    "assets/template-system.json": "cf129fb1b23af1d9fc26c645940c6554f4e126e17f301f8cf5219251033d41d7",
+    "scripts/assets.py": "e0fd8b51352908602f08366ae962e99315b8eac1d685168095d15c9f81721972",
+    "scripts/compile_svg_asset.py": "ab58e99959fa465848f21d4dcad3488c1b6904e1f45484c71194de5eb2832f05",
+    "scripts/build_asset_cache.py": "48a9d24c02f06d1c768d55b5b9a015c16aceb4cd4f232e1a256a6b74d419e933",
+    "tests/test_assets.py": "30ceced6970ce10718db8f272c5220a2f83d9e7e61a3cf778851f8881621cfee",
+    "tests/probe_assets_powerpoint.py": "ed02f1b398854e1e4ef76e8a5282eabbd0c8b998e8f60b657fc62462160a2096",
+    "references/asset-library.md": "624d73b956ade9cd1e57a60b7b932dc1cd9b2453a6aab05da6a7ded001fb782e",
+    "references/approved-standard.json": "b735997e5868b278800ea6317db49095148f622b5baf08704a5470671f698f0f",
+    "references/validation.md": "651e62f4486a18b4798aecfd784af8b21653ee4c80362dc584de6bf4e85482d8",
+    "references/asset-validation-v1.7.json": "6727f0d390515b50730e66df370ef6260f54c4e9178812d680c6ad5ddea77738",
+    "references/asset-showcase-powerpoint-v1.7.json": "30fda0e888dfff09d1bca12b105f3705fda58b004c8704148427ef7d8ee576c8",
+    "references/asset-gallery-browser-v1.7.json": "1ca9b836f3453581792fdbb5a94e6d63f3361d8b9f6b384310743d74f53646be",
+    "assets/media-library/catalog.json": "171ae850d88d006e1089d14066688001b4694100f68241ea42c349566530019e",
+    "assets/media-library/themes.json": "749489ef2e9ba90ea6e5e19061eecd5f235aae3e89efbbdfc6db7a41f3d3ecac",
+    "assets/media-library/conversion.json": "53d5d57e2d829641e405ba418911a773fee228057c1377ed27316bf83724a6d7",
+    "examples/assets/ecology-showcase.pptx": "af16d5c6256d365929b5e4cada15c105e653fb431c69fec1b4c9768376c2f4a7",
+    "examples/assets/native-bank.pptx": "9587070d0aa5e5490c47454ec85fffe5d9eded6754b913e8dec1d74dc6e71f4d"
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "version": 1,
+  "upstream_commit": "20aef31db93fe4d9f398dbb15b120d99c48eef95",
+  "license_file": "assets/icons/lucide/LICENSE.txt",
+  "license_sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57",
+  "assets": [
+    {
+      "id": "camera",
+      "origin": "online",
+      "role": "illustration",
+      "path": "assets/icons/lucide/camera.svg",
+      "sha256": "ebbb3178dd80dfd942770a2237fe7bfc3515c55c7daa9d3666933a656d2790e3",
+      "author": "Lucide Icons and Contributors",
+      "source_url": "https://lucide.dev/icons/camera",
+      "download_url": "https://raw.githubusercontent.com/lucide-icons/lucide/20aef31db93fe4d9f398dbb15b120d99c48eef95/icons/camera.svg",
+      "license": "ISC",
+      "license_url": "https://lucide.dev/license",
+      "representation": "native_shapes",
+      "editable": "native",
+      "changes": "SVG outlines converted to native editable paths; themed stroke color and scale. Curve conversion may approximate original SVG geometry.",
+      "approved_reference_pages": [
+        8
+      ]
+    },
+    {
+      "id": "calendar-days",
+      "origin": "online",
+      "role": "illustration",
+      "path": "assets/icons/lucide/calendar-days.svg",
+      "sha256": "9330eb8d7c4989e97b6361314abbf02953243c602874725c9e58ceca00da3bd7",
+      "author": "Lucide Icons and Contributors",
+      "source_url": "https://lucide.dev/icons/calendar-days",
+      "download_url": "https://raw.githubusercontent.com/lucide-icons/lucide/20aef31db93fe4d9f398dbb15b120d99c48eef95/icons/calendar-days.svg",
+      "license": "ISC",
+      "license_url": "https://lucide.dev/license",
+      "representation": "native_shapes",
+      "editable": "native",
+      "changes": "SVG outlines converted to native editable paths; themed stroke color and scale. Curve conversion may approximate original SVG geometry.",
+      "approved_reference_pages": [
+        8
+      ]
+    },
+    {
+      "id": "chart-no-axes-column",
+      "origin": "online",
+      "role": "illustration",
+      "path": "assets/icons/lucide/chart-no-axes-column.svg",
+      "sha256": "5dfd8fc5b5417dad858991de4969c3fe1c4a466104d0880a15b691ff7c5b1f12",
+      "author": "Lucide Icons and Contributors",
+      "source_url": "https://lucide.dev/icons/chart-no-axes-column",
+      "download_url": "https://raw.githubusercontent.com/lucide-icons/lucide/20aef31db93fe4d9f398dbb15b120d99c48eef95/icons/chart-no-axes-column.svg",
+      "license": "ISC",
+      "license_url": "https://lucide.dev/license",
+      "representation": "native_shapes",
+      "editable": "native",
+      "changes": "SVG outlines converted to native editable paths; themed stroke color and scale. Curve conversion may approximate original SVG geometry.",
+      "approved_reference_pages": [
+        8
+      ]
+    },
+    {
+      "id": "flask-conical",
+      "origin": "online",
+      "role": "illustration",
+      "path": "assets/icons/lucide/flask-conical.svg",
+      "sha256": "a2ce857c159bef4c128a6d9f0b6dcbd6504ecf1a2a670ee220efd14fd032b561",
+      "author": "Lucide Icons and Contributors",
+      "source_url": "https://lucide.dev/icons/flask-conical",
+      "download_url": "https://raw.githubusercontent.com/lucide-icons/lucide/20aef31db93fe4d9f398dbb15b120d99c48eef95/icons/flask-conical.svg",
+      "license": "ISC",
+      "license_url": "https://lucide.dev/license",
+      "representation": "native_shapes",
+      "editable": "native",
+      "changes": "SVG outlines converted to native editable paths; themed stroke color and scale. Curve conversion may approximate original SVG geometry.",
+      "approved_reference_pages": [
+        9
+      ]
+    },
+    {
+      "id": "dna",
+      "origin": "online",
+      "role": "illustration",
+      "path": "assets/icons/lucide/dna.svg",
+      "sha256": "fb1e39ad72394a4090aaaeb620fc8057d72e3df9497cbbbd26247ba57e747431",
+      "author": "Lucide Icons and Contributors",
+      "source_url": "https://lucide.dev/icons/dna",
+      "download_url": "https://raw.githubusercontent.com/lucide-icons/lucide/20aef31db93fe4d9f398dbb15b120d99c48eef95/icons/dna.svg",
+      "license": "ISC",
+      "license_url": "https://lucide.dev/license",
+      "representation": "native_shapes",
+      "editable": "native",
+      "changes": "SVG outlines converted to native editable paths; themed stroke color and scale. Curve conversion may approximate original SVG geometry.",
+      "approved_reference_pages": [
+        9
+      ]
+    },
+    {
+      "id": "clipboard-check",
+      "origin": "online",
+      "role": "illustration",
+      "path": "assets/icons/lucide/clipboard-check.svg",
+      "sha256": "e2bac86a6b24caa0d7d0dcc2719ec6b7870ec5eef2d21afae498d8cb5eefda96",
+      "author": "Lucide Icons and Contributors",
+      "source_url": "https://lucide.dev/icons/clipboard-check",
+      "download_url": "https://raw.githubusercontent.com/lucide-icons/lucide/20aef31db93fe4d9f398dbb15b120d99c48eef95/icons/clipboard-check.svg",
+      "license": "ISC",
+      "license_url": "https://lucide.dev/license",
+      "representation": "native_shapes",
+      "editable": "native",
+      "changes": "SVG outlines converted to native editable paths; themed stroke color and scale. Curve conversion may approximate original SVG geometry.",
+      "approved_reference_pages": [
+        9
+      ]
+    }
+  ]
+}

@@ -1,34 +1,70 @@
 {
   "id": "approved-solid-v1.1",
-  "user_approved_date": "2026-10-19",
+  "design_baseline_date": "2026-10-19",
   "rule": "保留确认的字号、图文比例、原生对象与左右留白。换内容先精简或拆页，不自动缩小字号；颜色只使用已确认主题。",
   "approved_examples": {
-    "examples/solid-showcase.pptx": "825a47eb9d94161b31d3b1b41bebf891a3449ed342b99d38c3c0db734bd17d02",
-    "examples/solid-all-layouts.pptx": "6f709f27d6defe05bc54e9801ee47870652c719606c66ac581127b3b6c2b9511",
-    "examples/fill-comparison.pptx": "c7e4323ce7ced3090251144b9d4dcd6f12a64c28a11adf0e4aacfedc7cb1ca6f"
+    "examples/solid-showcase.pptx": "9952c64c2770a334163b662419bf8a3b7f90627c6eef9bfe5fee27ac538f0716",
+    "examples/solid-all-layouts.pptx": "8760faf7549dbd9ba0fd2f08588b44e4cf2610c2fddee2ca604b49eed7047d87",
+    "examples/fill-comparison.pptx": "80e3d45c5bf126e26ec83b44a21cfdcc63a347d64c1bc38a7b4bcc97a594c5c9"
   },
   "design_files": {
-    "scripts/generate.py": "6e42416b74a9dc45566f7e87a51e437209a52e13496dab8c0e8ce03a2c7e8a52",
-    "scripts/fill_styles.py": "06915992b8cf45f610809710f24400379dd0bc8234c3ccae4b818197ec4c44b2",
-    "assets/templates/library.pptx": "da7b2f6d3109357d7aea7e3d206859d271ae8385fa416e77a5e9e06afbbae780",
+    "scripts/generate.py": "1ee0b9ba7fcc3c9406ff846cdb2a475850a9060f58d4473612f0a9627789c6a4",
+    "scripts/fill_styles.py": "a842b42742f6543ac9fd69d537643c734829feab52ee841dc432e17156bbf87f",
+    "assets/templates/library.pptx": "ec53cc64a57f2cb852a0ece85af8103c1c384c438e115941321ca5a47463a5b0",
     "assets/templates/bindings.json": "a784832d40efc3857cd56166302b3bc06c8fa3f6fac3319e20917c0d5b1771e0",
-    "scripts/evidence_layouts.py": "e80f995a776c51771e5853924085625c861ad82ab439efbe8041fac85215539a",
+    "scripts/evidence_layouts.py": "a91619e81901db20e0c6e71849f6293c7da083c558776521406e8c09940de60c",
     "scripts/crop_paper_figure.py": "7ec53393a439a864e06c2e5063347d4137284e378b1a9e03b34ea953c2a6d294",
-    "assets/template-system.json": "0b5b647e3939616182fe7b765aace501c0be6b46b365ed89bef9a3e73f148a1b",
+    "assets/template-system.json": "5f21debf22f802c3bff65203c7d5e4a117c68f65dba39db9f87a68af78164d04",
     "scripts/add_media.ps1": "9c179b90662fab0447a58968f84b564ff7e2bb0c963f62a24369ec4afd4ec775",
-    "scripts/audit_media.py": "6df5948064e8e6510c3c591d89d83f81dc682ecb21092de87ef4fd74d0239975"
+    "scripts/audit_media.py": "6df5948064e8e6510c3c591d89d83f81dc682ecb21092de87ef4fd74d0239975",
+    "scripts/preflight.py": "14f8010ec417c67912e92f2bd10748b95152596c8f657641576bc8300a72f7c1",
+    "scripts/inspect_deck.py": "c7953851425e37e94acef96c48e1f0ee30a9abb3e9c2acee5ef8e96f87b80f86",
+    "scripts/prepare_handoff.py": "fab0b8d485e30ddbab45c7143f778a272348a7112b1327de69fa70324c7838d9",
+    "scripts/render_powerpoint.ps1": "a2f871a777be5db16fa5be78bfce35bcfe4b4a4f0c4714badeb62044c54d45ac",
+    "scripts/check_environment.py": "96e25f2471b426a57dc4349f5bd51e9662c5225466181e4f59af93147ac9da91",
+    "scripts/compact_layouts.py": "b60a7330f323ea47c53bdc1356a14b3dfb31796c0fd89499822ac2712631b422",
+    "assets/templates/compact-library.pptx": "18cdd960e2c3106ec50a6a827c26ba9ff30efd47779c244d6f1f73a349b3f100",
+    "assets/templates/compact-bindings.json": "6bb5df4cae055303caad6f89f1ae225c5681afb60ec17ce6813842aa51995b18",
+    "references/compact-layouts.md": "78fe48b5bf80ca0f019724bd21f339fa680d93100c984b7d2c78aec095ee0a87"
   },
   "v1_2_note": "v1.2（2026-10-20）更新 generate.py 与 fill_styles.py 引入 adaptive 模式。经逐字节比对，solid 样例与 v1.1 已批准版的唯一差异是连线新增 cap=\"rnd\"（圆头端点），字号、版式、配色、数据与原生对象均未变化。v1.1 的历史哈希保留在 v1.1-hashes.json。本轮已用当前代码重建三个 solid 样例并刷新 examples/ 与本节哈希，使代码与样例重新一致。",
-  "current_version": "1.4.0",
+  "current_version": "1.7.1",
   "current_examples": {
-    "examples/adaptive-solid.pptx": "bf61529e13f4a71191baf960600d93b88e4291e4477ce171f5a5bd9a961a0d11",
-    "examples/adaptive-light.pptx": "6bc3979543335cc421bacb55b0d57a95f68b1e8160e8a3b359516cc9d32629fd",
-    "examples/evidence-layouts.pptx": "de26e70c428d1f73b2a70b96f6beda25b139fad76e7eb44f29510581c06f4aaa",
-    "examples/evidence-variants.pptx": "545c260d0119ee5db7ccaf865531ff93f54653eb49bc9747333392f4a68182e6",
-    "examples/existing-variants.pptx": "2aabe1e2df3f19d554358c5efd751c2bdfe4265bc38c33e9906999fe85b871ff",
-    "examples/media/demo.pptx": "de393ea395f53c02031fe62bcc535acab68254356615aebd456973815f39bd2c"
+    "examples/adaptive-solid.pptx": "37ae17e066c13e01febd28003784a5a8da8305911c6b024cbdff2d9da8fe9144",
+    "examples/adaptive-light.pptx": "f3c5a069bceade9dead4eadc0495e12bfb28f8ed4663be74ebe65751916aef8a",
+    "examples/evidence-layouts.pptx": "9f712a7f605e7e94e5e7355a5c8962ce25ca18c1aa70d58cc3209c0de8cc432b",
+    "examples/evidence-variants.pptx": "c17d41a097dd55470d3e50acc9489720477f0724518c7d472865ef01f8181b0b",
+    "examples/existing-variants.pptx": "99732fc309317a88066c5b3b7478fe72d121675d04452910ae82ba2a4228ddcc",
+    "examples/media/demo.pptx": "c46390b97b3c4b1433c0f336127efa96ed158ee04d7a0ae90c951bb9cf25d5cb",
+    "examples/bilingual/academic.pptx": "d63b9409297945d10c3b580b0b239de7da8f137114a0d454551a6472698d5960",
+    "examples/bilingual/coursework.pptx": "4c7d36bbb0b71b685662bd7f6fc97d18ba3422ab1ebcf1543143d7da206f3dbd",
+    "examples/bilingual/progress.pptx": "5f090d6542341193a114f0acbe58bfe70cc99f315254edcc6e00a7f597d38c64",
+    "examples/native-composition.pptx": "d3beed8b218918f745931fd43d4888a1a18324868fdab9da8d7bb4470863f21d",
+    "examples/compact-approved.pptx": "b4a67e9a362b9fb0e312e8b269b00ec7dca34490de84767cbd3c7bbef1ce7263",
+    "examples/compact-light.pptx": "33f464cf8a83cdebbb897addff96abc06172fc1f4562d6691f81031f516d30ef",
+    "examples/assets/ecology-showcase.pptx": "276138a41023f343ae9750cd39fe6b71d931fd9344c4792bc814c03cf4d87b6e"
   },
-  "v1_2_1_note": "保留原用户批准日期与历史样板；本次修复质量出口、表格容量、配图、摘要、字号配置与局部排版。current_examples 为本次生成并实机检查的自适应样板，不将旧版批准等同于用户已审阅本次新样板。design_files 记录当前实现，不要求历史样板由新代码逐字节重建。",
-  "v1_3_note": "新增六种原图证据版式及变体、独立标注组件和正式输入原图硬指标。保留历史批准日期与样板；新增样板使用合成测试资料，代码已检查，不等同于用户逐页批准新实现。",
-  "v1_4_note": "保留既有用户批准日期、样板和静态生成器。增加联网素材、编辑边界、按需解释性动画和双重验收规则；新增媒体后处理及合成测试样板不视为用户重新批准全部版式。"
+  "v1_2_1_note": "保留历史设计基线日期与历史样板；本次修复质量出口、表格容量、配图、摘要、字号配置与局部排版。current_examples 为本次生成并实机检查的自适应样板，不将旧版批准等同于已审阅本次新样板。design_files 记录当前实现，不要求历史样板由新代码逐字节重建。",
+  "v1_3_note": "新增六种原图证据版式及变体、独立标注组件和正式输入原图硬指标。保留历史批准日期与样板；新增样板使用合成测试资料，代码已检查，不等同于逐页设计确认新实现。",
+  "v1_4_note": "保留既有设计基线日期、样板和静态生成器。增加联网素材、编辑边界、按需解释性动画和双重验收规则；新增媒体后处理及合成测试样板不视为用户重新批准全部版式。",
+  "v1_5_note": "保留用户原批准日期和历史样板。新增制作预检、保护式保存、交付与源项目工具、双语及原生精修排版；新样板使用合成数据。平台能力按实际验证范围声明，不等同于用户重新批准所有新样板。",
+  "v1_6_approval": {
+    "date": "2026-10-23",
+    "reference_sha256": "a805374d88d8edf5dca68a6b7413bef725fcbf5f2f4e50cf9fbd7e1402eefdc5",
+    "reference_pages": [
+      2,
+      4,
+      5,
+      8,
+      9,
+      10
+    ],
+    "new_palettes": [
+      "P7",
+      "P8",
+      "P9",
+      "P10"
+    ],
+    "note": "Explicit design baseline; compact titles36px/body20-21px, unchanged old layout standards. Only selected six structures added as three families with variants."
+  }
 }

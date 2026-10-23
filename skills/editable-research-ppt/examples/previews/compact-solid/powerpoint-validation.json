@@ -1,0 +1,82 @@
+{
+  "source": "examples/compact-approved.pptx",
+  "application": "PowerPoint",
+  "opened": true,
+  "slides": [
+    {
+      "slide": 1,
+      "text": 17,
+      "charts": 2,
+      "pictures": 0,
+      "tables": 0,
+      "shapes": 26,
+      "preview_file": "slide-01.png",
+      "preview_sha256": "70ef1a83fdaf2db19a4147ac477970c0d35d6532ef32c6e564fcc13e451768af"
+    },
+    {
+      "slide": 2,
+      "text": 18,
+      "charts": 1,
+      "pictures": 0,
+      "tables": 0,
+      "shapes": 34,
+      "preview_file": "slide-02.png",
+      "preview_sha256": "89442302392e1ef2f24fcb41d38f55e0a243b80739950a9109a90a7e4a866d86"
+    },
+    {
+      "slide": 3,
+      "text": 27,
+      "charts": 2,
+      "pictures": 0,
+      "tables": 0,
+      "shapes": 39,
+      "preview_file": "slide-03.png",
+      "preview_sha256": "529892b87bff9ad40404d1d4cebef3a553d8c1713a2313b4061b2811af2ef32e"
+    },
+    {
+      "slide": 4,
+      "text": 23,
+      "charts": 2,
+      "pictures": 0,
+      "tables": 0,
+      "shapes": 37,
+      "preview_file": "slide-04.png",
+      "preview_sha256": "dd5793518cbaac4fb36a7c85e72e7c721b2875573997b71a2e9c5d0acbe39053"
+    },
+    {
+      "slide": 5,
+      "text": 29,
+      "charts": 0,
+      "pictures": 0,
+      "tables": 1,
+      "shapes": 54,
+      "preview_file": "slide-05.png",
+      "preview_sha256": "507cc8a745be07d52268693d45016f1e17ccb58524da837c8fd5be56b6ec8217"
+    },
+    {
+      "slide": 6,
+      "text": 21,
+      "charts": 1,
+      "pictures": 0,
+      "tables": 0,
+      "shapes": 32,
+      "preview_file": "slide-06.png",
+      "preview_sha256": "dab99c9af9957d26c95678f978cb9de18e38b1fb474db942bf8caeab82581d0c"
+    }
+  ],
+  "overflows": [],
+  "table_issues": [],
+  "font_issues": [],
+  "edit_probe": true,
+  "source_sha256": "29d7227baf6fad678226210dbef60af6b9422c01d6722a9033abe79c8a718cc5",
+  "version": "16.0",
+  "slide_count": 6,
+  "chart_probe_applicable": true,
+  "text_persisted": true,
+  "move_persisted": true,
+  "workbook_value_persisted": true,
+  "probe_original_value": 24,
+  "source_unchanged": true,
+  "render_ok": true,
+  "quality_ok": true
+}

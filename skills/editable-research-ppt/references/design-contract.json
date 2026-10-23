@@ -1,0 +1,674 @@
+{
+  "source_version": "1.7.0",
+  "source_manifest_sha256": "5eb9d1f45bdf8afc0e4310680572e0916b905445d498051469a539453b62822b",
+  "system": {
+    "canvas": {
+      "width": 1280,
+      "height": 720
+    },
+    "default_palette": "P1",
+    "fonts": {
+      "heading": "Noto Serif CJK SC",
+      "body": "Noto Sans CJK SC",
+      "latin": "Noto Sans CJK SC"
+    },
+    "palettes": {
+      "P1": {
+        "name": "蓝白朱红",
+        "primary": "#173D67",
+        "secondary": "#718EAA",
+        "accent": "#AF3D3D",
+        "paper": "#FFFFFF",
+        "tint": "#EEF3F8",
+        "description": "crisp porcelain white, rich ink navy, subtle slate blue, restrained vermilion. Precise, formal and luminous."
+      },
+      "P2": {
+        "name": "松绿米白",
+        "primary": "#28463A",
+        "secondary": "#8A9B81",
+        "accent": "#A8562F",
+        "paper": "#FAF9F4",
+        "tint": "#EAF0E8",
+        "description": "deep pine green, soft ivory, muted sage, a tiny terracotta accent. Quiet natural-history elegance with a botanical research sensibility."
+      },
+      "P3": {
+        "name": "石墨青金",
+        "primary": "#12303A",
+        "secondary": "#5D9298",
+        "accent": "#B08026",
+        "paper": "#FBFCFC",
+        "tint": "#EDF3F2",
+        "description": "dark graphite teal, fog white, restrained sea-glass teal and ochre gold. Sophisticated precise scientific editorial design; gold only as ink accents, never metallic."
+      },
+      "P4": {
+        "name": "酒红灰蓝",
+        "primary": "#6E293C",
+        "secondary": "#66859A",
+        "accent": "#A97738",
+        "paper": "#FFFDF9",
+        "tint": "#F4ECEE",
+        "description": "deep burgundy, warm white, desaturated steel blue, tiny antique ochre. Scholarly, mature, crisp and elegant, not wedding or luxury branding."
+      },
+      "P5": {
+        "name": "靛紫芥黄",
+        "primary": "#3F2F7A",
+        "secondary": "#8C84AE",
+        "accent": "#A58116",
+        "paper": "#FCFCFE",
+        "tint": "#F0EEF7",
+        "description": "deep ink indigo-purple, clean pearl white, muted lavender gray, restrained mustard. Precise high-end academic design, never neon or magical."
+      },
+      "P6": {
+        "name": "湖蓝珊瑚",
+        "primary": "#087F9A",
+        "secondary": "#6A9DAA",
+        "accent": "#D15B55",
+        "paper": "#FFFFFF",
+        "tint": "#EFF8FB",
+        "description": "清爽湖蓝主色，珊瑚红作少量语义强调"
+      },
+      "P7": {
+        "primary": "#A84B22",
+        "secondary": "#D5884D",
+        "accent": "#245C6D",
+        "paper": "#FFFCF7",
+        "tint": "#FFF0DF",
+        "ink": "#292C30",
+        "name": "赭橙米白",
+        "description": "温暖而清晰的科研编辑风，赭橙只承担标题、实底小标题与核心曲线，画布接近白色的暖白，正文深墨色，少量深青蓝比较色。"
+      },
+      "P8": {
+        "primary": "#15385C",
+        "secondary": "#426B91",
+        "accent": "#AE7A25",
+        "paper": "#FFFFFF",
+        "tint": "#EDF3F9",
+        "ink": "#202C3A",
+        "name": "深蓝香槟金",
+        "description": "精致的深海军蓝学术汇报，深蓝实底块配白字，香槟金只点亮小标签和重点数据，白底通透，不用金色铺满正文，不做金属质感。"
+      },
+      "P9": {
+        "primary": "#006A6C",
+        "secondary": "#168E92",
+        "accent": "#6854A4",
+        "paper": "#FFFFFF",
+        "tint": "#E8F6F4",
+        "ink": "#16393C",
+        "name": "孔雀青白",
+        "description": "清晰鲜明的孔雀青与纯白学术图表风，清爽而厚实，少量柔紫作为比较系列，正文深墨色，图表占比大、分组层级明确，避免灰绿和灰蒙蒙。"
+      },
+      "P10": {
+        "primary": "#22252A",
+        "secondary": "#616974",
+        "accent": "#BE3038",
+        "paper": "#FFFFFF",
+        "tint": "#F3F4F5",
+        "ink": "#22252A",
+        "name": "黑白朱红",
+        "description": "高质量学术期刊编辑风，近黑标题、纯白底、朱红仅用于一个关键系列或关键词，衬线大标题配现代无衬线正文，粗细线与留白形成层级，完全无花纹。"
+      }
+    },
+    "scenarios": {
+      "academic": {
+        "name": "学术分享型",
+        "focus": [
+          "研究问题",
+          "竞争解释",
+          "证据与边界",
+          "讨论"
+        ],
+        "suggested_layouts": [
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9",
+          "L10",
+          "L11",
+          "L12",
+          "L14"
+        ]
+      },
+      "coursework": {
+        "name": "课程作业型",
+        "focus": [
+          "任务要求",
+          "概念与方法",
+          "比较与推导",
+          "回答与反思"
+        ],
+        "suggested_layouts": [
+          "L5",
+          "L6",
+          "L3",
+          "L9",
+          "L11",
+          "L12",
+          "L13",
+          "L14"
+        ]
+      },
+      "progress": {
+        "name": "实验进展型",
+        "focus": [
+          "本期目标",
+          "完成状态",
+          "初步结果",
+          "问题与下一步"
+        ],
+        "suggested_layouts": [
+          "L5",
+          "L2",
+          "L4",
+          "L1",
+          "L11",
+          "L12",
+          "L13",
+          "L14"
+        ]
+      }
+    },
+    "layouts": {
+      "L1": {
+        "name": "中心循环型",
+        "category": "机制与技术",
+        "purpose": "观测、建模、应用与反馈的循环关系。"
+      },
+      "L2": {
+        "name": "分层技术路线型",
+        "category": "机制与技术",
+        "purpose": "按数据、分析、验证分层展示技术路线。",
+        "variants": [
+          "default",
+          "original_figure"
+        ]
+      },
+      "L3": {
+        "name": "对照证据型",
+        "category": "结果与归纳",
+        "purpose": "统一比较条件，突出两组证据的差异。",
+        "variants": [
+          "default",
+          "swap_columns",
+          "original_figure"
+        ]
+      },
+      "L4": {
+        "name": "实验进展矩阵型",
+        "category": "结果与归纳",
+        "purpose": "按样点与任务阶段展示进展、问题和下一步。",
+        "variants": [
+          "default",
+          "original_figure"
+        ]
+      },
+      "L5": {
+        "name": "主视觉学术封面",
+        "category": "开场与导航",
+        "purpose": "学术分享、课程作业、实验进展的统一开场。"
+      },
+      "L6": {
+        "name": "章节地图式目录",
+        "category": "开场与导航",
+        "purpose": "把汇报章节与论证顺序同时展示。"
+      },
+      "L7": {
+        "name": "章节过渡与导航",
+        "category": "开场与导航",
+        "purpose": "章节切换；底部导航提示当前进度。"
+      },
+      "L8": {
+        "name": "三栏系统架构",
+        "category": "机制与技术",
+        "purpose": "技术路线、系统架构、方法体系；中栏承担主要图解。",
+        "variants": [
+          "default",
+          "original_figure"
+        ]
+      },
+      "L9": {
+        "name": "双机制对照与比较表",
+        "category": "机制与技术",
+        "purpose": "竞争假说、方法比较、两种解释的检验。",
+        "variants": [
+          "default",
+          "swap_columns",
+          "original_figure"
+        ]
+      },
+      "L10": {
+        "name": "中心模型与两翼证据",
+        "category": "机制与技术",
+        "purpose": "核心模型、作用机制、数据输入与结果输出。",
+        "variants": [
+          "default",
+          "original_figure"
+        ]
+      },
+      "L11": {
+        "name": "四联数据证据图",
+        "category": "结果与归纳",
+        "purpose": "展示多个互补结果；统一坐标、图例与面板编号。",
+        "variants": [
+          "default",
+          "swap_rows",
+          "original_figure"
+        ]
+      },
+      "L12": {
+        "name": "六维问题与应对",
+        "category": "结果与归纳",
+        "purpose": "研究局限、挑战归纳、课程讨论与改进方案。"
+      },
+      "L13": {
+        "name": "研究演进与展望",
+        "category": "结果与归纳",
+        "purpose": "归纳研究演进、下一步路线与预期交付。"
+      },
+      "L14": {
+        "name": "讨论与结束页",
+        "category": "开场与导航",
+        "purpose": "收束汇报、提出讨论问题、进入答疑。"
+      },
+      "L15": {
+        "name": "单篇论文导读型",
+        "category": "原图与证据",
+        "purpose": "单篇论文导读型",
+        "renderer": "scripts/evidence_layouts.py",
+        "variants": [
+          "default",
+          "figure_left"
+        ]
+      },
+      "L16": {
+        "name": "大图证据讲解型",
+        "category": "原图与证据",
+        "purpose": "大图证据讲解型",
+        "renderer": "scripts/evidence_layouts.py",
+        "variants": [
+          "default",
+          "figure_right",
+          "full_width"
+        ]
+      },
+      "L17": {
+        "name": "全貌与局部放大型",
+        "category": "原图与证据",
+        "purpose": "全貌与局部放大型",
+        "renderer": "scripts/evidence_layouts.py",
+        "variants": [
+          "default",
+          "detail_left"
+        ]
+      },
+      "L18": {
+        "name": "研究区与采样设计型",
+        "category": "原图与证据",
+        "purpose": "研究区与采样设计型",
+        "renderer": "scripts/evidence_layouts.py",
+        "variants": [
+          "default",
+          "map_right"
+        ]
+      },
+      "L19": {
+        "name": "实验分组与时间轴型",
+        "category": "原图与证据",
+        "purpose": "实验分组与时间轴型",
+        "renderer": "scripts/evidence_layouts.py",
+        "variants": [
+          "default",
+          "two_groups"
+        ]
+      },
+      "L20": {
+        "name": "多篇文献证据矩阵型",
+        "category": "原图与证据",
+        "purpose": "多篇文献证据矩阵型",
+        "renderer": "scripts/evidence_layouts.py",
+        "variants": [
+          "default",
+          "table_full"
+        ]
+      },
+      "L21": {
+        "name": "大图与解释型",
+        "category": "紧凑原生版式",
+        "purpose": "大图与解释型",
+        "renderer": "scripts/compact_layouts.py",
+        "variants": [
+          "default",
+          "sidebar",
+          "journal"
+        ]
+      },
+      "L22": {
+        "name": "标准化比较型",
+        "category": "紧凑原生版式",
+        "purpose": "标准化比较型",
+        "renderer": "scripts/compact_layouts.py",
+        "variants": [
+          "default",
+          "fraction",
+          "metrics",
+          "pipeline"
+        ]
+      },
+      "L23": {
+        "name": "阶段任务与计划型",
+        "category": "紧凑原生版式",
+        "purpose": "阶段任务与计划型",
+        "renderer": "scripts/compact_layouts.py",
+        "variants": [
+          "default",
+          "lanes"
+        ]
+      }
+    },
+    "fill_styles": {
+      "light": {
+        "name": "轻盈浅底",
+        "description": "保留v1.0低饱和辅助色、浅底卡片与线性图标"
+      },
+      "solid": {
+        "name": "厚实实底",
+        "description": "明净主色、深色实底白字栏目、实心图标与清晰边框；内容与绘图区留白"
+      }
+    },
+    "solid_palettes": {
+      "P1": {
+        "name": "蓝白朱红",
+        "primary": "#1359A0",
+        "secondary": "#2685C9",
+        "accent": "#B82D32",
+        "paper": "#FFFFFF",
+        "tint": "#EDF5FF",
+        "description": "厚实实底版：提高色彩纯度，白底，较强主次对比"
+      },
+      "P2": {
+        "name": "松绿米白",
+        "primary": "#136742",
+        "secondary": "#429C6B",
+        "accent": "#BD4F22",
+        "paper": "#FFFFFF",
+        "tint": "#EFF9F2",
+        "description": "厚实实底版：提高色彩纯度，白底，较强主次对比"
+      },
+      "P3": {
+        "name": "石墨青金",
+        "primary": "#07556B",
+        "secondary": "#1498AD",
+        "accent": "#B77B08",
+        "paper": "#FFFFFF",
+        "tint": "#EDF9FC",
+        "description": "厚实实底版：提高色彩纯度，白底，较强主次对比"
+      },
+      "P4": {
+        "name": "酒红灰蓝",
+        "primary": "#8F2445",
+        "secondary": "#2879AD",
+        "accent": "#AB7210",
+        "paper": "#FFFFFF",
+        "tint": "#FFF1F5",
+        "description": "厚实实底版：提高色彩纯度，白底，较强主次对比"
+      },
+      "P5": {
+        "name": "靛紫芥黄",
+        "primary": "#4D319F",
+        "secondary": "#7960D0",
+        "accent": "#A87D05",
+        "paper": "#FFFFFF",
+        "tint": "#F4F0FF",
+        "description": "厚实实底版：提高色彩纯度，白底，较强主次对比"
+      },
+      "P6": {
+        "name": "湖蓝珊瑚",
+        "primary": "#087F9A",
+        "secondary": "#20A9BC",
+        "accent": "#CB4442",
+        "paper": "#FFFFFF",
+        "tint": "#EFFBFF",
+        "description": "厚实实底版：提高色彩纯度，白底，较强主次对比"
+      },
+      "P7": {
+        "primary": "#A84B22",
+        "secondary": "#D5884D",
+        "accent": "#245C6D",
+        "paper": "#FFFCF7",
+        "tint": "#FFF0DF",
+        "ink": "#292C30",
+        "name": "赭橙米白",
+        "description": "温暖而清晰的科研编辑风，赭橙只承担标题、实底小标题与核心曲线，画布接近白色的暖白，正文深墨色，少量深青蓝比较色。"
+      },
+      "P8": {
+        "primary": "#15385C",
+        "secondary": "#426B91",
+        "accent": "#AE7A25",
+        "paper": "#FFFFFF",
+        "tint": "#EDF3F9",
+        "ink": "#202C3A",
+        "name": "深蓝香槟金",
+        "description": "精致的深海军蓝学术汇报，深蓝实底块配白字，香槟金只点亮小标签和重点数据，白底通透，不用金色铺满正文，不做金属质感。"
+      },
+      "P9": {
+        "primary": "#006A6C",
+        "secondary": "#168E92",
+        "accent": "#6854A4",
+        "paper": "#FFFFFF",
+        "tint": "#E8F6F4",
+        "ink": "#16393C",
+        "name": "孔雀青白",
+        "description": "清晰鲜明的孔雀青与纯白学术图表风，清爽而厚实，少量柔紫作为比较系列，正文深墨色，图表占比大、分组层级明确，避免灰绿和灰蒙蒙。"
+      },
+      "P10": {
+        "primary": "#22252A",
+        "secondary": "#616974",
+        "accent": "#BE3038",
+        "paper": "#FFFFFF",
+        "tint": "#F3F4F5",
+        "ink": "#22252A",
+        "name": "黑白朱红",
+        "description": "高质量学术期刊编辑风，近黑标题、纯白底、朱红仅用于一个关键系列或关键词，衬线大标题配现代无衬线正文，粗细线与留白形成层级，完全无花纹。"
+      }
+    },
+    "solid_typography": {
+      "canvas_units": "px at 1280x720; 1px=0.75pt",
+      "title": 42,
+      "body_preferred": [
+        21,
+        25
+      ],
+      "auxiliary_min": 17,
+      "chart_min": 17,
+      "footnote": 14,
+      "content_side_margin": 32,
+      "exceptions": [
+        "L5 cover",
+        "L6 contents",
+        "L7 section",
+        "L14 ending"
+      ],
+      "rule": "厚实版按1280×720画布：内容页标题42px（31.5pt），正文优先21–25px（15.75–18.75pt），辅助说明与图表标注至少17px（12.75pt），页脚14px。左右内容边距32px（各2.5%），内容对齐同一纵线；封面、目录与章节页保留专用构图。标题框和段落随字号扩展，语义换行避免单字落行；环形节点文字应完全落在色块内。坐标标题与刻度分开预留空间，不以缩字解决重叠，技术路线与数据图仍为主体。逐页将实际PPT渲染与批准生图并排检查比例、对齐、留白及字重，不以自动溢出检查替代目视核对。",
+      "table_header": 21,
+      "table_data": 20
+    },
+    "compact_typography": {
+      "title": 36,
+      "body": [
+        20,
+        21
+      ],
+      "section": 23,
+      "chart_min": 17,
+      "footnote": 14,
+      "content_side_margin": 32,
+      "scope": "L21-L23 only; existing approved layouts retain their typography"
+    },
+    "image_slots": {
+      "L2": {
+        "main": "34"
+      },
+      "L5": {
+        "main": "22"
+      },
+      "L7": {
+        "main": "45"
+      },
+      "L8": {
+        "main": "37"
+      },
+      "L9": {
+        "left_before": "7",
+        "left_after": "9",
+        "right_before": "17",
+        "right_after_1": "19",
+        "right_after_2": "20",
+        "right_after_3": "21",
+        "right_after_4": "22"
+      },
+      "L14": {
+        "main": "5"
+      }
+    },
+    "table_regions": {
+      "L1": {
+        "y": 270,
+        "height": 72
+      },
+      "L3": {
+        "y": 478,
+        "height": 136
+      },
+      "L4": {
+        "y": 282,
+        "height": 290
+      },
+      "L9": {
+        "y": 510,
+        "height": 138
+      }
+    },
+    "evidence_policy": {
+      "required_formal_inventory": "materials.papers",
+      "paper_figure_gate": "Every relevant paper requires an embedded verified complete PDF figure crop",
+      "editing": "No redraw or recomposition without explicit user request",
+      "notes": "Inventory truthfulness and crop completeness require visual verification; hashes prove byte identity, not scientific correctness."
+    },
+    "composition_policy": {
+      "side_margin": 32,
+      "main_figure_width_fraction": [
+        0.65,
+        1.0
+      ],
+      "caption_px": 20,
+      "source_px": 17,
+      "figure_fit": "contain",
+      "rhythm": "Do not repeat the same card structure for three consecutive content slides. Use comparison columns only for genuine comparisons."
+    },
+    "components": [
+      "figure_number",
+      "caption",
+      "source",
+      "zoom_frame",
+      "number",
+      "navigation"
+    ],
+    "approved_compact": {
+      "date": "2026-10-23",
+      "reference_pages": [
+        2,
+        4,
+        5,
+        8,
+        9,
+        10
+      ],
+      "palette_ids": [
+        "P7",
+        "P8",
+        "P9",
+        "P10"
+      ],
+      "bindings": "assets/templates/compact-bindings.json"
+    }
+  },
+  "runtime_sha256": {
+    "scripts/generate.py": "1ee0b9ba7fcc3c9406ff846cdb2a475850a9060f58d4473612f0a9627789c6a4",
+    "scripts/audit.py": "e0472d03c01ca54b3beb1e9b5abee73b0b9213b9205af545596f5b401ef696a0",
+    "scripts/fill_styles.py": "a842b42742f6543ac9fd69d537643c734829feab52ee841dc432e17156bbf87f",
+    "scripts/evidence_layouts.py": "a91619e81901db20e0c6e71849f6293c7da083c558776521406e8c09940de60c",
+    "scripts/compact_layouts.py": "b60a7330f323ea47c53bdc1356a14b3dfb31796c0fd89499822ac2712631b422",
+    "assets/templates/compact-bindings.json": "6bb5df4cae055303caad6f89f1ae225c5681afb60ec17ce6813842aa51995b18",
+    "assets/templates/bindings.json": "a784832d40efc3857cd56166302b3bc06c8fa3f6fac3319e20917c0d5b1771e0"
+  },
+  "template_structure": {
+    "assets/templates/library.pptx": {
+      "ppt/slideLayouts/slideLayout1.xml": "61fd5eb421ecb6d9227654ef49af05416094b8607035e2bb9493aded73ea008b",
+      "ppt/slideLayouts/slideLayout2.xml": "86f04f779da9bb343794bb3768756480ec9e40bf350968ee36031bd200fcba2f",
+      "ppt/slideLayouts/slideLayout3.xml": "9e16f68f78649f802a488ed2af46e2c4338c54bd66a94a60c534df19dd7cd603",
+      "ppt/slideLayouts/slideLayout4.xml": "36d7f067d08051b0f92877020d5255d72773d8d96c6adb301aa7005e4d4826c9",
+      "ppt/slideLayouts/slideLayout5.xml": "4d5cad23fd797d6e27c9172ad715a2745422020ceb69ad3856ad6d798a8dd2df",
+      "ppt/slideLayouts/slideLayout6.xml": "08eaabb8280b53f2995d779bf6f3a6d29fc3be3baa6e49955eb1e94d2b55fd1b",
+      "ppt/slideMasters/slideMaster1.xml": "611222ebdeec8768101a4f7267cc37cad1e5fd3ed4d29f61d74505631ccb36b2",
+      "ppt/slideMasters/theme/theme2.xml": "8924c218e29e853112099cc5f0eb433bddcb562ee92ab6fe259d459f36073b5e",
+      "ppt/slides/charts/chart1.xml": "2df80834b52e884bb0536719d5d1194cd8acf215b729fe1f8ffaff89e2ac5747",
+      "ppt/slides/charts/chart10.xml": "cfcc9bc355a3849b51fc67427adf8c49d78819fb7df16ff7e3d3a136e7d40708",
+      "ppt/slides/charts/chart11.xml": "ed46aa132a331699968c2096ddd65c0f911854807e50d66c0db6f7441a2096ea",
+      "ppt/slides/charts/chart12.xml": "5ba1c80579de3a56485b29c33c8cd49423bbd68943bc71f7a33c12cc2028c878",
+      "ppt/slides/charts/chart2.xml": "302b113f726129de57e98d07220302a3fd7ad246960a5f6a29d5199ce8ba4fcf",
+      "ppt/slides/charts/chart3.xml": "6712c99e90e47525812d030fab744055c536cfed345ce026ce77fdc49f4a83ae",
+      "ppt/slides/charts/chart4.xml": "eda4d080e5e2cc56efea51011ba9bd2f4b9fa9b4292acc0c50de065f7bfa2682",
+      "ppt/slides/charts/chart5.xml": "eda4d080e5e2cc56efea51011ba9bd2f4b9fa9b4292acc0c50de065f7bfa2682",
+      "ppt/slides/charts/chart6.xml": "5ba1c80579de3a56485b29c33c8cd49423bbd68943bc71f7a33c12cc2028c878",
+      "ppt/slides/charts/chart7.xml": "5ba1c80579de3a56485b29c33c8cd49423bbd68943bc71f7a33c12cc2028c878",
+      "ppt/slides/charts/chart8.xml": "4e66f303eea0d723aa5d7295d89cf71ed0cc1ea1bb65018ed1830723413cf03d",
+      "ppt/slides/charts/chart9.xml": "6712c99e90e47525812d030fab744055c536cfed345ce026ce77fdc49f4a83ae",
+      "ppt/slides/slide1.xml": "bfc3e481947cf8981aabb40ef5c9cdcd465cec656215331290b750ed9013bc8f",
+      "ppt/slides/slide10.xml": "4e6aa62967d8d512fa292fe9352b65c1ba48de4e8ad01d518610b5540eefe72c",
+      "ppt/slides/slide11.xml": "2c0a16a04a9528749f2ecbe45e2e2407a48b91dbe45920782f169429b31d71ee",
+      "ppt/slides/slide12.xml": "bf583fb723cec1d8fba66b12c0580797d295aa9bcbb957dc105d22e2402e51ba",
+      "ppt/slides/slide13.xml": "a177750e22da399472d128dec72898c221c2edf1e1017b3a41a8115f416b8b9c",
+      "ppt/slides/slide14.xml": "7b46c8be4aca21e3b19acf084afeac277f93f202538f4ee8789f4e57d36b88c8",
+      "ppt/slides/slide2.xml": "281f89c3e3fe58e791ab0f4851b0f259ab33b88539abba0a8152bef3def220dc",
+      "ppt/slides/slide3.xml": "fa83776511ad39df85933e442af0bb703a5e6b5fa2a3c15625413ff56591a276",
+      "ppt/slides/slide4.xml": "8323bfaa131ccae4dd122c85bff02a846705eab2b054932b13f8a5b150e7a488",
+      "ppt/slides/slide5.xml": "6584b62d967bea42961de52226ac0bc8e7e4ce0696907160f1c6653141dbe588",
+      "ppt/slides/slide6.xml": "eb80928cf9d8130007cc9632bbf4df3a39fe7ebaa97866cb336c439af77022bf",
+      "ppt/slides/slide7.xml": "5813719b9d7c891c16697077586866641e5d03e27fe81191bda265013bc8230e",
+      "ppt/slides/slide8.xml": "cb84034456801c9ba80b36fd02a3b4a2bf72fbfa7bee92c3e61a63026209e062",
+      "ppt/slides/slide9.xml": "995f33b602be6cc5d9ee1980bf026630758818f45fc19c3493973c8da28e8261",
+      "ppt/theme/theme1.xml": "8924c218e29e853112099cc5f0eb433bddcb562ee92ab6fe259d459f36073b5e"
+    },
+    "assets/templates/compact-library.pptx": {
+      "ppt/charts/chart10.xml": "4dfb19edfebbc705007d1687e1c8ce6e3c060ac2d49291e3922a838970c1d922",
+      "ppt/charts/chart2.xml": "2dd6e267e9c265ff6b8725fe2614a30db8efd8744500da39758d1625cfcbc371",
+      "ppt/charts/chart3.xml": "465a0e2ea727f994c55ee9702f782273206dfdb0798c940630a427e5314b4814",
+      "ppt/charts/chart4.xml": "566f6eadcc3372c5893dddb5c51c0d7230e3647cd02b7e57b2161b84cb339218",
+      "ppt/charts/chart5.xml": "1ceef5b9bfb90e892657b31f7658cf9cd102851ea785ae42c6a9cd96b7c85944",
+      "ppt/charts/chart6.xml": "6e949dba93dcfe67985b9a2d2fd3e439926384991a207bb6a84d514360b64731",
+      "ppt/charts/chart8.xml": "ebca29fc07771dc3e4bad01db5e5571281ae0709200459284be865c78a8d8b49",
+      "ppt/charts/chart9.xml": "d675070dcd762f6f0da7f224b25d5a86bbd26f8d85922dfd93000e13e1c24442",
+      "ppt/slideLayouts/slideLayout1.xml": "b10dfe0d28af88ed6f29295c6af9ed03b2a16aaafa5afc8c0b48866b2c501d7a",
+      "ppt/slideLayouts/slideLayout10.xml": "2c7f52bd3e41a82b96f168c6647050510971bae5ee38535390fe35dba6f0f7ee",
+      "ppt/slideLayouts/slideLayout11.xml": "f4c5d7c17df0477151973200a1b3c949fb174665d6cb6a264765d75fd4ac5e0b",
+      "ppt/slideLayouts/slideLayout2.xml": "5c23707065af2ff7a66917e56ef7a37a480bd9a49b775bd9a2395bab2730d6b1",
+      "ppt/slideLayouts/slideLayout3.xml": "21bd0ef3905b027c3632968836a7da423792536a38c469c99b6d3e83617987c9",
+      "ppt/slideLayouts/slideLayout4.xml": "22f39b54d49104ce1c9166e2eef33cf859d9d3c839a892e87013d05481b0d134",
+      "ppt/slideLayouts/slideLayout5.xml": "bba59c176d492c8fae2e75ce61f3a4a67ccbded2b1aaffff141b4424443712f8",
+      "ppt/slideLayouts/slideLayout6.xml": "392b034e1d6e92bfa0cade96b035602b2cf06a44ff8ec807c9971ea7d53224ea",
+      "ppt/slideLayouts/slideLayout7.xml": "d5a423a7e655cd8d90c5b72c60e6adac6d163bf035caa114820c9a107ad886f9",
+      "ppt/slideLayouts/slideLayout8.xml": "68a0989ea92e17e091349913b2971f4169e29986728fc75c8e4d36ae7d915b07",
+      "ppt/slideLayouts/slideLayout9.xml": "caa49002fbd2c51e744b50264f42cd399d8347c79ddf155874bb54a3a4ce531a",
+      "ppt/slideMasters/slideMaster1.xml": "91832e677c6010085dc54892e72ef458ad6695fa2d84851392adc0907e90fcf4",
+      "ppt/slides/slide10.xml": "6dc37b66fdd4b9bb49be2b342664af80a6d045a69f41fb9d2500f7d8303833e9",
+      "ppt/slides/slide2.xml": "69215009c2598621cc176c36922f2795ae82b66ed7554663b0e113f3c89e9c8f",
+      "ppt/slides/slide4.xml": "fc6e57f8b1869ab51a33e711c93376f0b24e6a05c3e78e299826956c2512f3e3",
+      "ppt/slides/slide5.xml": "a79956aae8a1b9fc19fd11852ca41b4f3e55822f52f5a48f59a34c0bd9bab9b9",
+      "ppt/slides/slide8.xml": "d860768f31082534493780a00ef1a9048d41d49854485d2b78dbdbab1ada435b",
+      "ppt/slides/slide9.xml": "a3397aa1b72df5033b6ddd08cfdc673dfd7464e61cc0f17e7c29614811bdc83f",
+      "ppt/theme/theme1.xml": "a2fde60b46d9123177e58c5c68c3b003efa6b1bad803aaf238e823caf570b823",
+      "ppt/theme/theme2.xml": "a2fde60b46d9123177e58c5c68c3b003efa6b1bad803aaf238e823caf570b823"
+    }
+  },
+  "note": "Stable public design contract. Privacy cleaning may change Office metadata and example text, but cannot change these design semantics, renderer code, or template geometry/styles."
+}

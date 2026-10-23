@@ -1,0 +1,27 @@
+{
+  "version": "1.7.1",
+  "date": "2026-10-23",
+  "note": "Public generic package; stable design contract and explicit metadata-only cleanup. Current evidence is bound to the sanitized artifacts.",
+  "sha256": {
+    "SKILL.md": "2bcd15783b40deb59f29a4c1076fa3c114e48128249121c093556ff94aaf692c",
+    "README.md": "334f6cd5d94c76b6a1c9d3ed99131733976b83492c45343d2124e58a1b463533",
+    "THIRD_PARTY_NOTICES.md": "eebe540902d9113cd94d806f1ac207e549bca6c62ab4d12513bfe5ecaa3e4c44",
+    "assets/template-system.json": "5f21debf22f802c3bff65203c7d5e4a117c68f65dba39db9f87a68af78164d04",
+    "scripts/assets.py": "ab5aa4f4674e6ca60e8e3c4f13f2d5e0afc898e63014a8e08ccbe91f5a5db5a0",
+    "scripts/verify_publication.py": "083417af160509a563bf5dabeb6ce36c070af7dd3ba31ff72826d3842cce190e",
+    "tests/test_publication.py": "e189fc8c5d62dc2a34a137011b7e49fbb5d8bd31307ab5d9f74271871b112e7e",
+    "tests/test_assets.py": "1b8bf9ce773499d9e57bb434f32c98a5c6a92a0415855f907d2e1a42b242dbe7",
+    "references/design-contract.json": "501ecccd91fc5e112f146a042579ed8be099ed67552f81be017fae2d8225c4f4",
+    "references/approved-standard.json": "dda0c99ebad1e2926254723597f16f2c227a49ec65d72581ec4754c6869b212e",
+    "references/publication-policy.md": "50007d0dcf0a9b8bcacfaf10c56717bc85e030aea10c59125702e8f59c5474a4",
+    "references/public-svg-cleanup.json": "25cd1483371b069e1716cba573ef9b8b5bcb1caefd15de8c86f4a9e16af888ef",
+    "references/public-office-cleanup.json": "aeca680bf2089a888dd32b17b9c85bb7e8d5605c361f1f73602d751e8ddad7e3",
+    "references/asset-validation-v1.7.1.json": "b6f31c765a0be0d2d665267463ef8c27312ac1b1c9e587bba241fdf3c2f50b1f",
+    "references/asset-showcase-powerpoint-v1.7.1.json": "ba4bd245be534725845a6a8516da07f2b38501e08f10f92da88be2508cbc95f1",
+    "references/asset-gallery-browser-v1.7.1.json": "68f7a148903c71d9fcf9cf85ec137c1d1a44ba5258619abadfd4563310f28e9a",
+    "examples/assets/ecology-showcase.pptx": "276138a41023f343ae9750cd39fe6b71d931fd9344c4792bc814c03cf4d87b6e",
+    "examples/assets/native-bank.pptx": "1d41250e8718731b8d2db02552e498197ec34d2c3559e42ac4b88ce59b43b43d",
+    "assets/media-library/catalog.json": "2ac0a2357ab4576da9a7331c7efe791205be13ba7c0e8b2195a7f95b67574c04",
+    "assets/media-library/themes.json": "ee0b87653f8bde7f30db42846ac429698682baa42e8b15717afc558107a02efb"
+  }
+}
