@@ -1,0 +1,31 @@
+/* Reading context, literal search navigation, and source image inspection. */
+(()=>{'use strict';
+ const reader=window.reader,input=document.getElementById('search'),count=document.getElementById('search-count');
+ const full=document.getElementById('mode-full'),cards=[...full.querySelectorAll('.pcard,.source-block')];
+ const controls=document.createElement('div');controls.className='search-controls';controls.innerHTML='<button data-search-prev aria-label="上一个匹配段落">↑</button><button data-search-next aria-label="下一个匹配段落">↓</button><button data-search-clear>清除</button>';count.after(controls);controls.hidden=true;
+ let results=[],index=-1,origin=null;
+ function context(){const state=reader.getState();return {route:state.route,y:scrollY,query:input.value,hash:location.hash};}
+ function unmark(){full.querySelectorAll('mark.search-hit').forEach(m=>{const p=m.parentNode;m.replaceWith(...m.childNodes);p.normalize();});cards.forEach(c=>c.classList.remove('search-current'));}
+ function nodeList(c){const walker=document.createTreeWalker(c,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest('button,script,style,math,summary,canvas')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT}),out=[];while(walker.nextNode())out.push(walker.currentNode);return out;}
+ function expression(q){return new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'giu');}
+ function has(text,pattern){pattern.lastIndex=0;return pattern.test(text);}
+ function mark(c,pattern){let remaining=300;for(const n of nodeList(c)){if(!remaining)break;pattern.lastIndex=0;let m,at=0;const frag=document.createDocumentFragment();while(remaining>0&&(m=pattern.exec(n.textContent))){remaining--;frag.append(document.createTextNode(n.textContent.slice(at,m.index)));const span=document.createElement('mark');span.className='search-hit';span.textContent=m[0];frag.append(span);at=m.index+m[0].length;}if(at){frag.append(document.createTextNode(n.textContent.slice(at)));n.replaceWith(frag);}}}
+ function setResult(n,scroll=true){if(!results.length){count.textContent='没有匹配的内容；试试更短的术语或数字。';return;}index=(n+results.length)%results.length;cards.forEach(c=>c.classList.toggle('search-current',c===results[index]));count.textContent='第 '+(index+1)+' / '+results.length+' 个匹配内容块';if(scroll)results[index].scrollIntoView({block:'start',behavior:'instant'});}
+ function clear(restore=true){const back=origin;input.value='';unmark();cards.forEach(c=>c.hidden=false);full.querySelectorAll('.fsect,.mechanism,.concept-card,.motion-index').forEach(c=>c.hidden=false);controls.hidden=true;count.textContent='';results=[];index=-1;origin=null;if(restore&&back){const url=new URL(location.href);url.hash=back.hash;history.replaceState(null,'',url);reader.route(back.route);scrollTo({top:back.y,behavior:'instant'});}}
+ function apply(q){unmark();if(!q){clear();return;}if(!origin)origin=context();reader.route('full');const pattern=expression(q);results=[];
+  cards.forEach(c=>{const hit=has(nodeList(c).map(n=>n.textContent).join(''),pattern);c.hidden=!hit;if(hit){results.push(c);mark(c,pattern);}});
+  full.querySelectorAll('.fsect').forEach(s=>s.hidden=![...s.querySelectorAll('article')].some(a=>!a.hidden));full.querySelectorAll('.mechanism,.concept-card,.motion-index').forEach(c=>c.hidden=true);
+  controls.hidden=false;controls.querySelectorAll('[data-search-prev],[data-search-next]').forEach(b=>b.disabled=!results.length);setResult(0,false);
+ }
+ input.addEventListener('input',()=>apply(input.value.trim()));input.addEventListener('keydown',e=>{if(e.key==='Enter'&&results.length){e.preventDefault();setResult(index+(e.shiftKey?-1:1));}else if(e.key==='Escape'&&input.value){e.preventDefault();clear();input.focus();}});
+ controls.querySelector('[data-search-prev]').onclick=()=>setResult(index-1);controls.querySelector('[data-search-next]').onclick=()=>setResult(index+1);controls.querySelector('[data-search-clear]').onclick=()=>{clear();input.focus();};
+ reader.search={get active(){return !!input.value.trim();},clear,apply};
+ // The existing source links keep their direct-jump behavior; offer an explicit way back.
+ const stack=[],back=document.createElement('button');back.id='return-context';back.textContent='返回刚才阅读处';back.hidden=true;document.querySelector('.toolbar').append(back);
+ document.addEventListener('click',e=>{const a=e.target.closest('#main a[href^="#"]');if(!a)return;const id=a.getAttribute('href').slice(1),target=document.getElementById(id);if(!target||target===a.closest('[id]'))return;stack.push(context());if(stack.length>20)stack.shift();back.hidden=false;},true);
+ back.onclick=()=>{const saved=stack.pop();if(!saved)return;const url=new URL(location.href);url.hash=saved.hash;history.replaceState(null,'',url);reader.route(saved.route);if(saved.query){input.value=saved.query;apply(saved.query);}scrollTo({top:saved.y,behavior:'instant'});back.hidden=!stack.length;};
+ const dialog=document.createElement('dialog');dialog.id='figure-viewer';dialog.setAttribute('aria-labelledby','figure-title');dialog.innerHTML='<h2 id="figure-title">原图查看</h2><div class="dialog-tools"><button data-fit>适应窗口</button><button data-actual>原始尺寸</button><button data-close>关闭</button></div><p class="figure-caption"></p><div class="figure-stage"></div>';document.body.append(dialog);
+ let image=null;const stage=dialog.querySelector('.figure-stage');
+ full.querySelectorAll('.source-block img').forEach(img=>{const button=document.createElement('button');button.type='button';button.className='figure-trigger';button.setAttribute('aria-label','放大原图：'+(img.alt||'论文原图').slice(0,80));img.before(button);button.append(img);button.onclick=()=>{image=document.createElement('img');image.src=img.src;stage.replaceChildren(image);image.alt=img.alt||'论文原图';dialog.querySelector('.figure-caption').textContent=img.alt||'原文图片';stage.classList.remove('actual-size');reader.openDialog(dialog,button);};});
+ dialog.querySelector('[data-fit]').onclick=()=>stage.classList.remove('actual-size');dialog.querySelector('[data-actual]').onclick=()=>stage.classList.add('actual-size');dialog.querySelector('[data-close]').onclick=()=>dialog.close();dialog.addEventListener('close',()=>{stage.replaceChildren();image=null;});
+})();

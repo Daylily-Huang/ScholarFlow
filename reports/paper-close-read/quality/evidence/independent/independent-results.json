@@ -1,0 +1,84 @@
+{
+  "build": [
+    {
+      "name": "hardy1908",
+      "exit": 0,
+      "same": true,
+      "output": "{\n  \"errors\": [],\n  \"warnings\": [],\n  \"source_blocks\": 12,\n  \"paragraphs\": 11,\n  \"translations\": 11,\n  \"missing\": []\n}\n"
+    },
+    {
+      "name": "carroll1895",
+      "exit": 0,
+      "same": true,
+      "output": "{\n  \"errors\": [],\n  \"warnings\": [],\n  \"source_blocks\": 41,\n  \"paragraphs\": 41,\n  \"translations\": 41,\n  \"missing\": []\n}\n"
+    }
+  ],
+  "browser": {
+    "loaded": {
+      "title": "Mendelian Proportions in a Mixed Population · 精读",
+      "font": "18px",
+      "errors": [],
+      "requests": []
+    },
+    "backup": {
+      "schema": 3,
+      "annotations": 1,
+      "reading": {
+        "route": "full",
+        "read": [
+          "b-f8c6698a646c4930-1"
+        ],
+        "recall": {
+          "0": "复述记录"
+        },
+        "last": "",
+        "positions": {
+          "full": {
+            "id": "b-f8c6698a646c4930-1",
+            "ratio": 0.42
+          }
+        },
+        "documentNote": "整篇记录",
+        "layoutVersion": 2
+      }
+    },
+    "quota_then_remote_write": {
+      "before": [
+        "original",
+        "ONLY IN WINDOW A"
+      ],
+      "after": [
+        "original",
+        "WINDOW B"
+      ],
+      "lost_unsaved": true,
+      "status": "批注暂存本页；请在阅读工具中导出完整备份。"
+    }
+  },
+  "source": {
+    "hardy1908": {
+      "keys": [
+        "schema_version",
+        "paper_id",
+        "front",
+        "source",
+        "sections",
+        "fixes",
+        "warnings"
+      ],
+      "first": "{'schema_version': 2, 'paper_id': '10.1126/science.28.706.49', 'front': {'title': 'Mendelian Proportions in a Mixed Population', 'citation': 'G. H. Ha"
+    },
+    "carroll1895": {
+      "keys": [
+        "schema_version",
+        "paper_id",
+        "front",
+        "source",
+        "sections",
+        "fixes",
+        "warnings"
+      ],
+      "first": "{'schema_version': 2, 'paper_id': 'carroll-mind-1895-4-14-278', 'front': {'title': 'What the Tortoise Said to Achilles', 'citation': 'Lewis Carroll · "
+    }
+  }
+}

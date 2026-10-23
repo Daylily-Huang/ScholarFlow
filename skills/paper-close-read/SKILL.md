@@ -48,6 +48,8 @@ python scripts/parse_mineru.py <paper.md> <scratch>/fulltext.json --paper-id <DO
 
 ## 3. 降低阅读负担
 
+新文献完整制作按[生产与内容审读流程](references/production-workflow.md)，在同一份论证计划中记录来源清点、主线转折、重难点和实际审读修订；已有计划直接沿用。
+
 写作时读 [带读设计](references/reading-design.md)、[白话规格](references/plain-language.md) 和 [跨文献写作与审读示例](references/generalization-examples.md)；逐段任务再读 [翻译规格](references/translation-spec.md)。先在阅读资料写出带原文定位的论证骨架和难点，再写页面；不要先填字段再拼主线。历史篇先区分事件、史料与研究解释；文学篇先抓具体措辞/场景，再说明它怎样支持解读。不同类型沿真实论证推进，不把它们强改成实验的措施—方法—结果顺序。
 
 - **3分钟入门：让初学读者在180秒内知道整篇主要在干什么。** 采用“背景 → 已有缺口 → 核心问题 → 怎么做 → 主要结果 → 结论与意义”六步总览，每步短句说明具体内容，一句话先点明整篇做法与发现。缺口写以前能解释什么、还不能回答什么；问题紧接这个缺口；方法写对象/材料、实际操作或论证路径；结果写确实发现了什么，结论再回答开头问题。不能用“填补空白、提供新视角、具有重要意义”等空话代替内容，也不能把论文故事情节复述当成研究方法。
@@ -97,7 +99,7 @@ python scripts/build_html.py <fulltext.json> <translations.json> <guide.json> <�
 
 缺少翻译或导读时默认失败；显式 `--allow-incomplete` 可输出带「待补稿」提示的页面，不得宣称完整精读。unknown/duplicate IDs 和无效证据引用仍然阻断。旧 JSON 无 schema_version=2 须重解析，不静默兼容原有错误页码。
 
-阅读位置、自测输入和批注在本浏览器保存，支持阅读 Markdown 导出；批注另有 JSON 导入/导出。文件移动、file:// 的浏览器存储差异或清理缓存可能影响恢复，页面提示导出备份。批注以稳定内容 ID + 原句/上下文定位；文字变化或多义时保留为待重定位，不强行贴回。换字体/宽度仅换行**不会改变文本偏移**。
+阅读位置按路线和段内进度保存；原文、译文、白话及导读均可批注。阅读工具支持整篇笔记、完整JSON备份/合并导入、可读Markdown及W3C批注导出，兼容旧批注JSON。损坏/禁用存储时保留可恢复数据并允许导出；文件移动或清缓存可能影响file://存储。批注以稳定ID＋原句/上下文定位，不唯一时保留待重定位。操作、格式、隐私与升级见[阅读记录与维护](references/reader-operations.md)。
 
 读 [页面与能力边界](references/html-template.md) 后再定制 UI；不用 CDN、联网字体或服务端 API。不要宣称提供对话问答、自动听书、云同步或间隔复习，除非本任务另行实现并验证。
 

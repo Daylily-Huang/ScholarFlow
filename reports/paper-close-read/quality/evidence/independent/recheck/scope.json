@@ -1,0 +1,47 @@
+{
+  "skill_tree_sha256": "c5be016a1c39c9cb340f2bcd96146f4413234e14048402b1a2c2073e174be5ad",
+  "package_manifest_files_match": true,
+  "archive_manifest_match": true,
+  "html_change_scope": [
+    {
+      "name": "austen",
+      "only_persistence_refresh_changed": true
+    },
+    {
+      "name": "carroll1895",
+      "only_persistence_refresh_changed": true
+    },
+    {
+      "name": "hardy1908",
+      "only_persistence_refresh_changed": true
+    },
+    {
+      "name": "kross",
+      "only_persistence_refresh_changed": true
+    },
+    {
+      "name": "mariana",
+      "only_persistence_refresh_changed": true
+    },
+    {
+      "name": "mckenna",
+      "only_persistence_refresh_changed": true
+    },
+    {
+      "name": "menis",
+      "only_persistence_refresh_changed": true
+    },
+    {
+      "name": "tavani",
+      "only_persistence_refresh_changed": true
+    },
+    {
+      "name": "thomsen",
+      "only_persistence_refresh_changed": true
+    },
+    {
+      "name": "wilcox",
+      "only_persistence_refresh_changed": true
+    }
+  ]
+}

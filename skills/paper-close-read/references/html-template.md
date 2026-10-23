@@ -1,6 +1,6 @@
 # 页面与能力边界
 
-基础模板为assets/reader.css、reader.js；编辑式外观为editorial.css、editorial.js；机制动图为mechanisms.js与scripts/render_mechanisms.py。构建入口scripts/build_html.py；批注模块scripts/annotate.js。
+基础模板为assets/reader.css、reader.js；编辑式外观为editorial.css、editorial.js；机制动图为mechanisms.js与scripts/render_mechanisms.py。构建入口scripts/build_html.py；批注模块scripts/annotate.js；persistence.js管理记录/合并，workspace.js提供阅读工具，navigation.js负责搜索、返回与原图查看。各模块内嵌，不依赖服务端。
 
 ## 已实现
 
@@ -13,6 +13,7 @@
 - 可选自测输入，答案默认展开且可手动收起；阅读笔记导出 Markdown。
 - 可选帧播放器：不自动播放，真实时长、逐帧、暂停、进度和倍速；切路线/进入后台暂停。
 - 批注：稳定 data-ann-id + 精确选中文字与前后文；按 paperId 隔离，支持选区工具、Alt+H/Alt+M、编辑、删除、跳转、JSON 备份与导入、Markdown 导出。
+- 阅读工具：整篇笔记、完整备份合并、损坏数据导出与标准JSON-LD；实际位置按路线与段内比例恢复。搜索可前后跳转并退出回位，原文跳转后可返回阅读处；原图可放大。格式与故障路径见reader-operations.md。
 - 内嵌 CSS/JS/MathML/栅格图，不发运行时网络请求。输出体积应实际检查；大动画是体积风险。
 
 ## 约束与可访问性

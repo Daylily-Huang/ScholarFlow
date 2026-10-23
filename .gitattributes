@@ -1,4 +1,3 @@
-# These source snapshots and skill files are bound by byte-level generation manifests.
-# Keep their recorded bytes identical on Windows and Unix checkouts.
-skills/paper-close-read/** -text
-examples/paper-close-read/** -text
+# Preserve verified source and artifact bytes across Windows/Linux checkouts.
+/skills/paper-close-read/** -text
+/examples/paper-close-read/** -text

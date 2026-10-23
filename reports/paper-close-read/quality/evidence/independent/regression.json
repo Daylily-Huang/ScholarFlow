@@ -1,0 +1,102 @@
+{
+  "build": [
+    {
+      "name": "austen",
+      "exit": 0,
+      "same": true,
+      "error": ""
+    },
+    {
+      "name": "kross",
+      "exit": 0,
+      "same": true,
+      "error": ""
+    },
+    {
+      "name": "mariana",
+      "exit": 0,
+      "same": true,
+      "error": ""
+    },
+    {
+      "name": "mckenna",
+      "exit": 0,
+      "same": true,
+      "error": ""
+    },
+    {
+      "name": "menis",
+      "exit": 0,
+      "same": true,
+      "error": ""
+    },
+    {
+      "name": "tavani",
+      "exit": 0,
+      "same": true,
+      "error": ""
+    },
+    {
+      "name": "thomsen",
+      "exit": 0,
+      "same": true,
+      "error": ""
+    },
+    {
+      "name": "wilcox",
+      "exit": 0,
+      "same": true,
+      "error": ""
+    }
+  ],
+  "browser": [
+    {
+      "name": "austen",
+      "errors": [],
+      "http": [],
+      "cards": 42
+    },
+    {
+      "name": "kross",
+      "errors": [],
+      "http": [],
+      "cards": 35
+    },
+    {
+      "name": "mariana",
+      "errors": [],
+      "http": [],
+      "cards": 50
+    },
+    {
+      "name": "mckenna",
+      "errors": [],
+      "http": [],
+      "cards": 69
+    },
+    {
+      "name": "menis",
+      "errors": [],
+      "http": [],
+      "cards": 95
+    },
+    {
+      "name": "tavani",
+      "errors": [],
+      "http": [],
+      "cards": 52
+    },
+    {
+      "name": "thomsen",
+      "errors": [],
+      "http": [],
+      "cards": 40
+    },
+    {
+      "name": "wilcox",
+      "errors": [],
+      "http": [],
+      "cards": 31
+    }
+  ]
+}

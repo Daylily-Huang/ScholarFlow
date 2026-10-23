@@ -37,3 +37,8 @@ python scripts/check_readers_browser.py examples/paper-close-read/thomsen exampl
 ## 其他论证方式的回归材料
 
 早期的[定量心理研究](kross/reader.html)、[访谈质性研究](mckenna/reader.html)、[哲学规范论证](tavani/reader.html)仍保留，继续用于兼容性回归；它们不计入上述五篇主展示，也不被归为自然科学。其原有来源归属与输入保留。
+
+
+## 新增完整前向演示
+
+[Hardy 1908：遗传数学通信](hardy1908/reader.html)与[Carroll 1895：逻辑对话](carroll1895/reader.html)分别覆盖11段与独立公式、41段对话。两篇均含六步入门、五节主线讲解、逐段白话/递进逻辑与讲解下动图；不计入上述五篇主展示。来源和改写分别见各篇ATTRIBUTION.md；教学PDF仅保留外链，HTML仍可独立离线使用。
