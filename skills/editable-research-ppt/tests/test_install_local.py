@@ -36,7 +36,7 @@ class InstallTests(unittest.TestCase):
     def test_upgrade_and_rollback_preserve_both_versions(self):
         m.install(self.one,self.target);backup=self.root/'backup-one'
         result=m.install(self.two,self.target,replace=True,backup=backup)
-        self.assertEqual(Path(result['backup']),backup/'editable-research-ppt')
+        self.assertEqual(Path(result['backup']), (backup/'editable-research-ppt').resolve())
         self.assertEqual((self.target/'scripts/payload.py').read_text(),'two')
         m.install(backup/'editable-research-ppt',self.target,replace=True,backup=self.root/'backup-two')
         self.assertEqual((self.target/'scripts/payload.py').read_text(),'one')
