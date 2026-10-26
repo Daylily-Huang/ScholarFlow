@@ -68,7 +68,7 @@
     }
     const source=element('section','pdf-attribution');source.append(element('h2','','来源与归属'));
     const notesNode=document.getElementById('source-notes');
-    if(notesNode){const scope=notesNode.querySelector(':scope > p');if(scope)source.append(copy(scope));const attribution=notesNode.querySelector('.source-attribution');if(attribution)source.append(copy(attribution));}
+    if(notesNode){const scope=notesNode.querySelector(':scope > p');if(scope)source.append(copy(scope));const audit=notesNode.querySelector('.figure-inventory');if(audit)source.append(copy(audit));const attribution=notesNode.querySelector('.source-attribution');if(attribution)source.append(copy(attribution));}
     source.append(element('p','','由 ScholarFlow paper-close-read '+reader.config.generatorVersion+' 生成；译文、词汇与讲解为 AI 辅助整理。'));
     out.append(source);document.body.append(out);documentNode=out;
     pageStyle=element('style');pageStyle.textContent='@page { size: A4 '+paper+'; margin: 13mm 13mm 16mm; @bottom-right { content: counter(page); font: 9pt sans-serif; color: #6b6660; } }';document.head.append(pageStyle);

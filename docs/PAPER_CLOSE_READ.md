@@ -5,7 +5,7 @@ paper-close-read把一篇学术全文变成可离线打开的阅读页。先讲�
 ## 开始
 
 1. 有宿主模型可读取本地文件的Agent环境，安装Python 3.9+。
-2. 优先 [下载 Release 独立安装包](https://github.com/Daylily-Huang/ScholarFlow/releases/tag/paper-close-read-v1.2.0)，解压后复制整个 `paper-close-read` 文件夹，无需克隆。也可在解压目录执行 `python install.py --target <宿主skills目录>`。贡献者从仓库单独安装：`python scripts/install_reader.py --target <宿主skills目录>`；或复制完整skills/paper-close-read目录。该技能独立于shared引擎。已有不同版本时安装器会停止，检查后显式--replace才替换此技能。
+2. 优先 [下载 Release 独立安装包](https://github.com/Daylily-Huang/ScholarFlow/releases/tag/paper-close-read-v1.3.0)，解压后复制整个 `paper-close-read` 文件夹，无需克隆。也可在解压目录执行 `python install.py --target <宿主skills目录>`。贡献者从仓库单独安装：`python scripts/install_reader.py --target <宿主skills目录>`；或复制完整skills/paper-close-read目录。该技能独立于shared引擎。已有不同版本时安装器会停止，检查后显式--replace才替换此技能。
 3. 提供PDF、可靠Markdown或出版商JATS XML，说“用paper-close-read带我读这篇”。可以补充基础和阅读目的，省略时按主题初学研究者带读。
 4. 宿主先通读结构、提炼主线和困难点，再写逐段材料与导读，经校验构建后实际打开检查。新稿不使用旧问答清单兜底，不补丁修改成品HTML。
 
@@ -42,3 +42,9 @@ paper-close-read把一篇学术全文变成可离线打开的阅读页。先讲�
 ## 逐段词汇与双语 PDF
 
 逐段词汇保留实际英文词形，配语境中文义；白话采用具体对象推演关键过程，先直觉、后运作、按需补边界，不用概念解释概念。工具栏可导出 A4 双语 PDF，另存时可选择白话、逻辑和附录。直接生成文件、分页检查与数据字段见 [PDF 与词汇规格](../skills/paper-close-read/references/bilingual-pdf-vocabulary.md)。
+
+## 原图与讲解
+
+新版按独立原文图清单核对图号、子图与图片，关键原图放到10分钟对应讲解后，原图和动图分别保留。新完整稿使用严格图核验；旧提取件没有图时需回原文补图，不能仅凭升级自动恢复。见 [原图完整性规范](../skills/paper-close-read/references/original-figures.md)。
+
+有本地原PDF时可准备原页图像，HTML按可靠页码打开真实原页。窗口支持鼠标拖动、大小调整、翻页与缩放；页码未核实的段落只作浏览。设置及体积/许可说明见 [原页窗口](../skills/paper-close-read/references/pdf-page-viewer.md)。

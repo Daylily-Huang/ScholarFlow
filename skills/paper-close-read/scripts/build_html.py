@@ -12,14 +12,14 @@ from validate_content import validate
 from render_further import render_further
 
 ROOT = Path(__file__).resolve().parent.parent
-GENERATOR_VERSION = '1.2.0'
+GENERATOR_VERSION = '1.3.0'
 
 
 def refs_html(refs):
     return ' '.join(f'<a class="evidence" href="#{esc(ref)}">查看证据 {n + 1}</a>' for n, ref in enumerate(refs))
 
 
-def render_guide(guide, asset_root):
+def render_guide(guide, asset_root, data=None):
     checks = []
     for n, check in enumerate(guide.get("checks", [])):
         checks.append(f'<article class="check"><h3>{esc(check.get("question", ""))}</h3>'
@@ -28,7 +28,7 @@ def render_guide(guide, asset_root):
     if guide.get('story'):
         from render_story import render_story
         extra='<section class="story-practice"><h2>试着讲给别人听</h2>'+''.join(checks)+'</section>' if checks else ''
-        return render_story(guide['story'], guide.get('mechanisms', []), guide.get('concepts', []),extra)
+        return render_story(guide['story'], guide.get('mechanisms', []), guide.get('concepts', []),extra, data, asset_root)
     motion_links = ''.join(f'<p><a class="evidence" href="#{esc(m["id"])}">{esc(m["title"])}</a></p>' for m in guide.get('mechanisms', []))
     motion_links = '<section class="motion-guide-links"><h3>用动图跨过这些难点</h3>' + motion_links + '</section>' if motion_links else ''
     claims = []
@@ -63,8 +63,8 @@ def render_guide(guide, asset_root):
             f'<section><h2>试着讲给别人听</h2>{"".join(checks)}</section></div>')
 
 
-def build(data, records, guide, asset_root, source_text=None, allow_incomplete=False):
-    report = validate(data, records, guide, source_text, allow_incomplete)
+def build(data, records, guide, asset_root, source_text=None, allow_incomplete=False, require_figure_audit=False):
+    report = validate(data, records, guide, source_text, allow_incomplete, asset_root, require_figure_audit)
     if report["errors"]:
         raise ValueError('\n'.join(report["errors"]))
     full, missing = render_full(data, {r["id"]: r for r in records}, asset_root, guide.get('mechanisms', []))
@@ -99,6 +99,8 @@ def build(data, records, guide, asset_root, source_text=None, allow_incomplete=F
     config['generatorVersion']=GENERATOR_VERSION
     config['citation']=data['front'].get('citation','')
     config['sourceLanguage']=data['front'].get('language','en')
+    from source_pdf import config_pages
+    config['sourcePdf']=config_pages(data, asset_root)
     config['blocks']={i['id']:{'page':i.get('source',{}).get('pdf_page'),'verified':i.get('source',{}).get('status')=='verified','section':s.get('display_name',s['name'])} for s in data['sections'] for i in s['items']}
     config_json = json.dumps(config, ensure_ascii=False).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
     warnings = ''.join('<li>' + esc(w) + '</li>' for w in report["warnings"])
@@ -107,6 +109,8 @@ def build(data, records, guide, asset_root, source_text=None, allow_incomplete=F
     css = (ROOT / 'assets/reader.css').read_text(encoding='utf-8-sig') + '\n' + (ROOT / 'assets/editorial.css').read_text(encoding='utf-8-sig')
     css += '\n' + (ROOT / 'assets/pdf.css').read_text(encoding='utf-8-sig')
     pdf_export = (ROOT / 'assets/pdf-export.js').read_text(encoding='utf-8-sig')
+    css += '\n' + (ROOT / 'assets/source-viewer.css').read_text(encoding='utf-8-sig')
+    source_viewers = (ROOT / 'assets/floating-viewer.js').read_text(encoding='utf-8-sig') + '\n' + (ROOT / 'assets/source-pdf-viewer.js').read_text(encoding='utf-8-sig')
     persistence = (ROOT / 'assets/persistence.js').read_text(encoding='utf-8-sig')
     workspace = (ROOT / 'assets/workspace.js').read_text(encoding='utf-8-sig')
     navigation_js = (ROOT / 'assets/navigation.js').read_text(encoding='utf-8-sig')
@@ -118,12 +122,14 @@ def build(data, records, guide, asset_root, source_text=None, allow_incomplete=F
         a=guide['attribution']
         attribution='<div class="source-attribution"><h3>原文归属与改写</h3><p>'+esc(a['citation'])+'</p><p>'+esc(a['url'])+'</p><p>'+esc(a['license'])+'</p><p>'+esc(a['changes'])+'</p></div>'
     draft = '<p class="warning">待补稿：讲解或翻译不完整。</p>' if allow_incomplete else ''
+    from render_figures import inventory_html
+    figure_audit_html = inventory_html(data, report['figures'])
     result = f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)} · 精读</title><style>{css}</style></head>
 <body class="{'source-zh' if data['front'].get('language') == 'zh' else 'source-en'}"><a class="skip" href="#main">跳至正文</a><header><span class="eyebrow">文献慢读 · 从问题走到证据</span><h1>{esc(title)}</h1><p>{esc(data['front'].get('citation', ''))}</p>{draft}<a href="#source-notes">来源说明</a></header>
 <div class="toolbar"><div class="seg" aria-label="阅读路线"><button data-route="full" aria-pressed="true">逐段精读</button><button data-route="quick" aria-pressed="false">3 分钟入门</button><button data-route="deep" aria-pressed="false">10 分钟读懂</button></div><label class="font-label" for="font-size">字号 <select id="font-size"><option value="16">16px</option><option value="18" selected>18px · 默认</option><option value="20">20px</option></select></label><button id="resume">继续上次</button><button id="export-reading">导出阅读笔记</button><button id="export-pdf">导出双语 PDF</button><span id="progress" aria-live="polite"></span></div>
-<div class="layout"><aside><label for="search">检索原文与逐段讲解</label><input id="search" type="search" placeholder="输入术语、数值或问题"><p id="search-count" aria-live="polite"></p><nav aria-label="全文目录">{navigation}</nav></aside><main id="main"><div id="mode-guide" hidden>{render_guide(guide, asset_root)}</div><div id="mode-full">{full}</div><section id="source-notes"><h2>来源说明</h2><p>{scope}</p><p>{report['source_blocks']} 个来源块 · {report['paragraphs']} 段 · {report['translations']} 条译文；原页文字核对 {verified} 块。逐块状态见来源标签提示。</p><ul>{warnings}</ul><p>译文与讲解由 AI 辅助整理。</p>{attribution}</section></main></div>
+<div class="layout"><aside><label for="search">检索原文与逐段讲解</label><input id="search" type="search" placeholder="输入术语、数值或问题"><p id="search-count" aria-live="polite"></p><nav aria-label="全文目录">{navigation}</nav></aside><main id="main"><div id="mode-guide" hidden>{render_guide(guide, asset_root, data)}</div><div id="mode-full">{full}</div><section id="source-notes"><h2>来源说明</h2><p>{scope}</p><p>{report['source_blocks']} 个来源块 · {report['paragraphs']} 段 · {report['translations']} 条译文；原页文字核对 {verified} 块。逐块状态见来源标签提示。</p><ul>{warnings}</ul><p>译文与讲解由 AI 辅助整理。</p>{figure_audit_html}{attribution}</section></main></div>
 <p id="storage-status" role="status"></p><noscript>交互需要浏览器启用 JavaScript；原文如下。</noscript><style>noscript+style{{display:none}}</style><noscript><style>#mode-full[hidden]{{display:block!important}}</style></noscript>
-<script id="reader-config" type="application/json">{config_json}</script><script>{persistence}</script><script>{reader}</script><script>{annotation}</script><script>{workspace}</script><script>{navigation_js}</script><script>{enhancements}</script><script>{pdf_export}</script></body></html>'''
+<script id="reader-config" type="application/json">{config_json}</script><script>{persistence}</script><script>{reader}</script><script>{annotation}</script><script>{workspace}</script><script>{navigation_js}</script><script>{enhancements}</script><script>{source_viewers}</script><script>{pdf_export}</script></body></html>'''
     return result, report
 
 
@@ -151,6 +157,7 @@ def main():
     ap.add_argument('--asset-root', type=Path, required=True)
     ap.add_argument('--source', type=Path)
     ap.add_argument('--allow-incomplete', action='store_true')
+    ap.add_argument('--require-figure-audit', action='store_true', help='新完整稿要求独立来源图清单和全部图/子图核对完成')
     args = ap.parse_args()
     try:
         values = []
@@ -163,7 +170,7 @@ def main():
         if args.source:
             with args.source.open(encoding='utf-8-sig', newline='') as stream:
                 source = stream.read()
-        result, report = build(*values, args.asset_root, source, args.allow_incomplete)
+        result, report = build(*values, args.asset_root, source, args.allow_incomplete, args.require_figure_audit)
         atomic_write(args.output, result)
     except (OSError, UnicodeError, ValueError) as exc:
         print('构建未完成：' + str(exc), file=sys.stderr)

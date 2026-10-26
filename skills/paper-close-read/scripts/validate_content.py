@@ -7,7 +7,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 
-def validate(data, records, guide, source_text=None, allow_incomplete=False):
+def validate(data, records, guide, source_text=None, allow_incomplete=False, asset_root=None, require_figure_audit=False):
     errors, warnings = [], []
     # Reject broken envelopes before traversing them, with paths useful to the author.
     if not isinstance(data, dict):errors.append('fulltext.json must be an object')
@@ -115,6 +115,10 @@ def validate(data, records, guide, source_text=None, allow_incomplete=False):
             errors.append("Check needs question and answer")
     for i in items:
         src = i.get("source", {})
+        if i['t']=='p':
+            import re
+            if re.search(r'!\[[^\]]*\]\(', i['raw']) or re.search(r'<img\b', i['raw'], re.I):
+                errors.append('Image markup was parsed as prose; normalize into a source figure block before building: ' + i['id'])
         runs=src.get('inline_runs')
         if runs is not None:
             if not isinstance(runs,list) or any(not isinstance(r,dict) or not isinstance(r.get('text'),str) for r in runs):errors.append('Invalid inline source runs: '+i['id'])
@@ -218,11 +222,16 @@ def validate(data, records, guide, source_text=None, allow_incomplete=False):
         for metric in overview.get('metrics', []):
             if any(not isinstance(metric.get(k), str) or not metric[k].strip() for k in ('label', 'value', 'meaning')):
                 errors.append('Story metric needs label/value/meaning text')
+    from figure_inventory import inventory_errors
+    figure_errors, figure_warnings, figure_report = inventory_errors(data, guide, asset_root, require_figure_audit)
+    errors.extend(figure_errors); warnings.extend(figure_warnings)
+    from source_pdf import validate_source_pdf
+    errors.extend(validate_source_pdf(data, asset_root))
     unchecked = sum(i.get("source", {}).get("status") != "verified" for i in items)
     if unchecked:
         warnings.append(f"{unchecked}/{len(items)} source blocks have not been verified against original pages")
     return {"errors": errors, "warnings": warnings, "source_blocks": len(items),
-            "paragraphs": len(expected), "translations": len(tids), "missing": sorted(missing)}
+            "paragraphs": len(expected), "translations": len(tids), "missing": sorted(missing), "figures": figure_report}
 
 
 def main():
@@ -231,6 +240,8 @@ def main():
         ap.add_argument(name, type=Path)
     ap.add_argument("--source", type=Path)
     ap.add_argument("--allow-incomplete", action="store_true")
+    ap.add_argument('--asset-root', type=Path)
+    ap.add_argument('--require-figure-audit', action='store_true')
     args = ap.parse_args()
     try:
         values=[]
@@ -243,7 +254,7 @@ def main():
     except (OSError,UnicodeError,ValueError) as exc:
         print(json.dumps({'errors':[str(exc)],'warnings':[]},ensure_ascii=False,indent=2))
         raise SystemExit(2)
-    report = validate(*values, source, args.allow_incomplete)
+    report = validate(*values, source, args.allow_incomplete, args.asset_root or args.data.parent, args.require_figure_audit)
     print(json.dumps(report, ensure_ascii=False, indent=2))
     raise SystemExit(bool(report["errors"]))
 

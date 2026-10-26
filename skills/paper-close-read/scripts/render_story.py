@@ -26,7 +26,7 @@ def render_research_map(q):
 def links(refs):
     return '<div class="story-refs">'+ ' '.join(f'<a href="#{e(r)}">原文依据 {i+1}</a>' for i,r in enumerate(refs))+'</div>'
 
-def render_story(story, mechanisms=None, concepts=None, extra_deep=''):
+def render_story(story, mechanisms=None, concepts=None, extra_deep='', data=None, asset_root='.'):
     from render_concepts import render_concepts
     from render_mechanisms import render_mechanism
     library = {m['id']:m for m in mechanisms or []}
@@ -39,7 +39,15 @@ def render_story(story, mechanisms=None, concepts=None, extra_deep=''):
         metrics='<div class="story-metrics">'+''.join(f'<article><span>{e(m["label"])}</span><strong>{e(m["value"])}</strong><p>{e(m["meaning"])}</p></article>' for m in q.get('metrics',[]))+'</div>'
         quick=f'<section id="story-overview" class="story-overview"><span class="eyebrow">3分钟入门 · 先把整篇串起来</span><h2>{e(q["title"])}</h2>'+annotatable(q['lead'],'guide-overview-lead',css='story-lead')+paras(q['paragraphs'],'guide-overview-p')+chain+metrics+'<div class="story-takeaway">'+annotatable(q['takeaway'],'guide-overview-takeaway','span')+'</div>'+links(q['refs'])+'</section>'
     chapters=[]
+    source_items = {i['id']:i for section in (data or {}).get('sections', []) for i in section['items']}
     for n,s in enumerate(story['walkthrough'],1):
+        from render_figures import walkthrough_figure
+        prose=[]
+        for p,paragraph in enumerate(s['paragraphs']):
+            prose.append(annotatable(paragraph,f'guide-chapter-{n}-p-{p}'))
+            for f,reference in enumerate(s.get('figures', [])):
+                if reference['after']==p:
+                    prose.append(walkthrough_figure(reference,source_items,asset_root,f'guide-figure-{n}-{f}',data))
         players=[]
         for reference in s.get('motions',[]):
             original=library[reference['id']]
@@ -50,5 +58,5 @@ def render_story(story, mechanisms=None, concepts=None, extra_deep=''):
         table=''
         if s.get('table'):
             t=s['table'];table='<div class="story-table"><table><thead><tr>'+''.join('<th>'+e(h)+'</th>' for h in t['head'])+'</tr></thead><tbody>'+''.join('<tr>'+''.join('<td>'+e(c)+'</td>' for c in row)+'</tr>' for row in t['rows'])+'</tbody></table></div>'
-        chapters.append(f'<section id="story-step-{n}" class="story-chapter"><span class="eyebrow">{n:02d} · {e(s["bridge"])}</span><h2>{e(s["title"])}</h2>'+paras(s['paragraphs'],f'guide-chapter-{n}-p')+table+concept_html+motion+annotatable(s['connection'],f'guide-chapter-{n}-connection',css='story-next')+links(s['refs'])+'</section>')
+        chapters.append(f'<section id="story-step-{n}" class="story-chapter"><span class="eyebrow">{n:02d} · {e(s["bridge"])}</span><h2>{e(s["title"])}</h2>'+''.join(prose)+table+concept_html+motion+annotatable(s['connection'],f'guide-chapter-{n}-connection',css='story-next')+links(s['refs'])+'</section>')
     return '<div class="story-reader">'+quick+'<div class="guide-deep" data-deep><p class="story-route-label">10分钟读懂 · 沿着问题往下推</p>'+''.join(chapters)+extra_deep+'</div></div>'

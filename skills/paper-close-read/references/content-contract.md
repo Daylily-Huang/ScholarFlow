@@ -118,3 +118,9 @@ JATS导入器可写入source.inline_runs：顺序数组，每项text为文字，
 自然科学实测扩展：edna_capture展示颗粒随水流集中至滤膜，再经提取、扩增与参考库判读；qpcr_probe展示引物延伸及探针切开后的荧光；primer_specificity对比非目标在探针区或引物区受到区别时的扩增过程，均为固定原理示意，需核对是否符合本篇。edna_decay按visual的maximum、days、threshold（正有限数）及两条curves（label、initial、rate）画N(t)=initial×exp(−rate×t)；maximum覆盖起点与阈值。必须交代单位、参数来源及条件，曲线是模型重画，不冒充新增实测点。
 
 词汇选择与双语 PDF 导出见 [专用规格](bilingual-pdf-vocabulary.md)。旧稿可不含 vocabulary；新英文正文按实际需要编写，不设固定条数。
+
+## 原图清单与导读原图
+
+`fulltext.figure_inventory` 保存独立原文图清单与子图核验；`story.walkthrough[].figures` 指定原图来源块、插入段落索引和中文读图解释。字段及严格构建流程见 [原图完整性规范](original-figures.md)。原文图不属于教学 mechanisms，不能相互替代。
+
+`fulltext.source_pdf` 可绑定原PDF文件、哈希与逐页图像，段落使用已核实 `source.pdf_page` 关联；字段和可拖动缩放窗口见 [原页窗口](pdf-page-viewer.md)。

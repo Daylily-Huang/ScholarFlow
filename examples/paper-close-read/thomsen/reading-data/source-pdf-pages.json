@@ -1,0 +1,53 @@
+{
+  "file": "original.pdf",
+  "sha256": "afb02282697a710d3254371d144e82e69031031cbc2df0ca82c4af15607112b6",
+  "page_count": 9,
+  "dpi": 140,
+  "pages": [
+    {
+      "page": 1,
+      "src": "pdf-pages/page-001.jpg",
+      "sha256": "7f2e6f48d7e8a118f5f6cf6be6dd8679ef346e62d9d866a14515db2feae78025"
+    },
+    {
+      "page": 2,
+      "src": "pdf-pages/page-002.jpg",
+      "sha256": "4b6922b59adbe59e8743f3fc59ff033b880c59a3130845dcdd0e55df133b6599"
+    },
+    {
+      "page": 3,
+      "src": "pdf-pages/page-003.jpg",
+      "sha256": "b0da02ce45e40d4b2f28151757a83c06021693c1e82c3e5e4fdf88cfe1fdb9e3"
+    },
+    {
+      "page": 4,
+      "src": "pdf-pages/page-004.jpg",
+      "sha256": "1f333c0178d012e8478510d484e20a4b1a005083bfd733937075240dbb67212c"
+    },
+    {
+      "page": 5,
+      "src": "pdf-pages/page-005.jpg",
+      "sha256": "a0c4fcf2e51fb02e9a312a7d3f877d8d7802fd727a2020e63605be52e5c85a28"
+    },
+    {
+      "page": 6,
+      "src": "pdf-pages/page-006.jpg",
+      "sha256": "81a9e30971924faef34f20d7610d9f1064a62fca40ace3594067566d9318c3c9"
+    },
+    {
+      "page": 7,
+      "src": "pdf-pages/page-007.jpg",
+      "sha256": "7069ef6516bfff6202e237a5771b9f5125c8acba1c194e0ce75e23a6155f600d"
+    },
+    {
+      "page": 8,
+      "src": "pdf-pages/page-008.jpg",
+      "sha256": "4360327a361a81051d50e82b078887445c4b58c1d807e5070b655eea649ada43"
+    },
+    {
+      "page": 9,
+      "src": "pdf-pages/page-009.jpg",
+      "sha256": "2a9f1faf6a7a4a50f94f12b55e37b604cfa0c54337cdd268fb82acc241fd150b"
+    }
+  ]
+}

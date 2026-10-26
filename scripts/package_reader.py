@@ -33,11 +33,14 @@ def verify_archive(archive):
             if sha((target/'paper-close-read'/name).read_bytes())!=expected:raise ValueError('Installed hash differs: '+name)
         if (sibling/'keep.txt').read_text(encoding='utf-8')!='keep':raise ValueError('Sibling skill changed')
         selftest=run([target/'paper-close-read/scripts/selftest.py','--work-dir',temp/'selftest'])
-        for paper in ['hardy1908','carroll1895']:
+        papers=['hardy1908','carroll1895','thomsen','wilcox']
+        for paper in papers:
             data=ROOT/'examples/paper-close-read'/paper/'reading-data';html=temp/(paper+'.html')
-            run([target/'paper-close-read/scripts/build_html.py',data/'fulltext.json',data/'translations.json',data/'guide.json',html,'--asset-root',data,'--source',data/'source.md'])
+            arguments=[target/'paper-close-read/scripts/build_html.py',data/'fulltext.json',data/'translations.json',data/'guide.json',html,'--asset-root',data,'--source',data/'source.md']
+            if paper in {'thomsen','wilcox'}:arguments.append('--require-figure-audit')
+            run(arguments)
             if html.read_bytes()!=(data.parent/'reader.html').read_bytes():raise ValueError('Installed generator differs for '+paper)
-        return {'manifest_files':len(manifest['files']),'installed_skill_files':len(manifest['skill_files']),'idempotent_install':True,'sibling_preserved':True,'real_readers_rebuilt':['hardy1908','carroll1895'],'selftest':selftest.stdout.strip()}
+        return {'manifest_files':len(manifest['files']),'installed_skill_files':len(manifest['skill_files']),'idempotent_install':True,'sibling_preserved':True,'real_readers_rebuilt':papers,'selftest':selftest.stdout.strip()}
 def package(output,verify=False):
     version=skill_version();tag='paper-close-read-v'+version;output=Path(output);output.mkdir(parents=True,exist_ok=True)
     skill=ROOT/'skills/paper-close-read';docs=ROOT/'docs/releases'/tag
