@@ -41,6 +41,8 @@ python scripts/parse_mineru.py <paper.md> <scratch>/fulltext.json --paper-id <DO
 
 核对后补 `source.pdf_page`（从 1 开始）、`printed_page`（允许罗马数字）、`status=verified` 与 `verification_note`。未核对时保持 unverified。先列内容清单，特别检查跨栏顺序、跨页段落、图注、注释和补充材料，再撰写导读；不能只从摘要扩写整篇。JATS导入后对照PDF核查嵌套引文是否只出现一次、引文后续文字和出处是否保留、注号能否对应原注，以及前置信息中的资助声明；正文覆盖率不能代替这次来源清点。
 
+**原图先于转录做独立清点**：按 [原图完整性规范](references/original-figures.md) 从原PDF逐页或出版商JATS列图号、子图、图注和图像公式，填写 `fulltext.figure_inventory`，逐项映射到来源图片块并核对完整图像。新完整稿构建使用 `--require-figure-audit`；缺图、未核子图或未完成清点不能宣称原图完整，旧稿无清单时只显示待核对。不能用提取后的图片数自证没有漏图。
+
 读取 [内容与输入契约](references/content-contract.md)，填写：
 - `translations.json`：逐段翻译与解释，ID 不变。
 - `guide.json`：以 `story.overview` 和 `story.walkthrough` 编排六步研究总览及展开讲解，再填机制动图和核心文献推荐；自测、迁移按需。新稿不要求旧版 question/claims/checks。
@@ -55,7 +57,7 @@ python scripts/parse_mineru.py <paper.md> <scratch>/fulltext.json --paper-id <DO
 - **3分钟入门：让初学读者在180秒内知道整篇主要在干什么。** 采用“背景 → 已有缺口 → 核心问题 → 怎么做 → 主要结果 → 结论与意义”六步总览，每步短句说明具体内容，一句话先点明整篇做法与发现。缺口写以前能解释什么、还不能回答什么；问题紧接这个缺口；方法写对象/材料、实际操作或论证路径；结果写确实发现了什么，结论再回答开头问题。不能用“填补空白、提供新视角、具有重要意义”等空话代替内容，也不能把论文故事情节复述当成研究方法。
 - 入门页新稿填写 `overview.format=research-map` 与 `research_map` 六步资料，由通用模板直接展示，读者不必从大段叙述里自己找信息。正文通常约400–650个中文字符，随读者基础试读删繁：读后能复述“为何研究、补什么、问什么、怎样做、发现什么、说明什么”，才算内容完成；字数检查不能代替理解检查。公式推导、长术语解释和完整论证留给10分钟/逐段，入门不以播放动图或跳走阅读为前提。
 - 六步用于组织整篇总览，不约束逐段逻辑的条数，也不强造实验流程。历史/文学/理论使用对应的材料、细读/比较/论证路径与材料发现/论证所得；前人已做的事要承认，缺口也可以是待补证据或作者增加的解释视角。实证结果优先给最关键方向、比较或有意义量级，写明对象与单位；解释性结论标明是谁的解释。
-- 10分钟读懂：沿问题推进，逐步解释“上一环节留下了什么问题→这一步如何解决→凭什么接到下一步”。方法论文从输入记录走到模型、推断和结果；综述从现象走到实验与机制，再回到证据间如何对应。每一步有具体例子或机制解释，接原文及相关动图；不能把摘要、方法、结果、局限各压缩成一句后并排罗列。
+- 10分钟读懂：沿问题推进，逐步解释“上一环节留下了什么问题→这一步如何解决→凭什么接到下一步”。方法论文从输入记录走到模型、推断和结果；综述从现象走到实验与机制，再回到证据间如何对应。每一步有具体例子或机制解释，接原文及相关动图；主线依赖的结果原图通过 `walkthrough[].figures` 直接放到对应讲解下面，先指明看哪里，再解释图怎样支持本步，保留原始图注并可原地放大。教学动图不替代论文原图。不能把摘要、方法、结果、局限各压缩成一句后并排罗列。
 - 先提炼一条能口头复述的论证主线，再设计两种深度；3分钟是完整研究总览，10分钟展开关键中间步骤，不能只多显示术语、警告和自测。导读侧栏随路线切换，按论证节点导航。重要局限放在会影响当前推理的地方，不让核验提醒占据主线。
 - 新稿填写 `guide.story`（overview + walkthrough），构建器使用专用叙事版式；旧claims兼容保留，但不再作为新导读的默认成稿。原版范例学习其问题驱动、因果连接和图文节奏，数据与判断仍回到本篇核实，不能照抄不成立的归因。
 - 精读：原文/逐句译文/白话/逻辑默认展开，可手动折叠；支持检索和回到原文。
@@ -91,8 +93,8 @@ python scripts/parse_mineru.py <paper.md> <scratch>/fulltext.json --paper-id <DO
 ## 6. 构建与笔记
 
 ```powershell
-python scripts/validate_content.py <fulltext.json> <translations.json> <guide.json> --source <paper.md>
-python scripts/build_html.py <fulltext.json> <translations.json> <guide.json> <输出.html> --asset-root <图像根目录> --source <paper.md>
+python scripts/validate_content.py <fulltext.json> <translations.json> <guide.json> --source <paper.md> --asset-root <图像及来源根目录> --require-figure-audit
+python scripts/build_html.py <fulltext.json> <translations.json> <guide.json> <输出.html> --asset-root <图像及来源根目录> --source <paper.md> --require-figure-audit
 ```
 
 生成的HTML是构建产物，不事后手工补写。内容修订回到输入JSON；共性排版或交互问题回到skill的渲染器/资源，重建后验收最终文件。
@@ -110,6 +112,10 @@ python scripts/build_html.py <fulltext.json> <translations.json> <guide.json> <�
 每段实质性英文原文下方增加少量值得记忆的英文词／词组及其**语境中文释义**，填写 `translations[].vocabulary`，不固定条数，不用普通虚词凑数。英文须实际出现在该段，中文原文不强造词汇。按 [双语 PDF 与词汇规格](references/bilingual-pdf-vocabulary.md) 核对多义词。词汇不能替代通俗白话、递进逻辑或主线讲解。
 
 生成页内置“导出双语 PDF”：A4 左右对照，可带白话和逻辑，保留词汇、公式和原图表。用户要求 PDF 时，用 `scripts/export_pdf.py` 实际生成文件并检查分页与渲染；HTML 动图交互留在原页。修改回到输入或通用排版器后重建，不事后补 HTML/PDF。
+
+## PDF 原页对照
+
+拿到本地原PDF时，按 [原页窗口规格](references/pdf-page-viewer.md) 准备真实原页图像并填写 `fulltext.source_pdf`，随单文件HTML离线内嵌。已核实PDF文件页码的段落直接定位；未核实仅提供翻页浏览并明确说明，不猜页码。弹窗可鼠标拖动标题栏、拖右下角调整大小，支持翻页、缩放、最大化/还原和键盘操作；原图放大窗同样可移动缩放。准备原页用可选PyMuPDF或现有渲染工具，核心构建不增加强制PDF依赖。对外分发原页遵循材料许可。
 
 ## 7. 验收与交付
 

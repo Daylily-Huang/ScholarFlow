@@ -11,6 +11,8 @@ def shape_errors(data, records, guide):
         if not isinstance(value, str): errors.append(path + ' must be text')
     def integer(value, path):
         if type(value) is not int: errors.append(path + ' must be an integer')
+    def boolean(value, path):
+        if type(value) is not bool: errors.append(path + ' must be boolean')
     def number(value,path):
         if type(value) not in (int,float):errors.append(path+' must be a number')
     def array(rule):
@@ -36,6 +38,7 @@ def shape_errors(data, records, guide):
     table_object = mapping({'head':texts,'rows':array(texts)})
     table = lambda value,path: table_object(value,path) if value is not None else None
     chapter = {**evidence,'bridge':text,'connection':text,'paragraphs':texts,'concepts':texts,
+        'figures':array(mapping({'ref':text,'after':integer,'focus':text,'explanation':text})),
         'motions':array(mapping({'id':text})),'table':table}
     obj(guide, 'guide', {
         'story':mapping({'overview':mapping({**overview,'table':table}),'walkthrough':array(mapping(chapter))}),
@@ -50,7 +53,14 @@ def shape_errors(data, records, guide):
         'animations':array(mapping({'frames':texts,'durations':array(number),'title':text,'alt':text,'explanation':text}))})
     source = mapping({'facsimile':text,'verification_note':text,'status':text,'inline_runs':array(mapping({'text':text,'styles':texts,'target':text})),
         'corrections':array(mapping({'old':text,'new':text,'reason':text,'pdf_page':integer}))})
-    obj(data,'fulltext',{'paper_id':text,'sections':array(mapping({'level':integer,'kind':text,
+    figure_source=mapping({'kind':text,'file':text,'sha256':text,'page_count':integer,'checked_pages':array(integer)})
+    inventory=mapping({'source':figure_source,'status':text,'review_note':text,'checked_pages':array(integer),
+        'pdf_review':figure_source,
+        'asset_sha256':lambda v,p: obj(v,p,{k:text for k in v} if isinstance(v,dict) else {}),
+        'figures':array(mapping({'id':text,'label':text,'kind':text,'pages':array(integer),
+            'panels':texts,'checked_panels':texts,'blocks':texts,'caption_checked':boolean,
+            'verified':boolean,'verification_note':text,'key_result':boolean}))})
+    obj(data,'fulltext',{'figure_inventory':inventory,'paper_id':text,'sections':array(mapping({'level':integer,'kind':text,
         'items':array(mapping({'latex':text,'src':text,'caption':text,'source':source}))}))})
     array(mapping({'id':text,'role':text,'zh':text,'note':text,'keys':texts,'trap':text,
         'terms':array(mapping({'en':text,'zh':text})),

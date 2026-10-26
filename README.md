@@ -25,10 +25,12 @@
 
 这是 ScholarFlow 自带的 **[paper-close-read](skills/paper-close-read/SKILL.md)**，可单独安装使用。按文章的论证方式组织讲解，支持自然科学与人文社科；首页主展示为 **3 篇自然科学 + 2 篇人文社科**：海水 eDNA、引物特异性、心血管机制综述，以及历史与文学细读。
 
-> **[⬇ 下载文献阅读 skill 独立安装包 v1.2.0](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.2.0/paper-close-read-v1.2.0.zip)**
+> **[⬇ 下载文献阅读 skill 独立安装包 v1.3.0](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.3.0/paper-close-read-v1.3.0.zip)**
 >
-> 无需克隆仓库。解压后复制整个 `paper-close-read` 文件夹即可安装；新增逐段英文词汇和中英双语 PDF 导出。
-> [Release 下载页与校验文件](https://github.com/Daylily-Huang/ScholarFlow/releases/tag/paper-close-read-v1.2.0) · [中文更新说明](docs/releases/paper-close-read-v1.2.0/CHANGELOG.zh-CN.md)
+> 无需克隆仓库。解压后复制整个 `paper-close-read` 文件夹即可安装；保留逐段英文词汇和中英双语 PDF 导出；新增原图清单核对、讲解旁直接看原图，以及可拖动缩放的 PDF 原页窗口。
+> [Release 下载页与校验文件](https://github.com/Daylily-Huang/ScholarFlow/releases/tag/paper-close-read-v1.3.0) · [中文更新说明](docs/releases/paper-close-read-v1.3.0/CHANGELOG.zh-CN.md)
+
+**直接体验新版：** [Thomsen：原图与 PDF 原页窗口 HTML](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.3.0/Thomsen2012-reader.html) · [Wilcox：组合图与原页窗口 HTML](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.3.0/Wilcox2013-reader.html)（下载后离线打开）
 
 [三步安装，开始读第一篇](#reader-install) · [先看真实效果](#reader-preview) · [五篇完整示例](examples/paper-close-read/README.md)
 
@@ -68,7 +70,7 @@ GitHub 中的 HTML 文件页显示源码。点击文件页的 **Download raw fil
 
 ### 安装并读第一篇
 
-**1. [下载 Release 独立安装包 ZIP](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.2.0/paper-close-read-v1.2.0.zip)，解压并安装。** 无需 Git，也不必下载整个仓库。
+**1. [下载 Release 独立安装包 ZIP](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.3.0/paper-close-read-v1.3.0.zip)，解压并安装。** 无需 Git，也不必下载整个仓库。
 
 将里面整个 `paper-close-read` 文件夹复制到助手实际读取的 skills 目录：Codex 通常是 `~/.codex/skills`，Claude Code 通常是 `~/.claude/skills`。保留 `scripts`、`assets`、`references`，不能只复制 `SKILL.md`。
 

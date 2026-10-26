@@ -1,0 +1,36 @@
+[
+  {
+    "paper": "thomsen",
+    "pdf_sha256": "4bca00d663fcaa0b695261e4b9a119cbbec13a9b42e304b1e2f46475d10eeaf8",
+    "reader_sha256": "8c368ec80a2d1b581a303393a532cd0a308c7e8284ad318be1ffe4a321b35194",
+    "pdf_pages": 41,
+    "image_instances": 5,
+    "image_pages": [
+      7,
+      12,
+      15,
+      39,
+      39
+    ],
+    "source_dimensions_preserved": true,
+    "pdf_browser_reencodes_images": true,
+    "source_images_and_blocks_unchanged": true,
+    "original_pages_prepared": 9
+  },
+  {
+    "paper": "wilcox",
+    "pdf_sha256": "1a438762e75f5a213d967c9da218488d2aab186753dfb16e764f7fcf8e942968",
+    "reader_sha256": "27bc366cbed620f7c92f4f2b98e45ea4480130df5a518ec36a66e4b8ffab0fd0",
+    "pdf_pages": 40,
+    "image_instances": 3,
+    "image_pages": [
+      28,
+      30,
+      32
+    ],
+    "source_dimensions_preserved": true,
+    "pdf_browser_reencodes_images": true,
+    "source_images_and_blocks_unchanged": true,
+    "original_pages_prepared": 9
+  }
+]

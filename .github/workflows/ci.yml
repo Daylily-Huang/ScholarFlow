@@ -26,11 +26,15 @@ jobs:
           python -m pip install latex2mathml==3.77.0
           python scripts/rebuild_readers.py examples/paper-close-read/thomsen examples/paper-close-read/wilcox examples/paper-close-read/mariana examples/paper-close-read/kross examples/paper-close-read/mckenna examples/paper-close-read/tavani examples/paper-close-read/menis examples/paper-close-read/austen examples/paper-close-read/hardy1908 examples/paper-close-read/carroll1895
           git diff --exit-code -- examples/paper-close-read/*/reader.html
+      - name: Require source figure completeness for audited examples
+        run: |
+          python skills/paper-close-read/scripts/validate_content.py examples/paper-close-read/thomsen/reading-data/fulltext.json examples/paper-close-read/thomsen/reading-data/translations.json examples/paper-close-read/thomsen/reading-data/guide.json --asset-root examples/paper-close-read/thomsen/reading-data --source examples/paper-close-read/thomsen/reading-data/source.md --require-figure-audit
+          python skills/paper-close-read/scripts/validate_content.py examples/paper-close-read/wilcox/reading-data/fulltext.json examples/paper-close-read/wilcox/reading-data/translations.json examples/paper-close-read/wilcox/reading-data/guide.json --asset-root examples/paper-close-read/wilcox/reading-data --source examples/paper-close-read/wilcox/reading-data/source.md --require-figure-audit
       - name: Exercise PDF and vocabulary in Chrome
         if: matrix.python-version == '3.13'
         run: |
           python -m pip install playwright
-          python scripts/check_reader_pdf_browser.py examples/paper-close-read/hardy1908 examples/paper-close-read/carroll1895 examples/paper-close-read/thomsen --work-dir "${{ runner.temp }}/reader-browser" --output "${{ runner.temp }}/reader-browser-evidence" --browser-executable "$(command -v google-chrome)"
+          python scripts/check_reader_pdf_browser.py examples/paper-close-read/hardy1908 examples/paper-close-read/carroll1895 examples/paper-close-read/thomsen examples/paper-close-read/wilcox --work-dir "${{ runner.temp }}/reader-browser" --output "${{ runner.temp }}/reader-browser-evidence" --browser-executable "$(command -v google-chrome)"
           python skills/paper-close-read/scripts/export_pdf.py examples/paper-close-read/hardy1908/reader.html "${{ runner.temp }}/Hardy1908.pdf" --work-dir "${{ runner.temp }}/reader-pdf" --browser "$(command -v google-chrome)"
       - name: Verify standalone release packaging and installation
         run: python scripts/package_reader.py --output "${{ runner.temp }}/reader-release" --verify

@@ -120,6 +120,8 @@ def render_full(data, trans, asset_root=".", mechanisms=None):
             pid = item["id"]
             label = '<p class="source" title="' + esc(source_label(item, include_status=True)) + '">' + esc(source_label(item)) + '</p>'
             src=item.get('source',{})
+            from source_pdf import page_button
+            label = label.replace('</p>', ' ' + page_button(item, data) + '</p>', 1)
             if src.get('context')=='quote':label+='<p class="source-kind">原文引文'+(' · '+esc(src['quote_attribution']) if src.get('quote_attribution') else '')+'</p>'
             if src.get('footnote_label'):label+='<p class="source-kind">原文注 '+esc(src['footnote_label'])+'</p>'
             raw = item["raw"]
@@ -157,8 +159,9 @@ def render_full(data, trans, asset_root=".", mechanisms=None):
                     if item.get('source', {}).get('facsimile'):
                         content += '<figure><img alt="原页表格，供核对转录排版" src="' + embed_image(item['source']['facsimile'], asset_root) + '"><figcaption>原页表格 · 核对表头与单元格</figcaption></figure>'
                 elif item["t"] == "figure":
-                    content = '<img alt="' + esc(item.get("caption", "原文图")) + '" src="' + embed_image(item["src"], asset_root) + '">'
-                    content += '<p>' + esc(item.get("caption", "")) + '</p>'
+                    from render_figures import original_figure
+                    entry = next((f for f in data.get('figure_inventory', {}).get('figures', []) if pid in f.get('blocks', [])), {})
+                    content = original_figure(item, asset_root, entry.get('label', ''))
                 else:
                     content = '<pre>' + esc(raw) + '</pre>'
                 body.append(f'<article class="source-block" id="{esc(pid)}">{label}{content}</article>')

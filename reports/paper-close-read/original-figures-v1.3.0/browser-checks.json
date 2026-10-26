@@ -1,0 +1,58 @@
+[
+  {
+    "paper": "thomsen",
+    "sha256": "8c368ec80a2d1b581a303393a532cd0a308c7e8284ad318be1ffe4a321b35194",
+    "paragraphs": 40,
+    "pdf_fulltext_despite_search": true,
+    "print_options_and_restore": true,
+    "motion_changed": true,
+    "guide_original_figures": 3,
+    "original_images_match": true,
+    "figure_zoom_and_placement": true,
+    "source_pdf_drag_resize_zoom": true,
+    "mobile_390px": true,
+    "page_errors": []
+  },
+  {
+    "paper": "wilcox",
+    "sha256": "27bc366cbed620f7c92f4f2b98e45ea4480130df5a518ec36a66e4b8ffab0fd0",
+    "paragraphs": 31,
+    "pdf_fulltext_despite_search": true,
+    "print_options_and_restore": true,
+    "motion_changed": true,
+    "guide_original_figures": 3,
+    "original_images_match": true,
+    "figure_zoom_and_placement": true,
+    "source_pdf_drag_resize_zoom": true,
+    "mobile_390px": true,
+    "page_errors": []
+  },
+  {
+    "paper": "hardy1908",
+    "sha256": "535d7d1765687195dedadcd2b9ef49e56e194d2ff37b62b30279ffc9431a4ac4",
+    "paragraphs": 10,
+    "pdf_fulltext_despite_search": true,
+    "print_options_and_restore": true,
+    "motion_changed": true,
+    "guide_original_figures": 0,
+    "original_images_match": true,
+    "figure_zoom_and_placement": true,
+    "source_pdf_drag_resize_zoom": false,
+    "mobile_390px": true,
+    "page_errors": []
+  },
+  {
+    "paper": "carroll1895",
+    "sha256": "604dfeaa25525b0b8a33b6a4b9350e5251df53dac00a37f20f81b2ac4e4f4ff4",
+    "paragraphs": 41,
+    "pdf_fulltext_despite_search": true,
+    "print_options_and_restore": true,
+    "motion_changed": true,
+    "guide_original_figures": 0,
+    "original_images_match": true,
+    "figure_zoom_and_placement": true,
+    "source_pdf_drag_resize_zoom": false,
+    "mobile_390px": true,
+    "page_errors": []
+  }
+]

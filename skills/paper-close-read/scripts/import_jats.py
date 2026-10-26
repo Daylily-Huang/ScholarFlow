@@ -47,20 +47,14 @@ def import_article(xml_path, output):
             value,runs=rich_text(segment)
             if value:add(value,el,inline_runs=runs,**({'context':context,'quote_attribution':attribution or ''} if context else {}),**({'footnote_label':footnote} if footnote else {}))
         for child in el:
-            if child.tag in blocks:
+            if child.tag in blocks or (child.tag=='inline-formula' and (child.find('.//graphic') is not None or child.find('.//inline-graphic') is not None)):
                 flush();walk_container(child,context=context);segment=ET.Element('p');segment.text=child.tail
             else:segment.append(copy.deepcopy(child))
         flush()
     def walk_container(el,level=2,context=None):
         tag=el.tag
-        if tag=='disp-formula':
-            graphic=el.find('.//graphic')
-            href=next((v for k,v in graphic.attrib.items() if k.endswith('href')),'') if graphic is not None else ''
-            if href:
-                name='images/'+href.rsplit('/',1)[-1]
-                add('![Original equation '+str(el.get('id',''))+']('+name+')',el)
-                figures.append({'path':name,'href':href,'xml_id':el.get('id')})
-            else:
+        if tag in {'disp-formula','inline-formula'}:
+            if not emit_graphics(el,'Original equation '+str(el.get('id',''))):
                 add(text(el),el);warnings.append('Formula requires source review: '+str(el.get('id')))
             return
         if tag=='disp-quote':
@@ -69,6 +63,21 @@ def import_article(xml_path, output):
                 if child.tag=='p':paragraph(child,'quote',attribution)
             return
         walk(el,level,context)
+    def emit_graphics(el,caption):
+        graphics=[g for g in el.iter() if g.tag in {'graphic','inline-graphic'}]
+        alternative_groups={id(g):id(group) for group in el.iter('alternatives') for g in group.iter() if g.tag in {'graphic','inline-graphic'}}
+        emitted=set()
+        for graphic in graphics:
+            key=alternative_groups.get(id(graphic),id(graphic))
+            if key in emitted:continue
+            emitted.add(key)
+            href=next((v for k,v in graphic.attrib.items() if k.endswith('href')),'')
+            if not href:raise ValueError('Source graphic has no file reference: '+str(el.get('id')))
+            name='images/'+href.rsplit('/',1)[-1]
+            if not Path(name).suffix:name+='.jpg'
+            add('!['+caption.replace(']','）')+']('+name+')',el,graphic_href=href)
+            figures.append({'path':name,'href':href,'xml_id':el.get('id')})
+        return bool(emitted)
     def walk(el,level=2,context=None):
         for child in el:
             tag=child.tag.split('}')[-1]
@@ -79,11 +88,8 @@ def import_article(xml_path, output):
             elif tag=='p':paragraph(child,context)
             elif tag in {'disp-quote','boxed-text','list','list-item','def-list','def-item','statement'}:walk_container(child,level,context)
             elif tag=='fig':
-                label=text(child.find('label'));caption=text(child.find('caption'));graphic=child.find('.//graphic')
-                href=next((v for k,v in graphic.attrib.items() if k.endswith('href')),'') if graphic is not None else ''
-                name='images/'+(href.rsplit('/',1)[-1] or child.get('id','figure'))
-                if not Path(name).suffix:name+='.jpg'
-                add('!['+(label+' '+caption).replace(']','）')+']('+name+')',child);figures.append({'path':name,'href':href,'xml_id':child.get('id')})
+                label=text(child.find('label'));caption=text(child.find('caption'))
+                if not emit_graphics(child,label+' '+caption):raise ValueError('Source figure has no extractable graphic: '+str(child.get('id')))
             elif tag=='table-wrap':
                 add(text(child.find('label'))+' '+text(child.find('caption')),child)
                 table=child.find('.//table')
@@ -136,6 +142,8 @@ def import_article(xml_path, output):
                 if rid:
                     if rid in xml_targets:run['target']=xml_targets[rid]
                     else:warnings.append('Unresolved JATS cross-reference: '+rid)
+    from figure_inventory import draft_inventory
+    data['figure_inventory']=draft_inventory(data,xml_path,'jats')
     (output/'fulltext.json').write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf-8')
     manifest={'title':title,'doi':doi,'authors':authors,'figures':figures,'warnings':warnings,'licenses':[text(e) for e in root.findall('.//license')]}
     (output/'import.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
