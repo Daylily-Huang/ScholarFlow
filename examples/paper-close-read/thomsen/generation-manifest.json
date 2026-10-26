@@ -1,7 +1,7 @@
 {
   "phase": "local-reader-quality",
   "paper_id": "10.1371/journal.pone.0041732",
-  "skill_tree_sha256": "f0ff116bd9cf72bb6865a046ecadb1f74a0c15ee1a82ada7d3652225a16630e2",
+  "skill_tree_sha256": "d6c7914e21188f91b26eb9365956bef418f80b5526712789f493bf66c4e31277",
   "skill_files": {
     "assets/editorial.css": "a560ed8e97a08fd80e818a5bc34d2248b9e314709ae6d2e18569b2174cf2984c",
     "assets/editorial.js": "52f04902816d53eb8009374f3c5c36584f61bc285f7218fd9a4cd58749597686",
@@ -47,7 +47,7 @@
     "scripts/render_mechanisms.py": "a171d71953a5aea726ac6c9ef28245c460e51aa22a22d890627f84767cae11b9",
     "scripts/render_story.py": "da9ac29bd0d924fe8758a55c34b5767485e7eb751e9adbe598094c63263103b7",
     "scripts/selftest.py": "4efd7f29b46f73f98fbdc057c376b2dd64a88f84440516feef18028ee871cb5c",
-    "scripts/source_pdf.py": "ff2c8dc4c8b774556b3859edcd4b457ddbd3c0b7615b96c46f208e524b17f248",
+    "scripts/source_pdf.py": "a9e60f3f55f6f8d98de087a84fb5ce3dc7a091c85170ca08cc6fc9522687ed06",
     "scripts/split_frames.py": "9db0f8caf395ce14cc303ee2ec198f137f92cadba6733ca50fb81a1a764afc79",
     "scripts/validate_content.py": "3580a9fd500b866c339ce54bbfb55f2077dc4669003e066a98e86baa4da56d36",
     "scripts/vocabulary.py": "5b89de6372e53a3ae4d2bac0ea07f659c6873c48bb3448ba119d420c9b571cf8",

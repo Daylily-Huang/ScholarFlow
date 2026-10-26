@@ -33,6 +33,9 @@ def validate_source_pdf(data, asset_root=None):
                 errors.append('Source PDF page image missing or SHA256 mismatch: ' + str(page.get('page')))
     inventory = data.get('figure_inventory', {})
     original_review = inventory.get('pdf_review', {}) if isinstance(inventory, dict) else {}
+    inventory_source = inventory.get('source', {}) if isinstance(inventory, dict) else {}
+    if isinstance(inventory_source, dict) and inventory_source.get('kind') == 'pdf':
+        original_review = inventory_source
     if isinstance(original_review, dict) and original_review and original_review.get('sha256') != record['sha256']:
         errors.append('PDF page viewer and figure review must use the same source PDF')
     return errors

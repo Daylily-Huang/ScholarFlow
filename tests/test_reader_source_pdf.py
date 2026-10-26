@@ -37,6 +37,8 @@ class SourcePdf(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);source,data,records,guide=self.fixture(root)
             self.assertFalse(validate_source_pdf(data,root))
+            mismatch=copy.deepcopy(data);mismatch['figure_inventory']={'source':{'kind':'pdf','sha256':'b'*64}}
+            self.assertTrue(any('same source PDF' in e for e in validate_source_pdf(mismatch,root)))
             for value in ([],{'pages':'bad'}, {'pages':[],'page_count':0}, {'pages':[None],'page_count':2,'file':'original.pdf','sha256':'a'*64}):
                 changed=copy.deepcopy(data);changed['source_pdf']=value
                 with self.subTest(value=value):self.assertTrue(validate_source_pdf(changed,root))
