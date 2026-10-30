@@ -40,7 +40,7 @@
     if(el.closest('#mode-full')) route('full');
     else if(el.closest('#mode-guide')) route(el.closest('.guide-deep')?'deep':state.route==='deep'?'deep':'quick');
     let parent=el.parentElement; while(parent) { if(parent.tagName==='DETAILS') parent.open=true; parent=parent.parentElement; }
-    if(el.classList.contains('pcard')) el.querySelector('.bilingual').open=true;
+    if(el.classList.contains('pcard')) el.querySelectorAll('.translation,.bilingual').forEach(d=>d.open=true);
     el.hidden=false;
     document.querySelectorAll('.fsect').forEach(s=>s.hidden=false);
     el.scrollIntoView({block:'start',behavior:'auto'});

@@ -1,7 +1,7 @@
 {
   "phase": "local-reader-quality",
   "paper_id": "10.3390/info9040073",
-  "skill_tree_sha256": "87d3e73574824a66a41d1e9776798cdbe2a665c97affb047b9879e038bf849b1",
+  "skill_tree_sha256": "d10a1750c2866d34423792b54c7e0d3bc43520189e08af7f1c219f6accd43907",
   "skill_files": {
     "assets/editorial.css": "0c402c4eb7f61ae5bcc4e3869c4e6a5fafd56cd2a10a9990e92737ac780cc93a",
     "assets/editorial.js": "142a9f23d6c576a34f2631449051ec70119f91b097e541504bcb6669c6ec5449",
@@ -12,7 +12,7 @@
     "assets/pdf.css": "fc6b65c32c2caf80271706463a3cf3d4f9fe196212fe36071265204a220732d6",
     "assets/persistence.js": "4383a2d627eed1474898025eba7a64b10468898ff957acf17e900b152692d4de",
     "assets/reader.css": "0ed2c5724e0d7d3e422e2bff9a5ece7bcac9d4b79b26bfd59b1fa508eee267a9",
-    "assets/reader.js": "d3c4d0863b7156ec3b30dea7f4df6e277f9b77b49e3ceff32427f6907e5911f7",
+    "assets/reader.js": "9d63988dc10b238a49ed3f953abc7a0be235990688bfb24a0191d7de7eb518ee",
     "assets/source-pdf-viewer.js": "89d500873a38a1a25fda16bd572b48c39f6d34fa0b25e133b8580e24bf5ac45b",
     "assets/source-viewer.css": "143f93786731773b45f5c4db7430cd047bac44bfcd0a001b094cafe40980f31f",
     "assets/workspace.js": "b5a13a31a5e7603db7b5dc53c20904e197abc30a1f1cdd9c55b62976d73aef56",
@@ -63,7 +63,7 @@
     "source.md": "915e2c384bdb1ad05bab967e2d0fa4702b3910560a4d59b284c96e4f84af7f1f",
     "translations.json": "f9a0c166fe624d75079bbf9d2e051b8c0c5fd68c9859fc7b447a245bacb3b482"
   },
-  "html_sha256": "e560042f304b2a621893df6a020854b6c2b2f232452ef12403b9a6c6d14e6758",
+  "html_sha256": "6fab7ef71a8839a708ffbaec6b0f78deeeee7cbed95a110cff672e873f016ca9",
   "rebuild_script_sha256": "f0d0f98bd2afe42fa28b8154a531225c972ed826a7ab555801792cfe29645fc0",
   "source_blocks": 116,
   "paragraphs": 116,
