@@ -166,6 +166,65 @@ def run(work):
     check(bool(validate(corrected,fresh_records,fresh_guide,fresh_source)['errors']), 'unmatched display correction rejected')
     from render_mechanisms import SCENES
     check({'molecular_sampling','pcr_slippage','replicate_consensus'}.issubset(SCENES), 'new paper mechanisms registered')
+    check('<details class="translation" open><summary>中文译文</summary>' in fresh_html and '<details class="bilingual"' not in fresh_html, 'translation folds independently while original remains visible')
+    check('<details class="plain" open>' in fresh_html, 'plain explanation folds independently and starts expanded')
+    pictured_source = source + '\n![](frame.png)\n\nFig. X. Complete synthetic caption.\n'
+    pictured = parse_document(pictured_source, 'pictured.md', 'synthetic-caption-link')
+    picture_items = [i for sec in pictured['sections'] for i in sec['items']]
+    pic = next(i for i in picture_items if i['t'] == 'figure')
+    cap = next(i for i in picture_items if i['t'] == 'p' and i['raw'].startswith('Fig. X.'))
+    pic['source']['caption_ref'] = cap['id']
+    from render_figures import walkthrough_figure
+    picture_map = {i['id']: i for i in picture_items}
+    fragment = walkthrough_figure({'ref': pic['id'], 'focus': 'Look at the complete picture.', 'explanation': 'Synthetic example.'}, picture_map, work, 'caption-test')
+    check(cap['raw'].strip() in fragment, 'guide reuses exact separate source caption')
+    invalid_cap = copy.deepcopy(data)
+    invalid_cap['sections'][0]['items'][0]['source']['caption_ref'] = 'missing-caption'
+    check(any('caption_ref' in e for e in validate(invalid_cap, records, guide, source)['errors']), 'invalid caption source rejected')
+    table_data = copy.deepcopy(data)
+    tab = next(i for sec in table_data['sections'] for i in sec['items'] if i['t'] == 'table')
+    tab['source'].update(pdf_page=1, status='verified', verification_note='Synthetic table display fixture', corrections=[dict(old='<td>test</td>', new='<td>corrected parameter</td>', pdf_page=1, reason='Synthetic OCR label correction')])
+    check(not validate(table_data, records, guide, source)['errors'], 'verified table display correction accepted without altering raw')
+    table_html, _ = build(table_data, records, guide, work, source)
+    check('<td>corrected parameter</td>' in table_html and '<td>test</td>' in tab['raw'], 'table renderer applies display correction and retains original raw')
+    tab['source']['status'] = 'unverified'
+    check(any('Display correction' in e for e in validate(table_data, records, guide, source)['errors']), 'table display correction needs verified source evidence')
+    eq_block = next(i for s in data['sections'] for i in s['items'] if i['t'] == 'eq')
+    tbl_block = next(i for s in data['sections'] for i in s['items'] if i['t'] == 'table')
+    check('<details class="latex-raw">' in html and '<details open><summary>公式原始 LaTeX' not in html, 'raw LaTeX collapsed by default')
+    enriched_records = copy.deepcopy(records) + [
+        dict(id=eq_block['id'], note='这行公式把累计风险 H 换算成至少发生一次的概率 p。', keys=['H 越大，exp(-H) 越接近 0，概率 p 越接近 1。'], trap='H 是非负累计量，不是概率本身。'),
+        dict(id=tbl_block['id'], note='先对比 test 与 unique 两行的数值量级差异。', keys=['test 行给出小数基准，unique 行展示极端大值。'])
+    ]
+    enriched_report = validate(data, enriched_records, guide, source)
+    check(not enriched_report['errors'] and enriched_report.get('block_notes') == 2, 'optional eq and table explanations validate cleanly')
+    enriched_html, _ = build(data, enriched_records, guide, work, source)
+    check('公式白话拆解' in enriched_html and '读表抓手' in enriched_html and f'id="{eq_block["id"]}-note"' in enriched_html, 'eq and table explanations render in source blocks')
+    bad_eq_records = copy.deepcopy(records) + [dict(id=eq_block['id'], note='   ')]
+    check(bool(validate(data, bad_eq_records, guide, source)['errors']), 'empty eq explanation note rejected')
+    mapped_guide = {'scope': '合成六步总览测试', 'story': {
+        'overview': {
+            'title': '弯曲之后还能挡水吗？', 'lead': '加上反复弯折再测防水，筛出真正耐用的涂层。', 'format': 'research-map',
+            'research_map': [
+                {'step': 'background', 'text': '涂层需要长期挡水。', 'refs': [fid]},
+                {'step': 'gap', 'text': '只测刚涂好时的状态分不出耐用性。', 'refs': [fid]},
+                {'step': 'question', 'text': '反复弯折后谁还能保住屏障？', 'refs': [fid]},
+                {'step': 'method', 'text': '对比甲和乙在弯折前后的开裂与渗水情况。', 'refs': [fid]},
+                {'step': 'findings', 'text': '甲折出裂缝并漏水，乙保持完整且继续挡水。', 'refs': [fid]},
+                {'step': 'conclusion', 'text': '柔韧性可能通过维持结构完整来保住长期防水能力。', 'refs': [fid]},
+            ],
+            'metrics': [
+                {'label': '初始测试', 'value': '甲=乙', 'meaning': '刚涂好时两者都能挡水'},
+                {'label': '弯折后甲涂层', 'value': '开裂渗水', 'meaning': '屏障出现缺口'},
+                {'label': '弯折后乙涂层', 'value': '完整防水', 'meaning': '经受弯折仍保住屏障'},
+            ],
+            'takeaway': '耐用性要看弯折使用后屏障是否还完整。', 'refs': [fid]
+        },
+        'walkthrough': fresh_guide['story']['walkthrough']
+    }}
+    check(not validate(fresh, fresh_records, mapped_guide, fresh_source)['errors'], 'research-map with contrast metrics validates')
+    mapped_html, _ = build(fresh, fresh_records, mapped_guide, work, fresh_source)
+    check('story-metrics' in mapped_html and 'data-goto-route="deep"' in mapped_html and 'entry-funnel' in mapped_html, 'research-map renders metrics and progressive funnel')
     (work/'report.json').write_text(json.dumps({'passed':checks},ensure_ascii=False,indent=2),encoding='utf-8')
     print(json.dumps({'passed':len(checks),'work_dir':str(work)},ensure_ascii=False))
 

@@ -12,7 +12,7 @@ from validate_content import validate
 from render_further import render_further
 
 ROOT = Path(__file__).resolve().parent.parent
-GENERATOR_VERSION = '1.3.0'
+GENERATOR_VERSION = '1.4.0'
 
 
 def refs_html(refs):
@@ -79,6 +79,10 @@ def build(data, records, guide, asset_root, source_text=None, allow_incomplete=F
                 full = full[:end+10] + render_concepts([concept]) + full[end+10:]
     if guide.get('mechanisms'):
         full = '<div class="motion-index">' + ''.join(f'<a href="#{esc(m["id"])}">▶ {esc(m["title"])}</a>' for m in guide['mechanisms']) + '</div>' + full
+    if guide.get('story'):
+        full = ('<div class="entry-funnel"><span>不想从第一页硬啃原文？先花 3 分钟抓研究骨架，再按问题走通 10 分钟主线：</span>'
+                '<div class="entry-funnel-actions"><button type="button" data-goto-route="quick">先看 3 分钟入门 →</button>'
+                '<button type="button" class="ghost-btn" data-goto-route="deep">10 分钟读懂主线 →</button></div></div>') + full
     ordered = sorted(enumerate(data['sections']), key=lambda pair: pair[1].get('kind', 'body') != 'body')
     navigation = ''.join(f'<a href="#f-{i:02d}">{esc(s.get("display_name", s["name"]))}</a>' for i, s in ordered if s['items'])
     if guide.get('further_reading'):
@@ -127,7 +131,7 @@ def build(data, records, guide, asset_root, source_text=None, allow_incomplete=F
     result = f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)} · 精读</title><style>{css}</style></head>
 <body class="{'source-zh' if data['front'].get('language') == 'zh' else 'source-en'}"><a class="skip" href="#main">跳至正文</a><header><span class="eyebrow">文献慢读 · 从问题走到证据</span><h1>{esc(title)}</h1><p>{esc(data['front'].get('citation', ''))}</p>{draft}<a href="#source-notes">来源说明</a></header>
 <div class="toolbar"><div class="seg" aria-label="阅读路线"><button data-route="full" aria-pressed="true">逐段精读</button><button data-route="quick" aria-pressed="false">3 分钟入门</button><button data-route="deep" aria-pressed="false">10 分钟读懂</button></div><label class="font-label" for="font-size">字号 <select id="font-size"><option value="16">16px</option><option value="18" selected>18px · 默认</option><option value="20">20px</option></select></label><button id="resume">继续上次</button><button id="export-reading">导出阅读笔记</button><button id="export-pdf">导出双语 PDF</button><span id="progress" aria-live="polite"></span></div>
-<div class="layout"><aside><label for="search">检索原文与逐段讲解</label><input id="search" type="search" placeholder="输入术语、数值或问题"><p id="search-count" aria-live="polite"></p><nav aria-label="全文目录">{navigation}</nav></aside><main id="main"><div id="mode-guide" hidden>{render_guide(guide, asset_root, data)}</div><div id="mode-full">{full}</div><section id="source-notes"><h2>来源说明</h2><p>{scope}</p><p>{report['source_blocks']} 个来源块 · {report['paragraphs']} 段 · {report['translations']} 条译文；原页文字核对 {verified} 块。逐块状态见来源标签提示。</p><ul>{warnings}</ul><p>译文与讲解由 AI 辅助整理。</p>{figure_audit_html}{attribution}</section></main></div>
+<div class="layout"><aside><label for="search">检索原文与逐段讲解</label><input id="search" type="search" placeholder="输入术语、数值或问题"><p id="search-count" aria-live="polite"></p><nav aria-label="全文目录">{navigation}</nav></aside><main id="main"><div id="mode-guide" hidden>{render_guide(guide, asset_root, data)}</div><div id="mode-full">{full}</div><section id="source-notes"><h2>来源说明</h2><p>{scope}</p><p>{report['source_blocks']} 个来源块 · {report['paragraphs']} 段 · {report['translations']} 条译文{f" · {report['block_notes']} 处公式/表格拆解" if report.get('block_notes') else ''}；原页文字核对 {verified} 块。逐块状态见来源标签提示。</p><ul>{warnings}</ul><p>译文与讲解由 AI 辅助整理。</p>{figure_audit_html}{attribution}</section></main></div>
 <p id="storage-status" role="status"></p><noscript>交互需要浏览器启用 JavaScript；原文如下。</noscript><style>noscript+style{{display:none}}</style><noscript><style>#mode-full[hidden]{{display:block!important}}</style></noscript>
 <script id="reader-config" type="application/json">{config_json}</script><script>{persistence}</script><script>{reader}</script><script>{annotation}</script><script>{workspace}</script><script>{navigation_js}</script><script>{enhancements}</script><script>{source_viewers}</script><script>{pdf_export}</script></body></html>'''
     return result, report

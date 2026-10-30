@@ -60,7 +60,8 @@
         }else{
           paragraph.append(copy(card));
           // MathML is the print form; the raw LaTeX fallback remains if conversion failed.
-          if(paragraph.querySelector('math'))paragraph.querySelectorAll('details').forEach(el=>el.remove());
+          if(paragraph.querySelector('math'))paragraph.querySelectorAll('details.latex-raw').forEach(el=>el.remove());
+          if(!notes)paragraph.querySelectorAll('.block-explain').forEach(el=>el.remove());
         }
         group.append(paragraph);
       }

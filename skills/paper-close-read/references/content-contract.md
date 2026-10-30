@@ -6,7 +6,7 @@
 
 ## translations.json
 
-JSON 数组，每个 p 对应且仅对应一个记录；缺失/重复/未知 ID 默认失败：
+JSON 数组，每个段落 `p` 必须有且仅有一个记录；此外允许为核心独立公式 `eq` 和主要结果表 `table` 添加可选解释记录（仅填 `id`、必填 `note`，按需填 `keys`/`trap`/`terms`，无需填 `zh` 与 `vocabulary`），用于就地渲染「公式白话拆解」与「读表抓手」。缺失必填段落、重复 ID 或未知 ID 默认失败：
 
 ```json
 [
@@ -77,7 +77,7 @@ role 默认 body。body 提供非空 note 和 keys，长短与条数由实际解
 
 ## 叙事导读：guide.story
 
-overview新稿包含title、lead、format=research-map、research_map六步、takeaway、refs。旧叙事版保留paragraphs/chain和可选metrics（label/value/meaning）作为重建兼容入口，新六步总览不渲染这些旧长文和数值框，避免重复阅读。walkthrough 为按推理顺序排列的章节数组，每项 title、bridge（承接问题）、paragraphs、connection（通往下一步）、refs，可选 motions（id/label，指向既有机制）、table（head/rows）。章节不是论文目录的缩写；正文必须解释步骤之间的必要关系。数值卡统一交代对象和分母，综述可用机制卡。3分钟显示一页入门；10分钟在同一主线上展开章节，导读目录随路线切换。
+overview新稿包含title、lead、format=research-map、research_map六步、takeaway、refs，并可按需提供 2–4 项 `metrics`（`label`/`value`/`meaning`，渲染在六步卡下方作为“原始观测 / 旧方法基准 / 本文结果”直观对比卡）。旧叙事版保留paragraphs/chain兼容入口，新六步总览不重复渲染旧paragraphs/chain长文。walkthrough 为按推理顺序排列的章节数组，每项 title、bridge（承接问题）、paragraphs、connection（通往下一步）、refs，可选 motions（id/label，指向既有机制）、table（head/rows）。章节不是论文目录的缩写；正文必须解释步骤之间的必要关系。数值卡统一交代对象和分母，综述可用机制卡。3分钟显示一页入门；10分钟在同一主线上展开章节，导读目录随路线切换。
 
 10分钟导读的 motions 字段指向既有场景配置，但渲染为章节内播放器，而非跳转链接。实例ID采用 guide-motion-章节号-原场景ID，防止同页多处演示重名；场景来源、分步说明与正文一致，播放状态分别管理。验收须在导读内操作所有实例，确认没有切换至逐段精读，切路线后隐藏实例暂停。
 
@@ -124,3 +124,6 @@ JATS导入器可写入source.inline_runs：顺序数组，每项text为文字，
 `fulltext.figure_inventory` 保存独立原文图清单与子图核验；`story.walkthrough[].figures` 指定原图来源块、插入段落索引和中文读图解释。字段及严格构建流程见 [原图完整性规范](original-figures.md)。原文图不属于教学 mechanisms，不能相互替代。
 
 `fulltext.source_pdf` 可绑定原PDF文件、哈希与逐页图像，段落使用已核实 `source.pdf_page` 关联；字段和可拖动缩放窗口见 [原页窗口](pdf-page-viewer.md)。
+
+
+分离图注：Markdown提取将图片与英文图注分为两个来源块时，可在图片的 `source.caption_ref` 填入实际图注段落ID。保留两块raw、ID与源顺序；逐段原图链接至原位图注，10分钟导读复用该段完整英文图注。未知、空或非段落引用阻断构建。

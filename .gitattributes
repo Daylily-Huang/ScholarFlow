@@ -1,5 +1,5 @@
 # Preserve verified source and artifact bytes across Windows/Linux checkouts.
-/skills/paper-close-read/** -text
+/skills/paper-close-read/** -text whitespace=cr-at-eol
 /examples/paper-close-read/** -text
 
 # Preserve the PPT package bytes used by its integrity manifests.

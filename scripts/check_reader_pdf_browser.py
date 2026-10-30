@@ -22,7 +22,7 @@ with sync_playwright() as pw:
         page.wait_for_function('!!window.readerPDF')
         count=page.locator('.pcard').count()
         assert page.locator('.pcard .paragraph-vocabulary').count()==count
-        assert page.evaluate('[...document.querySelectorAll(".bilingual,.logic")].every(x=>x.open)')
+        assert page.evaluate('[...document.querySelectorAll(".translation,.plain,.logic")].every(x=>x.open)')
         page.locator('.paragraph-vocabulary').first.scroll_into_view_if_needed();page.screenshot(path=str(out/(name+'-vocabulary.png')))
         page.locator('#export-pdf').click();assert page.locator('.pdf-dialog').is_visible()
         page.screenshot(path=str(out/(name+'-pdf-dialog.png')))
