@@ -4,6 +4,9 @@ from render_full import esc, embed_image
 
 def original_figure(item, asset_root, label=''):
     caption = item.get('caption', '')
+    caption_ref = item.get('source', {}).get('caption_ref')
+    if not caption and caption_ref:
+        return ('<figure class="source-figure"><img alt="' + esc(label or '原文图片') + '" src="' + embed_image(item['src'], asset_root) + '"><figcaption>' + esc(label) + ' <a href="#' + esc(caption_ref) + '">英文图注与逐段讲解见下方原文</a></figcaption></figure>')
     heading = ('<strong>' + esc(label) + '</strong> ') if label and not caption.startswith(label) else ''
     return ('<figure class="source-figure"><img alt="' + esc(caption or label or '原文图片') + '" src="' + embed_image(item['src'], asset_root) + '">'
             '<figcaption>' + heading + esc(caption or '原文未提供图注') + '</figcaption></figure>')
@@ -12,6 +15,8 @@ def original_figure(item, asset_root, label=''):
 def walkthrough_figure(reference, items, asset_root, identity, data=None):
     item = items[reference['ref']]
     from source_pdf import page_button
+    if not item.get('caption') and item.get('source', {}).get('caption_ref') in items:
+        item = {**item, 'caption': items[item['source']['caption_ref']]['raw'].strip()}
     return ('<figure class="guide-source-figure" id="' + esc(identity) + '" data-source-figure="' + esc(item['id']) + '">'
             '<span class="eyebrow">论文原图 · 与讲解一起看</span>' + page_button(item, data or {}) + '<p class="figure-focus"><strong>先看哪里：</strong>' + esc(reference['focus']) + '</p>'
             '<img alt="' + esc(item.get('caption') or '论文原图') + '" src="' + embed_image(item['src'], asset_root) + '">'

@@ -52,7 +52,8 @@ def validate(data, records, guide, source_text=None, allow_incomplete=False, ass
     if len(tids) != len(set(tids)):
         errors.append("Duplicate translation IDs")
     expected = {i["id"] for i in items if i["t"] == "p"}
-    extra = set(tids) - expected
+    optional_blocks = {i["id"] for i in items if i["t"] in {"eq", "table"}}
+    extra = set(tids) - (expected | optional_blocks)
     if extra:
         errors.append("Unknown translation IDs: " + ', '.join(sorted(extra)))
     missing = expected - set(tids)
@@ -61,8 +62,18 @@ def validate(data, records, guide, source_text=None, allow_incomplete=False, ass
     from vocabulary import vocabulary_errors
     originals = {i['id']: i for i in items}
     for r in records:
-        original = originals.get(r['id'], {}).get('raw', '')
-        for correction in originals.get(r['id'], {}).get('source', {}).get('corrections', []):
+        item = originals.get(r['id'], {})
+        item_type = item.get('t', 'p')
+        if item_type in {'eq', 'table'}:
+            if not isinstance(r.get('note'), str) or not r.get('note', '').strip():
+                (warnings if allow_incomplete else errors).append('Equation/table explanation needs note: ' + r['id'])
+            if 'keys' in r and (not isinstance(r['keys'], list) or any(not isinstance(k, str) or not k.strip() for k in r['keys'])):
+                errors.append('Equation/table keys must be nonempty text strings: ' + r['id'])
+            if r.get('vocabulary'):
+                errors.append('Contextual English vocabulary applies only to prose paragraphs: ' + r['id'])
+            continue
+        original = item.get('raw', '')
+        for correction in item.get('source', {}).get('corrections', []):
             original = original.replace(correction['old'], correction['new'], 1)
         errors.extend(vocabulary_errors(r, original))
         role = r.get("role", "body")
@@ -127,6 +138,11 @@ def validate(data, records, guide, source_text=None, allow_incomplete=False, ass
                 for r in runs:
                     if any(x not in {'em','strong','sup','sub'} for x in r.get('styles',[])) or (r.get('target') and r['target'] not in ids):errors.append('Unsafe style or unknown source cross-reference: '+i['id'])
             if src.get('corrections'):errors.append('Inline source runs must be regenerated after display corrections: '+i['id'])
+        caption_ref = src.get('caption_ref')
+        if caption_ref is not None:
+            caption_item = next((x for x in items if x['id'] == caption_ref), None)
+            if i['t'] != 'figure' or caption_item is None or caption_item['t'] != 'p' or not caption_item['raw'].strip():
+                errors.append('Figure caption_ref must identify a nonempty source paragraph: ' + i['id'])
         page = src.get("pdf_page")
         if page is not None and (type(page) is not int or page < 1):
             errors.append("PDF page must be a positive integer: " + i["id"])
@@ -135,7 +151,7 @@ def validate(data, records, guide, source_text=None, allow_incomplete=False, ass
         display_raw = i['raw']
         for correction in src.get('corrections', []):
             old, new = correction.get('old'), correction.get('new')
-            if (i['t'] != 'p' or src.get('status') != 'verified' or not isinstance(old, str) or not old
+            if (i['t'] not in {'p', 'table'} or src.get('status') != 'verified' or not isinstance(old, str) or not old
                 or not isinstance(new, str) or not new or not correction.get('reason')
                 or type(correction.get('pdf_page')) is not int or correction['pdf_page'] < 1
                 or display_raw.count(old) != 1):
@@ -230,8 +246,11 @@ def validate(data, records, guide, source_text=None, allow_incomplete=False, ass
     unchecked = sum(i.get("source", {}).get("status") != "verified" for i in items)
     if unchecked:
         warnings.append(f"{unchecked}/{len(items)} source blocks have not been verified against original pages")
+    p_trans = sum(1 for r in records if originals.get(r["id"], {}).get("t") == "p")
+    block_notes = sum(1 for r in records if originals.get(r["id"], {}).get("t") in {"eq", "table"})
     return {"errors": errors, "warnings": warnings, "source_blocks": len(items),
-            "paragraphs": len(expected), "translations": len(tids), "missing": sorted(missing), "figures": figure_report}
+            "paragraphs": len(expected), "translations": p_trans, "block_notes": block_notes,
+            "missing": sorted(missing), "figures": figure_report}
 
 
 def main():

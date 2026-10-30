@@ -146,16 +146,16 @@ def render_full(data, trans, asset_root=".", mechanisms=None):
                     if vocabulary:
                         glossary += '<section class="paragraph-vocabulary" aria-label="本段重点词汇"><h4>本段重点词汇 <span>Words in context</span></h4><dl>' + vocabulary + '</dl></section>'
                     body.append(f'<article class="pcard {"quoted-source" if src.get("context")=="quote" else ""}" id="{esc(pid)}">{label}'
-                                f'<details class="bilingual" open><summary>原文与译文</summary><div class="pgrid">{original}{translated}</div></details>'
-                                f'<h4 class="plain-title">白话解释</h4>{note}'
+                                f'<div class="pgrid">{original}<details class="translation" open><summary>中文译文</summary>{translated}</details></div>'
+                                f'<details class="plain" open><summary class="plain-title">白话解释</summary>{note}</details>'
                                 f'<details class="logic" open><summary>逻辑要点</summary><ul>{keys}</ul></details>{trap}{glossary}'
                                 f'<button class="read-toggle" data-read="{esc(pid)}" aria-pressed="false">标为已读</button></article>')
             else:
                 if item["t"] == "eq":
                     content = math_html(item.get("latex", raw.strip().strip('$')), True)
-                    content += '<details open><summary>公式原始 LaTeX</summary><pre>' + esc(raw) + '</pre></details>'
+                    content += '<details class="latex-raw"><summary>查看原始 LaTeX 代码</summary><pre>' + esc(raw) + '</pre></details>'
                 elif item["t"] == "table":
-                    content = '<div class="table-scroll">' + safe_table(raw) + '</div>'
+                    content = '<div class="table-scroll">' + safe_table(display_raw) + '</div>'
                     if item.get('source', {}).get('facsimile'):
                         content += '<figure><img alt="原页表格，供核对转录排版" src="' + embed_image(item['source']['facsimile'], asset_root) + '"><figcaption>原页表格 · 核对表头与单元格</figcaption></figure>'
                 elif item["t"] == "figure":
@@ -164,6 +164,18 @@ def render_full(data, trans, asset_root=".", mechanisms=None):
                     content = original_figure(item, asset_root, entry.get('label', ''))
                 else:
                     content = '<pre>' + esc(raw) + '</pre>'
+                if item["t"] in {"eq", "table"}:
+                    rec = trans.get(pid, {})
+                    if rec.get("note", "").strip():
+                        heading = "公式白话拆解" if item["t"] == "eq" else "读表抓手"
+                        logic_label = "符号与推导要点" if item["t"] == "eq" else "读表对比要点"
+                        b_note = f'<div class="note" id="{esc(pid)}-note" data-ann-id="{esc(pid)}-note">{esc(rec["note"])}</div>'
+                        b_keys = ''.join('<li>' + esc(x) + '</li>' for x in rec.get("keys", []))
+                        b_logic = f'<details class="logic" open><summary>{logic_label}</summary><ul>{b_keys}</ul></details>' if b_keys else ''
+                        b_trap = '<p class="trap">易错点：' + esc(rec["trap"]) + '</p>' if rec.get("trap") else ''
+                        b_terms = ' · '.join(esc(t.get("en", "")) + '：' + esc(t.get("zh", "")) for t in rec.get("terms", []))
+                        b_glossary = f'<p class="terms">{b_terms}</p>' if b_terms else ''
+                        content += f'<div class="explanation block-explain"><h4 class="plain-title">{heading}</h4>{b_note}{b_logic}{b_trap}{b_glossary}</div>'
                 body.append(f'<article class="source-block" id="{esc(pid)}">{label}{content}</article>')
             for mechanism in planned.get(pid, []):
                 body.append(render_mechanism(mechanism))

@@ -40,7 +40,7 @@
     if(el.closest('#mode-full')) route('full');
     else if(el.closest('#mode-guide')) route(el.closest('.guide-deep')?'deep':state.route==='deep'?'deep':'quick');
     let parent=el.parentElement; while(parent) { if(parent.tagName==='DETAILS') parent.open=true; parent=parent.parentElement; }
-    if(el.classList.contains('pcard')) el.querySelector('.bilingual').open=true;
+    if(el.classList.contains('pcard')) el.querySelectorAll('.translation,.bilingual').forEach(d=>d.open=true);
     el.hidden=false;
     document.querySelectorAll('.fsect').forEach(s=>s.hidden=false);
     el.scrollIntoView({block:'start',behavior:'auto'});
@@ -52,12 +52,19 @@
     let count=0; cards.forEach(b=>{const read=state.read.includes(b.dataset.read);if(read)count++;b.textContent=read?'已读 · 点击撤销':'标为已读';b.setAttribute('aria-pressed',String(read));});
     document.getElementById('progress').textContent=`已读 ${count}/${cards.length} 段`;
   }
+  function scrollToRouteStart(targetRoute){
+    const sel=targetRoute==='quick'?'#story-overview':targetRoute==='deep'?'.guide-deep':'#mode-full';
+    const el=document.querySelector(sel);
+    if(el){const offset=(document.querySelector('.toolbar')?.getBoundingClientRect().height||0)+16;window.scrollTo({top:Math.max(0,scrollY+el.getBoundingClientRect().top-offset),behavior:'instant'});}
+  }
   document.querySelectorAll('[data-route]').forEach(b=>b.addEventListener('click',()=>{
     route(b.dataset.route);
-    if(b.dataset.route==='quick'){
-      const overview=document.getElementById('story-overview');
-      if(overview){const offset=(document.querySelector('.toolbar')?.getBoundingClientRect().height||0)+16;window.scrollTo({top:Math.max(0,scrollY+overview.getBoundingClientRect().top-offset),behavior:'instant'});}
-    }
+    if(b.dataset.route==='quick')scrollToRouteStart('quick');
+  }));
+  document.querySelectorAll('[data-goto-route]').forEach(b=>b.addEventListener('click',()=>{
+    const target=b.dataset.gotoRoute;
+    route(target);
+    scrollToRouteStart(target);
   }));
   document.querySelectorAll('[data-read]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.read;state.read=state.read.includes(id)?state.read.filter(x=>x!==id):[...state.read,id];state.last=id;save();progress();}));
   document.querySelectorAll('[data-recall]').forEach(t=>{t.value=state.recall[t.dataset.recall]||'';t.addEventListener('input',()=>{state.recall[t.dataset.recall]=t.value;save();});});
@@ -98,7 +105,7 @@
   });
   document.addEventListener('visibilitychange',()=>{if(document.hidden)animations.forEach(a=>a.pause());});
   let printClosed=[];
-  addEventListener('beforeprint',()=>{animations.forEach(a=>a.pause());window.mechanismPlayers?.forEach(a=>a.pause());printClosed=[...document.querySelectorAll('details:not([open])')];printClosed.forEach(d=>d.open=true);});
+  addEventListener('beforeprint',()=>{animations.forEach(a=>a.pause());window.mechanismPlayers?.forEach(a=>a.pause());printClosed=[...document.querySelectorAll('details:not([open]):not(.latex-raw)')];printClosed.forEach(d=>d.open=true);});
   addEventListener('afterprint',()=>{printClosed.forEach(d=>d.open=false);printClosed=[];});
   document.addEventListener('click',e=>{const a=e.target.closest('a[href^="#"]');if(a){const id=a.getAttribute('href').slice(1);if(document.getElementById(id)){e.preventDefault();history.replaceState(null,'','#'+id);reveal(id);}}});
   window.addEventListener('hashchange',hash);

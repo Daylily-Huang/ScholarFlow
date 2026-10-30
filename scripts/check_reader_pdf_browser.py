@@ -22,7 +22,18 @@ with sync_playwright() as pw:
         page.wait_for_function('!!window.readerPDF')
         count=page.locator('.pcard').count()
         assert page.locator('.pcard .paragraph-vocabulary').count()==count
-        assert page.evaluate('[...document.querySelectorAll(".bilingual,.logic")].every(x=>x.open)')
+        assert page.evaluate('[...document.querySelectorAll(".translation,.plain,.logic")].every(x=>x.open)')
+        # Independent-folding must preserve actual evidence links and direct hashes.
+        page.locator('[data-route=quick]').click()
+        target=page.evaluate("[...document.querySelectorAll('#story-overview a.evidence')].map(a=>a.getAttribute('href')).find(h=>document.getElementById(h.slice(1))?.classList.contains('pcard'))")
+        assert target, 'Need a real paragraph evidence target'
+        page.locator('#story-overview a[href="'+target+'"]').first.click()
+        assert page.locator('#mode-full').is_visible()
+        assert 0 <= page.locator(target).bounding_box()['y'] < 1050
+        page.goto(file.as_uri()+target);page.reload();page.wait_for_function('!!window.readerPDF')
+        assert page.locator('#mode-full').is_visible()
+        assert 0 <= page.locator(target).bounding_box()['y'] < 1050
+        page.goto(file.as_uri());page.wait_for_function('!!window.readerPDF')
         page.locator('.paragraph-vocabulary').first.scroll_into_view_if_needed();page.screenshot(path=str(out/(name+'-vocabulary.png')))
         page.locator('#export-pdf').click();assert page.locator('.pdf-dialog').is_visible()
         page.screenshot(path=str(out/(name+'-pdf-dialog.png')))
