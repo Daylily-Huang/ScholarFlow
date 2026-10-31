@@ -71,15 +71,17 @@ python scripts/parse_mineru.py <paper.md> <scratch>/fulltext.json --paper-id <DO
 
 ## 4. 提取主线、规划重难点，再做机制动图
 
-拿到文献并读清结构后，先写适合本篇的主线（例如问题→设计/过程→证据→结论，或旧解释→新材料/细读→解释转变），再找读者难以想象的抽象概念、空间关系、状态变化与作用链。为这些重难点规划动图，记录：读者卡在哪里、对应原文、演示对象、变化过程、分步讲解、插入段落。无需用户逐个点名才制作；元信息、简单结论与纯静态对比按内容选择普通排版或静图。
+拿到文献并读清结构后，先写适合本篇的主线（例如问题→设计/过程→证据→结论，或旧解释→新材料/细读→解释转变），再找读者难以想象的抽象概念、空间关系、状态变化与作用链。先在 `guide.visual_plan` 列出全部主要理解难点及选择的表达方式（动图、原图、静图或文字），并说明为什么适合。动图按独立解释问题计数，同一配置在两条路线复用只算一个；不设全篇固定数量，不用播放器数或字段齐全代替覆盖。为这些重难点规划动图，记录：读者卡在哪里、对应原文、演示对象、变化过程、分步讲解、插入段落。无需用户逐个点名才制作；元信息、简单结论与纯静态对比按内容选择普通排版或静图。
 
 动图要把对象、位置、流动、累计、开关或过程的变化直接画出来，例如沿线搜索如何累积强度、细胞的外排通道减少后如何堆积。只让文字框依次出现不算讲清机制。论证演示可通过改变案例条件、揭示支持/反驳关系、移动材料到编码与主题来解释抽象关系；箭头的支持、反驳、先后、解释与因果含义须明确，静态比较适合时无需强行动画。10分钟读懂中，动图直接嵌在对应解释下面，原地播放、暂停、拖动和分步看；不能只放跳到逐段精读的链接。逐段精读也保留相应演示。两个位置复用同一场景配置，使用独立实例ID和控件状态；切路线或离开视区暂停。初始画面即能读懂对象与关系。
 
-按[动图规划与场景输入](references/mechanism-design.md)填写`guide.mechanisms`，渲染器按anchor插入原文旁。历史可用source_timeline分层核对事件、记录与后来的解释；文学可用communication演示旁听/对话/书信通道，text_focus对真实原句逐步高亮措辞。text_focus引句须与refs原文逐字匹配；人物、叙述者、评论者的声音及论文页码、作品版本页码分清。配置详见内容契约，不为多义文本强造单一因果。当前场景库还提供空间位置/观测、累计强度、成员开关、边界、钙与血管、胆固醇外排、氧化应激，以及分子入管、PCR早期滑移、独立重复记录、环境DNA过滤鉴定/指数衰减、qPCR探针发光与引物特异性对照；仅在概念与论文相符时选用，新概念需设计新场景，不能仅替换标题套动画。
+按[动图规划与场景输入](references/mechanism-design.md)填写`guide.mechanisms`，渲染器按anchor插入原文旁。历史可用source_timeline分层核对事件、记录与后来的解释；文学可用communication演示旁听/对话/书信通道，text_focus对真实原句逐步高亮措辞。text_focus引句须与refs原文逐字匹配；人物、叙述者、评论者的声音及论文页码、作品版本页码分清。配置详见内容契约，不为多义文本强造单一因果。当前场景库还提供空间位置/观测、累计强度、成员开关、边界、钙与血管、胆固醇外排、氧化应激，以及分子入管、PCR早期滑移、独立重复记录、环境DNA过滤鉴定/指数衰减、qPCR探针发光与引物特异性对照；仅在概念与论文相符时选用，新概念由执行者按本篇重难点自主设计并完成演示，不能要求使用者开发题材场景。优先使用题材无关的声明式 `process`（对象＋关键帧），旧场景只是可复用示例；复杂画面需要扩展时也属于本次制作工作，不得退回无关模板或仅替换标题。
 
 原图保留坐标、单位、图例和误差表示。机制动图标“机制示意”，说明演示数值和实际论文结果的关系；实验对象与因果强度写入对应讲解。支持暂停、分步、拖动和速度，切路线、离开视区或后台时暂停。
 
 旧版帧播放器仍支持显式legacy稿；新稿使用mechanisms与walkthrough.motions。通用版不包含特定论文的离线GIF生成脚本。
+
+新完整稿按 [通用演示与覆盖验收](references/declarative-scenes.md) 制作；构建带 `--require-visual-plan`。验收逐项检查关键问题是否得到解释、对象或条件是否实际变化、首中末帧是否与说明一致、箭头是否表达正确关系、数字是否保留对象/条件/基准。文字依次亮起的图可作论证地图，不能代替空间、作用或统计机制演示。未覆盖的关键难点回到输入/通用绘制层补齐并重建，不把题材不在库中作为交付限制。
 
 ## 5. 核心文献推荐
 
@@ -94,8 +96,8 @@ python scripts/parse_mineru.py <paper.md> <scratch>/fulltext.json --paper-id <DO
 ## 6. 构建与笔记
 
 ```powershell
-python scripts/validate_content.py <fulltext.json> <translations.json> <guide.json> --source <paper.md> --asset-root <图像及来源根目录> --require-figure-audit
-python scripts/build_html.py <fulltext.json> <translations.json> <guide.json> <输出.html> --asset-root <图像及来源根目录> --source <paper.md> --require-figure-audit
+python scripts/validate_content.py <fulltext.json> <translations.json> <guide.json> --source <paper.md> --asset-root <图像及来源根目录> --require-figure-audit --require-visual-plan
+python scripts/build_html.py <fulltext.json> <translations.json> <guide.json> <输出.html> --asset-root <图像及来源根目录> --source <paper.md> --require-figure-audit --require-visual-plan
 ```
 
 生成的HTML是构建产物，不事后手工补写。内容修订回到输入JSON；共性排版或交互问题回到skill的渲染器/资源，重建后验收最终文件。

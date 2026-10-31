@@ -126,6 +126,40 @@ document.querySelectorAll('[data-mechanism]').forEach(el=>{
   text(n<3?'先取得3次阳性PCR，再看证据是否清楚':n<7?'第一行证据已清楚；另外两行还需继续观察':'仅A持续出现与偶见C属于不同证据模式；含混时继续复核',450,400,18,P.green,'center',true);
   text('每列是一管独立起始的阳性PCR；固定教学例子，不执行项目基因型裁定',450,429,15,P.muted,'center');
  }
+ // Topic-independent primitives. Interpolate only validated numeric data.
+ function process_scene(){
+  for(const el of cfg.visual.elements){
+   let state={...el.props},lastAt=0;
+   for(const frame of el.frames||[]){
+    const {at,...next}=frame;
+    if(progress>=at){Object.assign(state,next);lastAt=at;continue;}
+    const q=Math.max(0,Math.min(1,(progress-lastAt)/(at-lastAt)));
+    for(const [k,v] of Object.entries(next)){
+     if(typeof v==='number'&&typeof state[k]==='number')state[k]=mix(state[k],v,q);
+     else if(k==='points'&&Array.isArray(state.points))state.points=state.points.map((p,i)=>p.map((n,j)=>mix(n,v[i][j],q)));
+    }
+    break;
+   }
+   ctx.save();ctx.globalAlpha=state.opacity===undefined?1:state.opacity;
+   ctx.fillStyle=state.fill==='none'?'transparent':state.fill||P.ink;
+   ctx.strokeStyle=state.stroke==='none'?'transparent':state.stroke||P.ink;
+   ctx.lineWidth=state.line_width||2;
+   if(el.type==='text'){
+    const size=state.font_size||18;ctx.font=size+'px "Microsoft YaHei", "Segoe UI", sans-serif';
+    ctx.textAlign=state.align||'left';ctx.textBaseline='middle';
+    state.text.split('\n').forEach((row,i)=>ctx.fillText(row,state.x,state.y+i*size*1.35));
+   }else{
+    ctx.beginPath();
+    if(el.type==='circle')ctx.arc(state.x,state.y,state.r,0,Math.PI*2);
+    else if(el.type==='rect')ctx.rect(state.x,state.y,state.w,state.h);
+    else if(el.type==='line'){ctx.moveTo(state.x,state.y);ctx.lineTo(state.x2,state.y2);}
+    else if(el.type==='polyline'){state.points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));}
+    if(el.type==='circle'||el.type==='rect'){if(state.fill!=='none')ctx.fill();}
+    if(state.stroke!=='none')ctx.stroke();
+   }
+   ctx.restore();
+  }
+ }
  function argument_map(){
   const v=cfg.visual,ns=v.nodes,stage=Math.min(cfg.stages.length-1,Math.floor(progress*cfg.stages.length));
   title(cfg.title);const positions=ns.map((n,i)=>({x:45+(i%3)*288,y:ns.length>3?85+Math.floor(i/3)*170:135,w:235,h:108}));
@@ -234,7 +268,7 @@ document.querySelectorAll('[data-mechanism]').forEach(el=>{
   circle(811,230,24,t>.85?P.green:'#dce8d8');text('Z',811,230,22,t>.85?'white':P.green,'center',true);
   text(t>.85?'完成从前提到结论的这一步':'规则作为行动：不再要求先抄一句',670,338,16,P.green,'center');text('对照帮助分清命题与推断动作，不替原文给出最终解答',450,424,16,P.muted,'center');
  }
- const scenes={inference_regress,gene_pool,edna_capture,edna_decay,qpcr_probe,primer_specificity,source_timeline,communication,text_focus,argument_map,evidence_coding,repeated_measures,spatial,hazard,augmentation,boundary,vessel,cholesterol,oxidative,molecular_sampling,pcr_slippage,replicate_consensus};
+ const scenes={process:process_scene,inference_regress,gene_pool,edna_capture,edna_decay,qpcr_probe,primer_specificity,source_timeline,communication,text_focus,argument_map,evidence_coding,repeated_measures,spatial,hazard,augmentation,boundary,vessel,cholesterol,oxidative,molecular_sampling,pcr_slippage,replicate_consensus};
  function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle=P.bg;ctx.fillRect(0,0,W,H);(scenes[cfg.scene]||(()=>text('演示场景未定义',40,80)))();const step=Math.min(cfg.stages.length-1,Math.floor(progress*cfg.stages.length));caption.textContent=cfg.stages[step];counter.textContent=(step+1)+' / '+cfg.stages.length;slider.value=Math.round(progress*1000);el.dataset.progress=progress.toFixed(4);el.dataset.stage=step;}
  function pause(){running=false;cancelAnimationFrame(raf);play.textContent='播放演示';play.setAttribute('aria-pressed','false');el.dataset.playing='false';}
  function tick(now){if(!running)return;if(last)progress=Math.min(1,progress+(now-last)/duration*Number(speed.value));last=now;draw();if(progress>=1)pause();else raf=requestAnimationFrame(tick);}

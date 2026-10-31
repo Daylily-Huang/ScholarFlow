@@ -12,7 +12,7 @@ from validate_content import validate
 from render_further import render_further
 
 ROOT = Path(__file__).resolve().parent.parent
-GENERATOR_VERSION = '1.4.0'
+GENERATOR_VERSION = '1.5.0'
 
 
 def refs_html(refs):
@@ -63,8 +63,8 @@ def render_guide(guide, asset_root, data=None):
             f'<section><h2>试着讲给别人听</h2>{"".join(checks)}</section></div>')
 
 
-def build(data, records, guide, asset_root, source_text=None, allow_incomplete=False, require_figure_audit=False):
-    report = validate(data, records, guide, source_text, allow_incomplete, asset_root, require_figure_audit)
+def build(data, records, guide, asset_root, source_text=None, allow_incomplete=False, require_figure_audit=False, require_visual_plan=False):
+    report = validate(data, records, guide, source_text, allow_incomplete, asset_root, require_figure_audit, require_visual_plan)
     if report["errors"]:
         raise ValueError('\n'.join(report["errors"]))
     full, missing = render_full(data, {r["id"]: r for r in records}, asset_root, guide.get('mechanisms', []))
@@ -162,6 +162,7 @@ def main():
     ap.add_argument('--source', type=Path)
     ap.add_argument('--allow-incomplete', action='store_true')
     ap.add_argument('--require-figure-audit', action='store_true', help='新完整稿要求独立来源图清单和全部图/子图核对完成')
+    ap.add_argument('--require-visual-plan', action='store_true', help='新完整稿核对重难点及其就地解释覆盖')
     args = ap.parse_args()
     try:
         values = []
@@ -174,7 +175,7 @@ def main():
         if args.source:
             with args.source.open(encoding='utf-8-sig', newline='') as stream:
                 source = stream.read()
-        result, report = build(*values, args.asset_root, source, args.allow_incomplete, args.require_figure_audit)
+        result, report = build(*values, args.asset_root, source, args.allow_incomplete, args.require_figure_audit, args.require_visual_plan)
         atomic_write(args.output, result)
     except (OSError, UnicodeError, ValueError) as exc:
         print('构建未完成：' + str(exc), file=sys.stderr)

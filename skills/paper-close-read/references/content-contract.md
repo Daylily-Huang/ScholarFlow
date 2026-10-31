@@ -127,3 +127,7 @@ JATS导入器可写入source.inline_runs：顺序数组，每项text为文字，
 
 
 分离图注：Markdown提取将图片与英文图注分为两个来源块时，可在图片的 `source.caption_ref` 填入实际图注段落ID。保留两块raw、ID与源顺序；逐段原图链接至原位图注，10分钟导读复用该段完整英文图注。未知、空或非段落引用阻断构建。
+
+## 重难点覆盖与题材无关绘制
+
+新稿填写 `visual_plan`，格式与 `scene:process` 对象/关键帧见[声明式演示](declarative-scenes.md)。新完整稿CLI添加 `--require-visual-plan`；Python build/validate可用同名布尔参数。旧输入仍能重建。严格检查验证来源/场景/十分钟插入映射，拒绝把argument_map标为机制，不能代替内容覆盖、箭头语义、数值口径和画面同步的实际审读。

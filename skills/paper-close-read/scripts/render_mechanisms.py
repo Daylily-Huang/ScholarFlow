@@ -2,9 +2,12 @@
 import html
 import json
 
-SCENES = {'inference_regress', 'gene_pool', 'edna_capture', 'edna_decay', 'qpcr_probe', 'primer_specificity', 'spatial', 'hazard', 'augmentation', 'boundary', 'vessel', 'cholesterol', 'oxidative', 'molecular_sampling', 'pcr_slippage', 'replicate_consensus', 'argument_map', 'evidence_coding', 'repeated_measures', 'source_timeline', 'communication', 'text_focus'}
+SCENES = {'process', 'inference_regress', 'gene_pool', 'edna_capture', 'edna_decay', 'qpcr_probe', 'primer_specificity', 'spatial', 'hazard', 'augmentation', 'boundary', 'vessel', 'cholesterol', 'oxidative', 'molecular_sampling', 'pcr_slippage', 'replicate_consensus', 'argument_map', 'evidence_coding', 'repeated_measures', 'source_timeline', 'communication', 'text_focus'}
 
 def validate_scene_data(m):
+    if m.get('scene') == 'process':
+        from process_scene import validate_process
+        return validate_process(m.get('visual'))
     d=m.get('visual',{});errors=[]
     if not isinstance(d,dict):return ['Scene visual must be an object']
     if m['scene']=='gene_pool':
