@@ -10,6 +10,7 @@ import sys
 import tempfile
 import unittest
 import zipfile
+import xml.etree.ElementTree as E
 
 ROOT=Path(__file__).resolve().parents[1]
 def module(name):
@@ -137,6 +138,23 @@ class ContentTests(unittest.TestCase):
         parts['ppt/slides/slide1.xml']=parts['ppt/slides/slide1.xml'].replace(self.doc['slides'][0]['title'].encode(),b'Changed conclusion')
         p.write_bytes(g.zipbytes(parts))
         with self.assertRaisesRegex(ValueError,'changed'):handoff.prepare(p,self.folder/'stale')
+    def test_reordered_presentation_invalidates_actual_exposition_order(self):
+        self.doc['slides']=[copy.deepcopy(self.doc['slides'][0]) for _ in range(2)]
+        self.doc['slides'][0]['title']='Method prerequisites';self.doc['slides'][1]['title']='Results interpretation';self.plan(self.doc)
+        self.doc['content_plan']['claims'][1]['depends_on']=['c1']
+        p=self.folder/'ordered.pptx';g.generate(self.doc,p,base_dir=self.folder)
+        self.assertEqual(c.check_pptx(p)['status'],'reviewed')
+        with zipfile.ZipFile(p) as z:parts={n:z.read(n) for n in z.namelist()}
+        root=E.fromstring(parts['ppt/presentation.xml']);ids=root.find('p:sldIdLst',g.NS);ids[:]=list(ids)[::-1]
+        parts['ppt/presentation.xml']=g.xml(root);p.write_bytes(g.zipbytes(parts))
+        with self.assertRaisesRegex(ValueError,'changed'):handoff.prepare(p,self.folder/'reordered formal')
+        self.assertFalse((self.folder/'reordered formal').exists())
+    def test_relationship_notes_and_picture_context_edits_invalidate_receipt(self):
+        p=self.folder/'bound.pptx';g.generate(self.doc,p,base_dir=self.folder)
+        with zipfile.ZipFile(p) as z:base={n:z.read(n) for n in z.namelist()}
+        for name in ('ppt/_rels/presentation.xml.rels','ppt/slides/_rels/slide1.xml.rels','ppt/notesSlides/notesSlide1.xml','ppt/slides/slide1.xml'):
+            parts=dict(base);parts[name]+=b'\n';p.write_bytes(g.zipbytes(parts))
+            with self.assertRaisesRegex(ValueError,'changed'):c.check_pptx(p)
     def test_edited_deck_re_review_requires_exact_output_hash_and_actual_claims(self):
         p=self.folder/'manual.pptx';g.generate(self.doc,p,base_dir=self.folder,draft=True)
         with self.assertRaisesRegex(ValueError,'exact SHA256'):c.check_edited(self.doc,self.folder,p)

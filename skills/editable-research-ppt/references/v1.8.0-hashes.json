@@ -9,13 +9,13 @@
     "assets/examples/native-composition.json": "3f6600833cf80764af87b17dc7f50909889d33325e2548a87daf0a748616ee93",
     "assets/examples/figures/composition-notes.txt": "9aaa8b8fd30c44dc33ae28688738f882c0bd6cfda15079a5036e104946c4baa3",
     "references/approved-standard.json": "807ae5dea209096bc05ee8dd7b94f6773ced21ae89641b11ec774717bdfe1d4a",
-    "references/design-contract.json": "d4d0f17ee5b8c073bed512e20efbd010a38f5802be1948e71ec2c922c44d8812",
-    "references/content-review.md": "b8da3af198c5cdd958ebd950da07f8daea02c63ec383f4aabcc30dfb09c0e28b",
+    "references/design-contract.json": "3f4e64bff289b603be0e9794586d1387489cd129314a4636ca14d41db52b55ef",
+    "references/content-review.md": "e50f8caa49c3d92195e1adbf1f9fb435a590eba7e23c66ad59a4e35dfde24025",
     "scripts/generate.py": "afd878453f97dc1707b0194be1e63502ab03e7018713ead4fad2ad053ac41fd5",
-    "scripts/content_audit.py": "11df40bb7472fb060d45a9afcd5cfe6fa8d8223c6e74886d7d1494a35d44e210",
+    "scripts/content_audit.py": "2cab8188af712ecce32e01c974c731a2689620ac158760b72a86692128f5c141",
     "scripts/preflight.py": "30217a9ae05bc622f34ddbf4329f55bf250175e916feed733865b7b8c23ee4a3",
     "scripts/prepare_handoff.py": "94096659d9a1d6532ec0555e68712c4bb2608ca802cd0008fb598644f49db891",
     "scripts/export_project.py": "c0f0144c3e389cf94f7b4ccbe37f59f24333b6d97cd45ef2dfc6be43b71fddeb",
-    "tests/test_content.py": "54e28470e8a27a804b682a11859d04304a2844cad775650412a85dfc2fc5c8e6"
+    "tests/test_content.py": "0abc8c9b8f3050ce57c6590fe0f6c91e7ddace4e7923a9332fb20f499c416192"
   }
 }

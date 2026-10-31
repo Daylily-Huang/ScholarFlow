@@ -70,7 +70,7 @@ python scripts/audit.py OUTPUT.pptx --strict
 
 正式生成缺少计划或检查失败会在写入之前停止；不会覆盖原稿。临时排版/迁移旧JSON可显式加`generate.py --draft`，原图、数值图表和排版原有检查照常运行。它在PPT包中记录draft，不转成正式内容通过；不在页面上增加破坏模板的装饰或水印。`demo: true`仅用于如实标注的合成样板，不能用来绕过真实研究核验。
 
-生成器将不含私有引文/路径的内容检查摘要及内容指纹写入PPT。文字、图表、工作簿或图片改变后，该内容凭据失效；仅位置/颜色等非内容变化不等于重新核对科学内容。某些Office重存会改写对象，失效时如实重新核验，不宣称自动继承。
+生成器将不含私有引文/路径的内容检查摘要及内容指纹写入PPT。凭据保守绑定实际页序、整页对象、关联关系、备注、图表、工作簿和媒体；调页、替换内容会令它失效，位置/样式修改或Office重存也可能令它失效。失效不一定说明科学内容改变，但不得静默继承旧凭据；按下文保留手改稿、核对实际变更并重新绑定，不用模板覆盖用户编辑。
 
 ```console
 python scripts/prepare_handoff.py --pptx OUTPUT.pptx --output-directory DELIVERY --preview-directory PREVIEW

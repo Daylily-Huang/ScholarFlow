@@ -215,13 +215,11 @@ def inspect(document,base_dir=None):
 
 
 def fingerprint(parts):
-    out={}
-    for name,data in sorted(parts.items()):
-        if re.fullmatch(r'ppt/slides/slide\d+\.xml',name):
-            node=E.fromstring(data)
-            out[name]=sha(canonical([clean(''.join(t.text or '' for t in p.iter(A+'t'))) for p in node.iter(A+'p')]))
-        elif name.startswith(('ppt/charts/','ppt/embeddings/','ppt/media/')) and not name.endswith('.rels'):out[name]=sha(data)
-    return out
+    # Bind the actual presentation order, all slide relationships/object content,
+    # notes, diagrams, charts, workbooks and media. A conservative byte binding
+    # also invalidates on some harmless styling/Office normalization changes;
+    # check_edited provides the explicit exact-PPTX review route for those cases.
+    return {name:sha(data) for name,data in sorted(parts.items()) if name.startswith('ppt/')}
 
 
 def attach(parts,document,report,draft=False):
