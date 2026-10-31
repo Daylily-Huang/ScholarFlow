@@ -30,7 +30,7 @@
 > 无需克隆仓库。解压后复制整个 `paper-close-read` 文件夹即可安装；保留逐段英文词汇和中英双语 PDF 导出；新增原图清单核对、讲解旁直接看原图，以及可拖动缩放的 PDF 原页窗口。
 > [Release 下载页与校验文件](https://github.com/Daylily-Huang/ScholarFlow/releases/tag/paper-close-read-v1.3.0) · [中文更新说明](docs/releases/paper-close-read-v1.3.0/CHANGELOG.zh-CN.md)
 
-**源码版 v1.4.0：** [查看本次更新](docs/releases/paper-close-read-v1.4.0/CHANGELOG.zh-CN.md)。新增按理解难度分配讲解、公式/表格就地拆解、可选结果卡与路线衔接；英文常显，译文、白话和逻辑可独立折叠。上方已发布的独立安装包仍为 v1.3.0；源码和安装包版本分别标明。
+**源码版 v1.5.0：** [查看更新](docs/releases/paper-close-read-v1.5.0/CHANGELOG.zh-CN.md)。助手可用通用对象与关键帧，为新题材直接制作过程演示；新增逐难点覆盖验收，核对图文阶段、关系与数值基准。保留双语对照、公式/表格拆解、原图原页与独立折叠。上方正式Release安装包仍为v1.3.0，尚未包含本次源码更新。
 
 **直接体验新版：** [Thomsen：原图与 PDF 原页窗口 HTML](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.3.0/Thomsen2012-reader.html) · [Wilcox：组合图与原页窗口 HTML](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.3.0/Wilcox2013-reader.html)（下载后离线打开）
 

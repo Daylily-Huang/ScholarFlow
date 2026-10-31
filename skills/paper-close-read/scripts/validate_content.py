@@ -7,7 +7,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 
-def validate(data, records, guide, source_text=None, allow_incomplete=False, asset_root=None, require_figure_audit=False):
+def validate(data, records, guide, source_text=None, allow_incomplete=False, asset_root=None, require_figure_audit=False, require_visual_plan=False):
     errors, warnings = [], []
     # Reject broken envelopes before traversing them, with paths useful to the author.
     if not isinstance(data, dict):errors.append('fulltext.json must be an object')
@@ -173,7 +173,7 @@ def validate(data, records, guide, source_text=None, allow_incomplete=False, ass
             errors.append('Mechanism needs valid source refs')
         if not mechanism.get('title') or not mechanism.get('question'):
             errors.append('Mechanism needs title and reader question')
-        if mechanism.get('scene') in {'gene_pool', 'edna_decay', 'argument_map', 'evidence_coding', 'repeated_measures', 'source_timeline', 'communication', 'text_focus'}:
+        if mechanism.get('scene') in {'process', 'gene_pool', 'edna_decay', 'argument_map', 'evidence_coding', 'repeated_measures', 'source_timeline', 'communication', 'text_focus'}:
             from render_mechanisms import validate_scene_data
             errors.extend(validate_scene_data(mechanism))
         if mechanism.get('scene')=='text_focus':
@@ -238,6 +238,8 @@ def validate(data, records, guide, source_text=None, allow_incomplete=False, ass
         for metric in overview.get('metrics', []):
             if any(not isinstance(metric.get(k), str) or not metric[k].strip() for k in ('label', 'value', 'meaning')):
                 errors.append('Story metric needs label/value/meaning text')
+    from process_scene import validate_visual_plan
+    errors.extend(validate_visual_plan(guide, ids, require_visual_plan))
     from figure_inventory import inventory_errors
     figure_errors, figure_warnings, figure_report = inventory_errors(data, guide, asset_root, require_figure_audit)
     errors.extend(figure_errors); warnings.extend(figure_warnings)
@@ -261,6 +263,7 @@ def main():
     ap.add_argument("--allow-incomplete", action="store_true")
     ap.add_argument('--asset-root', type=Path)
     ap.add_argument('--require-figure-audit', action='store_true')
+    ap.add_argument('--require-visual-plan', action='store_true')
     args = ap.parse_args()
     try:
         values=[]
@@ -273,7 +276,7 @@ def main():
     except (OSError,UnicodeError,ValueError) as exc:
         print(json.dumps({'errors':[str(exc)],'warnings':[]},ensure_ascii=False,indent=2))
         raise SystemExit(2)
-    report = validate(*values, source, args.allow_incomplete, args.asset_root or args.data.parent, args.require_figure_audit)
+    report = validate(*values, source, args.allow_incomplete, args.asset_root or args.data.parent, args.require_figure_audit, args.require_visual_plan)
     print(json.dumps(report, ensure_ascii=False, indent=2))
     raise SystemExit(bool(report["errors"]))
 
