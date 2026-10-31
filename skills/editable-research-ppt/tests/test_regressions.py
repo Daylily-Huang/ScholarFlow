@@ -35,7 +35,7 @@ class RegressionTests(unittest.TestCase):
         cls.out = Path(cls.tmp.name)
         cls.seed = g.load(ROOT/'assets/examples/all-layouts.json')
         cls.seed.update(demo=False,fill_style='solid',materials={'papers':[]})
-        cls.base = cls.out/'baseline.pptx'; g.generate(cls.seed, cls.base)
+        cls.base = cls.out/'baseline.pptx'; g.generate(cls.seed, cls.base,draft=True)
         with zipfile.ZipFile(cls.base) as z: cls.parts = {n:z.read(n) for n in z.namelist()}
         for name, color in [('a',(40,90,130)),('b',(200,60,20))]:
             (cls.out/f'{name}.png').write_bytes(png(color))
@@ -46,7 +46,7 @@ class RegressionTests(unittest.TestCase):
         if index is not None:d['slides']=[d['slides'][index]]
         return d
     def generate(self, d, name='case'):
-        p=self.out/f'{name}.pptx';g.generate(d,p,force=True);return p
+        p=self.out/f'{name}.pptx';g.generate(d,p,force=True,draft=True);return p
     def change(self, part, edit):
         parts=dict(self.parts);root=E.fromstring(parts[part]);edit(root);parts[part]=g.xml(root)
         p=self.out/'mutated.pptx';p.write_bytes(g.zipbytes(parts));return p
@@ -95,7 +95,7 @@ class RegressionTests(unittest.TestCase):
         for matrix in [[d['slides'][0]['matrix'][0]]+[row]*24,[[],[]],[['x']*90]*3]:
             d['slides'][0]['matrix']=matrix
             p=self.out/'owned.pptx';p.write_bytes(b'original')
-            with self.assertRaises(ValueError):g.generate(d,p,force=True)
+            with self.assertRaises(ValueError):g.generate(d,p,force=True,draft=True)
             self.assertEqual(p.read_bytes(),b'original')
     def test_audit_rejects_short_table_rows(self):
         def edit(root):
@@ -153,7 +153,7 @@ class RegressionTests(unittest.TestCase):
                         sizes={int(x.get('sz'))/75 for x in row.findall('.//a:rPr',g.NS) if x.get('sz')}
                         self.assertEqual(sizes,{policy['table_header' if i==0 else 'table_data']})
     def test_office_profile(self):
-        p=self.out/'office.pptx';g.generate(self.doc(),p,font_profile='office')
+        p=self.out/'office.pptx';g.generate(self.doc(),p,font_profile='office',draft=True)
         rep=a.audit(p,strict=True);self.assertTrue(rep['ok'],rep['errors'])
     def test_theme_font_and_chart_frame_are_checked(self):
         def edit_theme(root):

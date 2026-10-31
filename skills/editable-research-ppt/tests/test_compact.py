@@ -27,7 +27,7 @@ class CompactTests(unittest.TestCase):
     def tearDownClass(cls):cls.temp.cleanup()
     def doc(self):return g.load(ROOT/'assets/examples/compact-approved.json')
     def generate(self,doc,name):
-        out=self.out/(name+'.pptx');g.generate(doc,out,force=True,base_dir=ROOT/'assets/examples')
+        out=self.out/(name+'.pptx');g.generate(doc,out,force=True,base_dir=ROOT/'assets/examples',draft=doc.get('demo') is False)
         self.assertTrue(a.audit(out,strict=True)['ok'],a.audit(out,strict=True));return out
     def test_exact_approved_subset(self):
         catalog=g.load(ROOT/'assets/templates/compact-bindings.json')

@@ -18,7 +18,7 @@ class PortableTests(unittest.TestCase):
     def tearDownClass(cls):cls.tmp.cleanup()
     def example(self,name='all-layouts'):return g.load(ROOT/'assets/examples'/(name+'.json'))
     def output(self,name,doc):
-        p=self.out/(name+'.pptx');g.generate(doc,p,base_dir=ROOT/'assets/examples');self.assertTrue(a.audit(p)['ok'],a.audit(p));return p
+        p=self.out/(name+'.pptx');g.generate(doc,p,base_dir=ROOT/'assets/examples',draft=doc.get('demo') is False);self.assertTrue(a.audit(p)['ok'],a.audit(p));return p
     def test_all_examples(self):
         for path in sorted((ROOT/'assets/examples').glob('*.json')):
             doc=g.load(path);out=self.output('all-'+path.stem,doc)

@@ -5,7 +5,7 @@ description: 使用随包原生模板制作可编辑科研 PPTX，支持学术�
 
 # 可编辑科研 PPT
 
-当前版本为 **v1.7.1**。使用前运行 `python scripts/verify_release.py` 核验包完整性；维护或发布时另运行 `python scripts/verify_publication.py` 检查设计契约与隐私边界。具体能力和限制以下文与输入约定为准。
+当前版本为 **v1.8.0**。使用前运行 `python scripts/verify_release.py` 核验包完整性；维护或发布时另运行 `python scripts/verify_publication.py` 检查设计契约与隐私边界。具体能力和限制以下文与输入约定为准。
 
 内置厚实版作为稳定设计基线，并提供**自适应资料模式（`visual_mode: adaptive`）**：当 `demo: false` 时自动去除生硬的默认生态位图与卡片内冗余大图标，释放完整卡片宽度，按用户学科资料实时匹配极简线框图标或嵌入原图，并执行严格的字体、字号与位置对齐检查。
 
@@ -18,6 +18,14 @@ description: 使用随包原生模板制作可编辑科研 PPTX，支持学术�
 1. 按顺序确认：**场景 → 配色 → 填充风格**。先问学术分享（`academic`）、课程作业（`coursework`）或实验进展（`progress`）；收到答复后问主配色 P1 蓝白朱红、P2 松绿米白、P3 石墨青金、P4 酒红灰蓝、P5 靛紫芥黄、P6 湖蓝珊瑚、P7 赭橙米白、P8 深蓝香槟金、P9 孔雀青白、P10 黑白朱红；再问“轻盈浅底（`light`）”还是“厚实实底（`solid`）”。已明确的选项沿用，不重复询问；用户明确委托自行选择时默认 `P1 + solid`。
 2. 梳理用户提供的论文、数据表、图片或汇报素材，提炼核心科学问题、实验设计与关键数据证据。基于真实材料组织内容，缺失处如实标注，不编造数据。
 3. 先列“每页论点 → 证据/文字 → 讲解顺序 → 版式/变体”，覆盖文献核心问题、方法细节和主要结果，不为了图多而删掉必要文字。示例仅供字段与布局参考，不是成稿范式；再从 `assets/template-system.json` 选择匹配的版式（`L1`–`L23`，变化用 `variant`），避免机械套用全部版式。
+
+## 通用内容解读检查（v1.8）
+
+正式稿先读[内容计划与证据检查](references/content-review.md)，建立并实际核对`content_plan`：关键结论绑定原文/数据位置，区分实测、解释、预测和推导，保留对象/单位/比较基准/时间范围，声明必讲主题及逐页讲解依赖。适用于所有学科，不把个案术语、固定章节或统计阈值变成通用要求。
+
+先运行`content_audit.py --input INPUT.json`再生成。`demo: false`缺少或未通过内容计划时阻止正式生成；旧JSON/未完成材料只可显式`generate.py --draft`生成待审稿。正式交付默认核对内容凭据；旧稿用`prepare_handoff.py --draft`，手改稿按文档重新核对并绑定实际PPT哈希。图片、模板、配色、字号、联网素材与实际渲染门禁不变。
+
+这些检查验证声明与文件的一致性，不证明全文重点无遗漏或引用支持结论；执行AI/人工必须核对整页实质内容，不能批量填verified或仅靠脚本绿灯宣称读懂论文。
 
 ## 联网素材与解释性动画（v1.4）
 
@@ -73,6 +81,7 @@ description: 使用随包原生模板制作可编辑科研 PPTX，支持学术�
 
 ```console
 python scripts/check_environment.py
+python scripts/content_audit.py --input INPUT.json
 python scripts/generate.py --input INPUT.json --output OUTPUT.pptx --force
 python scripts/audit.py OUTPUT.pptx --strict
 ```

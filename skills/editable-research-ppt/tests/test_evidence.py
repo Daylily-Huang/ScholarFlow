@@ -27,7 +27,7 @@ class EvidenceTests(unittest.TestCase):
     def tearDown(self):self.temp.cleanup()
     def generate(self,d):
         out=self.out/'result.pptx'
-        g.generate(d,out,force=True,base_dir=self.base)
+        g.generate(d,out,force=True,base_dir=self.base,draft=True)
         return out
     def formal(self):
         d=copy.deepcopy(self.doc)

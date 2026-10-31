@@ -14,6 +14,10 @@
     4. **原生表格自适应归一化**：`L4` 表格自动按列内容视觉长度分配列宽、统一所有数据行字号为 `20px`（表头 `21px`），并清除模板残留 `#AF3D3D` 警示色块。
   - 当 `demo: true` 时，默认 `visual_mode: "legacy"`，保持历史示例逐字节兼容。
 
+## 内容计划与正式/待审分流
+
+所有学科的正式输入`demo: false`须提供并实际核对`content_plan`，按[通用内容检查](content-review.md)执行来源、证据性质、口径、覆盖与讲解依赖核对。`content_audit.py`与预检通过后再生成；缺项时仅可明确`--draft`制作待审稿，不能用`demo: true`伪装真实材料。正式交付还核验内容凭据或实际手改PPT的重新核对记录。
+
 ## 从示例修改
 
 先按每页论点和证据规划；从 `assets/examples/academic.json`、`coursework.json` 或 `progress.json` 参考字段，不照搬整套页序。`all-layouts.json` 保留历史十四种结构；`compact-approved.json` 提供 L21–L23 的六个已批准紧凑变体。

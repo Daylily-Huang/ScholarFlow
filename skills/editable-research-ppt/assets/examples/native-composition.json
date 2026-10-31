@@ -178,5 +178,246 @@
       }
     ]
   },
-  "footer": "合成测试资料 · 非真实研究结果"
+  "footer": "合成测试资料 · 非真实研究结果",
+  "content_plan": {
+    "version": 1,
+    "sources": [
+      {
+        "id": "layout-notes",
+        "path": "figures/composition-notes.txt",
+        "sha256": "9aaa8b8fd30c44dc33ae28688738f882c0bd6cfda15079a5036e104946c4baa3"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "layout-note-1",
+        "source_id": "layout-notes",
+        "locator": "合成排版说明第2行",
+        "quote": "保留完整证据，解释紧邻研究问题",
+        "kind": "background",
+        "context": "synthetic-layout",
+        "status": "verified"
+      },
+      {
+        "id": "layout-note-2",
+        "source_id": "layout-notes",
+        "locator": "合成排版说明第3行",
+        "quote": "图 1  合成测试资料",
+        "kind": "background",
+        "context": "synthetic-layout",
+        "status": "verified"
+      },
+      {
+        "id": "layout-note-3",
+        "source_id": "layout-notes",
+        "locator": "合成排版说明第4行",
+        "quote": "来源：随包 synthetic-study.pdf（示意）",
+        "kind": "background",
+        "context": "synthetic-layout",
+        "status": "verified"
+      },
+      {
+        "id": "layout-note-4",
+        "source_id": "layout-notes",
+        "locator": "合成排版说明第5行",
+        "quote": "研究问题",
+        "kind": "background",
+        "context": "synthetic-layout",
+        "status": "verified"
+      },
+      {
+        "id": "layout-note-5",
+        "source_id": "layout-notes",
+        "locator": "合成排版说明第6行",
+        "quote": "生境差异是否伴随\n监测记录的变化？",
+        "kind": "background",
+        "context": "synthetic-layout",
+        "status": "verified"
+      },
+      {
+        "id": "layout-note-6",
+        "source_id": "layout-notes",
+        "locator": "合成排版说明第7行",
+        "quote": "讲解顺序",
+        "kind": "background",
+        "context": "synthetic-layout",
+        "status": "verified"
+      },
+      {
+        "id": "layout-note-7",
+        "source_id": "layout-notes",
+        "locator": "合成排版说明第8行",
+        "quote": "先读坐标与图例，\n再比较组间差异，\n最后核对设计条件。",
+        "kind": "background",
+        "context": "synthetic-layout",
+        "status": "verified"
+      },
+      {
+        "id": "layout-note-8",
+        "source_id": "layout-notes",
+        "locator": "合成排版说明第9行",
+        "quote": "合成测试资料 · 非真实研究结果",
+        "kind": "background",
+        "context": "synthetic-layout",
+        "status": "verified"
+      }
+    ],
+    "claims": [
+      {
+        "id": "layout-claim-1",
+        "text": "保留完整证据，解释紧邻研究问题",
+        "kind": "background",
+        "context": "synthetic-layout",
+        "evidence_ids": [
+          "layout-note-1"
+        ],
+        "targets": [
+          {
+            "slide": 1,
+            "field": "composition.0.text"
+          },
+          {
+            "slide": 1,
+            "field": "title"
+          }
+        ]
+      },
+      {
+        "id": "layout-claim-2",
+        "text": "图 1  合成测试资料",
+        "kind": "background",
+        "context": "synthetic-layout",
+        "evidence_ids": [
+          "layout-note-2"
+        ],
+        "targets": [
+          {
+            "slide": 1,
+            "field": "composition.3.text"
+          }
+        ]
+      },
+      {
+        "id": "layout-claim-3",
+        "text": "来源：随包 synthetic-study.pdf（示意）",
+        "kind": "background",
+        "context": "synthetic-layout",
+        "evidence_ids": [
+          "layout-note-3"
+        ],
+        "targets": [
+          {
+            "slide": 1,
+            "field": "composition.4.text"
+          }
+        ]
+      },
+      {
+        "id": "layout-claim-4",
+        "text": "研究问题",
+        "kind": "background",
+        "context": "synthetic-layout",
+        "evidence_ids": [
+          "layout-note-4"
+        ],
+        "targets": [
+          {
+            "slide": 1,
+            "field": "composition.5.text"
+          }
+        ]
+      },
+      {
+        "id": "layout-claim-5",
+        "text": "生境差异是否伴随\n监测记录的变化？",
+        "kind": "background",
+        "context": "synthetic-layout",
+        "evidence_ids": [
+          "layout-note-5"
+        ],
+        "targets": [
+          {
+            "slide": 1,
+            "field": "composition.6.text"
+          }
+        ]
+      },
+      {
+        "id": "layout-claim-6",
+        "text": "讲解顺序",
+        "kind": "background",
+        "context": "synthetic-layout",
+        "evidence_ids": [
+          "layout-note-6"
+        ],
+        "targets": [
+          {
+            "slide": 1,
+            "field": "composition.7.text"
+          }
+        ]
+      },
+      {
+        "id": "layout-claim-7",
+        "text": "先读坐标与图例，\n再比较组间差异，\n最后核对设计条件。",
+        "kind": "background",
+        "context": "synthetic-layout",
+        "evidence_ids": [
+          "layout-note-7"
+        ],
+        "targets": [
+          {
+            "slide": 1,
+            "field": "composition.8.text"
+          }
+        ]
+      },
+      {
+        "id": "layout-claim-8",
+        "text": "合成测试资料 · 非真实研究结果",
+        "kind": "background",
+        "context": "synthetic-layout",
+        "evidence_ids": [
+          "layout-note-8"
+        ],
+        "targets": [
+          {
+            "slide": 1,
+            "field": "composition.9.text"
+          }
+        ]
+      }
+    ],
+    "coverage": [
+      {
+        "id": "layout-test",
+        "topic": "合成图文排版示例说明",
+        "required": true,
+        "claim_ids": [
+          "layout-claim-1",
+          "layout-claim-2",
+          "layout-claim-3",
+          "layout-claim-4",
+          "layout-claim-5",
+          "layout-claim-6",
+          "layout-claim-7",
+          "layout-claim-8"
+        ]
+      }
+    ],
+    "pages": [
+      {
+        "slide": 1,
+        "role": "content",
+        "message": "完整原图与原生解释区的合成版式示例"
+      }
+    ],
+    "review": {
+      "status": "verified",
+      "scope": "all_visible_substantive_content",
+      "reviewer": "ScholarFlow synthetic fixture review",
+      "note": "仅核对随包合成排版文字与示例说明；没有真实科研结果或独立科学认证",
+      "slides_sha256": "164a0370457fed6494683e5a4ecd3e8cdd85f532c8bd48f71161c07615031660"
+    }
+  }
 }

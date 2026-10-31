@@ -30,7 +30,7 @@ class ProjectTests(unittest.TestCase):
     def tearDown(self):self.tmp.cleanup()
     def save(self):self.source.write_text(json.dumps(self.doc,ensure_ascii=False),encoding='utf-8')
     def test_portable_project_rebuild_without_installed_skill(self):
-        self.save();a=self.folder/'source project';exporter.export(self.source,a)
+        self.save();a=self.folder/'source project';exporter.export(self.source,a,draft=True)
         moved=self.folder/'moved folder';a.rename(moved)
         out=self.folder/'rebuilt.pptx';subprocess.run([sys.executable,'-I','-S','-B',str(moved/'rebuild.py'),'--output',str(out)],cwd=self.folder,check=True,capture_output=True)
         self.assertTrue(audit.audit(out,strict=True)['ok'])
@@ -39,17 +39,17 @@ class ProjectTests(unittest.TestCase):
         self.assertNotIn(str(self.folder), (moved/'input.json').read_text(encoding='utf-8'))
     def test_project_refuses_overwrite_and_outside_asset(self):
         self.save();out=self.folder/'project';out.mkdir()
-        with self.assertRaises(FileExistsError):exporter.export(self.source,out)
+        with self.assertRaises(FileExistsError):exporter.export(self.source,out,draft=True)
         self.doc['materials']['papers'][0]['path']='../outside.pdf';self.save()
-        with self.assertRaises(ValueError):exporter.export(self.source,self.folder/'new')
+        with self.assertRaises(ValueError):exporter.export(self.source,self.folder/'new',draft=True)
         self.assertFalse((self.folder/'new').exists())
     def test_project_rejects_tampering_before_generating(self):
-        self.save();p=self.folder/'project';exporter.export(self.source,p)
+        self.save();p=self.folder/'project';exporter.export(self.source,p,draft=True)
         (p/'runtime/scripts/generate.py').write_text('CHANGED',encoding='utf-8');out=self.folder/'unexpected.pptx'
         r=subprocess.run([sys.executable,'-I','-S','-B',str(p/'rebuild.py'),'--output',str(out)],capture_output=True)
         self.assertNotEqual(r.returncode,0);self.assertFalse(out.exists())
     def test_edited_input_requires_explicit_opt_in(self):
-        self.save();p=self.folder/'project';exporter.export(self.source,p)
+        self.save();p=self.folder/'project';exporter.export(self.source,p,draft=True)
         doc=json.loads((p/'input.json').read_text(encoding='utf-8'));doc['slides'][0]['title']='修改后保留原始证据'
         (p/'input.json').write_text(json.dumps(doc,ensure_ascii=False),encoding='utf-8');out=self.folder/'edited.pptx'
         cmd=[sys.executable,'-I','-S','-B',str(p/'rebuild.py'),'--output',str(out)]
@@ -65,11 +65,11 @@ class ProjectTests(unittest.TestCase):
           {'kind':'text','name':'source','text':fig['source'],'box':[32,602,1216,26],'size':17}]
         return page
     def test_native_composition_preserves_complete_original(self):
-        self.composition();out=self.folder/'native.pptx';g.generate(self.doc,out,base_dir=self.folder)
+        self.composition();out=self.folder/'native.pptx';g.generate(self.doc,out,base_dir=self.folder,draft=True)
         self.assertTrue(audit.audit(out,strict=True)['ok'])
     def test_composition_theme_token_changes_text_not_evidence_pixels(self):
         page=self.composition();page['composition'][0]['color']='primary';self.doc['palette']='P2';page.pop('palette',None)
-        out=self.folder/'themed.pptx';g.generate(self.doc,out,base_dir=self.folder)
+        out=self.folder/'themed.pptx';g.generate(self.doc,out,base_dir=self.folder,draft=True)
         self.assertTrue(audit.audit(out,strict=True)['ok'])
         with zipfile.ZipFile(out) as z:
             self.assertIn((self.folder/'figure.png').read_bytes(),[z.read(n) for n in z.namelist() if n.startswith('ppt/media/')])
@@ -77,17 +77,17 @@ class ProjectTests(unittest.TestCase):
             self.assertIn(expected,z.read('ppt/slides/slide1.xml'))
     def test_composition_rejects_unused_figure_or_missing_caption(self):
         page=self.composition();page['composition']=[n for n in page['composition'] if n['kind']!='image']
-        with self.assertRaises(ValueError):g.generate(self.doc,self.folder/'unused.pptx',base_dir=self.folder)
+        with self.assertRaises(ValueError):g.generate(self.doc,self.folder/'unused.pptx',base_dir=self.folder,draft=True)
         page=self.composition();page['composition']=[n for n in page['composition'] if n.get('name')!='caption']
-        with self.assertRaises(ValueError):g.generate(self.doc,self.folder/'caption.pptx',base_dir=self.folder)
+        with self.assertRaises(ValueError):g.generate(self.doc,self.folder/'caption.pptx',base_dir=self.folder,draft=True)
     def test_composition_rejects_unsafe_box_unknown_field_and_tiny_text(self):
         for field,value in [('box',[-1,0,400,40]),('box',[0,0,float('nan'),40]),('size',8),('unsupported','value')]:
             d=copy.deepcopy(self.doc);self.composition();page=copy.deepcopy(self.doc['slides'][0]);page['composition'][0][field]=value;d['slides']=[page]
-            with self.assertRaises(ValueError):g.generate(d,self.folder/'bad.pptx',base_dir=self.folder)
+            with self.assertRaises(ValueError):g.generate(d,self.folder/'bad.pptx',base_dir=self.folder,draft=True)
         self.composition();bad=copy.deepcopy(self.doc);bad['slides'][0]['layout']='L1';bad['demo']=True
-        with self.assertRaisesRegex(ValueError,'composition'):g.generate(bad,self.folder/'wrong-layout.pptx',base_dir=self.folder)
+        with self.assertRaisesRegex(ValueError,'composition'):g.generate(bad,self.folder/'wrong-layout.pptx',base_dir=self.folder,draft=True)
         page=self.composition();page['experiment_scene']=page.pop('composition')
-        with self.assertRaisesRegex(ValueError,'experiment_scene'):g.generate(self.doc,self.folder/'legacy.pptx',base_dir=self.folder)
+        with self.assertRaisesRegex(ValueError,'experiment_scene'):g.generate(self.doc,self.folder/'legacy.pptx',base_dir=self.folder,draft=True)
 
 
 if __name__=='__main__':unittest.main()

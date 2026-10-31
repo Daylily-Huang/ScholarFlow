@@ -83,13 +83,13 @@ class InspectionTests(unittest.TestCase):
                 warnings.simplefilter('ignore');z.writestr('same.xml','<x/>')
         self.assertFalse(inspect(p)['ok'])
     def test_delivery_without_preview_is_honest_and_portable(self):
-        out=self.folder/'delivery';r=handoff.prepare(self.source,out)
+        out=self.folder/'delivery';r=handoff.prepare(self.source,out,draft=True)
         self.assertTrue(r['ok']);self.assertFalse(r['render_evidence_matched'])
         self.assertEqual((out/'presentation.pptx').read_bytes(),self.source.read_bytes())
         manifest=json.loads((out/'delivery-manifest.json').read_text(encoding='utf-8'))
         for n,h in manifest['files'].items():self.assertEqual(h,handoff.sha((out/n).read_bytes()))
         self.assertIn('视觉未验证',(out/'使用与编辑.md').read_text(encoding='utf-8'))
-        with self.assertRaises(FileExistsError):handoff.prepare(self.source,out)
+        with self.assertRaises(FileExistsError):handoff.prepare(self.source,out,draft=True)
     def test_delivery_preview_hashes_and_page_order(self):
         preview=self.folder/'preview';preview.mkdir()
         png=b'\x89PNG\r\n\x1a\nTEST ONLY'
@@ -99,29 +99,29 @@ class InspectionTests(unittest.TestCase):
             pages.append({'slide':i,'preview_file':name,'preview_sha256':handoff.sha(png)})
         report=dict(source='PRIVATE LOCAL SOURCE',source_sha256=handoff.sha(self.source.read_bytes()),quality_ok=True,source_unchanged=True,slides=pages)
         path=preview/'powerpoint-validation.json';path.write_text(json.dumps(report),encoding='utf-8')
-        good=self.folder/'with-preview';self.assertTrue(handoff.prepare(self.source,good,preview)['render_evidence_matched'])
+        good=self.folder/'with-preview';self.assertTrue(handoff.prepare(self.source,good,preview,draft=True)['render_evidence_matched'])
         self.assertNotIn('PRIVATE LOCAL SOURCE',(good/'render-validation.json').read_text(encoding='utf-8'))
         (preview/'slide-01.png').write_bytes(b'CHANGED')
         bad=self.folder/'bad-preview'
-        with self.assertRaisesRegex(ValueError,'Preview bytes'):handoff.prepare(self.source,bad,preview)
+        with self.assertRaisesRegex(ValueError,'Preview bytes'):handoff.prepare(self.source,bad,preview,draft=True)
         self.assertFalse(bad.exists())
         (preview/'slide-01.png').write_bytes(png);report['source_sha256']='0'*64;path.write_text(json.dumps(report),encoding='utf-8')
-        with self.assertRaisesRegex(ValueError,'exact PPTX'):handoff.prepare(self.source,bad,preview)
+        with self.assertRaisesRegex(ValueError,'exact PPTX'):handoff.prepare(self.source,bad,preview,draft=True)
         report['source_sha256']=handoff.sha(self.source.read_bytes());report['slides'].reverse();path.write_text(json.dumps(report),encoding='utf-8')
-        with self.assertRaisesRegex(ValueError,'page order'):handoff.prepare(self.source,bad,preview)
+        with self.assertRaisesRegex(ValueError,'page order'):handoff.prepare(self.source,bad,preview,draft=True)
     def test_failed_delivery_write_cleans_only_new_owned_directory(self):
         out=self.folder/'failed';original=Path.open
         def fail(path,*args,**kwargs):
             if args and args[0]=='xb':raise OSError('Disk full')
             return original(path,*args,**kwargs)
         with patch.object(Path,'open',fail):
-            with self.assertRaises(OSError):handoff.prepare(self.source,out)
+            with self.assertRaises(OSError):handoff.prepare(self.source,out,draft=True)
         self.assertFalse(out.exists());self.assertTrue(self.source.exists())
     def test_public_delivery_blocks_sensitive_notes(self):
         def sensitive(parts):
             n='ppt/notesSlides/notesSlide1.xml';r=ET.fromstring(parts[n]);r.find('.//a:t',g.NS).text='C:\\Users\\private\\paper.pdf';parts[n]=g.xml(r)
         source=self.variant(sensitive);out=self.folder/'public'
-        with self.assertRaisesRegex(ValueError,'local paths'):handoff.prepare(source,out,public=True)
+        with self.assertRaisesRegex(ValueError,'local paths'):handoff.prepare(source,out,public=True,draft=True)
         self.assertFalse(out.exists())
 
 

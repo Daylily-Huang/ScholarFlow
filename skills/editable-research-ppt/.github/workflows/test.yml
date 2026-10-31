@@ -18,3 +18,4 @@ jobs:
       - run: python -I -S -B -m unittest discover -s tests -v
       - run: python -I -S -B scripts/verify_release.py
       - run: python -I -S -B scripts/verify_publication.py
+      - run: python -I -S -B scripts/content_audit.py --input assets/examples/native-composition.json

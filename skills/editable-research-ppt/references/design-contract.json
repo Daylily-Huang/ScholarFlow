@@ -593,13 +593,17 @@
     }
   },
   "runtime_sha256": {
-    "scripts/generate.py": "1ee0b9ba7fcc3c9406ff846cdb2a475850a9060f58d4473612f0a9627789c6a4",
+    "scripts/generate.py": "afd878453f97dc1707b0194be1e63502ab03e7018713ead4fad2ad053ac41fd5",
     "scripts/audit.py": "e0472d03c01ca54b3beb1e9b5abee73b0b9213b9205af545596f5b401ef696a0",
     "scripts/fill_styles.py": "a842b42742f6543ac9fd69d537643c734829feab52ee841dc432e17156bbf87f",
     "scripts/evidence_layouts.py": "a91619e81901db20e0c6e71849f6293c7da083c558776521406e8c09940de60c",
     "scripts/compact_layouts.py": "b60a7330f323ea47c53bdc1356a14b3dfb31796c0fd89499822ac2712631b422",
     "assets/templates/compact-bindings.json": "6bb5df4cae055303caad6f89f1ae225c5681afb60ec17ce6813842aa51995b18",
-    "assets/templates/bindings.json": "a784832d40efc3857cd56166302b3bc06c8fa3f6fac3319e20917c0d5b1771e0"
+    "assets/templates/bindings.json": "a784832d40efc3857cd56166302b3bc06c8fa3f6fac3319e20917c0d5b1771e0",
+    "scripts/content_audit.py": "11df40bb7472fb060d45a9afcd5cfe6fa8d8223c6e74886d7d1494a35d44e210",
+    "scripts/preflight.py": "30217a9ae05bc622f34ddbf4329f55bf250175e916feed733865b7b8c23ee4a3",
+    "scripts/prepare_handoff.py": "94096659d9a1d6532ec0555e68712c4bb2608ca802cd0008fb598644f49db891",
+    "scripts/export_project.py": "c0f0144c3e389cf94f7b4ccbe37f59f24333b6d97cd45ef2dfc6be43b71fddeb"
   },
   "template_structure": {
     "assets/templates/library.pptx": {
@@ -670,5 +674,10 @@
       "ppt/theme/theme2.xml": "a2fde60b46d9123177e58c5c68c3b003efa6b1bad803aaf238e823caf570b823"
     }
   },
-  "note": "Stable public design contract. Privacy cleaning may change Office metadata and example text, but cannot change these design semantics, renderer code, or template geometry/styles."
+  "note": "Stable public design contract. Privacy cleaning may change Office metadata and example text, but cannot change these design semantics, renderer code, or template geometry/styles.",
+  "content_gate_revision": {
+    "version": "1.8.0",
+    "previous_generator_sha256": "1ee0b9ba7fcc3c9406ff846cdb2a475850a9060f58d4473612f0a9627789c6a4",
+    "reason": "Formal/draft content checks and receipt integration only; existing geometry/font/palette rendering remains unchanged."
+  }
 }

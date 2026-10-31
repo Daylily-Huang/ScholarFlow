@@ -99,7 +99,7 @@ python install.py --target ~/.codex/skills
 
 ## 🖥️ 可编辑科研 PPT 扩展
 
-[editable-research-ppt](skills/editable-research-ppt/README.md) 通用版 v1.7.1：学术分享、课程作业、实验进展三种场景，十套配色、浅底/实底两种填充、二十三类版式及变体。必须保留相关论文完整原图；文字、自制框图与数据图保持原生可编辑，原图内部不冒充可编辑。随包487个在线来源SVG、332项已测原生形状缓存；先查缓存，不足再联网。模板、配色、字号、原图规则和隐私扫描接入CI，实际视觉与跨软件编辑仍按验收范围声明。
+[editable-research-ppt](skills/editable-research-ppt/README.md) 通用版 v1.8.0：学术分享、课程作业、实验进展三种场景，十套配色、浅底/实底两种填充、二十三类版式及变体。必须保留相关论文完整原图；文字、自制框图与数据图保持原生可编辑，原图内部不冒充可编辑。随包487个在线来源SVG、332项已测原生形状缓存；先查缓存，不足再联网。正式稿新增跨学科内容计划：来源、证据性质、数据口径、主题覆盖和讲解依赖检查；未核对输入只可显式生成待审稿。模板、配色、字号、原图规则和隐私扫描接入CI，实际视觉与跨软件编辑仍按验收范围声明。
 
 [![四页实际 PowerPoint 效果](skills/editable-research-ppt/examples/promo/overview.png)](skills/editable-research-ppt/examples/promo/README.md)
 

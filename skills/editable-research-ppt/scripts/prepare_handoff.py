@@ -18,7 +18,7 @@ def module(name):
 def sha(data):return hashlib.sha256(data).hexdigest()
 
 
-def prepare(pptx,output,preview_dir=None,*,public=False):
+def prepare(pptx,output,preview_dir=None,*,public=False,draft=False,content_input=None):
     source=Path(pptx).resolve();destination=Path(output).resolve()
     if destination.exists():raise FileExistsError('Delivery directory exists; choose a new directory')
     if source.suffix.lower()!='.pptx':raise ValueError('Expected PPTX')
@@ -31,6 +31,14 @@ def prepare(pptx,output,preview_dir=None,*,public=False):
     if inspection['offline_dependencies']:raise ValueError('Linked content must be embedded before offline delivery')
     if public and inspection['privacy_indicators']:
         raise ValueError('Review local paths or credential-like content before preparing a public bundle')
+    content=module('content_audit')
+    if draft:
+        content_review=dict(status='draft',scope='Content review not established; explicit draft handoff')
+    elif content_input is not None:
+        content_input=Path(content_input).resolve()
+        content_review=content.check_edited(json.loads(content_input.read_text(encoding='utf-8-sig')),content_input.parent,source)
+    else:
+        content_review=content.check_pptx(source)
     files={'presentation.pptx':payload}
     rendering=None
     if preview_dir is not None:
@@ -58,6 +66,8 @@ def prepare(pptx,output,preview_dir=None,*,public=False):
 
 验证状态：{status}
 
+内容状态：{'待审稿，尚未通过内容检查，不作为正式成稿。' if draft else '已完成声明的内容检查；来源解释及科学正确性仍需AI/人工负责，脚本不作科学认证。'}
+
 原生文字、形状、连接线可在PowerPoint修改；原生图表含工作簿时可编辑数据。独立图片可移动、裁剪和替换，内部文字/曲线不可逐项编辑；视频需要修改源文件再导出。对象清单只证明包结构，实际编辑仍以目标软件保存重开验证为准。
 
 请另存后编辑。PPT中的手工修改不会自动写回制作JSON。原论文图表保持原图和来源；需要源码或原始数据时向制作者索取，交付工具不会自动附带私有论文和数据。不要因有交付包而假定素材许可已核实。
@@ -69,8 +79,10 @@ def prepare(pptx,output,preview_dir=None,*,public=False):
     files['使用与编辑.md']=instructions.encode('utf-8')
     files['object-report.json']=(json.dumps(inspection,ensure_ascii=False,indent=2)+'\n').encode('utf-8')
     files['layout-validation.json']=(json.dumps(layout,ensure_ascii=False,indent=2)+'\n').encode('utf-8')
+    files['content-validation.json']=(json.dumps(content_review,ensure_ascii=False,indent=2)+'\n').encode('utf-8')
     manifest={'version':1,'presentation_sha256':digest,'render_evidence_matched':rendering is not None,
-              'manual_content_and_visual_review':'not established by this tool',
+              'content_status':content_review['status'],
+              'manual_content_and_visual_review':'Content review is an Agent/human attestation, not independently established by this tool',
               'files':{n:sha(b) for n,b in files.items()}}
     files['delivery-manifest.json']=(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n').encode('utf-8')
     destination.parent.mkdir(parents=True,exist_ok=True)
@@ -90,9 +102,11 @@ def main():
     parser.add_argument('--pptx',type=Path,required=True)
     parser.add_argument('--output-directory',type=Path,required=True)
     parser.add_argument('--preview-directory',type=Path)
+    parser.add_argument('--draft',action='store_true',help='Explicitly deliver an unreviewed draft')
+    parser.add_argument('--content-input',type=Path,help='Re-reviewed source input bound to an edited PPTX SHA256')
     parser.add_argument('--public',action='store_true',help='Block pattern-based privacy indicators; does not publish or clear licences')
     args=parser.parse_args()
-    try:result=prepare(args.pptx,args.output_directory,args.preview_directory,public=args.public)
+    try:result=prepare(args.pptx,args.output_directory,args.preview_directory,public=args.public,draft=args.draft,content_input=args.content_input)
     except (OSError,ValueError,KeyError,TypeError) as exc:
         print(json.dumps({'ok':False,'error':str(exc)},ensure_ascii=False));return 1
     print(json.dumps(result,ensure_ascii=False,indent=2));return 0

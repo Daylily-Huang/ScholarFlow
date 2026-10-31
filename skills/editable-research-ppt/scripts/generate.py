@@ -337,7 +337,7 @@ def fit_pic_aspect(pic, data):
         for sr in list(blipFill.findall('a:srcRect', NS)):
             blipFill.remove(sr)
 
-def generate(document,output,*,force=False,font_profile='portable',base_dir=None):
+def generate(document,output,*,force=False,font_profile='portable',base_dir=None,draft=False):
     require(isinstance(document,dict),'Input must be a JSON object')
     system=load(ROOT/'assets/template-system.json');bindings=load(ROOT/'assets/templates/bindings.json')
     require(document.get('scenario') in system['scenarios'],'Choose scenario: academic/coursework/progress')
@@ -348,6 +348,12 @@ def generate(document,output,*,force=False,font_profile='portable',base_dir=None
     output=Path(output).resolve();require(output.suffix.lower()=='.pptx','Output must end in .pptx')
     require(force or not output.exists(),'Output exists; choose another file or pass --force')
     base_dir=Path(base_dir).resolve() if base_dir else Path.cwd()
+    content=None;content_report=None
+    if document['demo'] is False or 'content_plan' in document:
+        spec_content=importlib.util.spec_from_file_location('research_ppt_content',ROOT/'scripts/content_audit.py')
+        content=importlib.util.module_from_spec(spec_content);spec_content.loader.exec_module(content)
+        content_report=content.inspect(document,base_dir)
+        require(draft or content_report['ok'],'Content review failed; correct content_plan or explicitly use --draft: '+json.dumps(content_report.get('issues',[]),ensure_ascii=False))
     extension = None
     if not document['demo'] or any(p.get('layout') in {'L15','L16','L17','L18','L19','L20'} or p.get('variant','default')!='default' or p.get('components') for p in document['slides']):
         spec_ext=importlib.util.spec_from_file_location('research_ppt_evidence',ROOT/'scripts/evidence_layouts.py')
@@ -632,9 +638,12 @@ def generate(document,output,*,force=False,font_profile='portable',base_dir=None
         data=img_p.read_bytes()
         require(data.startswith(b'\x89PNG\r\n\x1a\n'),'Replacement illustrations must be PNG')
         if target in parts:parts[target]=data
+    if content is not None:content.attach(parts,document,content_report,draft=draft)
     payload=zipbytes(parts)
     atomic_write(output,payload,force=force)
-    return {'slides':len(newslides),'charts':counters['chart'],'sha256':hashlib.sha256(payload).hexdigest(),'font_profile':font_profile,'output':str(output)}
+    result={'slides':len(newslides),'charts':counters['chart'],'sha256':hashlib.sha256(payload).hexdigest(),'font_profile':font_profile,'output':str(output)}
+    if content is not None:result['content_status']='draft' if draft else 'reviewed'
+    return result
 
 def fit_content_header(root,title_shape,page,palette,styler):
     """One full-size title line plus optional native bilingual kicker, no body squeeze."""
@@ -689,11 +698,11 @@ def main():
     import sys
     if hasattr(sys.stdout, 'reconfigure'):
         sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--input',required=True);parser.add_argument('--output',required=True);parser.add_argument('--force',action='store_true');parser.add_argument('--font-profile',choices=['portable','office'],default='portable');args=parser.parse_args()
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--input',required=True);parser.add_argument('--output',required=True);parser.add_argument('--force',action='store_true');parser.add_argument('--font-profile',choices=['portable','office'],default='portable');parser.add_argument('--draft',action='store_true',help='Explicit unreviewed draft; never a formal content pass');args=parser.parse_args()
     try:
         in_path=Path(args.input).resolve()
         document=load(in_path)
         document['illustrations']={role:str((in_path.parent/filename).resolve()) for role,filename in document.get('illustrations',{}).items()}
-        print(json.dumps(generate(document,args.output,force=args.force,font_profile=args.font_profile,base_dir=in_path.parent),ensure_ascii=False))
+        print(json.dumps(generate(document,args.output,force=args.force,font_profile=args.font_profile,base_dir=in_path.parent,draft=args.draft),ensure_ascii=False))
     except (ValueError,KeyError,IndexError,TypeError,OSError) as error:parser.exit(2,'Input/environment error: '+str(error)+'\n')
 if __name__=='__main__':main()
