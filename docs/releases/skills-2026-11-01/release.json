@@ -1,0 +1,10 @@
+{
+  "tag": "skills-2026-11-01",
+  "name": "三个科研 Skill 最新独立安装包（2026-11-01）",
+  "source_commit": "4ef40f3b8c1ee82b43a3a768cb54e6c209fb9e8e",
+  "components": [
+    {"name": "paper-close-read", "version": "1.5.0", "minimum_python": [3, 9]},
+    {"name": "editable-research-ppt", "version": "1.8.0", "minimum_python": [3, 10]},
+    {"name": "literature-discovery-acquisition", "version": "0.6.6", "minimum_python": [3, 9]}
+  ]
+}
