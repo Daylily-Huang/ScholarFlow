@@ -12,6 +12,7 @@ download_oa_papers.py
 
 import os
 import sys
+
 import json
 import csv
 import re
@@ -20,9 +21,53 @@ import argparse
 import urllib.request
 import urllib.error
 import urllib.parse
+try:
+    from openalex_access import make_request as openalex_request, error_code as openalex_error_code
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from openalex_access import make_request as openalex_request, error_code as openalex_error_code
 
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 (Academic Retrieval Bot; mailto:academic_support@openacademic.org)"
+# 保证中文产物在 zh-CN Windows（默认 cp936）上以 UTF-8 输出：上游按 UTF-8
+# 读取 stdout 时不再解码失败（P2-08 同类项，2026-09-16 普查补齐）。
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 MIN_PDF_BYTES = 10240  # 10 KB
+
+
+#: 记录身份键：canonical 是 `record_id`（schemas/literature_record.schema.json），
+#: `id` 是历史别名。P2-12/15（2026-09-15 集群审查）：本模块原先只认 `id`，而
+#: `ingest_external_records.py` 只产出 `record_id`——ingest→下载这条正常链路上
+#: `rec.get("id")` 恒为 None，覆盖率门禁因此**恒报失败 rc=2**。
+RECORD_ID_KEYS = ("record_id", "id", "rec_id", "doi")
+
+
+def record_key(rec):
+    """记录的唯一身份；全部别名都缺席时返回 None（调用方须显式处理）。"""
+    for k in RECORD_ID_KEYS:
+        v = rec.get(k)
+        if v is not None and str(v).strip():
+            return str(v)
+    return None
+
+
+def screening_status_of(rec):
+    """已声明的初筛裁决；**未声明返回 None**。
+
+    P2-11（2026-09-15 集群审查）：原实现写作 `rec.get("screening_status", "Include")`
+    ——**从未初筛**的记录因此被当成 Include 直接进入 Stage 8 下载与全文获取台账。
+    「没筛过」与「筛成纳入」必须是两件事。
+    """
+    v = rec.get("screening_status")
+    if v is None:
+        return None
+    v = str(v).strip()
+    return v or None
 
 
 def sanitize_filename(title, authors=None, year=None, doc_type=None, degree_level=None):
@@ -142,9 +187,9 @@ def query_openalex_oa(doi):
         clean_doi = clean_doi.replace("doi:", "")
         
     api_url = f"https://api.openalex.org/works/https://doi.org/{urllib.parse.quote(clean_doi)}"
-    req = urllib.request.Request(api_url, headers={"User-Agent": USER_AGENT})
     
     try:
+        req = openalex_request(api_url, headers={"User-Agent": USER_AGENT})
         with urllib.request.urlopen(req, timeout=15) as resp:
             if resp.status == 200:
                 data = json.loads(resp.read().decode('utf-8'))
@@ -161,8 +206,8 @@ def query_openalex_oa(doi):
                 
                 return pdf_url, oa_status
     except Exception as e:
-        # 网络波动或未收录
-        pass
+        # 认证/限流/网络失败不是“该论文非OA”；只输出无密钥的诊断代码。
+        return None, openalex_error_code(e)
     
     return None, "closed"
 
@@ -294,8 +339,29 @@ def load_candidate_records(input_path):
     raise InputContractError("Unsupported file format: %s" % input_path)
 
 
-def run_pipeline(input_path, output_dir, max_downloads=None):
+def run_pipeline(input_path, output_dir, max_downloads=None, categorized=True):
     os.makedirs(output_dir, exist_ok=True)
+    unscreened = []  # P2-11：未声明初筛裁决而被跳过的记录
+
+    if categorized:
+        pdf_dir = os.path.join(output_dir, "pdfs")
+        html_dir = os.path.join(output_dir, "htmls")
+        meta_dir = os.path.join(output_dir, "metadata")
+        reports_dir = os.path.join(output_dir, "reports")
+        intermediate_dir = os.path.join(output_dir, ".intermediate")
+        csl_singles_dir = os.path.join(intermediate_dir, "csl_singles")
+        os.makedirs(pdf_dir, exist_ok=True)
+        os.makedirs(html_dir, exist_ok=True)
+        os.makedirs(meta_dir, exist_ok=True)
+        os.makedirs(reports_dir, exist_ok=True)
+        os.makedirs(csl_singles_dir, exist_ok=True)
+    else:
+        pdf_dir = output_dir
+        html_dir = output_dir
+        meta_dir = output_dir
+        reports_dir = output_dir
+        intermediate_dir = output_dir
+        csl_singles_dir = output_dir
 
     # 1. Parse input records. Not understanding the input is an error; an empty
     #    but well-formed result is not, and a failed upstream is preserved.
@@ -331,13 +397,19 @@ def run_pipeline(input_path, output_dir, max_downloads=None):
             print(f"[!] Reached max download limit: {max_downloads}")
             break
 
-        rec_id = rec.get("id", f"REC{idx+1:03d}")
+        rec_id = record_key(rec) or f"REC{idx+1:03d}"
         title = rec.get("title", "Untitled")
         authors = rec.get("authors", [])
         year = rec.get("year")
         doi = rec.get("doi", "NR")
-        status = rec.get("screening_status", "Include")
-        
+        status = screening_status_of(rec)
+
+        # P2-11（2026-09-15 集群审查）：未声明初筛裁决的记录**不得**被当成 Include。
+        # 它不是"筛成纳入"，而是"从未初筛"——放进 Stage 8 下载即等于绕过初筛门禁，
+        # 未初筛记录还会作为"已纳入"进入《全文获取台账》。
+        if status is None:
+            unscreened.append(rec_id)
+            continue
         # 只下载 Include 与 Uncertain
         if status not in ["Include", "Uncertain"]:
             continue
@@ -374,23 +446,24 @@ def run_pipeline(input_path, output_dir, max_downloads=None):
             doc_type = rec.get("document_type")
             degree_level = rec.get("degree_level")
             filename = sanitize_filename(title, authors, year, doc_type, degree_level)
-            target_path = os.path.join(output_dir, filename)
+            target_path = os.path.join(pdf_dir, filename)
+            saved_relative = f"pdfs/{filename}" if categorized else filename
             
             print(f"    Downloading to: {filename}")
             ok, msg = download_file(pdf_url, target_path)
             if ok:
                 downloaded_count += 1
                 ledger_entry["status"] = "OA_DOWNLOADED" if oa_status != "green" else "PREPRINT_AVAILABLE"
-                ledger_entry["saved_file"] = filename
+                ledger_entry["saved_file"] = saved_relative
                 ledger_entry["note"] = f"Downloaded successfully ({msg})"
                 print(f"    [+] Success: {filename}")
 
-                # 1. 生成单篇配对的 CSL-JSON
-                csl_item = build_csl_item(rec, saved_filename=filename)
+                # 1. 生成单篇配对的 CSL-JSON (在 .intermediate/csl_singles 或 output_dir)
+                csl_item = build_csl_item(rec, saved_filename=saved_relative)
                 csl_library.append(csl_item)
                 
                 base_name = os.path.splitext(filename)[0]
-                csl_single_path = os.path.join(output_dir, f"{base_name}.csl.json")
+                csl_single_path = os.path.join(csl_singles_dir, f"{base_name}.csl.json")
                 with open(csl_single_path, 'w', encoding='utf-8') as f_csl:
                     json.dump(csl_item, f_csl, indent=2, ensure_ascii=False)
             else:
@@ -406,64 +479,83 @@ def run_pipeline(input_path, output_dir, max_downloads=None):
                     ledger_entry["note"] = f"Download failed: {msg}"
                 print(f"    [-] Failed ({ledger_entry['status']}): {msg}")
         else:
-            paywalled_count += 1
-            ledger_entry["status"] = "PAYWALLED"
-            ledger_entry["note"] = "No open-access full-text link detected. Requires subscription/institutional login."
-            print(f"    [!] Paywalled: Requires institutional access")
+            if str(oa_status).startswith("OPENALEX_"):
+                failed_count += 1
+                ledger_entry["status"] = "DOWNLOAD_FAILED"
+                ledger_entry["note"] = "OA resolution unavailable: %s; OA status UNKNOWN, not evidence of a paywall." % oa_status
+                print(f"    [-] OA status UNKNOWN: {oa_status}; resolution failed, not a paywall determination.")
+            else:
+                paywalled_count += 1
+                ledger_entry["status"] = "PAYWALLED"
+                ledger_entry["note"] = "No open-access full-text link detected. Requires subscription/institutional login."
+                print(f"    [!] Paywalled: Requires institutional access")
 
         ledger.append(ledger_entry)
         time.sleep(0.5)  # 礼貌请求间隔
 
     # 2. 输出台账 (JSON & Markdown)
-    ledger_json_path = os.path.join(output_dir, "download_ledger.json")
+    ledger_json_path = os.path.join(meta_dir, "download_ledger.json")
     with open(ledger_json_path, 'w', encoding='utf-8') as f:
         json.dump(ledger, f, indent=2, ensure_ascii=False)
+    if categorized:
+        with open(os.path.join(output_dir, "download_ledger.json"), 'w', encoding='utf-8') as f:
+            json.dump(ledger, f, indent=2, ensure_ascii=False)
 
     # 3. 输出全局 Zotero 导入集合 CSL-JSON
     if csl_library:
-        zotero_csl_path = os.path.join(output_dir, "zotero_import.csl.json")
+        zotero_csl_path = os.path.join(meta_dir, "zotero_import.csl.json")
         with open(zotero_csl_path, 'w', encoding='utf-8') as f_zot:
             json.dump(csl_library, f_zot, indent=2, ensure_ascii=False)
         print(f"    [+] Generated Zotero Watch Folder pool: {zotero_csl_path} ({len(csl_library)} items)")
+        if categorized:
+            with open(os.path.join(output_dir, "zotero_import.csl.json"), 'w', encoding='utf-8') as f_zot:
+                json.dump(csl_library, f_zot, indent=2, ensure_ascii=False)
 
-    ledger_md_path = os.path.join(output_dir, "download_ledger.md")
-    with open(ledger_md_path, 'w', encoding='utf-8') as f:
-        f.write("# 全文文献获取台账 (Full-Text Acquisition Ledger)\n\n")
-        f.write(f"- **总审查记录数**：{len(ledger)}\n")
-        f.write(f"- **已下载成功 (OA / 预印本)**：{downloaded_count}\n")
-        f.write(f"- **需商业权限 (Paywalled)**：{paywalled_count}\n")
-        f.write(f"- **下载受阻失败**：{failed_count}\n\n")
-        f.write("## 详细文献获取明细\n\n")
-        f.write("| ID | 标题 | 第一作者 | 年份 | DOI | 获取状态 | 本地文件名 / 访问指引 |\n")
-        f.write("|---|---|---|:---:|---|:---:|---|\n")
-        for entry in ledger:
-            st = entry["status"]
-            if st in ["OA_DOWNLOADED", "PREPRINT_AVAILABLE"]:
-                badge = "🟢 已下载"
-            elif st == "PAYWALLED":
-                badge = "🔒 付费墙"
-            elif st == "OA_BOT_BLOCKED":
-                badge = "🟠 OA-反爬拦截(免费)"
-            else:
-                badge = "🔴 失败"
-            author = entry["authors"][0] if entry.get("authors") else "Unknown"
-            doi_link = f"[{entry['doi']}](https://doi.org/{entry['doi']})" if entry.get("doi") and entry["doi"] != "NR" else "NR"
-            if entry["saved_file"]:
-                loc = entry["saved_file"]
-            elif st == "OA_BOT_BLOCKED":
-                loc = "浏览器打开上方 DOI 直链免费下载"
-            elif st == "PAYWALLED":
-                loc = "校园网 IP 内访问 DOI / 馆际互借(CALIS/NSTL)"
-            else:
-                loc = entry["note"]
-            f.write(f"| {entry['id']} | {entry['title']} | {author} | {entry['year']} | {doi_link} | {badge} | {loc} |\n")
+    ledger_md_path = os.path.join(reports_dir, "download_ledger.md")
+
+    def _write_ledger_md(target_md_path):
+        with open(target_md_path, 'w', encoding='utf-8') as f:
+            f.write("# 全文文献获取台账 (Full-Text Acquisition Ledger)\n\n")
+            f.write(f"- **总审查记录数**：{len(ledger)}\n")
+            f.write(f"- **已下载成功 (OA / 预印本)**：{downloaded_count}\n")
+            f.write(f"- **需商业权限 (Paywalled)**：{paywalled_count}\n")
+            f.write(f"- **下载受阻失败**：{failed_count}\n\n")
+            f.write("## 详细文献获取明细\n\n")
+            f.write("| ID | 标题 | 第一作者 | 年份 | DOI | 获取状态 | 本地文件名 / 访问指引 |\n")
+            f.write("|---|---|---|:---:|---|:---:|---|\n")
+            for entry in ledger:
+                st = entry["status"]
+                if st in ["OA_DOWNLOADED", "PREPRINT_AVAILABLE"]:
+                    badge = "🟢 已下载"
+                elif st == "PAYWALLED":
+                    badge = "🔒 付费墙"
+                elif st == "OA_BOT_BLOCKED":
+                    badge = "🟠 OA-反爬拦截(免费)"
+                else:
+                    badge = "🔴 失败"
+                author = entry["authors"][0] if entry.get("authors") else "Unknown"
+                doi_link = f"[{entry['doi']}](https://doi.org/{entry['doi']})" if entry.get("doi") and entry["doi"] != "NR" else "NR"
+                if entry["saved_file"]:
+                    loc = entry["saved_file"]
+                elif st == "OA_BOT_BLOCKED":
+                    loc = "浏览器打开上方 DOI 直链免费下载"
+                elif st == "PAYWALLED":
+                    loc = "校园网 IP 内访问 DOI / 馆际互借(CALIS/NSTL)"
+                else:
+                    loc = entry["note"]
+                f.write(f"| {entry['id']} | {entry['title']} | {author} | {entry['year']} | {doi_link} | {badge} | {loc} |\n")
+
+    _write_ledger_md(ledger_md_path)
+    if categorized:
+        _write_ledger_md(os.path.join(output_dir, "download_ledger.md"))
 
     # 4. 台账覆盖度自检 (Ledger Coverage Guard)：每一条 Include/Uncertain 输入
     #    记录必须出现在台账中并带三级状态之一；缺失即 FAIL（exit 2）。
     #    2026-09-06 端到端测试发现：无直链文献被静默跳过会导致台账残缺。
-    eligible = [r for r in records if r.get("screening_status", "Include") in ["Include", "Uncertain"]]
-    covered = {e.get("id") for e in ledger}
-    missing = [r.get("id", "?") for r in eligible if r.get("id") not in covered]
+    eligible = [r for r in records
+                if screening_status_of(r) in ("Include", "Uncertain")]
+    covered = {record_key(e) for e in ledger}
+    missing = [record_key(r) or "?" for r in eligible if record_key(r) not in covered]
     if missing:
         print(f"\n[!] LEDGER COVERAGE FAILURE: {len(missing)} 条 Include/Uncertain 记录未入台账: {missing[:10]}")
         print("    stage8_oa_download.md 五: 所有初筛合格文献必须归入三级状态之一。")
@@ -472,20 +564,104 @@ def run_pipeline(input_path, output_dir, max_downloads=None):
         coverage_ok = True
         print(f"\n[+] Ledger coverage check PASSED: {len(covered)}/{len(eligible)} eligible records classified.")
 
+    # P2-11：未声明初筛裁决而被跳过的记录必须显式披露，不得静默消失。
+    if unscreened:
+        print(f"\n[!] {len(unscreened)} 条记录**未声明初筛裁决**，已跳过"
+              f"（不计入下载，也不当作 Include）: {unscreened[:10]}")
+        print("    先完成双评阅人初筛并写入 screening_status，再进入 Stage 8。")
+
     print(f"\n[+] Pipeline completed!")
     print(f"    Downloaded: {downloaded_count}, Paywalled: {paywalled_count}, Failed: {failed_count}")
     print(f"    Ledger saved to: {ledger_md_path}")
     return 0 if coverage_ok else 2
 
 
+def organize_directory(target_dir: str):
+    """整理已有杂乱目录：将各类文件归拢到规范子目录，隐藏单篇 CSL 与临时中间文件。"""
+    if not os.path.isdir(target_dir):
+        raise NotADirectoryError(f"Directory not found: {target_dir}")
+
+    import shutil
+
+    pdf_dir = os.path.join(target_dir, "pdfs")
+    html_dir = os.path.join(target_dir, "htmls")
+    meta_dir = os.path.join(target_dir, "metadata")
+    reports_dir = os.path.join(target_dir, "reports")
+    intermediate_dir = os.path.join(target_dir, ".intermediate")
+    csl_dir = os.path.join(intermediate_dir, "csl_singles")
+    screening_dir = os.path.join(intermediate_dir, "screening")
+    text_dir = os.path.join(intermediate_dir, "text_dumps")
+
+    for d in (pdf_dir, html_dir, meta_dir, reports_dir, csl_dir, screening_dir, text_dir):
+        os.makedirs(d, exist_ok=True)
+
+    stats = {
+        "pdfs": 0,
+        "htmls": 0,
+        "csl_singles": 0,
+        "text_dumps": 0,
+        "screening": 0,
+        "metadata": 0,
+        "reports": 0
+    }
+
+    for item in os.listdir(target_dir):
+        src = os.path.join(target_dir, item)
+        if not os.path.isfile(src):
+            continue
+        lower = item.lower()
+
+        if lower.endswith(".pdf"):
+            shutil.move(src, os.path.join(pdf_dir, item))
+            stats["pdfs"] += 1
+        elif lower.endswith(".html") or lower.endswith(".htm"):
+            shutil.move(src, os.path.join(html_dir, item))
+            stats["htmls"] += 1
+        elif lower.endswith(".csl.json"):
+            if "zotero_import" in lower:
+                shutil.copy2(src, os.path.join(meta_dir, item))
+                stats["metadata"] += 1
+            else:
+                shutil.move(src, os.path.join(csl_dir, item))
+                stats["csl_singles"] += 1
+        elif lower.endswith(".txt") and item not in ("executable_query.txt", "requirements.txt"):
+            shutil.move(src, os.path.join(text_dir, item))
+            stats["text_dumps"] += 1
+        elif ("reviewer" in lower or "screening" in lower) and (lower.endswith(".json") or lower.endswith(".csv")):
+            shutil.move(src, os.path.join(screening_dir, item))
+            stats["screening"] += 1
+        elif item in ("download_ledger.json", "discovery_result.json", "raw_discovery.json", "external_ingested.json"):
+            shutil.copy2(src, os.path.join(meta_dir, item))
+            stats["metadata"] += 1
+        elif lower.endswith(".md"):
+            shutil.copy2(src, os.path.join(reports_dir, item))
+            stats["reports"] += 1
+
+    return stats
+
+
 def main():
     parser = argparse.ArgumentParser(description="Download Open Access academic papers and audit integrity.")
-    parser.add_argument("-i", "--input", required=True, help="Path to candidate literature JSON or CSV file")
+    parser.add_argument("-i", "--input", help="Path to candidate literature JSON or CSV file")
     parser.add_argument("-o", "--output-dir", default="papers/downloads", help="Directory to save downloaded PDFs")
     parser.add_argument("--max-downloads", type=int, default=None, help="Maximum number of papers to download")
+    parser.add_argument("--flat", action="store_true", default=False, help="Use legacy flat output directory layout")
+    parser.add_argument("--organize", type=str, default=None, help="Reorganize an existing cluttered output directory into categorized folders")
 
     args = parser.parse_args()
-    sys.exit(run_pipeline(args.input, args.output_dir, args.max_downloads))
+
+    if args.organize:
+        stats = organize_directory(args.organize)
+        print(f"[+] Successfully reorganized: {args.organize}")
+        for k, v in stats.items():
+            if v > 0:
+                print(f"    - {k}: {v} files organized")
+        sys.exit(0)
+
+    if not args.input:
+        parser.error("-i/--input is required when not using --organize")
+
+    sys.exit(run_pipeline(args.input, args.output_dir, args.max_downloads, categorized=not args.flat))
 
 
 if __name__ == "__main__":

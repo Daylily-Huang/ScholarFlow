@@ -12,16 +12,22 @@
 
 ## 二、双层 CSL-JSON 产物架构规范
 
-在下载流程（Stage 8）中，系统在输出目录（默认 `papers/downloads/`）同时生成两层元数据：
+在下载流程（Stage 8）中，系统在输出目录（默认 `papers/`）采用分类与隐藏归档架构：
 
 ```text
-papers/downloads/
-├── 2024_Wang_Targeting_KRAS_G12D.pdf          # 经 %PDF- 魔数校验的合法全文
-├── 2024_Wang_Targeting_KRAS_G12D.csl.json     # [单篇配对] 该文献独立的 CSL-JSON
-├── 2021_Chen_Estimation_wildlife_genetics.pdf  # 另一篇已下载全文
-├── 2021_Chen_Estimation_wildlife_genetics.csl.json# [单篇配对] 独立 CSL-JSON
-├── zotero_import.csl.json                     # [总汇文件] 包含全部文献对象的全局 CSL-JSON
-└── literature_pool.bib                        # [通用备选] 标准 BibTeX 格式
+papers/
+├── pdfs/                                         # 经 %PDF- 魔数校验的合法全文
+│   ├── 2024_Wang_Targeting_KRAS_G12D.pdf
+│   └── 2021_Chen_Estimation_wildlife_genetics.pdf
+├── metadata/                                     # 交付元数据专区
+│   ├── zotero_import.csl.json                    # [总汇文件] 包含全部文献对象（file 相对路径指向 pdfs/）
+│   └── download_ledger.json                      # 机器台账
+├── reports/                                      # 交付报告专区
+│   └── download_ledger.md                        # 全文获取台账
+└── .intermediate/                                # [系统隐藏] 中间过程文件
+    └── csl_singles/                              # [单篇配对] 该文献独立的单篇 CSL-JSON
+        ├── 2024_Wang_Targeting_KRAS_G12D.csl.json
+        └── 2021_Chen_Estimation_wildlife_genetics.csl.json
 ```
 
 ---

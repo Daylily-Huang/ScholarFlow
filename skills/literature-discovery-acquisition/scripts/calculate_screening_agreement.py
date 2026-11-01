@@ -30,23 +30,75 @@ import hashlib
 import json
 import math
 import sys
+
 from pathlib import Path
 from typing import Dict, List, Tuple, Any, Optional
 
+# 保证中文产物在 zh-CN Windows（默认 cp936）上以 UTF-8 输出：上游按 UTF-8
+# 读取 stdout 时不再解码失败（P2-08 同类项，2026-09-16 普查补齐）。
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
+
 VALID_STATUSES = ["Include", "Exclude", "Uncertain"]
 
-def normalize_status(val: str) -> str:
-    """Normalize status string to Include, Exclude, or Uncertain."""
-    if not val:
-        return "Uncertain"
-    s = str(val).strip().lower()
-    if s in ["include", "included", "inc", "纳入", "yes", "y", "1"]:
+#: 记录标识键（含 canonical `record_id`）与裁决键（含 canonical `screening_status`）。
+#: 2026-09-15（集群审查 P1）：加载器原先只认 `id|rec_id|doi|title` 与
+#: `status|Status|decision`，而本技能的两个生产者只写 canonical 名——两边错开，
+#: 整份文件的裁决被读成空值。
+RECORD_ID_KEYS = ("record_id", "id", "rec_id", "doi", "title")
+STATUS_KEYS = ("screening_status", "status", "Status", "decision", "reviewer_decision")
+
+
+def normalize_status(val: Any) -> Optional[str]:
+    """把裁决归一为 Include / Exclude / Uncertain；**无法识别一律返回 None**。
+
+    2026-09-15（集群审查 P1）：旧实现对任何未识别值（含键缺失时的空串）一律
+    `return "Uncertain"`。于是「一条裁决都没读进来」与「两评阅人都判待定」在产物里
+    完全同形——逐条对立的两份初筛会被判 `κ=1.000`「Almost Perfect（符合顶级发表
+    标准）」且 rc=0、零告警。「读不到」与「都判待定」必须是两件事。
+    """
+    if val is None:
+        return None
+    s = str(val).strip()
+    if not s:
+        return None
+    key = s.lower()
+    if key in ["include", "included", "inc", "纳入", "yes", "y", "1"]:
         return "Include"
-    elif s in ["exclude", "excluded", "exc", "排除", "no", "n", "0"]:
+    elif key in ["exclude", "excluded", "exc", "排除", "no", "n", "0"]:
         return "Exclude"
-    elif s in ["uncertain", "maybe", "borderline", "待定", "存疑", "u", "?"]:
+    elif key in ["uncertain", "maybe", "borderline", "待定", "存疑", "u", "?"]:
         return "Uncertain"
-    return "Uncertain"
+    return None
+
+
+def _first_present(mapping: Dict[str, Any], keys) -> Any:
+    """按 keys 顺序取第一个"有内容"的值；全空返回 None。
+
+    与旧实现的 `a or b or c` 取值口径一致（空串视为未提供），但把键名集合显式化，
+    避免 canonical 名（`record_id` / `screening_status`）被漏掉。
+    """
+    for k in keys:
+        if k not in mapping:
+            continue
+        value = mapping[k]
+        if value is None:
+            continue
+        if isinstance(value, str) and not value.strip():
+            continue
+        return value
+    return None
+
+
+def summarize_unreadable(records: Dict[str, Dict[str, Any]]) -> List[Tuple[str, Any]]:
+    """列出裁决无法识别的记录（id, 原始值）。空列表表示全部可读。"""
+    return [(rid, rec.get("status_raw")) for rid, rec in records.items()
+            if rec.get("status") is None]
 
 
 def load_decisions(path: Path) -> Dict[str, Dict[str, Any]]:
@@ -65,12 +117,14 @@ def load_decisions(path: Path) -> Dict[str, Dict[str, Any]]:
             data = json.load(f)
             if isinstance(data, list):
                 for item in data:
-                    rid = str(item.get("id") or item.get("rec_id") or item.get("doi") or item.get("title") or "")
+                    rid = str(_first_present(item, RECORD_ID_KEYS) or "")
                     if rid:
+                        raw_status = _first_present(item, STATUS_KEYS)
                         records[rid] = {
                             "id": rid,
                             "title": item.get("title", ""),
-                            "status": normalize_status(item.get("status", "")),
+                            "status": normalize_status(raw_status),
+                            "status_raw": raw_status,
                             "reason_code": item.get("reason_code", ""),
                             "reason_detail": item.get("reason_detail", ""),
                             "confidence_score": float(item.get("confidence_score", 0.0)) if item.get("confidence_score") is not None else None,
@@ -79,10 +133,12 @@ def load_decisions(path: Path) -> Dict[str, Dict[str, Any]]:
             elif isinstance(data, dict):
                 for rid, item in data.items():
                     if isinstance(item, dict):
+                        raw_status = _first_present(item, STATUS_KEYS)
                         records[str(rid)] = {
                             "id": str(rid),
                             "title": item.get("title", ""),
-                            "status": normalize_status(item.get("status", "")),
+                            "status": normalize_status(raw_status),
+                            "status_raw": raw_status,
                             "reason_code": item.get("reason_code", ""),
                             "reason_detail": item.get("reason_detail", ""),
                             "confidence_score": float(item.get("confidence_score", 0.0)) if item.get("confidence_score") is not None else None,
@@ -93,6 +149,7 @@ def load_decisions(path: Path) -> Dict[str, Dict[str, Any]]:
                             "id": str(rid),
                             "title": "",
                             "status": normalize_status(str(item)),
+                            "status_raw": str(item),
                             "reason_code": "",
                             "reason_detail": "",
                             "confidence_score": None,
@@ -104,13 +161,14 @@ def load_decisions(path: Path) -> Dict[str, Dict[str, Any]]:
         with open(path, "r", encoding="utf-8-sig") as f:
             reader = csv.DictReader(f, delimiter=delimiter)
             for row in reader:
-                rid = row.get("id") or row.get("rec_id") or row.get("ID") or row.get("doi") or row.get("title") or ""
+                rid = str(_first_present(row, RECORD_ID_KEYS + ("ID",)) or "")
                 if rid:
-                    status_raw = row.get("status") or row.get("Status") or row.get("decision") or ""
+                    status_raw = _first_present(row, STATUS_KEYS)
                     records[rid] = {
                         "id": rid,
                         "title": row.get("title", ""),
                         "status": normalize_status(status_raw),
+                        "status_raw": status_raw,
                         "reason_code": row.get("reason_code", row.get("code", "")),
                         "reason_detail": row.get("reason_detail", row.get("reason", "")),
                         "confidence_score": float(row.get("confidence_score", 0.0)) if row.get("confidence_score") else None,
@@ -129,6 +187,32 @@ def compute_source_fingerprint(path: Path) -> Optional[str]:
     except OSError:
         return None
     return "sha256:" + hashlib.sha256(data).hexdigest()
+
+
+def compute_canonical_fingerprint(records: Dict[str, Dict[str, Any]]) -> str:
+    """裁决内容的**规范化**指纹（P2-10，2026-09-15 集群审查）。
+
+    字节级指纹只需改一个空格（重排键序、换行风格、缩进）即失效——而"同一份初筛
+    结果换个格式喂两次"是同源洗白的典型手法。此指纹与序列化形式无关。
+
+    必须覆盖**全部裁决字段**，而不只是 id→status：只看裁决大类会把"两份各自独立、
+    恰好判得一样"的正常双评阅误判为同源（既有测试
+    `test_independent_files_with_full_agreement_allowed` 正是这种情形——两份文件的
+    理由码不同）。把理由码/理由说明/任务号/置信度一并纳入，则"同一份结果换格式"
+    仍然同指纹，而独立评阅之间的实质差异得以保留。
+    """
+    parts = []
+    for rid, rec in sorted(records.items()):
+        parts.append("|".join(str(rec.get(k) or "") for k in (
+            rid, "status", "reason_code", "reason_detail", "task_id", "confidence_score")))
+    canonical = "\n".join(parts)
+    return "canon:" + hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+#: κ 的最小共同评阅样本量（P2-10）。低于此值时 κ 的方差极大，"自选子集"极易
+#: 刷出 1.000；该阈值与既有 `coverage_status` 同一约定：**告警不阻断**（rc 仍为 0），
+#: 但报告与产物必须显示非 PASS，使"小样本一致性"无法被当成顶级一致性证据。
+MIN_COMMON_RECORDS = 5
 
 
 def check_source_independence(
@@ -155,6 +239,16 @@ def check_source_independence(
     fp_b = compute_source_fingerprint(path_b)
     common_ids = sorted(set(rev_a_data) & set(rev_b_data))
     reasons: List[str] = []
+
+    # P2-10：字节级之外再看内容级——同一份裁决换格式（键序/缩进/换行）喂两次，
+    # 字节指纹不同但语义同源，同样必须在签发 κ 之前拦下。
+    canon_a = compute_canonical_fingerprint(rev_a_data)
+    canon_b = compute_canonical_fingerprint(rev_b_data)
+    if canon_a == canon_b and common_ids:
+        reasons.append(
+            "Reviewer A and Reviewer B carry the SAME decisions after canonicalisation "
+            "(keys/order/whitespace differences do not make two screenings independent); "
+            "kappa computed from one screening relabelled twice is not dual review.")
 
     if fp_a and fp_b and fp_a == fp_b and common_ids:
         fully_agree = all(
@@ -239,6 +333,17 @@ def calculate_cohens_kappa(
 
     if n == 0:
         return {"error": "No overlapping record IDs found between Reviewer A and Reviewer B."}
+
+    # 2026-09-15（集群审查 P1）：无法识别的裁决不得被 `cat_to_idx.get(stat, 2)` 静默
+    # 塞进 Uncertain 格——那等于把「读不到」算成「两方都判待定」，制造虚假一致。
+    unreadable = sorted(
+        rid for rid in common_ids
+        if reviewer_a_map[rid].get("status") is None
+        or reviewer_b_map[rid].get("status") is None)
+    if unreadable:
+        return {"error": "UNREADABLE_DECISIONS: %d 条共同记录的裁决无法识别（例：%s）；"
+                         "拒绝据此计算 κ——「读不到」不等于「两方都判待定」。"
+                         % (len(unreadable), ", ".join(unreadable[:5]))}
 
     # Build 3x3 Confusion Matrix
     cat_to_idx = {c: i for i, c in enumerate(categories)}
@@ -341,6 +446,10 @@ def calculate_cohens_kappa(
 
     return {
         "sample_size": n,
+        # P2-10：低于最小样本量时 κ 方差极大，"自选子集"极易刷出 1.000。
+        # 与 coverage_status 同一约定：告警不阻断，但产物必须显示非 PASS。
+        "sample_status": "PASS" if n >= MIN_COMMON_RECORDS else "UNDERPOWERED",
+        "min_common_records": MIN_COMMON_RECORDS,
         "categories": categories,
         "confusion_matrix": matrix,
         "observed_agreement": round(po, 4),
@@ -566,6 +675,34 @@ Examples:
     rev_a_data = load_decisions(path_a)
     rev_b_data = load_decisions(path_b)
 
+    # 2026-09-15 gate 0（集群审查 P1）：裁决字段读不出来的输入必须显式拒绝。
+    # 旧实现把未识别值一律归一为 Uncertain，于是「一条裁决都没读进来」与「两评阅人
+    # 都判待定」在产物里同形——逐条对立的两份初筛会被判 κ=1.000「Almost Perfect」
+    # 且 rc=0、零告警，分歧仲裁队列为空。读不到就是读不到，不得折成一致。
+    unreadable_a = summarize_unreadable(rev_a_data)
+    unreadable_b = summarize_unreadable(rev_b_data)
+    if unreadable_a or unreadable_b:
+        payload = {
+            "error": "UNREADABLE_DECISIONS",
+            "reviewer_a": {"unreadable": len(unreadable_a),
+                           "samples": [[r, s] for r, s in unreadable_a[:10]]},
+            "reviewer_b": {"unreadable": len(unreadable_b),
+                           "samples": [[r, s] for r, s in unreadable_b[:10]]},
+            "accepted_status_keys": list(STATUS_KEYS),
+            "accepted_id_keys": list(RECORD_ID_KEYS),
+            "hint": "裁决字段无法识别（或整列为空）。请使用 canonical 键名 "
+                    "record_id / screening_status，或用 status / decision。"
+                    "不得把这些记录当作 Uncertain 计入一致性。",
+        }
+        sys.stderr.write(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
+        sys.stderr.write(
+            "[-] UNREADABLE_DECISIONS: Reviewer A 有 %d 条、Reviewer B 有 %d 条记录的"
+            "裁决无法识别；拒绝签发一致性结论（PRISMA 2020 Item 8 要求可核验的双评阅"
+            "人裁决，而非把读不到的折成一致）。\n"
+            % (len(unreadable_a), len(unreadable_b))
+        )
+        sys.exit(1)
+
     # H-27 gate 1: same-source inputs must be rejected before any kappa is
     # certified (rc=1, structured IDENTICAL_SOURCES, no passing report).
     identical = check_source_independence(path_a, path_b, rev_a_data, rev_b_data)
@@ -588,6 +725,14 @@ Examples:
     # blocking legitimately complete inputs (rc stays 0).
     coverage = check_reviewer_coverage(rev_a_data, rev_b_data)
     metrics["coverage"] = coverage
+    # P2-10：低于最小共同样本量时必须显式告警——κ 在小样本上方差极大，
+    # "自选若干条一致的记录"即可刷出 1.000，不得当作顶级一致性证据。
+    if metrics.get("sample_status") == "UNDERPOWERED":
+        sys.stderr.write(
+            "[WARNING] sample too small: only %d common record(s) (minimum %d); "
+            "kappa is not reliable at this size and a hand-picked agreeing subset "
+            "will trivially reach 1.000.\n"
+            % (metrics.get("sample_size"), metrics.get("min_common_records")))
     if coverage["coverage_warning"]:
         sys.stderr.write(
             "[WARNING] Reviewer coverage gap: Reviewer A reviewed %d/%d records, "
