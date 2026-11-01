@@ -68,6 +68,7 @@
 | 能力 | 状态 | 证据 / 说明 |
 |---|---|---|
 | OpenAlex 元数据检索 + 游标分页 | `CODE_VERIFIED` | `agent_search.py`；含 `reported_total_hits` / `pages_fetched` / `coverage_status` |
+| OpenAlex 免费Key接入与首次提示 | `CODE_VERIFIED` / `HOST_EXECUTED` | 搜索、种子/引用与DOI OA解析读取`OPENALEX_API_KEY`，Bearer仅发API且不随重定向转发；`openalex_access.py`只读诊断，教程`references/openalex_api_key_setup.md`。首次非强制提醒由宿主执行；无Key首游标页以外的分页受服务端限制；真实个人Key激活未验证。回归`tests/test_openalex_key_setup.py` |
 | 双向引用滚雪球 | `CODE_VERIFIED` | `run_snowball_search`（referenced_works + cites） |
 | 覆盖度真实性规则（失败≠0 篇、截断≠完全检索） | `CODE_VERIFIED` | `retrieval_coverage.evaluate_coverage_status` |
 | Gate A 发现覆盖门禁 | `CODE_VERIFIED` | 各项由台账计算；无法判定时记 `unknown` 而非 PASS |

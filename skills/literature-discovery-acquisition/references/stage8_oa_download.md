@@ -23,11 +23,27 @@ flowchart TD
     Success & FlagErr --> GenLedger[生成全文获取台账 download_ledger.md]
 ```
 
+> **上图是设计目标，不是当前实现（2026-09-15 更正）**：`S2` / `S3` / `S4` 三个解析器
+> **尚无代码**，当前只有 `S1`（OpenAlex）一路。各数据源的实现状态见 §二 开头的状态表。
+
 ---
 
 ## 二、合法开放获取 (OA) 解析机制与数据源调度
 
 严格依托合法、公共可访问的官方学术 API 与开放协议解析 PDF 直链，绝对禁止使用任何非法爬虫：
+
+> **实现状态（2026-09-15 更正）**——本节此前把下面四个数据源都写成"既有机制"，但
+> `scripts/download_oa_papers.py` 里**只有第 1 个**有代码：
+> `grep -n "europepmc\|arxiv\|unpaywall\|biorxiv" download_oa_papers.py` 无任何命中。
+> 第 2–4 节因此是**设计规格**（待实现），不是当前能力；按它们调度会让台账在只试过
+> OpenAlex 的情况下被当成"已穷尽合法渠道"。实现前不得据此判 Gate B 第 8 项 PASS。
+
+| 节 | 数据源 | 实现状态 |
+|---|---|---|
+| 1 | OpenAlex REST API | **已实现**（`query_openalex_oa()`） |
+| 2 | Europe PMC 官方开放仓储 | **未实现**（无解析器） |
+| 3 | bioRxiv / medRxiv / arXiv 预印本 | **未实现**（无解析器） |
+| 4 | Unpaywall | **未实现**（无解析器） |
 
 ### 1. OpenAlex REST API 解析
 - **查询路径**：`https://api.openalex.org/works/https://doi.org/<DOI>`
@@ -53,9 +69,13 @@ flowchart TD
 
 ## 三、下载流控与文件命名标准化规范
 
-### 1. 存储路径标准
-默认保存至项目文献库的下载子目录：
-`papers/downloads/`（或根据用户在 Grill-Me 环节指定的目录）。
+### 1. 存储路径与分类归档标准
+默认在项目文献目录（如 `papers/`）启用**结构化分类与隐藏收纳**：
+- **`pdfs/`**：存放所有通过 `%PDF-` 完整性核验的有效 PDF 全文文件；
+- **`htmls/`**：存放 HTML 全文网页快照与可视化交互报告；
+- **`metadata/`**：存放汇总的结构化数据（`discovery_result.json`、`zotero_import.csl.json`、`download_ledger.json`）；
+- **`reports/`**：存放面向阅读的最终报告（`download_ledger.md`）；
+- **`.intermediate/`**：收纳隐藏中间产物（单篇 `.csl.json` 归于 `csl_singles/`，初筛快照归于 `screening/`，临时文本归于 `text_dumps/`）。
 
 ### 2. 标准化文件命名 (Sanitized Naming)
 为了保证跨操作系统兼容性与清晰检索，文件名统一采用以下结构：
@@ -100,7 +120,7 @@ flowchart TD
 | 获取状态代码 | 标识 | 定义与用户指导建议 |
 |---|:---:|---|
 | **OA_DOWNLOADED** | `[已下载]` | 官方期刊同行评议正式版本已成功下载至本地，且通过了 `%PDF-` 完整性校验。 |
-| **PREPRINT_AVAILABLE** | `[预印本]` | 期刊正式见刊版受商业数据库付费墙限制，但已成功从 bioRxiv/arXiv 获取到作者自存档预印本全文。 |
+| **PREPRINT_AVAILABLE** | `[自存档版]` | **2026-09-15 更正定义**：本状态由 OpenAlex `open_access.oa_status == "green"` 触发（`download_oa_papers.py:383`），含义是"出版方版本之外另有一份作者自存档免费版本"——可能是机构库中的录用稿（postprint），**不必然**是 bioRxiv/arXiv 预印本，且当前**没有**预印本服务器解析器（见 §二 实现状态）。面向用户的文案须写"已获取作者自存档版"，不得断言其为预印本。 |
 | **OA_BOT_BLOCKED** | `[OA-反爬拦截]` | 出版方**实质开放获取**（gold/hybrid/diamond OA），但反爬系统（Cloudflare 等）拦截自动化下载。**不得标为 PAYWALLED 误导用户付费**；报告中逐条给出官方 DOI 直链，浏览器人工打开即可免费获取。 |
 | **PAYWALLED** | `[需商业权限]` | 全球合法开放渠道均未找到免费公开全文（通常为 Elsevier/Springer/Wiley 等需付费订阅文献）。**报告中自动生成该论文的官方 DOI 直达链接与校外机构代理访问建议**，提醒用户在学校/机构 IP 内一键补充下载。 |
 
@@ -124,3 +144,7 @@ Stage 8 完成并生成本地 PDF 文件与《全文获取台账》后：
 3. **若台账中无 `PAYWALLED`，或核实确无已启用站点**：
    在台账披露 `NO_ENABLED_SITE` 跳过原因后，直接进入 Quality Gatekeeper 独立审查，输出标准指引：
    > **"已下载的文献 PDF 文件位于 `papers/downloads/`。下一步如需提取文献的实验方法、核心参数或进行事实核验，请调用 `literature-evidence-extraction` 证据抽取技能处理上述本地文件。"**
+
+## OpenAlex Key 与获取失败
+
+首次需要用 DOI 解析 OA 地址且未配置 Key 时，提示 [免费 Key 教程](openalex_api_key_setup.md)。已有出版社 PDF 直链的下载不向出版社发送 OpenAlex Key。解析遇到认证/限流/预算/网络失败时，台账记录 `DOWNLOAD_FAILED` 并说明 OA 状态 UNKNOWN；不能据此认定 PAYWALLED。只有实际成功完成 OA 查询后才能解释其 OA 结果。

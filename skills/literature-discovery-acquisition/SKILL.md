@@ -45,6 +45,9 @@ description: >-
 > **严禁全量一次性预加载**：本 Skill 完整知识库（28 个文件）总文本量约 158 KB。在初次触发激活时，**绝对禁止**一次性读取 `references/`、`role/`、`examples/` 或 `assets/` 中的所有文件。Agent 必须严格遵守以下阶段化与模式分支的渐进式按需读取策略，严守上下文预算！
 
 ### 阶段 1：Stage 0 上下文感知科研决策门禁 (Context-Aware Research Gate)
+
+**OpenAlex 免费 Key 首次接入提醒（所有学科通用）**：首次准备调用 OpenAlex 时，先在本技能目录用 `python scripts/openalex_access.py` 检查 `OPENALEX_API_KEY` 是否存在（只读状态，不显示值；从仓库根执行的完整路径见教程）。未配置时提醒：“建议先开通 OpenAlex 免费 API Key，匿名预算较小，容易因检索和分页耗尽；可按教程配置，也可选择小规模无 Key 试用或其他来源。”附上 [免费 Key 获取与接入教程](references/openalex_api_key_setup.md)，将是否先配置合并进本轮未决问题，不另起连续问询。已配置或本会话已选择暂不配置时不重复催促；**Key 只建议、不作为强制注册门槛**。用户要求不互动时，记录匿名限制继续允许的范围，不伪造确认。不得要求用户把 Key 发到聊天，不自动注册/购买/写系统环境或仓库 `.env`。配置后用 `python scripts/openalex_access.py --online` 核验一次；只有 API 接受才说接入成功。Key 存在不代表已激活；认证失败、预算不足与瞬时限速分别报告，不能记为零命中或非OA。Host/MCP工具使用自己的进程环境，不能因本地脚本已配置就宣称所有工具已接入。该检查属于连接准备，不替代执行深度确认。
+
 - **执行序列**：
   1. **Stage 0A — Context Resolution**：按五层优先级自动解析现有上下文（当前指令、历史对话、任务附件、上游产物及按需项目检索），输出《现有科研上下文确认简报》，已知要素自动确认为 `RESOLVED`，严禁对已知要素重复发问；
   2. **Stage 0B — Adaptive Grill-Me**：读取 [references/stage0_grill_me.md](references/stage0_grill_me.md) 与 `shared/grill_me/`，首轮确保包含 `EXECUTION_DEPTH`（快速/标准/深度，推荐标准档）及未决的 `CRITICAL` / `HIGH_IMPACT` 维度，动态生成 3~4 个结构化追问，每题附带 Recommended 选项与方法学依据，严格执行 STOP Rule 静默等待用户确认；未确认执行深度绝不开工；
@@ -57,28 +60,31 @@ description: >-
 
 ### 阶段 2：用户确认模式后的分支加载策略
 
+> **数值口径（2026-09-15 更正）**：下列分支的**检索候选上限**即 §2.1 表与 `shared/execution/profiles.py` 的 `max_search_candidates`（quick 20 / standard 50 / deep 100）——本节此前写作 50/200/600，与本文件 §2.1 表格和代码常量**三方冲突**，已改正。**全文上限**（5/20/50）是工作流规程建议值，无代码承载，属 `HOST_EXECUTED`，不得当作已强制的硬约束。
+
 #### 🚀 分支 A：用户选择 `Quick Search`（快速探索模式，增量按需加载，精简上下文）
-- **适用**：组会讨论、热点速览、快速获取 10–30 篇顶刊代表作（候选上限 50 篇，全文上限 5 篇）。
-- **允许按需读取（仅 3 篇，随用随读）**：
+- **适用**：组会讨论、热点速览、快速获取最多 20 篇候选文献（全文上限 5 篇）。
+- **基础按需读取（3 篇，随用随读）**：
   1. `references/concept_matrix.md`（仅参考核心概念展开规则）
   2. `references/databases_and_tools.md`（仅参考数据源调用逻辑）
   3. `references/saturation_and_qc.md`（仅参考轻量免责声明）
+- **必要安全规程不受精简限制**：执行全文下载与落盘前，必须读取 `references/stage8_oa_download.md`；交付前按需读取 `role/quality_gatekeeper.md` 做轻量自检，明确标为主代理自检，只有实际隔离审查时才标独立审查。
 - **严格禁止读取**：
   - `references/subagent_screening.md`（不进行多子代理并发初筛）
   - `references/prisma_s_checklist.md`（不进行重型 PRISMA 机器评分）
   - `references/theses_retrieval.md`（除非用户明确勾选需要硕博论文）
-  - `role/` 目录下全部文件（主代理依照当前上下文精简执行并声明“非系统性完整检索”）
+  - `role/` 中除必要质量检查清单外的角色文件（主代理精简执行并声明“非系统性完整检索”）
   - `examples/` 目录下除快速案例外的长篇案例
 
 #### ⚖️ 分支 B：用户选择 `Standard Search`（标准检索模式，推荐基准，适度展开）
-- **适用**：常规文献调研、技术方案比选、概念矩阵展开与 1 轮引文扩展（候选上限 200 篇，全文上限 20 篇）。
+- **适用**：常规文献调研、技术方案比选、概念矩阵展开与 1 轮引文扩展（检索候选上限 **50** 篇，全文上限 20 篇）。
 - **按需渐进读取**：
   - `references/concept_matrix.md` 与 `references/databases_and_tools.md`（概念展开与跨源多库调用）；
   - `references/saturation_and_qc.md`（双台账覆盖核实与轻量质控）；
   - 若需要全文下载且落盘时，加载 `references/stage8_oa_download.md`。
 
 #### 🔬 分支 C：用户选择 `Deep Search`（深度系统检索模式，严格按工作流阶段流水推进）
-- **适用**：学位论文开题、基金立项申报、PRISMA 系统评价、期刊文献综述（候选上限 600 篇，全文上限 50 篇，多轮引文滚雪球）。
+- **适用**：学位论文开题、基金立项申报、PRISMA 系统评价、期刊文献综述（检索候选上限 **100** 篇，全文上限 50 篇，多轮引文滚雪球）。
 - **严禁跨阶段提前预加载**，推进到特定 Stage 时方可加载对应文件（Just-In-Time Loading）：
   - **进入 Stage 1-2 时**：读取 `references/concept_matrix.md` 与 `references/journal_mapping.md`；
   - **进入 Stage 3 时**：读取 `references/databases_and_tools.md`（若确认需学位论文，才加载 `references/theses_retrieval.md`）；
@@ -282,18 +288,20 @@ flowchart TD
 
 对初筛为 `Include`（及可选 `Uncertain`）的文献，自动执行全文下载与入库闭环（详见 [stage8_oa_download.md](references/stage8_oa_download.md)、[zotero_watch_folder.md](references/zotero_watch_folder.md) 与执行脚本 `scripts/download_oa_papers.py`）：
 
-1. **多源合法 OA 解析**：
-   - 自动提取 OpenAlex `best_oa_location.pdf_url`、Europe PMC 官方全文直链、bioRxiv/arXiv 预印本 PDF 与高校机构知识库直链；
-2. **流式安全下载至本地目录**：
-   - 默认保存在 `papers/downloads/`（用户可配置为 Zotero 自动监听文件夹 Watch Folder）；
+1. **合法 OA 解析（当前**仅 OpenAlex 一路已实现**）**：
+   - **已实现**：OpenAlex `best_oa_location.pdf_url` 与备选 `primary_location.pdf_url`（`download_oa_papers.py: query_openalex_oa()`）；
+   - **未实现**：Europe PMC 全文直链、bioRxiv/medRxiv/arXiv 预印本、Unpaywall 与机构知识库绿色 OA。`references/stage8_oa_download.md` §二 把它们写成了既有机制，但脚本内**无对应解析器**（`grep -n "europepmc\|arxiv\|unpaywall\|biorxiv" download_oa_papers.py` 无命中）。因此只跑过 OpenAlex 的台账**不得**据此声称"穷尽合法 OA 与机构获取路径"（见 Gate B 第 8 项）；未覆盖渠道须列入待获取缺口；
+2. **流式安全下载与分类归档 (Categorized Storage & .intermediate Hiding)**：
+   - **产物分类隔离**：全文 PDF 自动保存至 `pdfs/`，HTML 全文与交互报告保存至 `htmls/`，终版数据集保存至 `metadata/`，交付综述报告保存至 `reports/`；
+   - **中间过程隐藏**：单篇独立配对的 `<Name>.csl.json`、双盲初筛过程记录（`reviewer_a/b.json`、`screening_dual_audit.csv`）、检索覆盖原始流水（`raw_discovery.json`）与临时抽取文本统一收纳入 `.intermediate/`（系统默认隐藏目录），既保留严谨可追溯证据链，又实现工作区清爽；
    - 标准化命名：普通论文 `<Year>_<FirstAuthor>_<TitleSlug>.pdf`，学位论文 `<Year>_<Degree>_<Author>_<TitleSlug>.pdf`；
 3. **严苛二进制魔数核验 (%PDF-)**：
    - 检查文件前 5 字节必须以 `%PDF-` 开头，且体积 $\ge 10\text{ KB}$；彻底拦截 403/404 HTML 伪装页面；
 4. **双层 CSL-JSON 生成 (Zotero 原生导入)**：
-   - 为每个成功下载的 PDF 在同级目录配套生成单篇同名 `<Name>.csl.json`；
-   - 自动在下载目录根部编译生成全局总汇池 `zotero_import.csl.json`；
+   - 为每个成功下载的 PDF 在 `.intermediate/csl_singles/` 配套生成单篇同名 `<Name>.csl.json`；
+   - 自动在 `metadata/`（并兼容镜像至根目录）编译生成全局总汇池 `zotero_import.csl.json`，其中 `file` 字段相对路径自动适配为 `pdfs/<filename>`；
 5. **输出《全文获取台账》**：
-   - 分类汇总 `OA_DOWNLOADED`、`PREPRINT_AVAILABLE`、`PAYWALLED`（附带官方 DOI 与机构/校园网访问指引）。
+   - 分类汇总 `OA_DOWNLOADED`、`PREPRINT_AVAILABLE`、`PAYWALLED`（附带官方 DOI 与机构/校园网访问指引），写入 `reports/download_ledger.md` 并镜像至根目录。
 
 ---
 
@@ -336,7 +344,7 @@ flowchart TD
 - [ ] 7. **检索缺口显式声明**：若存在任何未执行或截断库，必须显式输出 `Retrieval Gaps` 科学风险预警。
 
 ### Gate B — 全文获取与学术诚信门禁 (Full-Text Acquisition Gate — 后续执行)
-- [ ] 8. **初筛候选尽力获取**：对所有 `Include` 及 `Uncertain` 题录穷尽合法 OA 与机构获取路径；
+- [ ] 8. **初筛候选尽力获取**：对所有 `Include` 及 `Uncertain` 题录穷尽合法 OA 与机构获取路径。**覆盖边界（2026-09-15 更正）**：当前只有 OpenAlex 一路解析器（见 Stage 8 第 1 条），Europe PMC / 预印本 / Unpaywall / 机构库**均未接线**——本项**不得**在只跑过 OpenAlex 的台账上判 PASS；未尝试的渠道必须显式列入待获取缺口（Acquisition Gaps），并写明"本台账仅覆盖 OpenAlex"；
 - [ ] 9. **候选保留红线 (Rule 4)**：严禁因全文下载失败从候选文献全集中删除题录，未获得全文记录必须永久保留并归入《手动补检清单》；
 - [ ] 10. **全文文件真实性**：本地 PDF 均通过 `%PDF-` 魔数与 $\ge 10\text{ KB}$ 体量校验，彻底杜绝 HTML 伪装损坏文件；
 - [ ] 11. **零伪造红线**：无法核验 DOI 标记 `DOI = NR`，严禁从摘要凭空捏造全文实验细节与参数；

@@ -125,3 +125,7 @@ python skills/literature-discovery-acquisition/scripts/ingest_external_records.p
    - **严禁直接暴力截断前 50 条**；
    - 增加必要的方法学或目标变量限定概念（如增加 `AND ("individual identification" OR "genetic tagging")`）；
    - 施加时间窗口限定（如限制近 10 年）或限定同行评议期刊论文类型。
+
+## OpenAlex 连接准备
+
+首次使用或认证/额度失败时，按 [免费 Key 获取与接入教程](openalex_api_key_setup.md) 检查与配置。当前技能的搜索、种子解析、前后向引文和 DOI OA 解析均从 `OPENALEX_API_KEY` 读取 Key；`mailto` 不是认证。已配置不重复索要，Key 不写入查询URL或输出。第三方MCP/其他宿主进程须单独确认配置继承。
