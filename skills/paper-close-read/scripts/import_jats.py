@@ -33,13 +33,22 @@ def rich_text(el):
     return ''.join(x['text'] for x in runs),runs
 
 def import_article(xml_path, output):
-    root=ET.parse(xml_path).getroot();output=Path(output);output.mkdir(parents=True,exist_ok=True)
+    xml_path=Path(xml_path);output=Path(output)
+    for name in ('source.md','fulltext.json','import.json'):
+        if (output/name).exists() or (output/name).is_symlink():
+            raise ValueError('JATS output already exists; use a new directory to preserve reviews: '+str(output/name))
+    root=ET.parse(xml_path).getroot()
+    for node in root.iter():
+        node.tag=node.tag.rsplit('}',1)[-1]
+    for node in root.iter():
+        if node.tag in {'disp-formula','inline-formula'} and not any(g.tag in {'graphic','inline-graphic'} for g in node.iter()):
+            raise ValueError('JATS formula needs a source image or separately verified LaTeX transcription; refusing to flatten mathematics: '+str(node.get('id','')))
     title=text(root.find('.//article-title'));doi=next((text(e) for e in root.findall('.//article-id') if e.get('pub-id-type')=='doi'),None)
     authors=[text(n.find('given-names'))+' '+text(n.find('surname')) for n in [c.find('name') for group in root.findall('./front/article-meta/contrib-group') if group.get('content-type','author')!='editor' for c in group.findall('contrib') if c.get('contrib-type','author')=='author' and c.find('name') is not None]]
     chunks=['# '+title+'\n\n',' '.join(authors)+'\n\n'];locations={};figures=[];warnings=[]
     def add(value,el=None,**meta):
         line=''.join(chunks).count('\n')+1;chunks.append(value+'\n\n')
-        if el is not None:locations[line]={'xml_id':el.get('id'),'xml_tag':el.tag,**meta}
+        if el is not None or meta:locations[line]={'xml_id':el.get('id') if el is not None else None,'xml_tag':el.tag if el is not None else 'p',**meta}
     blocks={'disp-quote','list','boxed-text','def-list','statement','fig','table-wrap','disp-formula'}
     def paragraph(el,context=None,attribution=None,footnote=None):
         segment=ET.Element('p');segment.text=el.text
@@ -47,20 +56,34 @@ def import_article(xml_path, output):
             value,runs=rich_text(segment)
             if value:add(value,el,inline_runs=runs,**({'context':context,'quote_attribution':attribution or ''} if context else {}),**({'footnote_label':footnote} if footnote else {}))
         for child in el:
-            if child.tag in blocks or (child.tag=='inline-formula' and (child.find('.//graphic') is not None or child.find('.//inline-graphic') is not None)):
+            if child.tag in blocks or child.tag in {'graphic','inline-graphic'} or (child.tag in {'inline-formula','alternatives'} and (child.find('.//graphic') is not None or child.find('.//inline-graphic') is not None)):
                 flush();walk_container(child,context=context);segment=ET.Element('p');segment.text=child.tail
             else:segment.append(copy.deepcopy(child))
         flush()
     def walk_container(el,level=2,context=None):
         tag=el.tag
+        if tag in {'graphic','inline-graphic','alternatives'}:
+            emit_graphics(el,'Original inline image '+str(el.get('id','')));return
         if tag in {'disp-formula','inline-formula'}:
             if not emit_graphics(el,'Original equation '+str(el.get('id',''))):
                 add(text(el),el);warnings.append('Formula requires source review: '+str(el.get('id')))
             return
         if tag=='disp-quote':
             attribution=text(el.find('attrib'))
+            if el.text and el.text.strip():add(el.text.strip(),context='quote',quote_attribution=attribution)
             for child in el:
-                if child.tag=='p':paragraph(child,'quote',attribution)
+                if child.tag!='attrib':
+                    before=set(locations)
+                    if child.tag=='p':paragraph(child,'quote',attribution)
+                    else:walk_container(child,level,'quote')
+                    for line in set(locations)-before:
+                        locations[line]['context']='quote'
+                        if not locations[line].get('quote_attribution'):locations[line]['quote_attribution']=attribution
+                if child.tail and child.tail.strip():add(child.tail.strip(),context='quote',quote_attribution=attribution)
+            return
+        if not any(n.tag in blocks or n.tag in {'p','verse-line','graphic','inline-graphic'} for n in el.iter() if n is not el):
+            value,runs=rich_text(el)
+            if value:add(value,el,inline_runs=runs,**({'context':context} if context else {}))
             return
         walk(el,level,context)
     def emit_graphics(el,caption):
@@ -68,6 +91,7 @@ def import_article(xml_path, output):
         alternative_groups={id(g):id(group) for group in el.iter('alternatives') for g in group.iter() if g.tag in {'graphic','inline-graphic'}}
         emitted=set()
         for graphic in graphics:
+            if any(graphic in list(group.iter()) and group.find('.//table') is not None for group in el.iter('alternatives')):continue
             key=alternative_groups.get(id(graphic),id(graphic))
             if key in emitted:continue
             emitted.add(key)
@@ -79,13 +103,15 @@ def import_article(xml_path, output):
             figures.append({'path':name,'href':href,'xml_id':el.get('id')})
         return bool(emitted)
     def walk(el,level=2,context=None):
+        if el.text and el.text.strip():add(el.text.strip(),context=context or '')
         for child in el:
             tag=child.tag.split('}')[-1]
             if tag=='sec':
                 name=text(child.find('title'))
                 if name:add('#'*min(level,6)+' '+name)
                 walk(child,level+1)
-            elif tag=='p':paragraph(child,context)
+            elif tag in {'p','verse-line'}:paragraph(child,context)
+            elif tag in {'graphic','inline-graphic','alternatives'}:walk_container(child,level,context)
             elif tag in {'disp-quote','boxed-text','list','list-item','def-list','def-item','statement'}:walk_container(child,level,context)
             elif tag=='fig':
                 label=text(child.find('label'));caption=text(child.find('caption'))
@@ -94,6 +120,8 @@ def import_article(xml_path, output):
                 add(text(child.find('label'))+' '+text(child.find('caption')),child)
                 table=child.find('.//table')
                 if table is not None:add(ET.tostring(table,encoding='unicode').replace('\n',' '),table)
+                if any(g.tag in {'graphic','inline-graphic'} for g in child.iter()):
+                    emit_graphics(child,text(child.find('label'))+' '+text(child.find('caption')))
                 foot=child.find('table-wrap-foot')
                 if foot is not None:add(text(foot),foot)
             elif tag=='disp-formula':
@@ -114,7 +142,9 @@ def import_article(xml_path, output):
             elif tag in {'title','label','object-id'}:pass
             else:
                 if list(child):walk(child,level)
-                elif text(child):add(text(child),child)
+                elif text(child):
+                    value,runs=rich_text(child);add(value,child,inline_runs=runs,**({'context':context} if context else {}))
+            if child.tail and child.tail.strip():add(child.tail.strip(),context=context or '')
     abstracts=root.findall('./front/article-meta/abstract')
     for abstract in abstracts:add('## '+(text(abstract.find('title')) or 'Abstract'));walk(abstract,3)
     body=root.find('body')
@@ -126,7 +156,7 @@ def import_article(xml_path, output):
     if funding:
         add('## Funding')
         for statement in funding:add(text(statement),statement)
-    source=''.join(chunks);(output/'source.md').write_bytes(source.encode('utf-8'))
+    source=''.join(chunks)
     data=parse_document(source,'source.md',doi)
     data['front'].update(title=title,citation='; '.join(authors)+' · '+str(doi or ''))
     for section in data['sections']:
@@ -144,9 +174,19 @@ def import_article(xml_path, output):
                     else:warnings.append('Unresolved JATS cross-reference: '+rid)
     from figure_inventory import draft_inventory
     data['figure_inventory']=draft_inventory(data,xml_path,'jats')
-    (output/'fulltext.json').write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf-8')
     manifest={'title':title,'doi':doi,'authors':authors,'figures':figures,'warnings':warnings,'licenses':[text(e) for e in root.findall('.//license')]}
-    (output/'import.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
+    source_name=xml_path.name if xml_path.resolve().parent==output.resolve() else 'original-jats.xml'
+    data['figure_inventory']['source']['file']=source_name
+    payload={'source.md':source.encode('utf-8'),'fulltext.json':json.dumps(data,ensure_ascii=False,indent=2).encode('utf-8'),
+             'import.json':json.dumps(manifest,ensure_ascii=False,indent=2).encode('utf-8')}
+    if (output/source_name).resolve()!=xml_path.resolve():payload[source_name]=xml_path.read_bytes()
+    output.mkdir(parents=True,exist_ok=True);created=[]
+    try:
+        for name,raw in payload.items():
+            with (output/name).open('xb') as stream:created.append(output/name);stream.write(raw)
+    except OSError:
+        for path in created:path.unlink()
+        raise
     return manifest
 if __name__=='__main__':
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('xml',type=Path);ap.add_argument('output',type=Path);a=ap.parse_args();print(json.dumps(import_article(a.xml,a.output),ensure_ascii=False,indent=2))

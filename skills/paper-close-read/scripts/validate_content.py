@@ -7,8 +7,15 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 
-def validate(data, records, guide, source_text=None, allow_incomplete=False, asset_root=None, require_figure_audit=False, require_visual_plan=False):
+def validate(data, records, guide, source_text=None, allow_incomplete=False, asset_root=None, require_figure_audit=False, require_visual_plan=False, require_source_review=False, profile=None):
     errors, warnings = [], []
+    profile = profile or ('complete' if require_figure_audit and require_visual_plan and require_source_review else 'legacy')
+    if profile not in ('complete','legacy','draft'): errors.append('Unknown validation profile')
+    if profile == 'complete':
+        require_figure_audit = require_visual_plan = require_source_review = True
+        if source_text is None: errors.append('Complete reader requires the canonical source text')
+        if allow_incomplete: errors.append('Complete reader cannot allow incomplete content; use profile draft')
+    elif profile == 'draft': allow_incomplete = True
     # Reject broken envelopes before traversing them, with paths useful to the author.
     if not isinstance(data, dict):errors.append('fulltext.json must be an object')
     if not isinstance(records, list):errors.append('translations.json must be an array')
@@ -220,6 +227,9 @@ def validate(data, records, guide, source_text=None, allow_incomplete=False, ass
             if any(m.get('id') not in mids for m in chapter.get('motions', [])):
                 errors.append('Story links unknown mechanism')
             motion_ids = [m.get('id') for m in chapter.get('motions', [])]
+            for motion in chapter.get('motions', []):
+                if 'after' in motion and (type(motion['after']) is not int or not 0 <= motion['after'] < len(chapter.get('paragraphs', []))):
+                    errors.append('Walkthrough motion after must name an existing paragraph index')
             if len(motion_ids) != len(set(motion_ids)):
                 errors.append('Duplicate mechanism in one story chapter')
         for block in [overview] + story.get('walkthrough', []):
@@ -238,6 +248,17 @@ def validate(data, records, guide, source_text=None, allow_incomplete=False, ass
         for metric in overview.get('metrics', []):
             if any(not isinstance(metric.get(k), str) or not metric[k].strip() for k in ('label', 'value', 'meaning')):
                 errors.append('Story metric needs label/value/meaning text')
+    from source_quality import quality_errors
+    if profile == 'complete' and guide.get('story', {}).get('overview', {}).get('format') != 'research-map':
+        errors.append('Complete reader requires the six-step research-map overview')
+    if profile == 'complete':
+        for chapter in guide.get('story', {}).get('walkthrough', []):
+            if any('after' not in motion for motion in chapter.get('motions', [])):
+                errors.append('Complete reader requires explicit paragraph placement for every walkthrough motion')
+    from reading_outline import outline_errors
+    errors.extend(outline_errors(data, records, guide))
+    quality_failures, quality_warnings, source_risks = quality_errors(data, records, guide, require_source_review)
+    errors.extend(quality_failures); warnings.extend(quality_warnings)
     from process_scene import validate_visual_plan
     errors.extend(validate_visual_plan(guide, ids, require_visual_plan))
     from figure_inventory import inventory_errors
@@ -252,7 +273,7 @@ def validate(data, records, guide, source_text=None, allow_incomplete=False, ass
     block_notes = sum(1 for r in records if originals.get(r["id"], {}).get("t") in {"eq", "table"})
     return {"errors": errors, "warnings": warnings, "source_blocks": len(items),
             "paragraphs": len(expected), "translations": p_trans, "block_notes": block_notes,
-            "missing": sorted(missing), "figures": figure_report}
+            "missing": sorted(missing), "figures": figure_report, "source_risks": source_risks, "validation_profile": profile}
 
 
 def main():
@@ -264,6 +285,8 @@ def main():
     ap.add_argument('--asset-root', type=Path)
     ap.add_argument('--require-figure-audit', action='store_true')
     ap.add_argument('--require-visual-plan', action='store_true')
+    ap.add_argument('--require-source-review', action='store_true', help='新完整稿要求来源结构、术语、引注审读及疑点处理记录')
+    ap.add_argument('--profile',choices=('complete','legacy','draft'),default='complete',help='默认完整新稿；旧资料重建需显式legacy，待补稿用draft')
     args = ap.parse_args()
     try:
         values=[]
@@ -276,7 +299,7 @@ def main():
     except (OSError,UnicodeError,ValueError) as exc:
         print(json.dumps({'errors':[str(exc)],'warnings':[]},ensure_ascii=False,indent=2))
         raise SystemExit(2)
-    report = validate(*values, source, args.allow_incomplete, args.asset_root or args.data.parent, args.require_figure_audit, args.require_visual_plan)
+    report = validate(*values, source, args.allow_incomplete, args.asset_root or args.data.parent, args.require_figure_audit, args.require_visual_plan, args.require_source_review, args.profile)
     print(json.dumps(report, ensure_ascii=False, indent=2))
     raise SystemExit(bool(report["errors"]))
 

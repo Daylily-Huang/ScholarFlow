@@ -39,7 +39,7 @@ def shape_errors(data, records, guide):
     table = lambda value,path: table_object(value,path) if value is not None else None
     chapter = {**evidence,'bridge':text,'connection':text,'paragraphs':texts,'concepts':texts,
         'figures':array(mapping({'ref':text,'after':integer,'focus':text,'explanation':text})),
-        'motions':array(mapping({'id':text})),'table':table}
+        'motions':array(mapping({'id':text,'after':integer})),'table':table}
     obj(guide, 'guide', {
         'story':mapping({'overview':mapping({**overview,'table':table}),'walkthrough':array(mapping(chapter))}),
         'claims':array(mapping({**evidence,'kind':text})),

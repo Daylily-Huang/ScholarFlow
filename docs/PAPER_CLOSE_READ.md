@@ -5,7 +5,7 @@ paper-close-read把一篇学术全文变成可离线打开的阅读页。先讲�
 ## 开始
 
 1. 有宿主模型可读取本地文件的Agent环境，安装Python 3.9+。
-2. 优先 [下载 Release 独立安装包](https://github.com/Daylily-Huang/ScholarFlow/releases/tag/paper-close-read-v1.3.0)，解压后复制整个 `paper-close-read` 文件夹，无需克隆。也可在解压目录执行 `python install.py --target <宿主skills目录>`。贡献者从仓库单独安装：`python scripts/install_reader.py --target <宿主skills目录>`；或复制完整skills/paper-close-read目录。该技能独立于shared引擎。已有不同版本时安装器会停止，检查后显式--replace才替换此技能。
+2. 优先 [下载 Release 独立安装包](https://github.com/Daylily-Huang/ScholarFlow/releases/tag/paper-close-read-v1.6.0)，解压后复制整个 `paper-close-read` 文件夹，无需克隆。也可在解压目录执行 `python install.py --target <宿主skills目录>`。贡献者从仓库单独安装：`python scripts/install_reader.py --target <宿主skills目录>`；或复制完整skills/paper-close-read目录。该技能独立于shared引擎。已有不同版本时安装器会停止，检查后显式--replace才替换此技能。
 3. 提供PDF、可靠Markdown或出版商JATS XML，说“用paper-close-read带我读这篇”。可以补充基础和阅读目的，省略时按主题初学研究者带读。
 4. 宿主先通读结构、提炼主线和困难点，再写逐段材料与导读，经校验构建后实际打开检查。新稿不使用旧问答清单兜底，不补丁修改成品HTML。
 
@@ -16,7 +16,7 @@ paper-close-read把一篇学术全文变成可离线打开的阅读页。先讲�
 - Markdown：`python skills/paper-close-read/scripts/parse_mineru.py <source.md> <fulltext.json> --paper-id <DOI>`。
 - JATS：`python skills/paper-close-read/scripts/import_jats.py <article.xml> <reading-data目录>`。导入不产生讲解，图像按import.json明确提供；作者与编辑区分，段落/引用/表格保留；嵌套引文只出现一次、保留后续文字和出处，注释独立成节，资助声明纳入来源。
 - 按SKILL.md和references编写translations.json、guide.json，补核实的页码与必要来源说明。完整段落翻译需保留原意和限定，不能把白话摘要当译文。
-- 构建：`python skills/paper-close-read/scripts/build_html.py <fulltext.json> <translations.json> <guide.json> <reader.html> --asset-root <reading-data目录> --source <source.md> --require-figure-audit --require-visual-plan`。
+- 构建：`python skills/paper-close-read/scripts/build_html.py <fulltext.json> <translations.json> <guide.json> <reader.html> --asset-root <reading-data目录> --source <source.md> --profile complete`。
 - 重建示例：`python scripts/rebuild_readers.py examples/paper-close-read/thomsen examples/paper-close-read/wilcox examples/paper-close-read/mariana examples/paper-close-read/menis examples/paper-close-read/austen`。
 
 三分钟入门以180秒内把握整篇为设计目标，采用背景→缺口→问题→方法→结果→结论六步总览；十分钟展开必要的中间推理。入门页短句独立可读，实际理解需按读者基础试读验收。解释与翻译质量取决于宿主模型，应检查真正的困惑是否讲通、要点是否推进。程序发现漏项与断链，不能判定所有学术解释正确。
@@ -54,7 +54,7 @@ paper-close-read把一篇学术全文变成可离线打开的阅读页。先讲�
 
 白话按卡点选择推演、细读或材料对照；术语先解释再命名。三分钟总览按真实需要呈现基准与关键量，先检查对象、单位和分母；十分钟逐节审读卡点、实际推进、所得与下一问题。公式与结果表可就地添加解释，原始LaTeX默认收起；英文原文常显，中文译文、白话与逻辑各自默认展开、独立折叠。渐进入口与下一步按钮帮助选择阅读深度，不代替内容审读。
 
-当前main源码为v1.4.0，上次正式独立Release仍为v1.3.0；见[本次中文更新说明](releases/paper-close-read-v1.4.0/CHANGELOG.zh-CN.md)。更新skill后需从已有输入重建HTML，已有浏览器记录先导出备份。
+v1.6.0安装包和源码更新见[中文更新说明](releases/paper-close-read-v1.6.0/CHANGELOG.zh-CN.md)及[验收范围](releases/paper-close-read-v1.6.0/VALIDATION.zh-CN.md)。更新skill后需从已有输入重建HTML，已有浏览器记录先导出备份。
 
 ## v1.5 通用演示与验收
 

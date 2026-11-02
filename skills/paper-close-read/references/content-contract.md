@@ -62,7 +62,7 @@ JSON 数组，每个段落 `p` 必须有且仅有一个记录；此外允许为�
 }
 ```
 
-新稿必须提供 story，不再填旧式问答清单凑导读。overview 和 walkthrough 均需原文 refs。新入门页用format=research-map，research_map恰好包含上述六个step且顺序固定；每步有非空text和有效refs，可选title替换面向读者的标题（如“材料发现”“论证所得”），不改变step含义。无需再填overview.paragraphs/chain；walkthrough.paragraphs仍为非空文本数组。metrics 可选，label/value/meaning 都是字符串。motions 中每项为 {"id":"motion-场景ID"}；同一章节不重复插入同一场景，不同章节可以复用。table 可选，head/rows 单元格为字符串，列数一致。
+新稿必须提供 story，不再填旧式问答清单凑导读。overview 和 walkthrough 均需原文 refs。新入门页用format=research-map，research_map恰好包含上述六个step且顺序固定；每步有非空text和有效refs，可选title替换面向读者的标题（如“材料发现”“论证所得”），不改变step含义。无需再填overview.paragraphs/chain；walkthrough.paragraphs仍为非空文本数组。metrics 可选，label/value/meaning 都是字符串。motions 中每项为 {"id":"motion-场景ID","after":0}；after 是从0开始的本章 paragraphs 序号，动图紧随对应段落插入。完整新稿必须明确位置；兼容旧稿缺省时才追加到章末；同一章节不重复插入同一场景，不同章节可以复用。table 可选，head/rows 单元格为字符串，列数一致。
 
 旧稿仅在明确 `"format":"legacy"` 时允许没有 story；旧字段为 question、answer、why、claims、limits，自测 checks 可选。这是旧文件重建入口，不用于新文献。claims/checks 若提供仍校验 refs；旧 animations 帧清单只由兼容版渲染，新叙事版使用 mechanisms + walkthrough.motions。不要填写一个当前路线不会显示的字段就宣称功能已交付。
 
@@ -77,7 +77,7 @@ role 默认 body。body 提供非空 note 和 keys，长短与条数由实际解
 
 ## 叙事导读：guide.story
 
-overview新稿包含title、lead、format=research-map、research_map六步、takeaway、refs，并可按需提供 2–4 项 `metrics`（`label`/`value`/`meaning`，渲染在六步卡下方作为“原始观测 / 旧方法基准 / 本文结果”直观对比卡）。旧叙事版保留paragraphs/chain兼容入口，新六步总览不重复渲染旧paragraphs/chain长文。walkthrough 为按推理顺序排列的章节数组，每项 title、bridge（承接问题）、paragraphs、connection（通往下一步）、refs，可选 motions（id/label，指向既有机制）、table（head/rows）。章节不是论文目录的缩写；正文必须解释步骤之间的必要关系。数值卡统一交代对象和分母，综述可用机制卡。3分钟显示一页入门；10分钟在同一主线上展开章节，导读目录随路线切换。
+overview新稿包含title、lead、format=research-map、research_map六步、takeaway、refs，并可按需提供 2–4 项 `metrics`（`label`/`value`/`meaning`，渲染在六步卡下方作为“原始观测 / 旧方法基准 / 本文结果”直观对比卡）。旧叙事版保留paragraphs/chain兼容入口，新六步总览不重复渲染旧paragraphs/chain长文。walkthrough 为按推理顺序排列的章节数组，每项 title、bridge（承接问题）、paragraphs、connection（通往下一步）、refs，可选 motions（id/label/after，指向既有机制及讲解段落）、table（head/rows）。walkthrough由一篇已写通的连续讲述稿按阅读停顿分节而来，章节不是论文目录的缩写。paragraphs自身须推进理解，bridge/connection只作路标；拿掉它们和小标题仍能连贯。所有承重判断与叙事转折须按refs实际回查，保留来源条件与证据强度，不为连续性补造作者动机、过程或因果。沿用现有字段，不增加固定故事站数或新必填字段。数值卡统一交代对象和分母，综述可用机制卡。3分钟显示一页入门；10分钟在同一主线上展开章节，导读目录随路线切换。
 
 10分钟导读的 motions 字段指向既有场景配置，但渲染为章节内播放器，而非跳转链接。实例ID采用 guide-motion-章节号-原场景ID，防止同页多处演示重名；场景来源、分步说明与正文一致，播放状态分别管理。验收须在导读内操作所有实例，确认没有切换至逐段精读，切路线后隐藏实例暂停。
 
@@ -131,3 +131,23 @@ JATS导入器可写入source.inline_runs：顺序数组，每项text为文字，
 ## 重难点覆盖与题材无关绘制
 
 新稿填写 `visual_plan`，格式与 `scene:process` 对象/关键帧见[声明式演示](declarative-scenes.md)。新完整稿CLI添加 `--require-visual-plan`；Python build/validate可用同名布尔参数。旧输入仍能重建。严格检查验证来源/场景/十分钟插入映射，拒绝把argument_map标为机制，不能代替内容覆盖、箭头语义、数值口径和画面同步的实际审读。
+
+## 来源整理与术语审读（新完整稿）
+
+详见[source-preparation.md](source-preparation.md)。fulltext.source_review含structure/terminology/citations三项审读状态、证据与范围说明，decisions处理audit_source的当前疑点，issues记录人工发现的问题。`--require-source-review`要求三项已完成或有依据不适用，且无未审疑点/未决问题；旧输入兼容。原status=verified不替代这些审读。
+
+guide.terminology为数组，每项为`{id, forms:[英文形式], identity:本篇所指或定义, preferred_zh:首选译名, aliases:[允许别名], evidence:[核实来源定位], refs:[原文块ID]}`。同一英文不同义项分别建项。translations[].terms中的显式en/zh必须与匹配项的首选/允许译名一致；存在多义项时加term_id明确绑定。此字段不自动校对散文、词汇、图注和动图全部措辞。中文原文仍需核对核心概念，确实无需翻译术语统一时说明不适用。
+
+段落合并/拆分、栏序调整先另存规范化转录和原提取件映射，再重新解析；不可修改raw或SHA绕过原串验证。英文引注可沿source.inline_runs的sup和target恢复，译文保留原引注范围（纯文本编号可用）；未实现译文行内链接自动同步。
+
+## 逐段阅读目录与分段
+
+侧栏按原文sections.level保留层级，正文阅读、核心推荐、出版信息与附录分开。不能将只有元信息的题名作者块当正文第一章。原文无细分小标题，或一段目录覆盖过长主题时，guide.reading_outline可提供读者定位用的二级分段：
+
+```json
+[{"start":"本组起始原文块ID","title":"对应该组真实内容的中文阅读标题"}]
+```
+
+start只能是当前实质正文的段落/图/公式/表；不重复，按原文顺序排列，不能指向元信息或附录。每项从该块开始，直到下一项或本原文章节结束；标题只作教学路标，不增补原作者论点。构建器在对应块前生成f-read-起始ID的独立路标，并标“阅读分段 · 整理者添加”；原块raw、ID、段落与图表顺序不变，批注仍绑定原块。目录可跳到路标，滚动跟随高亮；检索期间暂隐藏非命中的路标，清除检索后恢复。
+
+按论文实际主题划分，不强套背景/方法/结果或固定分组数。优先原有清楚标题；已有标题足够则无需人为再分。旧稿未填此字段仍可重建。此功能与十分钟walkthrough的叙事分节独立，不能把叙事顺序搬过来重排逐段原文。PDF对照仍按原文块输出，当前不自动输出新增教学路标。

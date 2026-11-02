@@ -105,12 +105,14 @@ def source_label(item, include_status=False):
     return " · ".join(bits)
 
 
-def render_full(data, trans, asset_root=".", mechanisms=None):
+def render_full(data, trans, asset_root=".", mechanisms=None, reading_outline=None):
     from render_mechanisms import render_mechanism
     planned = {}
     for mechanism in mechanisms or []:
         planned.setdefault(mechanism['anchor'], []).append(mechanism)
     sections, missing = [], []
+    from reading_outline import heading
+    landmarks = {entry['start']: entry for entry in reading_outline or []}
     ordered = sorted(enumerate(data["sections"]), key=lambda pair: pair[1].get('kind', 'body') != 'body')
     for si, section in ordered:
         if not section['items']:
@@ -118,6 +120,8 @@ def render_full(data, trans, asset_root=".", mechanisms=None):
         body = []
         for item in section["items"]:
             pid = item["id"]
+            if pid in landmarks:
+                body.append(heading(landmarks[pid]))
             label = '<p class="source" title="' + esc(source_label(item, include_status=True)) + '">' + esc(source_label(item)) + '</p>'
             src=item.get('source',{})
             from source_pdf import page_button

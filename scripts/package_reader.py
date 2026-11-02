@@ -1,5 +1,5 @@
 """Create and optionally verify a standalone paper-close-read release (stdlib only)."""
-import argparse,ast,hashlib,json,subprocess,sys,tempfile,zipfile
+import argparse,ast,hashlib,json,os,subprocess,sys,tempfile,zipfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def sha(raw):return hashlib.sha256(raw).hexdigest()
@@ -25,10 +25,16 @@ def verify_archive(archive):
             z.extractall(temp/'unpacked')
         unpacked=temp/'unpacked';target=temp/'skills';sibling=target/'unrelated-skill';sibling.mkdir(parents=True);(sibling/'keep.txt').write_text('keep',encoding='utf-8')
         def run(args):
-            result=subprocess.run([sys.executable,*[str(a) for a in args]],cwd=str(temp),capture_output=True,text=True,encoding='utf-8')
+            result=subprocess.run([sys.executable,*[str(a) for a in args]],cwd=str(temp),capture_output=True,text=True,encoding='utf-8',env={**os.environ,'PYTHONUTF8':'1','PYTHONIOENCODING':'utf-8'})
             if result.returncode:raise ValueError(result.stdout+result.stderr)
             return result
         for _ in range(2):run([unpacked/'install.py','--target',target])
+        custom=target/'paper-close-read/SKILL.md';custom.write_bytes(custom.read_bytes()+b'\nLocal upgrade preservation probe.\n');preserved=custom.read_bytes()
+        refused=subprocess.run([sys.executable,str(unpacked/'install.py'),'--target',str(target)],cwd=str(temp),capture_output=True)
+        if refused.returncode==0 or custom.read_bytes()!=preserved:raise ValueError('Different installed files were overwritten without backup')
+        backup=temp/'upgrade-backup'
+        run([unpacked/'install.py','--target',target,'--replace','--backup',backup])
+        if (backup/'paper-close-read/SKILL.md').read_bytes()!=preserved:raise ValueError('Upgrade backup differs from previous installed files')
         for name,expected in manifest['skill_files'].items():
             if sha((target/'paper-close-read'/name).read_bytes())!=expected:raise ValueError('Installed hash differs: '+name)
         if (sibling/'keep.txt').read_text(encoding='utf-8')!='keep':raise ValueError('Sibling skill changed')
@@ -36,25 +42,34 @@ def verify_archive(archive):
         papers=['hardy1908','carroll1895','thomsen','wilcox']
         for paper in papers:
             data=ROOT/'examples/paper-close-read'/paper/'reading-data';html=temp/(paper+'.html')
-            arguments=[target/'paper-close-read/scripts/build_html.py',data/'fulltext.json',data/'translations.json',data/'guide.json',html,'--asset-root',data,'--source',data/'source.md']
+            source=(data/json.loads((data/'fulltext.json').read_text(encoding='utf-8-sig'))['source']['file']).resolve()
+            if not source.is_relative_to(data.resolve()):raise ValueError('Source file is outside reading-data')
+            arguments=[target/'paper-close-read/scripts/build_html.py',data/'fulltext.json',data/'translations.json',data/'guide.json',html,'--asset-root',data,'--source',source,'--profile','legacy']
             if paper in {'thomsen','wilcox'}:arguments.append('--require-figure-audit')
             run(arguments)
             if html.read_bytes()!=(data.parent/'reader.html').read_bytes():raise ValueError('Installed generator differs for '+paper)
-        return {'manifest_files':len(manifest['files']),'installed_skill_files':len(manifest['skill_files']),'idempotent_install':True,'sibling_preserved':True,'real_readers_rebuilt':papers,'selftest':selftest.stdout.strip()}
-def package(output,verify=False):
+        return {'manifest_files':len(manifest['files']),'installed_skill_files':len(manifest['skill_files']),'idempotent_install':True,'refusal_preserves_files':True,'backup_upgrade':True,'sibling_preserved':True,'real_readers_rebuilt':papers,'selftest':selftest.stdout.strip()}
+def package(output,verify=False,require_committed=False):
     version=skill_version();tag='paper-close-read-v'+version;output=Path(output);output.mkdir(parents=True,exist_ok=True)
     skill=ROOT/'skills/paper-close-read';docs=ROOT/'docs/releases'/tag
     payload={}
     for path in sorted(skill.rglob('*')):
         if path.is_file() and '__pycache__' not in path.parts and path.suffix!='.pyc':payload['paper-close-read/'+path.relative_to(skill).as_posix()]=path.read_bytes()
-    installer=(ROOT/'scripts/install_reader.py').read_text(encoding='utf-8')
-    origin="Path(__file__).resolve().parents[1]/'skills/paper-close-read'"
-    if installer.count(origin)!=1:raise ValueError('Installer source layout changed; inspect packaging adapter')
-    payload['install.py']=installer.replace(origin,"Path(__file__).resolve().parent/'paper-close-read'").encode('utf-8')
+    payload['install.py']=(ROOT/'scripts/standalone_skill_installer.py').read_bytes()
     for name in ['INSTALL.zh-CN.md','CHANGELOG.zh-CN.md']:payload[name]=(docs/name).read_bytes()
     commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=str(ROOT)).decode().strip()
+    scoped=[p for p in skill.rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix!='.pyc']
+    scoped += [ROOT/'scripts/standalone_skill_installer.py',docs/'INSTALL.zh-CN.md',docs/'CHANGELOG.zh-CN.md']
+    committed=True
+    tracked=subprocess.run(['git','ls-tree','-r','--name-only','-z','HEAD','--','skills/paper-close-read'],cwd=str(ROOT),capture_output=True)
+    current={p.relative_to(ROOT).as_posix() for p in scoped if p.is_relative_to(skill)}
+    if tracked.returncode or set(tracked.stdout.decode('utf-8').rstrip('\0').split('\0')) != current:committed=False
+    for path in scoped:
+        saved=subprocess.run(['git','show','HEAD:'+path.relative_to(ROOT).as_posix()],cwd=str(ROOT),capture_output=True)
+        if saved.returncode or saved.stdout!=path.read_bytes(): committed=False;break
+    if require_committed and not committed:raise ValueError('Release payload differs from HEAD; commit the scoped candidate before publishing. Local candidate packaging is still allowed without --require-committed.')
     skill_files={name.removeprefix('paper-close-read/'):sha(raw) for name,raw in payload.items() if name.startswith('paper-close-read/')}
-    manifest={'component':'paper-close-read','version':version,'tag':tag,'source_commit':commit,'license':'MIT (skill code only)','skill_tree_sha256':sha(json.dumps(skill_files,sort_keys=True,separators=(',',':')).encode()),'skill_files':skill_files,'files':{name:sha(raw) for name,raw in payload.items()}}
+    manifest={'component':'paper-close-read','version':version,'tag':tag,'source_commit':commit if committed else None,'source_base_commit':commit,'source_state':'committed' if committed else 'working-tree','minimum_python':[3,9],'install_roots':['paper-close-read'],'license':'MIT (skill code only)','skill_tree_sha256':sha(json.dumps(skill_files,sort_keys=True,separators=(',',':')).encode()),'skill_files':skill_files,'files':{name:sha(raw) for name,raw in payload.items()}}
     manifest_bytes=(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n').encode('utf-8');payload['manifest.json']=manifest_bytes
     archive=output/(tag+'.zip')
     with zipfile.ZipFile(archive,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
@@ -64,10 +79,10 @@ def package(output,verify=False):
     for name in ['INSTALL.zh-CN.md','CHANGELOG.zh-CN.md']:(output/name).write_bytes(payload[name])
     assets=[archive,output/(tag+'.manifest.json'),output/'INSTALL.zh-CN.md',output/'CHANGELOG.zh-CN.md']
     with (output/'SHA256SUMS.txt').open('w',encoding='utf-8',newline='\n') as stream:stream.write(''.join(sha(p.read_bytes())+'  '+p.name+'\n' for p in assets))
-    result={'version':version,'source_commit':commit,'zip':str(archive),'zip_sha256':sha(archive.read_bytes()),'skill_tree_sha256':manifest['skill_tree_sha256'],'assets':[p.name for p in assets]+['SHA256SUMS.txt']}
+    result={'version':version,'source_commit':manifest['source_commit'],'source_base_commit':commit,'source_state':manifest['source_state'],'zip':str(archive),'zip_sha256':sha(archive.read_bytes()),'skill_tree_sha256':manifest['skill_tree_sha256'],'assets':[p.name for p in assets]+['SHA256SUMS.txt']}
     if verify:result['verification']=verify_archive(archive)
     return result
 if __name__=='__main__':
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',required=True,type=Path);p.add_argument('--verify',action='store_true');a=p.parse_args()
-    try:print(json.dumps(package(a.output,a.verify),ensure_ascii=False,indent=2))
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',required=True,type=Path);p.add_argument('--verify',action='store_true');p.add_argument('--require-committed',action='store_true');a=p.parse_args()
+    try:print(json.dumps(package(a.output,a.verify,a.require_committed),ensure_ascii=False,indent=2))
     except (OSError,ValueError,subprocess.SubprocessError,zipfile.BadZipFile) as exc:p.exit(2,'Release packaging failed: '+str(exc)+'\n')

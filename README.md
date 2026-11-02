@@ -25,7 +25,7 @@
 
 | Skill | 下载 | Python |
 |---|---|---|
-| 单篇文献带读 v1.5.0 | [独立 ZIP](https://github.com/Daylily-Huang/ScholarFlow/releases/download/skills-2026-11-01/paper-close-read-v1.5.0.zip) | 3.9+ |
+| 单篇文献带读 v1.6.0 | [独立 ZIP](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.6.0/paper-close-read-v1.6.0.zip) | 3.9+ |
 | 可编辑科研 PPT v1.8.0 | [独立 ZIP](https://github.com/Daylily-Huang/ScholarFlow/releases/download/skills-2026-11-01/editable-research-ppt-v1.8.0.zip) | 3.10+ |
 | 文献检索与获取 v0.6.6（含 OpenAlex Key 接入） | [独立 ZIP](https://github.com/Daylily-Huang/ScholarFlow/releases/download/skills-2026-11-01/literature-discovery-acquisition-v0.6.6.zip) | 3.9+ |
 
@@ -41,12 +41,12 @@
 
 这是 ScholarFlow 自带的 **[paper-close-read](skills/paper-close-read/SKILL.md)**，可单独安装使用。按文章的论证方式组织讲解，支持自然科学与人文社科；首页主展示为 **3 篇自然科学 + 2 篇人文社科**：海水 eDNA、引物特异性、心血管机制综述，以及历史与文学细读。
 
-> **[⬇ 下载文献阅读 skill 独立安装包 v1.5.0](https://github.com/Daylily-Huang/ScholarFlow/releases/download/skills-2026-11-01/paper-close-read-v1.5.0.zip)**
+> **[⬇ 下载文献阅读 skill 独立安装包 v1.6.0](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.6.0/paper-close-read-v1.6.0.zip)**
 >
 > 无需克隆仓库。完整解压后运行包内 `install.py` 即可安装；保留逐段英文词汇和中英双语 PDF 导出；新增原图清单核对、讲解旁直接看原图，以及可拖动缩放的 PDF 原页窗口。
-> [Release 下载页与校验文件](https://github.com/Daylily-Huang/ScholarFlow/releases/tag/skills-2026-11-01) · [中文更新说明](docs/releases/paper-close-read-v1.5.0/CHANGELOG.zh-CN.md)
+> [Release 下载页与校验文件](https://github.com/Daylily-Huang/ScholarFlow/releases/tag/paper-close-read-v1.6.0) · [中文更新说明](docs/releases/paper-close-read-v1.6.0/CHANGELOG.zh-CN.md)
 
-**安装包与源码 v1.5.0：** [查看更新](docs/releases/paper-close-read-v1.5.0/CHANGELOG.zh-CN.md)。助手可用通用对象与关键帧，为新题材直接制作过程演示；新增逐难点覆盖验收，核对图文阶段、关系与数值基准。保留双语对照、公式/表格拆解、原图原页与独立折叠。上方独立安装包已包含这些功能；安装与升级见[统一说明](docs/releases/skills-2026-11-01/README.md)。
+**文献带读 v1.6.0：** 新稿默认完整检查，补齐来源、术语与引注审读；加强JATS原图、表格和引文保留，重复导入保护已有资料。十分钟动图可精确放在对应讲解后，无小标题论文可加明确标注的阅读路标。保留三分钟总览、双语对照、逐段词汇、批注与PDF导出。[中文更新说明](docs/releases/paper-close-read-v1.6.0/CHANGELOG.zh-CN.md) · [验收范围与边界](docs/releases/paper-close-read-v1.6.0/VALIDATION.zh-CN.md)。
 
 **直接体验新版：** [Thomsen：原图与 PDF 原页窗口 HTML](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.3.0/Thomsen2012-reader.html) · [Wilcox：组合图与原页窗口 HTML](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.3.0/Wilcox2013-reader.html)（下载后离线打开）
 
@@ -88,7 +88,7 @@ GitHub 中的 HTML 文件页显示源码。点击文件页的 **Download raw fil
 
 ### 安装并读第一篇
 
-**1. [下载 Release 独立安装包 ZIP](https://github.com/Daylily-Huang/ScholarFlow/releases/download/skills-2026-11-01/paper-close-read-v1.5.0.zip)，解压并安装。** 无需 Git，也不必下载整个仓库。
+**1. [下载 Release 独立安装包 ZIP](https://github.com/Daylily-Huang/ScholarFlow/releases/download/paper-close-read-v1.6.0/paper-close-read-v1.6.0.zip)，解压并安装。** 无需 Git，也不必下载整个仓库。
 
 将里面整个 `paper-close-read` 文件夹复制到助手实际读取的 skills 目录：Codex 通常是 `~/.codex/skills`，Claude Code 通常是 `~/.claude/skills`。保留 `scripts`、`assets`、`references`，不能只复制 `SKILL.md`。
 
@@ -98,7 +98,7 @@ GitHub 中的 HTML 文件页显示源码。点击文件页的 **Download raw fil
 python install.py --target ~/.codex/skills
 ```
 
-安装器只复制这个 skill；已有不同版本时停止，备份自己修改的技能后可用 `--replace` 更新。直接复制安装不需要 Python；生成阅读页的构建工具需要 Python 3.9+ 和可读取本地材料的 AI 助手。阅读 HTML 不需要 Python。贡献者需要源码时再 [克隆仓库](https://github.com/Daylily-Huang/ScholarFlow)。
+安装器只复制这个 skill；已有不同版本时停止，确认升级后运行 `python install.py --target <skills目录> --replace --backup <同盘的新备份目录>`，先保留旧文件。直接复制安装不需要 Python；生成阅读页的构建工具需要 Python 3.9+ 和可读取本地材料的 AI 助手。阅读 HTML 不需要 Python。贡献者需要源码时再 [克隆仓库](https://github.com/Daylily-Huang/ScholarFlow)。
 
 **2. 重新打开助手会话，提供论文 PDF，直接说：**
 

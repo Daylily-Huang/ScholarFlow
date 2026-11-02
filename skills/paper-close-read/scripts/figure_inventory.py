@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import re
 import xml.etree.ElementTree as ET
+from collections import Counter
 
 
 def tag(node):
@@ -14,30 +15,46 @@ def tag(node):
 def jats_figures(path):
     """Enumerate every source figure/equation graphic, independent of the importer."""
     root = ET.parse(path).getroot()
-    entries = []
+    parents = {child: node for node in root.iter() for child in node}
+    owners, groups = [], {}
+    # The inventory walks all graphics, not just containers the importer knows.
     for node in root.iter():
-        if tag(node) not in {'fig', 'disp-formula', 'inline-formula'}:
-            continue
-        graphics = [el for el in node.iter() if tag(el) in {'graphic', 'inline-graphic'}]
-        if not graphics and tag(node) != 'fig':
-            continue
-        # Different formats in <alternatives> represent one picture, not extra panels.
-        alternatives = {id(g): alt for alt in node.iter() if tag(alt) == 'alternatives'
-                        for g in alt.iter() if tag(g) in {'graphic', 'inline-graphic'}}
+        if tag(node) == 'fig' and node not in groups:
+            owners.append(node); groups[node] = []
+        if tag(node) not in {'graphic', 'inline-graphic'}: continue
+        owner = node
+        current = parents.get(node)
+        alternative = None
+        while current is not None:
+            if tag(current) == 'alternatives' and alternative is None: alternative = current
+            if tag(current) in {'fig', 'table-wrap', 'disp-formula', 'inline-formula'}:
+                owner = current; break
+            current = parents.get(current)
+        # JATS alternatives are equivalent representations, not extra figures.
+        # A supplied structured table is retained instead of its raster duplicate.
+        if alternative is not None and any(tag(n) == 'table' for n in alternative.iter()): continue
+        if owner is node and alternative is not None: owner = alternative
+        if owner not in groups: owners.append(owner); groups[owner] = []
+        groups[owner].append((node, alternative))
+    entries = []
+    for owner in owners:
         hrefs, used = [], set()
-        for graphic in graphics:
-            group = alternatives.get(id(graphic))
-            key = id(group) if group is not None else id(graphic)
-            if key in used:
-                continue
+        for graphic, alternative in groups[owner]:
+            key = id(alternative) if alternative is not None else id(graphic)
+            if key in used: continue
             used.add(key)
-            href = next((v for k, v in graphic.attrib.items() if k.rsplit('}', 1)[-1] == 'href'), '')
-            hrefs.append(href)
-        label = next((' '.join(el.itertext()).strip() for el in node if tag(el) == 'label'), '')
-        entries.append({'id': node.get('id') or 'source-figure-' + str(len(entries) + 1),
-                        'label': label or node.get('id') or '原图 ' + str(len(entries) + 1),
-                        'kind': 'figure' if tag(node) == 'fig' else 'equation', 'hrefs': hrefs})
+            hrefs.append(next((v for k, v in graphic.attrib.items() if k.rsplit('}', 1)[-1] == 'href'), ''))
+        label = next((' '.join(el.itertext()).strip() for el in owner if tag(el) == 'label'), '')
+        identity = owner.get('id') or 'source-figure-' + str(len(entries) + 1)
+        entries.append({'id': identity, 'label': label or owner.get('id') or '原图 ' + str(len(entries) + 1),
+                        'kind': 'equation' if tag(owner) in {'disp-formula', 'inline-formula'} else 'figure', 'hrefs': hrefs})
     return entries
+
+
+def table_signature(node):
+    """Compare retained table structure/content independently of XML namespace prefixes."""
+    return (tag(node), tuple(sorted((k.rsplit('}',1)[-1],v) for k,v in node.attrib.items())),
+            ' '.join((node.text or '').split()), tuple((table_signature(c),' '.join((c.tail or '').split())) for c in node))
 
 
 def inventory_errors(data, guide, asset_root=None, require=False):
@@ -146,6 +163,10 @@ def inventory_errors(data, guide, asset_root=None, require=False):
     if kind == 'jats' and source_path is not None:
         try:
             expected = jats_figures(source_path)
+            xml_root=ET.parse(source_path).getroot()
+            original_tables=Counter(table_signature(n) for n in xml_root.iter() if tag(n)=='table')
+            retained_tables=Counter(table_signature(ET.fromstring(i['raw'].strip())) for i in items.values() if i['t']=='table' and i['raw'].lstrip().startswith('<table'))
+            if original_tables != retained_tables:errors.append('JATS structured table content differs from source; alternative table images cannot certify missing cells')
         except (ET.ParseError, OSError) as exc:
             errors.append('Cannot read JATS figure inventory: ' + str(exc)); expected = []
         expected_ids = {e['id'] for e in expected}

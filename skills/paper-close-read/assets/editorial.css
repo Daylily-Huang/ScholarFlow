@@ -63,3 +63,14 @@ body{background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}bo
 .pcard .pgrid:has(>details.translation:not([open]))>details.translation{border-top:1px solid var(--line);padding:12px 24px}
 @media(max-width:950px){.pcard .pgrid>details.translation{padding:18px}}
 @media(max-width:740px){.pcard .pgrid>details.translation{padding:18px}}
+
+/* Source headings and explicit reader-added subdivisions. */
+.layout>aside nav .toc-group-label{margin:18px 9px 7px;color:#9b9182;font-size:.67rem;letter-spacing:.08em;font-weight:650}
+.layout>aside nav a.toc-link{padding-left:calc(9px + var(--toc-depth,0)*12px)}
+.layout>aside nav a.toc-reading{font-size:.74rem;margin-top:0;margin-bottom:0;border-radius:5px}
+.layout>aside nav .toc-reading .nav-num{font-size:.59rem;min-width:29px}
+.layout>aside nav .toc-auxiliary{color:#8e8476;font-size:.72rem}
+.reading-landmark{scroll-margin-top:100px;padding:18px 0 12px;margin:22px 0 12px;border-top:1px solid var(--line)}
+.reading-landmark>span{font-size:.64rem;color:#9b8d78;letter-spacing:.06em}
+.reading-landmark>h3{font-size:1.08rem;line-height:1.55;margin:5px 0;color:#514a3f}
+@media print{.reading-landmark{break-after:avoid}.reading-landmark>span{font-size:8pt}}
