@@ -9,8 +9,10 @@ def rebuild(folder):
     folder=Path(folder);data=folder/'reading-data'
     if not data.is_dir():data=folder
     values=[json.loads((data/n).read_text(encoding='utf-8-sig')) for n in ['fulltext.json','translations.json','guide.json']]
-    with (data/'source.md').open(encoding='utf-8-sig',newline='') as stream:source=stream.read()
-    result,report=build(*values,data,source)
+    source_path=(data/values[0]['source']['file']).resolve()
+    if not source_path.is_relative_to(data.resolve()):raise ValueError('Source file is outside reading-data')
+    with source_path.open(encoding='utf-8-sig',newline='') as stream:source=stream.read()
+    result,report=build(*values,data,source,profile='legacy')
     target=folder/'reader.html';atomic_write(target,result)
     return report
 if __name__=='__main__':

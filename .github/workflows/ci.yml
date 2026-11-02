@@ -28,8 +28,8 @@ jobs:
           git diff --exit-code -- examples/paper-close-read/*/reader.html
       - name: Require source figure completeness for audited examples
         run: |
-          python skills/paper-close-read/scripts/validate_content.py examples/paper-close-read/thomsen/reading-data/fulltext.json examples/paper-close-read/thomsen/reading-data/translations.json examples/paper-close-read/thomsen/reading-data/guide.json --asset-root examples/paper-close-read/thomsen/reading-data --source examples/paper-close-read/thomsen/reading-data/source.md --require-figure-audit
-          python skills/paper-close-read/scripts/validate_content.py examples/paper-close-read/wilcox/reading-data/fulltext.json examples/paper-close-read/wilcox/reading-data/translations.json examples/paper-close-read/wilcox/reading-data/guide.json --asset-root examples/paper-close-read/wilcox/reading-data --source examples/paper-close-read/wilcox/reading-data/source.md --require-figure-audit
+          python skills/paper-close-read/scripts/validate_content.py examples/paper-close-read/thomsen/reading-data/fulltext.json examples/paper-close-read/thomsen/reading-data/translations.json examples/paper-close-read/thomsen/reading-data/guide.json --asset-root examples/paper-close-read/thomsen/reading-data --source examples/paper-close-read/thomsen/reading-data/source.md --require-figure-audit --profile legacy
+          python skills/paper-close-read/scripts/validate_content.py examples/paper-close-read/wilcox/reading-data/fulltext.json examples/paper-close-read/wilcox/reading-data/translations.json examples/paper-close-read/wilcox/reading-data/guide.json --asset-root examples/paper-close-read/wilcox/reading-data --source examples/paper-close-read/wilcox/reading-data/source.md --require-figure-audit --profile legacy
       - name: Exercise PDF and vocabulary in Chrome
         if: matrix.python-version == '3.13'
         run: |

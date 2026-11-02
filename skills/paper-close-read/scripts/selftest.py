@@ -225,6 +225,23 @@ def run(work):
     check(not validate(fresh, fresh_records, mapped_guide, fresh_source)['errors'], 'research-map with contrast metrics validates')
     mapped_html, _ = build(fresh, fresh_records, mapped_guide, work, fresh_source)
     check('story-metrics' in mapped_html and 'data-goto-route="deep"' in mapped_html and 'entry-funnel' in mapped_html, 'research-map renders metrics and progressive funnel')
+    # Source preservation must also be checked from the standalone installed skill.
+    import tempfile
+    from import_jats import import_article
+    from figure_inventory import jats_figures
+    with tempfile.TemporaryDirectory(dir=work, prefix='jats-preservation-') as directory:
+        folder=Path(directory);xml=folder/'article.xml'
+        xml.write_text('<article xmlns:xlink="http://www.w3.org/1999/xlink"><body><p>Before<inline-graphic xlink:href="symbol.png"/>after.</p><table-wrap id="T1"><label>Table 1</label><graphic xlink:href="table.png"/></table-wrap><disp-quote><verse-group><verse-line>A <italic>quoted</italic> line.</verse-line></verse-group><attrib>Poet p. 2</attrib></disp-quote></body></article>',encoding='utf-8')
+        manifest=import_article(xml,folder/'data')
+        imported=json.loads((folder/'data/fulltext.json').read_text(encoding='utf-8'))
+        all_items=[i for s in imported['sections'] for i in s['items']]
+        check(len(manifest['figures'])==2 and len(jats_figures(xml))==2, 'JATS inline graphic and image table retained and independently counted')
+        check(any(i['raw'].strip()=='A quoted line.' and i['source'].get('quote_attribution')=='Poet p. 2' for i in all_items), 'JATS verse and attribution retained')
+        before={p.name:p.read_bytes() for p in (folder/'data').iterdir()}
+        rejected=False
+        try:import_article(xml,folder/'data')
+        except ValueError:rejected=True
+        check(rejected and before=={p.name:p.read_bytes() for p in (folder/'data').iterdir()}, 'JATS repeated import preserves prior files')
     (work/'report.json').write_text(json.dumps({'passed':checks},ensure_ascii=False,indent=2),encoding='utf-8')
     print(json.dumps({'passed':len(checks),'work_dir':str(work)},ensure_ascii=False))
 

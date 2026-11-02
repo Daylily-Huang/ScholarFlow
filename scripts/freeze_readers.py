@@ -12,8 +12,10 @@ def files(root):
 def freeze(folder):
     folder=Path(folder).resolve();data=folder/'reading-data'
     values=[json.loads((data/n).read_text(encoding='utf-8-sig')) for n in ['fulltext.json','translations.json','guide.json']]
-    with (data/'source.md').open(encoding='utf-8-sig',newline='') as stream:source=stream.read()
-    html,report=build(*values,data,source)
+    source_path=(data/values[0]['source']['file']).resolve()
+    if not source_path.is_relative_to(data.resolve()):raise ValueError('Source file is outside reading-data')
+    with source_path.open(encoding='utf-8-sig',newline='') as stream:source=stream.read()
+    html,report=build(*values,data,source,profile='legacy')
     if html.encode('utf-8')!=(folder/'reader.html').read_bytes():raise ValueError(str(folder)+': rebuild differs; rebuild and verify the final reader first')
     skill=files(ROOT/'skills/paper-close-read')
     manifest={'phase':'local-reader-quality','paper_id':values[0]['paper_id'],

@@ -58,8 +58,14 @@ def render_story(story, mechanisms=None, concepts=None, extra_deep='', data=None
             for f,reference in enumerate(s.get('figures', [])):
                 if reference['after']==p:
                     prose.append(walkthrough_figure(reference,source_items,asset_root,f'guide-figure-{n}-{f}',data))
+            for reference in s.get('motions', []):
+                if reference.get('after') == p:
+                    original=library[reference['id']]
+                    instance={**original, 'id':f'guide-motion-{n}-{original["id"]}'}
+                    prose.append(render_mechanism(instance))
         players=[]
         for reference in s.get('motions',[]):
+            if 'after' in reference: continue
             original=library[reference['id']]
             instance={**original, 'id':f'guide-motion-{n}-{original["id"]}'}
             players.append(render_mechanism(instance))

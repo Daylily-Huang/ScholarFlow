@@ -12,7 +12,7 @@ from validate_content import validate
 from render_further import render_further
 
 ROOT = Path(__file__).resolve().parent.parent
-GENERATOR_VERSION = '1.5.0'
+GENERATOR_VERSION = '1.6.0'
 
 
 def refs_html(refs):
@@ -63,11 +63,13 @@ def render_guide(guide, asset_root, data=None):
             f'<section><h2>试着讲给别人听</h2>{"".join(checks)}</section></div>')
 
 
-def build(data, records, guide, asset_root, source_text=None, allow_incomplete=False, require_figure_audit=False, require_visual_plan=False):
-    report = validate(data, records, guide, source_text, allow_incomplete, asset_root, require_figure_audit, require_visual_plan)
+def build(data, records, guide, asset_root, source_text=None, allow_incomplete=False, require_figure_audit=False, require_visual_plan=False, require_source_review=False, profile=None):
+    profile = profile or ('complete' if require_figure_audit and require_visual_plan and require_source_review else 'legacy')
+    allow_incomplete = allow_incomplete or profile == 'draft'
+    report = validate(data, records, guide, source_text, allow_incomplete, require_figure_audit=require_figure_audit, require_visual_plan=require_visual_plan, asset_root=asset_root, require_source_review=require_source_review, profile=profile)
     if report["errors"]:
         raise ValueError('\n'.join(report["errors"]))
-    full, missing = render_full(data, {r["id"]: r for r in records}, asset_root, guide.get('mechanisms', []))
+    full, missing = render_full(data, {r["id"]: r for r in records}, asset_root, guide.get('mechanisms', []), guide.get('reading_outline', []))
     if guide.get('concepts'):
         from render_concepts import render_concepts
         for concept in guide['concepts']:
@@ -84,19 +86,16 @@ def build(data, records, guide, asset_root, source_text=None, allow_incomplete=F
                 '<div class="entry-funnel-actions"><button type="button" data-goto-route="quick">先看 3 分钟入门 →</button>'
                 '<button type="button" class="ghost-btn" data-goto-route="deep">10 分钟读懂主线 →</button></div></div>') + full
     ordered = sorted(enumerate(data['sections']), key=lambda pair: pair[1].get('kind', 'body') != 'body')
-    navigation = ''.join(f'<a href="#f-{i:02d}">{esc(s.get("display_name", s["name"]))}</a>' for i, s in ordered if s['items'])
+    from reading_outline import navigation as render_navigation
+    navigation = render_navigation(data, records, guide)
     if guide.get('further_reading'):
         recommendation = render_further(guide['further_reading'])
-        link = '<a href="#f-further-reading">核心文献推荐</a>'
         appendix = next((i for i,s in ordered if s['items'] and (s.get('kind', 'body') != 'body' or s['name'].strip().lower() in {'references', 'acknowledgments', 'acknowledgements', '参考文献', '致谢'})), None)
         marker = f'<section class="fsect" id="f-{appendix:02d}">' if appendix is not None else ''
         if marker and marker in full:
             full = full.replace(marker, recommendation + marker, 1)
-            nav_marker = f'<a href="#f-{appendix:02d}">'
-            navigation = navigation.replace(nav_marker, link + nav_marker, 1)
         else:
             full += recommendation
-            navigation += link
     title = data["front"]["title"]
     config = {"paperId": data["paper_id"], "title": title,
               "revision": hashlib.sha256(json.dumps([data, records, guide], ensure_ascii=False, sort_keys=True).encode()).hexdigest()[:20]}
@@ -126,6 +125,7 @@ def build(data, records, guide, asset_root, source_text=None, allow_incomplete=F
         a=guide['attribution']
         attribution='<div class="source-attribution"><h3>原文归属与改写</h3><p>'+esc(a['citation'])+'</p><p>'+esc(a['url'])+'</p><p>'+esc(a['license'])+'</p><p>'+esc(a['changes'])+'</p></div>'
     draft = '<p class="warning">待补稿：讲解或翻译不完整。</p>' if allow_incomplete else ''
+    if profile == 'legacy': draft += '<p class="compatibility-note">兼容重建：此页保留既有资料，未按当前完整新稿规范重新验收。</p>'
     from render_figures import inventory_html
     figure_audit_html = inventory_html(data, report['figures'])
     result = f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)} · 精读</title><style>{css}</style></head>
@@ -163,6 +163,8 @@ def main():
     ap.add_argument('--allow-incomplete', action='store_true')
     ap.add_argument('--require-figure-audit', action='store_true', help='新完整稿要求独立来源图清单和全部图/子图核对完成')
     ap.add_argument('--require-visual-plan', action='store_true', help='新完整稿核对重难点及其就地解释覆盖')
+    ap.add_argument('--require-source-review', action='store_true', help='新完整稿要求来源结构、术语与引注核对')
+    ap.add_argument('--profile',choices=('complete','legacy','draft'),default='complete',help='默认完整新稿；旧资料重建需显式legacy，待补稿用draft')
     args = ap.parse_args()
     try:
         values = []
@@ -175,7 +177,7 @@ def main():
         if args.source:
             with args.source.open(encoding='utf-8-sig', newline='') as stream:
                 source = stream.read()
-        result, report = build(*values, args.asset_root, source, args.allow_incomplete, args.require_figure_audit, args.require_visual_plan)
+        result, report = build(*values, args.asset_root, source, args.allow_incomplete, args.require_figure_audit, args.require_visual_plan, args.require_source_review, args.profile)
         atomic_write(args.output, result)
     except (OSError, UnicodeError, ValueError) as exc:
         print('构建未完成：' + str(exc), file=sys.stderr)

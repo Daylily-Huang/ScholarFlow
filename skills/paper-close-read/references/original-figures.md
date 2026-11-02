@@ -71,3 +71,5 @@ python scripts/build_html.py fulltext.json translations.json guide.json reader.h
 
 
 分离图注：Markdown提取将图片与英文图注分为两个来源块时，可在图片的 `source.caption_ref` 填入实际图注段落ID。保留两块raw、ID与源顺序；逐段原图链接至原位图注，10分钟导读复用该段完整英文图注。未知、空或非段落引用阻断构建。
+
+JATS alternatives中同一表格若同时有HTML table和位图，优先保留结构化表而不重复位图；构建会独立比较原XML与保留表格的结构、单元格及属性，缺表/缺值阻断。只有图像的表格和非替代附图仍须列入图清单并保留。
