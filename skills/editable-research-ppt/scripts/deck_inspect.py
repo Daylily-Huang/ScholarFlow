@@ -148,22 +148,29 @@ def matrix_grid(rectangles,texts):
     return False
 
 
-# Text anchors from the approved navigation layouts. A tolerance accommodates
-# the two fills and their adaptive title frames, and small PowerPoint edits.
+# Native shape IDs and frames from the approved navigation templates.
+# Include structural anchors outside the title area to reject similar headers
+# on ordinary slides. IDs persist when the contents or notes are edited.
 NAVIGATION_ANCHORS={
-    'L5':((38,76,620,30),(40,184,616,193)),
-    'L6':((30,80,190,90),(40,177,174,32),(300,125,48,48)),
-    'L7':((36,60,275,150),(39,230,605,168)),
-    'L14':((48,117,560,233),(48,432,568,71)),
+    'L5':{'2':(38,76,620,30),'3':(40,184,616,193),'8':(82,620,240,36),
+          '19':(377,620,260,36),'21':(1210,692,46,20)},
+    'L6':{'2':(30,80,190,90),'3':(40,177,174,32),'8':(282,17,950,53),
+          '11':(301,125,48,48),'23':(301,265,48,48),'80':(1210,692,46,20)},
+    'L7':{'2':(36,60,275,150),'4':(39,230,605,168),'18':(63,646,250,32),
+          '31':(373,646,250,32),'44':(1210,692,46,20)},
+    'L14':{'2':(48,117,560,233),'4':(48,432,568,71),'32':(82,612,330,39),
+           '44':(520,608,197,40),'53':(1210,692,46,20)},
 }
 
 
-def navigation_layout(texts,tables,charts):
+def navigation_layout(frames,tables,charts):
     if tables or charts:
         return None
     for layout,anchors in NAVIGATION_ANCHORS.items():
-        if all(any(all(abs(expected-actual)<=tol for expected,actual,tol in
-                       zip(anchor,box,(24,24,55,18))) for box in texts) for anchor in anchors):
+        if all(shape_id in frames and
+               all(abs(expected-actual)<=tol for expected,actual,tol in
+                   zip(anchor,frames[shape_id],(24,24,55,18)))
+               for shape_id,anchor in anchors.items()):
             return layout
     return None
 
@@ -174,7 +181,7 @@ def slide_metrics(index,root):
     collect(tree if tree is not None else root,(1.0,0.0,1.0,0.0),shapes)
     canvas=CANVAS[0]*CANVAS[1]
     pictures=[];tables=charts=0;texts=[]
-    rectangles=[]; nodes=[]; arrows=0
+    rectangles=[]; nodes=[]; arrows=0; text_frames={}
     for node,affine in shapes:
         tag=node.tag.rsplit('}',1)[-1]
         box=box_of(node,affine)
@@ -197,8 +204,12 @@ def slide_metrics(index,root):
             if node.find('.//a:tbl',NS) is not None:tables+=1
             data=node.find('.//a:graphicData',NS)
             if data is not None and '/chart' in (data.get('uri') or ''):charts+=1
-        if tag=='sp' and box is not None and visible>0 and has_text(node):
-            texts.append(box)
+        if tag=='sp' and box is not None and visible>0 and node.find('p:txBody',NS) is not None:
+            props=node.find('p:nvSpPr/p:cNvPr',NS)
+            if props is not None:
+                text_frames[props.get('id')]=box
+            if has_text(node):
+                texts.append(box)
     picture_area=round(sum(p['area'] for p in pictures),1)
     image_share=round(picture_area/canvas,3)
     largest=round(max([p['area'] for p in pictures] or [0.0])/canvas,3)
@@ -213,7 +224,7 @@ def slide_metrics(index,root):
             'text_rows':rows,'text_columns':cols,'min_font_px':font,
             'matrix_grid':matrix_grid(rectangles,placed),'process_geometry':arrows>=2 or lanes>=2,
             'connectors':arrows,'panels':panel_count(rectangles,placed,canvas),
-            'navigation_layout':navigation_layout(placed,tables,charts),
+            'navigation_layout':navigation_layout(text_frames,tables,charts),
             'signature':signature(pictures,picture_area,image_share,largest,tables,charts,len(texts),rows,cols,font)}
 
 

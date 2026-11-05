@@ -9,18 +9,18 @@
     "assets/examples/native-composition.json": "f06721a65b17f0c61c499911432e7e2728f6ad457b84efe005a31b15d7c82128",
     "assets/examples/figures/composition-notes.txt": "9aaa8b8fd30c44dc33ae28688738f882c0bd6cfda15079a5036e104946c4baa3",
     "references/approved-standard.json": "641ee88b15713b553466b343517b48ddf886a2e5edd598d93b9f4c6ccb7b41a1",
-    "references/design-contract.json": "37849a6c8beb2b408fd37426253f3b47450131d3abaa069eaf158bed2a986450",
+    "references/design-contract.json": "28ce483836569c0710852c26ea01824f706e223d9457b76b2ca66f61458bb991",
     "references/content-review.md": "e50f8caa49c3d92195e1adbf1f9fb435a590eba7e23c66ad59a4e35dfde24025",
     "scripts/generate.py": "39e20c290c9d50f3c961057fc04f50690d75f205cc2d6b62c155828cb1fde88c",
     "scripts/content_audit.py": "2cab8188af712ecce32e01c974c731a2689620ac158760b72a86692128f5c141",
     "scripts/preflight.py": "270aecccb34c6266464f2ab5392551f32025a83b5a8aff511d3169826f10f4ba",
     "scripts/prepare_handoff.py": "d5a989e9deae86400e1f91bda9d45a5f97691dedaa94565949ac01bbf09d92d1",
     "scripts/export_project.py": "1ccc744d0a9e73e8d9ae6712bcc125e548ccafec482acf83243f9473ff5d1448",
-    "tests/test_content.py": "0c582b8f9ae33416de72b2d30226df32a77e8946cce2a2eb6e372e234bec36c0",
-    "scripts/structure_audit.py": "63539eabda3cccb7539c00d0d4fa82d2a25b35fbdb7a42e23c36b1b57667a6a6",
-    "scripts/deck_inspect.py": "6a08ace8b6bd61774b5e9ff173b55a651fe8a8a2c9009df8a8bd4a6970d1a9cb",
+    "tests/test_content.py": "9c0f08f87095be0bc7fa31de09ea190c82e05ecdcde7b0307f6f1f28cdff86c4",
+    "scripts/structure_audit.py": "db5a7ef4c1357268d00207648797d7380d2dd5a4c87173b80fc6b44ef2e9c049",
+    "scripts/deck_inspect.py": "b0fc1f182c1b3851db560464ebf667793b19730f34cb7d0b52dcb9acb805dbfe",
     "scripts/refresh_release.py": "9dbbd47b0d6028133ab2b9e0facccc51af555c04eb0cc2113ba7ab17537a1277",
     "tests/test_structure.py": "7df8ce4e4a8b432f5d82f80c765be8f1954f009a2db0f1f590875db0815b468a",
-    "references/structure-review.md": "c56c010487e4514d3ccfdb7c505be89aab08aeba4686568ce6ee4b49bda681f4"
+    "references/structure-review.md": "1207235abef99045394e4b929f1179a9006c8be3bf961dcd39b1adf05a3f4785"
   }
 }

@@ -166,12 +166,13 @@ def inspect(document,parts=None):
     elif parts is not None and len(marks)==len(pages):
         series['measured']=[]
         for i,(page,label,m) in enumerate(zip(pages,named,actual)):
-            is_navigation=(label in NAVIGATION and isinstance(page,dict) and
+            at_expected_position=(label!='cover' or i==0) and (label!='closing' or i==len(pages)-1)
+            is_navigation=(at_expected_position and label in NAVIGATION and isinstance(page,dict) and
                            m['navigation_layout']==page.get('layout') and FIXED.get(m['navigation_layout'])==label)
             series['measured'].append(label if is_navigation else m['structure'])
             reasons=failures(label,m)
             if label in NAVIGATION and not is_navigation:
-                reasons.append('the saved page does not match the approved navigation geometry')
+                reasons.append('the saved page does not match the approved navigation geometry or position')
             for reason in reasons:
                 issue('warning' if advisory and not formal else 'error',f'slides[{i}].structure',
                       'plan_actual_mismatch',f'第 {i+1} 页：{reason}')

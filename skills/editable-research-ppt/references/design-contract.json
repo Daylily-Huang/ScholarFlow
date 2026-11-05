@@ -604,8 +604,8 @@
     "scripts/preflight.py": "270aecccb34c6266464f2ab5392551f32025a83b5a8aff511d3169826f10f4ba",
     "scripts/prepare_handoff.py": "d5a989e9deae86400e1f91bda9d45a5f97691dedaa94565949ac01bbf09d92d1",
     "scripts/export_project.py": "1ccc744d0a9e73e8d9ae6712bcc125e548ccafec482acf83243f9473ff5d1448",
-    "scripts/structure_audit.py": "63539eabda3cccb7539c00d0d4fa82d2a25b35fbdb7a42e23c36b1b57667a6a6",
-    "scripts/deck_inspect.py": "6a08ace8b6bd61774b5e9ff173b55a651fe8a8a2c9009df8a8bd4a6970d1a9cb"
+    "scripts/structure_audit.py": "db5a7ef4c1357268d00207648797d7380d2dd5a4c87173b80fc6b44ef2e9c049",
+    "scripts/deck_inspect.py": "b0fc1f182c1b3851db560464ebf667793b19730f34cb7d0b52dcb9acb805dbfe"
   },
   "template_structure": {
     "assets/templates/library.pptx": {

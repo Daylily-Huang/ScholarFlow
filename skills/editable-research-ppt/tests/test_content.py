@@ -211,11 +211,13 @@ class ContentTests(unittest.TestCase):
         pages=[]
         for i,(layout,structure) in enumerate(zip(('L15','L16','L18'),('cards','comparison','cards')),1):
             title=f'Synthetic card page {i}'
-            composition=[dict(kind='text',name='page-title',text=title,box=[32,20,1216,58],size=42,bold=True)]
+            composition=[
+                dict(kind='text',name='heading',text='SYNTHETIC TEST',box=[38,76,620,30],size=20),
+                dict(kind='text',name='page-title',text=title,box=[40,184,616,193],size=42,bold=True)]
             for n,x in enumerate((62,482,902),1):
                 name=f'plate-{n}' if i==2 else f'panel-{n}'
-                composition.append(dict(kind='shape',name=name,box=[x,150,316,280],fill='primary'))
-                composition.append(dict(kind='text',name=f'item-{n}',text=f'Item {n}',box=[x+20,235,276,46],size=28))
+                composition.append(dict(kind='shape',name=name,box=[x,430,316,180],fill='primary'))
+                composition.append(dict(kind='text',name=f'item-{n}',text=f'Item {n}',box=[x+20,485,276,46],size=28))
             pages.append(dict(layout=layout,title=title,task='Summarize items',structure=structure,
                               sources=['Synthetic fixture'],composition=composition))
         self.doc['slides']=pages
@@ -228,6 +230,15 @@ class ContentTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'draft'):
             handoff.prepare(target,self.folder/'blocked')
         self.assertFalse((self.folder/'blocked').exists())
+
+        self.doc['slides'][1].update(layout='L5',structure='cover')
+        self.refresh()
+        self.doc['content_plan']['review']['pptx_sha256']=hashlib.sha256(target.read_bytes()).hexdigest()
+        updated=self.folder/'false-cover.json'
+        updated.write_text(json.dumps(self.doc),encoding='utf-8')
+        with self.assertRaisesRegex(ValueError,'navigation geometry'):
+            handoff.prepare(target,self.folder/'false-cover',content_input=updated)
+        self.assertFalse((self.folder/'false-cover').exists())
 
     def test_hand_edited_cover_notes_do_not_change_navigation_geometry(self):
         cover=copy.deepcopy(g.load(ROOT/'assets/examples/all-layouts.json')['slides'][4])
