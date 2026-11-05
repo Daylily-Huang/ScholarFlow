@@ -5,9 +5,11 @@ description: 使用随包原生模板制作可编辑科研 PPTX，支持学术�
 
 # 可编辑科研 PPT
 
-当前版本为 **v1.8.0**。使用前运行 `python scripts/verify_release.py` 核验包完整性；维护或发布时另运行 `python scripts/verify_publication.py` 检查设计契约与隐私边界。具体能力和限制以下文与输入约定为准。
+当前版本为 **v1.9.0**。使用前运行 `python scripts/verify_release.py` 核验包完整性；维护或发布时另运行 `python scripts/verify_publication.py` 检查设计契约与隐私边界。具体能力和限制以下文与输入约定为准。
 
 内置厚实版作为稳定设计基线，并提供**自适应资料模式（`visual_mode: adaptive`）**：当 `demo: false` 时自动去除生硬的默认生态位图与卡片内冗余大图标，释放完整卡片宽度，按用户学科资料实时匹配极简线框图标或嵌入原图，并执行严格的字体、字号与位置对齐检查。
+
+每页须在输入里声明内容任务（`task`）与视觉结构（`structure`），生成前、生成时与交付时各核对一次，规划不能单独充当成品凭据；详见 [逐页结构声明与交付前审查](references/structure-review.md)。
 
 涉及接单、输入诊断、已有稿件修改或交付时，读取 [制作与交付](references/authoring-and-handoff.md)。生成前可运行 `python scripts/preflight.py --input INPUT.json`，它不会写入PPT，也不替代原图、图表与视觉验收。交付前运行 `inspect_deck.py` 核对对象、外链及隐私提示；需要整理可交付目录时用 `prepare_handoff.py`，实际预览必须与同一份PPT的哈希对应。
 
@@ -18,6 +20,10 @@ description: 使用随包原生模板制作可编辑科研 PPTX，支持学术�
 1. 按顺序确认：**场景 → 配色 → 填充风格**。先问学术分享（`academic`）、课程作业（`coursework`）或实验进展（`progress`）；收到答复后问主配色 P1 蓝白朱红、P2 松绿米白、P3 石墨青金、P4 酒红灰蓝、P5 靛紫芥黄、P6 湖蓝珊瑚、P7 赭橙米白、P8 深蓝香槟金、P9 孔雀青白、P10 黑白朱红；再问“轻盈浅底（`light`）”还是“厚实实底（`solid`）”。已明确的选项沿用，不重复询问；用户明确委托自行选择时默认 `P1 + solid`。
 2. 梳理用户提供的论文、数据表、图片或汇报素材，提炼核心科学问题、实验设计与关键数据证据。基于真实材料组织内容，缺失处如实标注，不编造数据。
 3. 先列“每页论点 → 证据/文字 → 讲解顺序 → 版式/变体”，覆盖文献核心问题、方法细节和主要结果，不为了图多而删掉必要文字。示例仅供字段与布局参考，不是成稿范式；再从 `assets/template-system.json` 选择匹配的版式（`L1`–`L23`，变化用 `variant`），避免机械套用全部版式。
+
+## 逐页结构声明与交付前审查（v1.9）
+
+正式输入每页声明 `task` 与 `structure`。生成器检查声明和成品实测两套序列。连续三页同结构默认拒绝，换版式编号或标签不能豁免实测。合理连排要记录 `rhythm_exception`，并在正式交付时提供与最终 PPTX SHA256 和具体区间匹配的复核记录。旧稿和手改稿可针对实际文件重新核验。详见 [结构审查](references/structure-review.md)。
 
 ## 通用内容解读检查（v1.8）
 

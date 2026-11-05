@@ -10,6 +10,8 @@ import importlib.util
 import json
 from pathlib import Path
 import shutil
+import xml.etree.ElementTree as E
+import zipfile
 
 ROOT=Path(__file__).resolve().parents[1]
 def module(name):
@@ -18,7 +20,7 @@ def module(name):
 def sha(data):return hashlib.sha256(data).hexdigest()
 
 
-def prepare(pptx,output,preview_dir=None,*,public=False,draft=False,content_input=None):
+def prepare(pptx,output,preview_dir=None,*,public=False,draft=False,content_input=None,rhythm_review=None):
     source=Path(pptx).resolve();destination=Path(output).resolve()
     if destination.exists():raise FileExistsError('Delivery directory exists; choose a new directory')
     if source.suffix.lower()!='.pptx':raise ValueError('Expected PPTX')
@@ -32,15 +34,27 @@ def prepare(pptx,output,preview_dir=None,*,public=False,draft=False,content_inpu
     if public and inspection['privacy_indicators']:
         raise ValueError('Review local paths or credential-like content before preparing a public bundle')
     content=module('content_audit')
+    structure=module('structure_audit')
     if draft:
         content_review=dict(status='draft',scope='Content review not established; explicit draft handoff')
-    elif content_input is not None:
-        content_input=Path(content_input).resolve()
-        content_review=content.check_edited(json.loads(content_input.read_text(encoding='utf-8-sig')),content_input.parent,source)
+        structure_review=structure.pending(source)
     else:
-        content_review=content.check_pptx(source)
+        if content_input is None:
+            structure_review=structure.check_pptx(source)
+            content_review=content.check_pptx(source)
+        else:
+            where=Path(content_input).resolve()
+            document=json.loads(where.read_text(encoding='utf-8-sig'))
+            content_review=content.check_edited(document,where.parent,source)
+            structure_review=structure.check_edited(document,source)
+        decisions=json.loads(Path(rhythm_review).read_text(encoding='utf-8-sig')) if rhythm_review is not None else None
+        structure_review=structure.accept_rhythm(structure_review,decisions,digest)
+    structure_status=structure_review['status']
+    if sha(source.read_bytes())!=digest:
+        raise ValueError('Source changed during handoff checks; retry with the final saved file')
     files={'presentation.pptx':payload}
     rendering=None
+    preview_hashes=[]
     if preview_dir is not None:
         preview_dir=Path(preview_dir).resolve()
         rendering=json.loads((preview_dir/'powerpoint-validation.json').read_text(encoding='utf-8-sig'))
@@ -49,13 +63,19 @@ def prepare(pptx,output,preview_dir=None,*,public=False,draft=False,content_inpu
         pages=rendering.get('slides')
         if not isinstance(pages,list) or len(pages)!=len(inspection['pages']):raise ValueError('Incomplete preview set')
         if [p.get('slide') for p in pages]!=list(range(1,len(pages)+1)):raise ValueError('Preview page order mismatch')
+        seen={}
         for i,page in enumerate(pages,1):
             name=f'slide-{i:02d}.png'
             if page.get('preview_file')!=name:raise ValueError('Unexpected preview filename')
             data=(preview_dir/name).read_bytes()
             if not data.startswith(b'\x89PNG\r\n\x1a\n') or sha(data)!=page.get('preview_sha256'):
                 raise ValueError('Preview bytes differ from rendering report')
+            page_digest=sha(data)
+            if page_digest in seen:
+                raise ValueError(f'Preview pages {seen[page_digest]} and {i} are byte-identical; distinct page exports could not be established')
+            seen[page_digest]=i
             files['previews/'+name]=data
+            preview_hashes.append({'slide':i,'sha256':page_digest})
         # Do not copy machine-local source paths from the rendering log.
         rendering=dict(rendering);rendering['source']='presentation.pptx'
         files['render-validation.json']=(json.dumps(rendering,ensure_ascii=False,indent=2)+'\n').encode('utf-8')
@@ -67,6 +87,8 @@ def prepare(pptx,output,preview_dir=None,*,public=False,draft=False,content_inpu
 验证状态：{status}
 
 内容状态：{'待审稿，尚未通过内容检查，不作为正式成稿。' if draft else '已完成声明的内容检查；来源解释及科学正确性仍需AI/人工负责，脚本不作科学认证。'}
+
+结构状态：{'待审稿，未建立版式结构说明。' if draft else '每页的内容任务、视觉结构与实测对象布局已核对；连续同结构的复核记录见 structure-validation.json。结构合规不代表选题与表达合适。'}
 
 原生文字、形状、连接线可在PowerPoint修改；原生图表含工作簿时可编辑数据。独立图片可移动、裁剪和替换，内部文字/曲线不可逐项编辑；视频需要修改源文件再导出。对象清单只证明包结构，实际编辑仍以目标软件保存重开验证为准。
 
@@ -80,8 +102,9 @@ def prepare(pptx,output,preview_dir=None,*,public=False,draft=False,content_inpu
     files['object-report.json']=(json.dumps(inspection,ensure_ascii=False,indent=2)+'\n').encode('utf-8')
     files['layout-validation.json']=(json.dumps(layout,ensure_ascii=False,indent=2)+'\n').encode('utf-8')
     files['content-validation.json']=(json.dumps(content_review,ensure_ascii=False,indent=2)+'\n').encode('utf-8')
+    files['structure-validation.json']=(json.dumps(structure_review,ensure_ascii=False,indent=2)+'\n').encode('utf-8')
     manifest={'version':1,'presentation_sha256':digest,'render_evidence_matched':rendering is not None,
-              'content_status':content_review['status'],
+              'content_status':content_review['status'],'structure_status':structure_status,
               'manual_content_and_visual_review':'Content review is an Agent/human attestation, not independently established by this tool',
               'files':{n:sha(b) for n,b in files.items()}}
     files['delivery-manifest.json']=(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n').encode('utf-8')
@@ -104,10 +127,11 @@ def main():
     parser.add_argument('--preview-directory',type=Path)
     parser.add_argument('--draft',action='store_true',help='Explicitly deliver an unreviewed draft')
     parser.add_argument('--content-input',type=Path,help='Re-reviewed source input bound to an edited PPTX SHA256')
+    parser.add_argument('--rhythm-review',type=Path,help='Separate review of repeated structures bound to the final PPTX SHA256')
     parser.add_argument('--public',action='store_true',help='Block pattern-based privacy indicators; does not publish or clear licences')
     args=parser.parse_args()
-    try:result=prepare(args.pptx,args.output_directory,args.preview_directory,public=args.public,draft=args.draft,content_input=args.content_input)
-    except (OSError,ValueError,KeyError,TypeError) as exc:
+    try:result=prepare(args.pptx,args.output_directory,args.preview_directory,public=args.public,draft=args.draft,content_input=args.content_input,rhythm_review=args.rhythm_review)
+    except (OSError,ValueError,KeyError,TypeError,zipfile.BadZipFile,E.ParseError) as exc:
         print(json.dumps({'ok':False,'error':str(exc)},ensure_ascii=False));return 1
     print(json.dumps(result,ensure_ascii=False,indent=2));return 0
 

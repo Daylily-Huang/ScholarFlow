@@ -638,10 +638,18 @@ def generate(document,output,*,force=False,font_profile='portable',base_dir=None
         data=img_p.read_bytes()
         require(data.startswith(b'\x89PNG\r\n\x1a\n'),'Replacement illustrations must be PNG')
         if target in parts:parts[target]=data
+    structure_status=None
     if content is not None:content.attach(parts,document,content_report,draft=draft)
+    # Structure declarations are checked against the geometry actually written, not the plan.
+    if document['demo'] is False or 'content_plan' in document or any(p.get('structure') or p.get('task') for p in document['slides']):
+        spec_structure=importlib.util.spec_from_file_location('research_ppt_structure',ROOT/'scripts/structure_audit.py')
+        structure=importlib.util.module_from_spec(spec_structure);spec_structure.loader.exec_module(structure)
+        # Passing the written parts makes the plan/actual comparison real, not declarative.
+        structure_status=structure.attach(parts,document,structure.inspect(document,parts),draft=draft)
     payload=zipbytes(parts)
     atomic_write(output,payload,force=force)
     result={'slides':len(newslides),'charts':counters['chart'],'sha256':hashlib.sha256(payload).hexdigest(),'font_profile':font_profile,'output':str(output)}
+    if structure_status is not None:result['structure_status']=structure_status
     if content is not None:result['content_status']='draft' if draft else 'reviewed'
     return result
 

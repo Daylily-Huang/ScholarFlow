@@ -144,8 +144,11 @@ def inspect(document, base_dir=None):
     for title, indices in titles.items():
         if len(indices)>1:
             warning('slides', 'duplicate_title', '重复标题位于页：'+', '.join(str(i+1) for i in indices))
+    import importlib.util
+    spec_structure=importlib.util.spec_from_file_location('structure_preflight',ROOT/'scripts/structure_audit.py')
+    structure=importlib.util.module_from_spec(spec_structure);spec_structure.loader.exec_module(structure)
+    issues.extend(structure.inspect(document)['issues'])
     if document.get('demo') is False or 'content_plan' in document:
-        import importlib.util
         spec=importlib.util.spec_from_file_location('content_preflight',ROOT/'scripts/content_audit.py')
         content=importlib.util.module_from_spec(spec);spec.loader.exec_module(content)
         issues.extend(content.inspect(document,base_dir)['issues'])

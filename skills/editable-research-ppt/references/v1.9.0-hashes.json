@@ -1,0 +1,26 @@
+{
+  "version": "1.9.0",
+  "date": "2026-11-05",
+  "note": "Generic per-page structure and measured rhythm checks for formal handoff.",
+  "sha256": {
+    "SKILL.md": "2033aea11656421a665fe0d5dff0c76057068262442f1157442501725b936c8f",
+    "README.md": "de0b69da21a6a70acf4bc4aba921858948b797b71b2b707741b0943dcd60254f",
+    "assets/template-system.json": "dfd625174e87fb45864385c5b13fdd116a002cda88e9a6bed33b3756dbe1facd",
+    "assets/examples/native-composition.json": "f06721a65b17f0c61c499911432e7e2728f6ad457b84efe005a31b15d7c82128",
+    "assets/examples/figures/composition-notes.txt": "9aaa8b8fd30c44dc33ae28688738f882c0bd6cfda15079a5036e104946c4baa3",
+    "references/approved-standard.json": "e0af3d7bf7c068732a07872dded115e71c959211a54384c74aa8098ed9a574b2",
+    "references/design-contract.json": "90f96b4edbc43f6ce7d5f8034e97042f550ada70f1f44328343799f465a1e6a7",
+    "references/content-review.md": "e50f8caa49c3d92195e1adbf1f9fb435a590eba7e23c66ad59a4e35dfde24025",
+    "scripts/generate.py": "39e20c290c9d50f3c961057fc04f50690d75f205cc2d6b62c155828cb1fde88c",
+    "scripts/content_audit.py": "2cab8188af712ecce32e01c974c731a2689620ac158760b72a86692128f5c141",
+    "scripts/preflight.py": "270aecccb34c6266464f2ab5392551f32025a83b5a8aff511d3169826f10f4ba",
+    "scripts/prepare_handoff.py": "666a9df980ccfa07d36b386043b8bf62b7acde1dcd56de13d2791c90d0c1207d",
+    "scripts/export_project.py": "1ccc744d0a9e73e8d9ae6712bcc125e548ccafec482acf83243f9473ff5d1448",
+    "tests/test_content.py": "215de7dfe5319bbd271b039b72a1232b58638fdab584e5ab27c49e5700afd361",
+    "scripts/structure_audit.py": "c807ac445ba58e44f51c7d8cb2bebd56fd93cb6c137a43ead5ab738272fa9ffc",
+    "scripts/deck_inspect.py": "eff13cfcdabbd7ef2336b516457a4c6d1b6d70a0fa52ff54cf2df5d41d8f514f",
+    "scripts/refresh_release.py": "9dbbd47b0d6028133ab2b9e0facccc51af555c04eb0cc2113ba7ab17537a1277",
+    "tests/test_structure.py": "15fd9fceff6dfe2908352d328c5b5168bb4c73921ea0a86335e97d7898d3b13f",
+    "references/structure-review.md": "08e1fab20193a8655323da2e584822d98dfc82e7138cd85220e9701f2efcd64f"
+  }
+}

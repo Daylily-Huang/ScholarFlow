@@ -13,6 +13,7 @@ import shutil
 
 ROOT=Path(__file__).resolve().parents[1]
 RUNTIME=['scripts/generate.py','scripts/fill_styles.py','scripts/evidence_layouts.py','scripts/content_audit.py',
+         'scripts/structure_audit.py','scripts/deck_inspect.py',
          'scripts/compact_layouts.py','assets/templates/compact-library.pptx','assets/templates/compact-bindings.json',
          'assets/icons/lucide/LICENSE.txt',
          'assets/template-system.json','assets/templates/library.pptx','assets/templates/bindings.json',
@@ -45,6 +46,12 @@ def export(input_path,output,*,base_dir=None,font_profile='portable',draft=False
     document=copy.deepcopy(document);files={};assets=[]
     spec=importlib.util.spec_from_file_location('source_content',ROOT/'scripts/content_audit.py')
     content=importlib.util.module_from_spec(spec);spec.loader.exec_module(content)
+    if not draft:
+        spec=importlib.util.spec_from_file_location('export_structure',ROOT/'scripts/structure_audit.py')
+        structure=importlib.util.module_from_spec(spec);spec.loader.exec_module(structure)
+        report=structure.inspect(document)
+        if not report['ok']:
+            raise ValueError('Structure check failed before export: '+json.dumps(report['issues'],ensure_ascii=False))
     if not draft and (document.get('demo') is False or 'content_plan' in document):
         checked=content.inspect(document,base)
         if not checked['ok']:raise ValueError('Content review failed before source export: '+json.dumps(checked['issues'],ensure_ascii=False))

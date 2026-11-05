@@ -166,7 +166,9 @@
           "size": 14,
           "color": "secondary"
         }
-      ]
+      ],
+      "task": "Explain the synthetic evidence and its provenance",
+      "structure": "image_led"
     }
   ],
   "materials": {
@@ -417,7 +419,7 @@
       "scope": "all_visible_substantive_content",
       "reviewer": "ScholarFlow synthetic fixture review",
       "note": "仅核对随包合成排版文字与示例说明；没有真实科研结果或独立科学认证",
-      "slides_sha256": "164a0370457fed6494683e5a4ecd3e8cdd85f532c8bd48f71161c07615031660"
+      "slides_sha256": "29b803a2c648dd453f39afafb590fe2e0fd30caca91d7c28d87137815f87cd2b"
     }
   }
 }

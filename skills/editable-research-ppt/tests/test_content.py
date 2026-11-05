@@ -23,6 +23,8 @@ class ContentTests(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory(dir=os.environ.get('PPT_TEST_TMP'));self.folder=Path(self.tmp.name)
         self.doc=g.load(ROOT/'assets/examples/all-layouts.json');page=copy.deepcopy(self.doc['slides'][2])
+        # Formal decks declare what each page is for and how it is drawn; L3 draws charts.
+        page.update(task='Synthetic content fixture',structure='chart')
         self.doc.update(demo=False,materials={'papers':[]},slides=[page],fill_style='solid',visual_mode='adaptive')
         self.plan(self.doc)
     def tearDown(self):self.tmp.cleanup()
@@ -163,6 +165,48 @@ class ContentTests(unittest.TestCase):
         handoff.prepare(p,self.folder/'reviewed edited',content_input=source)
         self.doc['slides'][0]['title']='Not on actual deck';self.doc['content_plan']['claims'][0]['text']=self.doc['slides'][0]['title'];self.refresh()
         with self.assertRaisesRegex(ValueError,'claim missing'):c.check_edited(self.doc,self.folder,p)
+    def test_formal_input_cannot_use_advisory_or_skip_structure(self):
+        p=self.folder/'advisory.pptx'
+        self.doc['structure_check']='advisory'
+        with self.assertRaisesRegex(ValueError,'advisory_formal'):
+            g.generate(self.doc,p,base_dir=self.folder)
+        self.assertFalse(p.exists())
+        self.doc.pop('structure_check')
+        self.doc['slides'][0].pop('task')
+        self.doc['slides'][0].pop('structure')
+        self.refresh()
+        with self.assertRaisesRegex(ValueError,'structure_undeclared'):
+            g.generate(self.doc,p,base_dir=self.folder)
+        self.assertFalse(p.exists())
+
+    def test_repeated_formal_pages_require_matching_exception_review(self):
+        self.doc['slides']=[copy.deepcopy(self.doc['slides'][0]) for _ in range(3)]
+        for i,page in enumerate(self.doc['slides'],1):
+            page['title']=f'Analysis step {i}'
+        self.doc['slides'][0]['rhythm_exception']='The three plots share axes for direct comparison of the same series.'
+        self.plan(self.doc)
+        p=self.folder/'exception.pptx'
+        self.assertEqual(g.generate(self.doc,p,base_dir=self.folder)['structure_status'],'review_required')
+        structure=handoff.module('structure_audit')
+        with self.assertRaisesRegex(ValueError,'separate rhythm review'):
+            handoff.prepare(p,self.folder/'no-review')
+        self.assertFalse((self.folder/'no-review').exists())
+        review=structure.check_pptx(p)
+        accepted=[{k:r[k] for k in ('start','end','structure','reason')} for r in review['runs']]
+        decision=self.folder/'rhythm.json'
+        data=dict(pptx_sha256='0'*64,reviewer='Fixture reviewer',note='Axes and comparisons verified',accepted_runs=accepted)
+        decision.write_text(json.dumps(data),encoding='utf-8')
+        with self.assertRaisesRegex(ValueError,'separate rhythm review'):
+            handoff.prepare(p,self.folder/'stale-review',rhythm_review=decision)
+        data['pptx_sha256']=hashlib.sha256(p.read_bytes()).hexdigest()
+        decision.write_text(json.dumps(data),encoding='utf-8')
+        out=self.folder/'approved-review'
+        handoff.prepare(p,out,rhythm_review=decision)
+        delivered=json.loads((out/'structure-validation.json').read_bytes())
+        self.assertEqual(delivered['status'],'confirmed')
+        self.assertEqual(delivered['rhythm_review'],data)
+        self.assertEqual(len(delivered['actual']),3)
+
     def test_portable_source_copies_only_referenced_extracts_and_enforces_review_after_edits(self):
         source=self.folder/'input.json';source.write_text(json.dumps(self.doc),encoding='utf-8');(self.folder/'private-unreferenced.txt').write_text('private',encoding='utf-8')
         project=self.folder/'portable';exporter.export(source,project)

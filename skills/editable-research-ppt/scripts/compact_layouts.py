@@ -42,7 +42,9 @@ def fit_text(shape, text, g, label):
 def append(page, document, index, parts, overrides, counters, system, g):
     """Clone one selected seed graph into the shared package, preserving geometry."""
     seed = definition(page)
-    allowed = {'layout','variant','title','texts','charts','table','sources','notes','palette','fill_style','visual_mode','emphasis'}
+    # task/structure/rhythm_exception are declarations about the page, not template fields.
+    allowed = {'layout','variant','title','texts','charts','table','sources','notes','palette','fill_style',
+               'visual_mode','emphasis','task','structure','rhythm_exception'}
     check(not (set(page) - allowed), 'Compact layout: unsupported fields ' + ', '.join(sorted(set(page) - allowed)) + '; use L15-L18 for original figures/composition or bilingual layouts for title_translation')
     check(isinstance(page.get('title'), str) and page['title'].strip(), 'Compact title is required')
     check(isinstance(page.get('sources'), list) and page['sources'] and all(isinstance(s,str) and s.strip() for s in page['sources']), 'Every compact page needs nonempty sources')

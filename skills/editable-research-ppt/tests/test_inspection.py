@@ -92,11 +92,11 @@ class InspectionTests(unittest.TestCase):
         with self.assertRaises(FileExistsError):handoff.prepare(self.source,out,draft=True)
     def test_delivery_preview_hashes_and_page_order(self):
         preview=self.folder/'preview';preview.mkdir()
-        png=b'\x89PNG\r\n\x1a\nTEST ONLY'
+        def png_for(i):return b'\x89PNG\r\n\x1a\nTEST ONLY '+str(i).encode()
         pages=[]
         for i in [1,2]:
-            name=f'slide-{i:02d}.png';(preview/name).write_bytes(png)
-            pages.append({'slide':i,'preview_file':name,'preview_sha256':handoff.sha(png)})
+            name=f'slide-{i:02d}.png';(preview/name).write_bytes(png_for(i))
+            pages.append({'slide':i,'preview_file':name,'preview_sha256':handoff.sha(png_for(i))})
         report=dict(source='PRIVATE LOCAL SOURCE',source_sha256=handoff.sha(self.source.read_bytes()),quality_ok=True,source_unchanged=True,slides=pages)
         path=preview/'powerpoint-validation.json';path.write_text(json.dumps(report),encoding='utf-8')
         good=self.folder/'with-preview';self.assertTrue(handoff.prepare(self.source,good,preview,draft=True)['render_evidence_matched'])
@@ -105,10 +105,17 @@ class InspectionTests(unittest.TestCase):
         bad=self.folder/'bad-preview'
         with self.assertRaisesRegex(ValueError,'Preview bytes'):handoff.prepare(self.source,bad,preview,draft=True)
         self.assertFalse(bad.exists())
-        (preview/'slide-01.png').write_bytes(png);report['source_sha256']='0'*64;path.write_text(json.dumps(report),encoding='utf-8')
+        (preview/'slide-01.png').write_bytes(png_for(1));report['source_sha256']='0'*64;path.write_text(json.dumps(report),encoding='utf-8')
         with self.assertRaisesRegex(ValueError,'exact PPTX'):handoff.prepare(self.source,bad,preview,draft=True)
         report['source_sha256']=handoff.sha(self.source.read_bytes());report['slides'].reverse();path.write_text(json.dumps(report),encoding='utf-8')
         with self.assertRaisesRegex(ValueError,'page order'):handoff.prepare(self.source,bad,preview,draft=True)
+        # Copying one rendering across every page must not pass as a page-by-page preview.
+        shared=b'\x89PNG\r\n\x1a\nSAME PAGE'
+        for i in [1,2]:
+            (preview/f'slide-{i:02d}.png').write_bytes(shared);pages[i-1]['preview_sha256']=handoff.sha(shared)
+        report['slides'].reverse();path.write_text(json.dumps(report),encoding='utf-8')
+        with self.assertRaisesRegex(ValueError,'byte-identical'):handoff.prepare(self.source,self.folder/'copy-preview',preview,draft=True)
+        self.assertFalse((self.folder/'copy-preview').exists())
     def test_failed_delivery_write_cleans_only_new_owned_directory(self):
         out=self.folder/'failed';original=Path.open
         def fail(path,*args,**kwargs):
