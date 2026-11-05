@@ -207,6 +207,50 @@ class ContentTests(unittest.TestCase):
         self.assertEqual(delivered['rhythm_review'],data)
         self.assertEqual(len(delivered['actual']),3)
 
+    def test_renamed_objects_cannot_hide_the_same_three_card_pages(self):
+        pages=[]
+        for i,(layout,structure) in enumerate(zip(('L15','L16','L18'),('cards','comparison','cards')),1):
+            title=f'Synthetic card page {i}'
+            composition=[dict(kind='text',name='page-title',text=title,box=[32,20,1216,58],size=42,bold=True)]
+            for n,x in enumerate((62,482,902),1):
+                name=f'plate-{n}' if i==2 else f'panel-{n}'
+                composition.append(dict(kind='shape',name=name,box=[x,150,316,280],fill='primary'))
+                composition.append(dict(kind='text',name=f'item-{n}',text=f'Item {n}',box=[x+20,235,276,46],size=28))
+            pages.append(dict(layout=layout,title=title,task='Summarize items',structure=structure,
+                              sources=['Synthetic fixture'],composition=composition))
+        self.doc['slides']=pages
+        self.plan(self.doc)
+        target=self.folder/'same-cards.pptx'
+        with self.assertRaisesRegex(ValueError,r'repetitive_structure.*measured'):
+            g.generate(self.doc,target,base_dir=self.folder)
+        self.assertFalse(target.exists())
+        g.generate(self.doc,target,base_dir=self.folder,draft=True)
+        with self.assertRaisesRegex(ValueError,'draft'):
+            handoff.prepare(target,self.folder/'blocked')
+        self.assertFalse((self.folder/'blocked').exists())
+
+    def test_hand_edited_cover_notes_do_not_change_navigation_geometry(self):
+        cover=copy.deepcopy(g.load(ROOT/'assets/examples/all-layouts.json')['slides'][4])
+        cover.update(task='Introduce the topic',structure='cover')
+        self.doc['slides'].insert(0,cover)
+        self.plan(self.doc)
+        target=self.folder/'navigation.pptx'
+        g.generate(self.doc,target,base_dir=self.folder)
+        with zipfile.ZipFile(target) as z:parts={n:z.read(n) for n in z.namelist()}
+        notes=next(n for n,b in parts.items() if n.startswith('ppt/notesSlides/') and b'Layout: L5' in b)
+        parts[notes]=parts[notes].replace(b'Layout: L5',b'Updated speaker notes')
+        target.write_bytes(g.zipbytes(parts))
+        with self.assertRaisesRegex(ValueError,'stale'):
+            handoff.prepare(target,self.folder/'stale-navigation')
+        self.doc['content_plan']['review']['pptx_sha256']=hashlib.sha256(target.read_bytes()).hexdigest()
+        source=self.folder/'reviewed.json'
+        source.write_text(json.dumps(self.doc),encoding='utf-8')
+        out=self.folder/'updated-navigation'
+        handoff.prepare(target,out,content_input=source)
+        review=json.loads((out/'structure-validation.json').read_bytes())
+        self.assertEqual(review['actual'][0]['navigation_layout'],'L5')
+        self.assertEqual((out/'presentation.pptx').read_bytes(),target.read_bytes())
+
     def test_portable_source_copies_only_referenced_extracts_and_enforces_review_after_edits(self):
         source=self.folder/'input.json';source.write_text(json.dumps(self.doc),encoding='utf-8');(self.folder/'private-unreferenced.txt').write_text('private',encoding='utf-8')
         project=self.folder/'portable';exporter.export(source,project)

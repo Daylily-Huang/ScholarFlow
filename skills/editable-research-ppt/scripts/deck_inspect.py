@@ -112,18 +112,60 @@ def signature(pictures,picture_area,image_share,largest_share,tables,charts,text
         len(pictures),image_share,largest_share,tables,charts,text_boxes,rows,cols,font)
 
 
-def shape_name(node):
-    return next((element.get('name', '') for element in node.iter()
-                 if element.tag == q('p', 'cNvPr')), '')
+def contains_center(outer,inner):
+    x,y,w,h=outer
+    ix,iy,iw,ih=inner
+    return x <= ix+iw/2 <= x+w and y <= iy+ih/2 <= y+h
 
 
-def matrix_grid(cells):
-    """Recognize aligned cell shapes, including a header and one body row."""
-    rows = {}
-    for x, y, w, h in cells:
-        rows.setdefault(round(y), []).append((round(x), round(w)))
-    columns = [tuple(sorted(set(row))) for row in rows.values()]
-    return len(columns) >= 2 and len(columns[0]) >= 4 and len(set(columns)) == 1
+def panel_count(rectangles,texts,canvas):
+    """Count distinct text-bearing regions from visible shapes, regardless of their names."""
+    candidates=[b for b in rectangles if .035*canvas<=b[2]*b[3]<=.35*canvas
+                and any(contains_center(b,txt) for txt in texts)]
+    independent=[]
+    for box in sorted(candidates,key=lambda b:b[2]*b[3],reverse=True):
+        if not any(contains_center(other,box) or contains_center(box,other) for other in independent):
+            independent.append(box)
+    return len(independent)
+
+
+def matrix_grid(rectangles,texts):
+    """Find two contiguous rows of aligned, text-bearing cells."""
+    rows={}
+    for box in rectangles:
+        x,y,w,h=box
+        if w>=40 and h>=25 and any(contains_center(box,txt) for txt in texts):
+            rows.setdefault(round(y),[]).append((round(x),round(w),round(h)))
+    signatures={}
+    for y,cells in sorted(rows.items()):
+        cells=sorted(set(cells))
+        if len(cells)<4 or any(abs(x+w-nx)>2 for (x,w,_),(nx,_,_) in zip(cells,cells[1:])):
+            continue
+        columns=tuple((x,w) for x,w,_ in cells)
+        if columns in signatures and abs(signatures[columns]-y)<=2:
+            return True
+        signatures[columns]=y+max(h for _,_,h in cells)
+    return False
+
+
+# Text anchors from the approved navigation layouts. A tolerance accommodates
+# the two fills and their adaptive title frames, and small PowerPoint edits.
+NAVIGATION_ANCHORS={
+    'L5':((38,76,620,30),(40,184,616,193)),
+    'L6':((30,80,190,90),(40,177,174,32),(300,125,48,48)),
+    'L7':((36,60,275,150),(39,230,605,168)),
+    'L14':((48,117,560,233),(48,432,568,71)),
+}
+
+
+def navigation_layout(texts,tables,charts):
+    if tables or charts:
+        return None
+    for layout,anchors in NAVIGATION_ANCHORS.items():
+        if all(any(all(abs(expected-actual)<=tol for expected,actual,tol in
+                       zip(anchor,box,(24,24,55,18))) for box in texts) for anchor in anchors):
+            return layout
+    return None
 
 
 def slide_metrics(index,root):
@@ -132,26 +174,25 @@ def slide_metrics(index,root):
     collect(tree if tree is not None else root,(1.0,0.0,1.0,0.0),shapes)
     canvas=CANVAS[0]*CANVAS[1]
     pictures=[];tables=charts=0;texts=[]
-    cells=[]; arrows=lanes=nodes=panels=0
+    rectangles=[]; nodes=[]; arrows=0
     for node,affine in shapes:
         tag=node.tag.rsplit('}',1)[-1]
         box=box_of(node,affine)
         if box is not None:
-            name = shape_name(node)
             x,y,w,h = box
             visible = max(0,min(x+w,CANVAS[0])-max(x,0))*max(0,min(y+h,CANVAS[1])-max(y,0))
             if tag=='pic' and visible >= canvas*.025:
                 pictures.append({'box':box,'area':round(visible,1)})
-            if tag=='sp' and visible > 0:
-                if name.startswith('matrix-cell-') and not has_text(node) and w>=40 and h>=25:
-                    cells.append(box)
-                if name.startswith('timeline-lane-') and w>=600 and h>=45:lanes+=1
-                if name.startswith('time-node-'):nodes+=1
-                if name.startswith('panel-') and 0.035*canvas<=visible<=0.35*canvas:panels+=1
-            if 80<=y<=640 and 0<=x<=1248:
-                geometry=node.find('p:spPr/a:prstGeom',NS)
-                if (tag=='cxnSp' or (geometry is not None and 'arrow' in geometry.get('prst','').lower())) and max(w,h)>=12:
-                    arrows+=1
+            geometry=node.find('p:spPr/a:prstGeom',NS)
+            preset=geometry.get('prst','') if geometry is not None else ''
+            if tag=='sp' and visible>0 and not has_text(node):
+                if preset in {'rect','roundRect'} and node.find('p:spPr/a:solidFill',NS) is not None:
+                    rectangles.append(box)
+                elif preset=='ellipse' and 6<=w<=30 and 6<=h<=30:
+                    nodes.append(box)
+            if (80<=y<=640 and 0<=x<=1248 and max(w,h)>=12 and
+                    (tag=='cxnSp' or 'arrow' in preset.lower())):
+                arrows+=1
         if tag=='graphicFrame' and box is not None and visible>=canvas*.01:
             if node.find('.//a:tbl',NS) is not None:tables+=1
             data=node.find('.//a:graphicData',NS)
@@ -162,14 +203,17 @@ def slide_metrics(index,root):
     image_share=round(picture_area/canvas,3)
     largest=round(max([p['area'] for p in pictures] or [0.0])/canvas,3)
     placed=[t for t in texts if t is not None]
+    lanes=sum(1 for box in rectangles if box[2]>=600 and box[3]>=45 and
+              sum(contains_center(box,node) for node in nodes)>=2)
     rows=clusters([t[1]+t[3]/2 for t in placed])
     cols=clusters([t[0]+t[2]/2 for t in placed])
     font=min_font_px(root)
     return {'slide':index,'pictures':pictures,'picture_area':picture_area,'image_share':image_share,
             'largest_picture_share':largest,'tables':tables,'charts':charts,'text_boxes':len(texts),
             'text_rows':rows,'text_columns':cols,'min_font_px':font,
-            'matrix_grid':matrix_grid(cells),'process_geometry':arrows>=2 or (lanes>=2 and nodes>=4),
-            'connectors':arrows,'panels':panels,
+            'matrix_grid':matrix_grid(rectangles,placed),'process_geometry':arrows>=2 or lanes>=2,
+            'connectors':arrows,'panels':panel_count(rectangles,placed,canvas),
+            'navigation_layout':navigation_layout(placed,tables,charts),
             'signature':signature(pictures,picture_area,image_share,largest,tables,charts,len(texts),rows,cols,font)}
 
 
@@ -186,17 +230,7 @@ def structure_from_parts(parts):
         if target is None:raise ValueError('Slide '+str(index)+' has no internal slide relationship')
         part=resolve('ppt/presentation.xml',target)
         if part not in parts:raise ValueError('Missing slide part '+part)
-        metrics=slide_metrics(index,E.fromstring(parts[part]))
-        note_targets=[resolve(part,value) for value in relations(parts,part).values()]
-        notes=next((parts[name] for name in note_targets if name.startswith('ppt/notesSlides/') and name in parts), None)
-        metrics['generated_layout']=None
-        if notes is not None:
-            for paragraph in E.fromstring(notes).findall('.//a:p',NS):
-                value=''.join(el.text or '' for el in paragraph.findall('.//a:t',NS))
-                if value.startswith('Layout: '):
-                    metrics['generated_layout']=value.removeprefix('Layout: ').strip()
-                    break
-        result.append(metrics)
+        result.append(slide_metrics(index,E.fromstring(parts[part])))
     return result
 
 

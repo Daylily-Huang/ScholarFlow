@@ -76,7 +76,7 @@ def failures(declared,m):
         reasons.append('declared data but the page has no table, chart or aligned matrix cells')
     if declared=='chart' and m['charts']<1:
         reasons.append('declared chart but the page has no native chart')
-    if declared=='cards' and (m['text_boxes']<3 or m['structure'] in {'image_led','data'}):
+    if declared=='cards' and (m['structure']!='cards' and (m['panels']<3 or m['structure'] in {'image_led','data'})):
         reasons.append('declared cards but the measured page is %s with %d text blocks'%(m['structure'],m['text_boxes']))
     if declared=='process' and not m['process_geometry']:
         reasons.append('declared process but the page has no measured links or timeline lanes')
@@ -167,11 +167,11 @@ def inspect(document,parts=None):
         series['measured']=[]
         for i,(page,label,m) in enumerate(zip(pages,named,actual)):
             is_navigation=(label in NAVIGATION and isinstance(page,dict) and
-                           m['generated_layout']==page.get('layout') and FIXED.get(m['generated_layout'])==label)
+                           m['navigation_layout']==page.get('layout') and FIXED.get(m['navigation_layout'])==label)
             series['measured'].append(label if is_navigation else m['structure'])
             reasons=failures(label,m)
             if label in NAVIGATION and not is_navigation:
-                reasons.append('the saved page does not carry the corresponding generated navigation layout')
+                reasons.append('the saved page does not match the approved navigation geometry')
             for reason in reasons:
                 issue('warning' if advisory and not formal else 'error',f'slides[{i}].structure',
                       'plan_actual_mismatch',f'第 {i+1} 页：{reason}')
@@ -221,7 +221,7 @@ def describe(report,parts=None,document=None):
     if actual is None:
         actual=measure(parts) if parts is not None else []
     metrics=('slide','structure','image_share','largest_picture_share','tables','charts',
-             'text_boxes','text_rows','text_columns','matrix_grid','process_geometry','generated_layout')
+             'text_boxes','text_rows','text_columns','matrix_grid','process_geometry','navigation_layout')
     return {'version':VERSION,'status':report['status'],'plan':plan(document) if document is not None else [],
             'actual':[{key:m[key] for key in metrics} for m in actual],
             'issues':report['issues'],'runs':report['runs'],

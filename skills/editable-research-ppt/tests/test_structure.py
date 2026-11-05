@@ -129,6 +129,9 @@ class StructureTests(unittest.TestCase):
         handoff.prepare(draft,self.out/'draft delivery',draft=True)
         manifest=json.loads((self.out/'draft delivery/delivery-manifest.json').read_text(encoding='utf-8'))
         self.assertEqual(manifest['structure_status'],'draft')
+        guide=next((self.out/'draft delivery').glob('*.md')).read_text(encoding='utf-8')
+        self.assertIn('验证状态：待审稿',guide)
+        self.assertNotIn('结构检查通过',guide)
         self.assertTrue((self.out/'draft delivery/structure-validation.json').is_file())
         # A draft still shows what was planned and what was measured, so the reviewer sees the gap.
         review=json.loads((self.out/'draft delivery/structure-validation.json').read_text(encoding='utf-8'))

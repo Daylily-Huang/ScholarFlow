@@ -79,7 +79,8 @@ def prepare(pptx,output,preview_dir=None,*,public=False,draft=False,content_inpu
         # Do not copy machine-local source paths from the rendering log.
         rendering=dict(rendering);rendering['source']='presentation.pptx'
         files['render-validation.json']=(json.dumps(rendering,ensure_ascii=False,indent=2)+'\n').encode('utf-8')
-    status='结构检查通过；附与本稿哈希一致的PowerPoint渲染记录，仍需人工核对内容和视觉。' if rendering else '结构检查通过；未附本稿实机渲染记录，视觉未验证。'
+    visual='附与本稿哈希一致的PowerPoint渲染记录，仍需逐页核对视觉。' if rendering else '未附本稿实机渲染记录，视觉未验证。'
+    status=('待审稿。' if draft else '内容与结构检查已完成。')+visual
     instructions=f'''# 使用与编辑
 
 打开 presentation.pptx。预览如存在，位于previews文件夹。

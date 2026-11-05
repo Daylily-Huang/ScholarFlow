@@ -19,7 +19,7 @@
     "scripts/audit_media.py": "6df5948064e8e6510c3c591d89d83f81dc682ecb21092de87ef4fd74d0239975",
     "scripts/preflight.py": "270aecccb34c6266464f2ab5392551f32025a83b5a8aff511d3169826f10f4ba",
     "scripts/inspect_deck.py": "c7953851425e37e94acef96c48e1f0ee30a9abb3e9c2acee5ef8e96f87b80f86",
-    "scripts/prepare_handoff.py": "666a9df980ccfa07d36b386043b8bf62b7acde1dcd56de13d2791c90d0c1207d",
+    "scripts/prepare_handoff.py": "d5a989e9deae86400e1f91bda9d45a5f97691dedaa94565949ac01bbf09d92d1",
     "scripts/render_powerpoint.ps1": "a2f871a777be5db16fa5be78bfce35bcfe4b4a4f0c4714badeb62044c54d45ac",
     "scripts/check_environment.py": "96e25f2471b426a57dc4349f5bd51e9662c5225466181e4f59af93147ac9da91",
     "scripts/compact_layouts.py": "7c2dd062e2acacc5c487810cba90f9d78a330e6c13a4af28b073599b27d17b42",

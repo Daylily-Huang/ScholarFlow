@@ -602,10 +602,10 @@
     "assets/templates/bindings.json": "a784832d40efc3857cd56166302b3bc06c8fa3f6fac3319e20917c0d5b1771e0",
     "scripts/content_audit.py": "2cab8188af712ecce32e01c974c731a2689620ac158760b72a86692128f5c141",
     "scripts/preflight.py": "270aecccb34c6266464f2ab5392551f32025a83b5a8aff511d3169826f10f4ba",
-    "scripts/prepare_handoff.py": "666a9df980ccfa07d36b386043b8bf62b7acde1dcd56de13d2791c90d0c1207d",
+    "scripts/prepare_handoff.py": "d5a989e9deae86400e1f91bda9d45a5f97691dedaa94565949ac01bbf09d92d1",
     "scripts/export_project.py": "1ccc744d0a9e73e8d9ae6712bcc125e548ccafec482acf83243f9473ff5d1448",
-    "scripts/structure_audit.py": "c807ac445ba58e44f51c7d8cb2bebd56fd93cb6c137a43ead5ab738272fa9ffc",
-    "scripts/deck_inspect.py": "eff13cfcdabbd7ef2336b516457a4c6d1b6d70a0fa52ff54cf2df5d41d8f514f"
+    "scripts/structure_audit.py": "63539eabda3cccb7539c00d0d4fa82d2a25b35fbdb7a42e23c36b1b57667a6a6",
+    "scripts/deck_inspect.py": "6a08ace8b6bd61774b5e9ff173b55a651fe8a8a2c9009df8a8bd4a6970d1a9cb"
   },
   "template_structure": {
     "assets/templates/library.pptx": {
